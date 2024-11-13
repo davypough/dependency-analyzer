@@ -154,21 +154,26 @@
                              :package (package-name pkg))))
          (analyze-body parser (cdr form)))))))
 
+(defmethod analyze-subform ((parser file-parser) form)
+  "Analyze a single form for symbol references."
+  (typecase form
+    (symbol 
+     (unless (or (member form '(nil t))
+                 (eq (symbol-package form) 
+                     (find-package :common-lisp)))
+       (let ((pkg (symbol-package form)))
+         (record-reference *current-tracker* form
+                          :reference
+                          (file parser)
+                          :package (package-name pkg)))))
+    (cons
+     (analyze-form parser form))))
+
 (defmethod analyze-body ((parser file-parser) body)
   "Analyze a body of code for symbol references."
-  (labels ((analyze-subform (form)
-             (typecase form
-               (symbol 
-                (unless (or (member form '(nil t))
-                          (eq (symbol-package form) 
-                              (find-package :common-lisp)))
-                  (record-reference form
-                                  :reference
-                                  (file parser)
-                                  :package (package-name (symbol-package form)))))
-               (cons
-                (analyze-form parser form)))))
-    (mapc #'analyze-subform body)))
+  (mapc (lambda (form)
+          (analyze-subform parser form))
+        body))
 
 (defmethod record-macro-body-symbols ((parser file-parser) macro-name body)
   "Record all non-CL symbols in a macro body as potential dependencies."

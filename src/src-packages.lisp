@@ -11,9 +11,10 @@
   (:use #:cl #:alexandria #:trivia)
   (:nicknames #:dep)
   (:export #:analyze-system
+           #:analyze-directory
            #:analyze-file
-           #:generate-report  ; This was exported
-           #:report          ; Need to add this export
+           #:generate-report
+           #:report
            ;; Classes
            #:dependency-tracker
            #:system-parser

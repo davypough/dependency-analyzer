@@ -123,3 +123,44 @@
       (let ((parser (make-instance 'system-parser :system system)))
         (parse-system parser)
         *current-tracker*))))
+
+
+(defun analyze-directory (directory &optional (filespecs '("*.lisp")))
+  "Analyze source files in a directory structure and its subdirectories.
+   DIRECTORY - The root directory to analyze
+   FILESPECS - Optional file patterns to match (default: '(\"*.lisp\"))
+               Can be a single string pattern or list of patterns
+   Returns the dependency tracker containing the analysis results.
+   Example: (analyze-directory #P\"/path/to/project/\")
+            (analyze-directory #P\"/path/to/project/\" '(\"*.lisp\" \"*.cl\" \"*.lsp\"))"
+  (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                         :system-name (format nil "DIR:~A" directory)))
+    (labels ((collect-files-for-pattern (dir pattern)
+               (let ((files nil))
+                 ;; Get matching files in current directory
+                 (dolist (file (directory (merge-pathnames pattern dir)))
+                   (when (probe-file file)
+                     (push file files)))
+                 ;; Always process subdirectories
+                 (dolist (subdir (directory (merge-pathnames "*.*" dir)))
+                   (when (and (probe-file subdir)
+                            (directory-pathname-p subdir))
+                     (setf files (nconc files (collect-files-for-pattern subdir pattern)))))
+                 files))
+             (collect-all-files (dir patterns)
+               (let ((files nil))
+                 (dolist (pattern (if (listp patterns) patterns (list patterns)))
+                   (setf files (nunion files 
+                                     (collect-files-for-pattern dir pattern)
+                                     :test #'equal)))
+                 files)))
+      ;; Collect all matching files
+      (let ((files (collect-all-files (pathname directory) filespecs)))
+        ;; Parse each file
+        (dolist (file files)
+          (handler-case
+              (let ((file-parser (make-instance 'file-parser :file file)))
+                (parse-file file-parser))
+            (error (e)
+              (warn "Error parsing file ~A: ~A" file e))))
+        *current-tracker*))))

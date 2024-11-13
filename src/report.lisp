@@ -180,3 +180,41 @@
                           :test 'equal)))))
              (slot-value tracker 'package-uses))
     result))
+
+
+(defun report (&optional filename)
+  "Generate a comprehensive dependency report for the current system analysis.
+   If FILENAME is provided, saves the report to that file."
+  (unless *current-tracker*
+    (error "No analysis results available. Please run (dep:analyze-system \"system-name\") first."))
+  (flet ((generate-all-reports (stream)
+           ;; Header
+           (format stream "~&~V,,,'-<~>" 70 "")
+           (format stream "~&Dependency Analysis Report~%")
+           (format stream "System: ~A~%" (system.name *current-tracker*))
+           (format stream "Generated: ~A~%" (local-time:now))
+           (format stream "~V,,,'-<~>~%" 70 "")
+           ;; Core report in text format
+           (generate-report :text *current-tracker* :stream stream)
+           ;; Add DOT graph as appendix
+           (format stream "~%~%APPENDIX A: Graphviz DOT Format~%")
+           (format stream "~V,,,'-<~>~%" 70 "")
+           (format stream "Save the following content to a .dot file and process with Graphviz:~%~%")
+           (generate-report :dot *current-tracker* :stream stream)
+           ;; Add JSON as appendix
+           (format stream "~%~%APPENDIX B: JSON Format~%")
+           (format stream "~V,,,'-<~>~%" 70 "")
+           (format stream "~%")
+           (generate-report :json *current-tracker* :stream stream)))
+    (if filename
+        ;; Save to file
+        (with-open-file (out filename 
+                         :direction :output 
+                         :if-exists :supersede
+                         :if-does-not-exist :create)
+          (generate-all-reports out)
+          (format t "~&Report saved to: ~A~%" filename))
+        ;; Display to standard output
+        (generate-all-reports *standard-output*)))
+  ;; Return the tracker to allow for chaining
+  *current-tracker*)
