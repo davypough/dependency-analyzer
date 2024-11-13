@@ -111,9 +111,15 @@
     (make-instance 'system-parser :system system)))
 
 (defun analyze-system (system-name)
-  "Analyze an ASDF system and create a dependency tracker with results."
-  (with-dependency-tracker ()
-    (let* ((system (asdf:find-system system-name))
-           (parser (make-instance 'system-parser :system system)))
-      (parse-system parser)
-      *current-tracker*)))
+  "Analyze an ASDF system and create a dependency tracker with results.
+   Returns the dependency tracker containing the analysis results.
+   Example: (analyze-system \"my-system\")"
+  (with-dependency-tracker ((make-instance 'dependency-tracker :system-name system-name))
+    (let* ((system (asdf:find-system system-name)))
+      (unless system
+        (error 'system-parse-error 
+               :system-name system-name
+               :reason "System not found"))
+      (let ((parser (make-instance 'system-parser :system system)))
+        (parse-system parser)
+        *current-tracker*))))

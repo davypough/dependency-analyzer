@@ -1,5 +1,5 @@
 ;;;; Filename: src-packages.lisp
-
+;;;
 ;;; Package definitions for the dependency analyzer.
 ;;; Defines the main package and test package, including all exported symbols
 ;;; needed by users of the system.
@@ -12,7 +12,8 @@
   (:nicknames #:dep)
   (:export #:analyze-system
            #:analyze-file
-           #:generate-report
+           #:generate-report  ; This was exported
+           #:report          ; Need to add this export
            ;; Classes
            #:dependency-tracker
            #:system-parser

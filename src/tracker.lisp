@@ -12,8 +12,10 @@
 (defmacro with-dependency-tracker ((&optional (tracker-form '(make-instance 'dependency-tracker :system-name "test-system"))) &body body)
   "Execute BODY with *CURRENT-TRACKER* bound to the result of TRACKER-FORM.
    If TRACKER-FORM is not provided, creates a new tracker instance."
-  `(let ((*current-tracker* ,tracker-form))
-     ,@body))
+  `(let ((tracker ,tracker-form))
+     (setf *current-tracker* tracker)
+     (let ((*current-tracker* tracker))
+       ,@body)))
 
 (defun ensure-tracker (&optional tracker)
   "Return TRACKER if provided, otherwise return *CURRENT-TRACKER*.
@@ -77,11 +79,9 @@
 
 (defun make-tracking-key (symbol &optional package)
   "Create a lookup key for a symbol, optionally in a specific package context."
-  (format t "~&DEBUG make-tracking-key: symbol=~S package=~S~%" symbol package)
   (let ((result (if package
                     (format nil "~A::~A" package (symbol-name symbol))
                     (symbol-name symbol))))
-    (format t "~&DEBUG make-tracking-key: result=~S~%" result)
     result))
 
 (defmethod record-system-cycle ((tracker dependency-tracker) cycle-chain)

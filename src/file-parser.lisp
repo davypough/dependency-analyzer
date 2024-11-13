@@ -86,6 +86,9 @@
                :file file
                :reason e)))))
 
+
+;;;; Filename: file-parser.lisp
+
 (defmethod analyze-form ((parser file-parser) (form list))
   "Analyze a list form for definitions and references."
   (when (and (consp form) (symbolp (car form)))
@@ -104,7 +107,7 @@
                        (defun :function)
                        (defvar :variable)))
                 (package (current-package parser)))
-           (record-definition name
+           (record-definition *current-tracker* name
                             type
                             (file parser)
                             :package (current-package-name parser)
@@ -115,17 +118,17 @@
          (let* ((name (second form))
                 (body (cdddr form))
                 (package (current-package parser)))
-           (record-definition name
+           (record-definition *current-tracker* name
                             :macro
                             (file parser)
                             :package (current-package-name parser)
                             :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
                                          :external))
-           (record-macro-body-symbols name body)))
+           (record-macro-body-symbols *current-tracker* name body)))
         (define-condition
          (let* ((name (second form))
                 (package (current-package parser)))
-           (record-definition name
+           (record-definition *current-tracker* name
                             :condition
                             (file parser)
                             :package (current-package-name parser)
@@ -136,26 +139,20 @@
          (let ((name (normalize-package-name (second form))))
            (record-package-definition parser name (cddr form))))
         (otherwise
-         (let ((macro-def (lookup-macro-definition operator)))
-           (if macro-def
-               (when (symbolp operator)
-                 (record-reference (definition.symbol macro-def)
-                                 :call
-                                 (file parser)
-                                 :package (definition.package macro-def)))
-               (when (symbolp operator)
-                 (let* ((pkg (or (symbol-package operator)
-                                (current-package parser)))
-                        (bare-name (symbol-name operator))
-                        (sym (if (symbol-package operator)
-                               operator
-                               (or (find-symbol bare-name pkg)
-                                   (intern bare-name pkg)))))
-                   (record-reference sym
-                                   :call
-                                   (file parser)
-                                   :package (package-name pkg))))))
-           (analyze-body parser (cdr form)))))))
+         ;; For any other form, assume it's a function/macro call
+         (when (symbolp operator)
+           (let* ((pkg (or (symbol-package operator)
+                          (current-package parser)))
+                  (bare-name (symbol-name operator))
+                  (sym (if (symbol-package operator)
+                          operator
+                          (or (find-symbol bare-name pkg)
+                              (intern bare-name pkg)))))
+             (record-reference *current-tracker* sym
+                             :call
+                             (file parser)
+                             :package (package-name pkg))))
+         (analyze-body parser (cdr form)))))))
 
 (defmethod analyze-body ((parser file-parser) body)
   "Analyze a body of code for symbol references."
@@ -208,6 +205,8 @@
                       :package (current-package-name parser)
                       :exported-p (eq (nth-value 1 (find-symbol sym-name package)) :external))))
 
+;;;; Filename: file-parser.lisp
+
 (defmethod record-package-definition ((parser file-parser) name options)
   "Record a package definition and handle its options."
   (let* ((pkg-name name)
@@ -232,14 +231,14 @@
                 (let ((used-pkg (find-package used)))
                   (when used-pkg
                     (use-package used-pkg package)
-                    (record-package-use pkg-name (package-name used-pkg))
+                    (record-package-use *current-tracker* pkg-name (package-name used-pkg))
                     ;; Record both inherited and call references for exported symbols
                     (do-external-symbols (sym used-pkg)
                       (multiple-value-bind (s status)
                           (find-symbol (symbol-name sym) package)
                         (when (and s (eq status :inherited))
                           ;; Record the inherited relationship
-                          (record-reference sym
+                          (record-reference *current-tracker* sym
                                           :inherited
                                           (file parser)
                                           :package (package-name used-pkg))
@@ -247,7 +246,7 @@
                           (when (and (fboundp sym) 
                                    (not (macro-function sym))
                                    (not (special-operator-p sym)))
-                            (record-reference sym
+                            (record-reference *current-tracker* sym
                                             :call
                                             (file parser)
                                             :package (package-name used-pkg)))))))))))
@@ -256,13 +255,13 @@
               (let ((from-pkg-name (normalize-package-name (second opt)))
                     (from-pkg (find-package (second opt))))
                 (when from-pkg
-                  (record-package-use pkg-name from-pkg-name)
+                  (record-package-use *current-tracker* pkg-name from-pkg-name)
                   (dolist (sym (cddr opt))
                     (let* ((name (normalize-symbol-name sym))
                            (from-sym (find-symbol name from-pkg)))
                       (when from-sym
                         (import from-sym package)
-                        (record-reference from-sym
+                        (record-reference *current-tracker* from-sym
                                         :import
                                         (file parser)
                                         :package from-pkg-name))))))))
@@ -272,7 +271,7 @@
                 (let* ((name (normalize-symbol-name sym))
                        (exported-sym (intern name package)))
                   (export exported-sym package)
-                  (record-export pkg-name exported-sym))))))
+                  (record-export *current-tracker* pkg-name exported-sym))))))
       ;; Clean up package parsing state
       (pop (slot-value parser 'parsing-packages)))))
 

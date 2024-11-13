@@ -24,7 +24,9 @@
                #:closer-mop
                #:trivia
                #:trivial-types
-               #:fiveam)
+               #:fiveam
+               #:yason        ; Added for JSON report generation
+               #:local-time)  ; Added for report timestamps
   :serial t
   :components ((:module "src"
                  :components ((:file "src-packages")
@@ -33,6 +35,5 @@
                               (:file "tracker")
                               (:file "analyzer")
                               (:file "system-parser")
-                              (:file "file-parser")))))
-
-
+                              (:file "file-parser")
+                              (:file "report")))))
