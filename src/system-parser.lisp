@@ -7,13 +7,8 @@
 
 (in-package #:dep)
 
-
 (defclass system-parser ()
-  ((tracker 
-    :initarg :tracker 
-    :reader tracker
-    :documentation "The dependency tracker for recording findings")
-   (system 
+  ((system 
     :initarg :system 
     :reader system
     :documentation "The ASDF system being analyzed")
@@ -24,7 +19,6 @@
   (:documentation
    "Parser for analyzing an ASDF system and its components."))
 
-
 (defun record-dependency-cycle (parser system-name)
   "Record a system dependency cycle in the tracker."
   (let ((position (member system-name (parsing-systems parser) :test #'string=)))
@@ -32,13 +26,11 @@
       (let* ((cycle (cons system-name (ldiff (parsing-systems parser) position)))
              (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
         ;; Record the cycle in the dependency tracker
-        (record-system-cycle (tracker parser) chain)))))
-
+        (record-system-cycle chain)))))
 
 (defmethod parse-system ((parser system-parser))
   "Parse the system associated with the parser."
   (parse-system-for parser (system parser)))
-
 
 (defun parse-system-for (parser system)
   "Parse the given system using the parser."
@@ -71,7 +63,6 @@
                :system-name system-name
                :reason e)))))
 
-
 (defmethod parse-component ((component t) parser)
   "Parse a single ASDF system component based on its type."
   (typecase component
@@ -83,16 +74,12 @@
     (t
       (warn "Skipping unknown component type: ~A" component))))
 
-
 (defmethod parse-source-file ((parser system-parser) source-file)
   "Parse a source file component using the file parser."
   (let ((file (asdf:component-pathname source-file)))
     (when (probe-file file)
-      (let ((file-parser (make-instance 'file-parser 
-                                      :tracker (tracker parser)
-                                      :file file)))
+      (let ((file-parser (make-instance 'file-parser :file file)))
         (parse-file file-parser)))))
-
 
 (defun find-system-files (system-name)
   "Get a list of all source files in an ASDF system."
@@ -102,7 +89,6 @@
              :system-name system-name
              :reason "System not found"))
     (collect-source-files system)))
-
 
 (defmethod collect-source-files ((component asdf:component))
   "Recursively collect all source files from an ASDF component."
@@ -115,22 +101,19 @@
     (t
       nil)))
 
-
-(defun create-system-parser (tracker system-name)
+(defun create-system-parser (system-name)
   "Create a system parser for the named ASDF system."
   (let ((system (asdf:find-system system-name)))
     (unless system
       (error 'system-parse-error 
              :system-name system-name
              :reason "System not found"))
-    (make-instance 'system-parser :tracker tracker :system system)))
+    (make-instance 'system-parser :system system)))
 
-
-;; Update the initial call to parse-system
 (defun analyze-system (system-name)
-  "Analyze an ASDF system and return a dependency tracker with results."
-  (let* ((tracker (make-instance 'dependency-tracker :system-name system-name))
-         (system (asdf:find-system system-name))
-         (parser (make-instance 'system-parser :tracker tracker)))
-    (parse-system parser system)
-    tracker))
+  "Analyze an ASDF system and create a dependency tracker with results."
+  (with-dependency-tracker ()
+    (let* ((system (asdf:find-system system-name))
+           (parser (make-instance 'system-parser :system system)))
+      (parse-system parser)
+      *current-tracker*)))

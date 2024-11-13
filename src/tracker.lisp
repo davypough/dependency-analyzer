@@ -6,6 +6,20 @@
 
 (in-package #:dep)
 
+(defparameter *current-tracker* nil
+  "The currently active dependency tracker instance.")
+
+(defmacro with-dependency-tracker ((&optional (tracker-form '(make-instance 'dependency-tracker :system-name "test-system"))) &body body)
+  "Execute BODY with *CURRENT-TRACKER* bound to the result of TRACKER-FORM.
+   If TRACKER-FORM is not provided, creates a new tracker instance."
+  `(let ((*current-tracker* ,tracker-form))
+     ,@body))
+
+(defun ensure-tracker (&optional tracker)
+  "Return TRACKER if provided, otherwise return *CURRENT-TRACKER*.
+   Signals an error if no tracker is available."
+  (or tracker *current-tracker*
+      (error "No tracker is currently bound. Please use 'with-dependency-tracker' to bind one.")))
 
 (defclass dependency-tracker ()
   ((definitions 
@@ -45,7 +59,6 @@
   (:documentation 
    "Main data structure for tracking dependencies between files and symbols."))
 
-
 (defstruct (definition (:conc-name definition.))
   (symbol nil :type symbol :read-only t)
   (type nil :type keyword :read-only t)
@@ -53,7 +66,6 @@
   (package nil :type (or string symbol) :read-only t)
   (position nil :type (or null integer))
   (exported-p nil :type boolean))
-
 
 (defstruct (reference (:conc-name reference.))
   (symbol nil :type symbol :read-only t)
@@ -63,46 +75,41 @@
   (context nil :type t)
   (package nil :type (or string symbol null)))
 
-
 (defun make-tracking-key (symbol &optional package)
   "Create a lookup key for a symbol, optionally in a specific package context."
-  (if package
-      (format nil "~A::~A" package (symbol-name symbol))
-      (symbol-name symbol)))
-
+  (format t "~&DEBUG make-tracking-key: symbol=~S package=~S~%" symbol package)
+  (let ((result (if package
+                    (format nil "~A::~A" package (symbol-name symbol))
+                    (symbol-name symbol))))
+    (format t "~&DEBUG make-tracking-key: result=~S~%" result)
+    result))
 
 (defmethod record-system-cycle ((tracker dependency-tracker) cycle-chain)
   "Record a system dependency cycle."
   (pushnew cycle-chain (system-cycles tracker) :test #'string=))
 
-
 (defmethod record-file-cycle ((tracker dependency-tracker) cycle-chain)
   "Record a file dependency cycle."
   (pushnew cycle-chain (file-cycles tracker) :test #'string=))
-
 
 (defmethod record-package-cycle ((tracker dependency-tracker) cycle-chain)
   "Record a package dependency cycle."
   (pushnew cycle-chain (package-cycles tracker) :test #'string=))
 
-
-(defmethod get-system-cycles ((tracker dependency-tracker))
+(defmethod get-system-cycles (&optional tracker)
   "Get all recorded system dependency cycles."
-  (system-cycles tracker))
+  (system-cycles (ensure-tracker tracker)))
 
-
-(defmethod get-file-cycles ((tracker dependency-tracker))
+(defmethod get-file-cycles (&optional tracker)
   "Get all recorded file dependency cycles."
-  (file-cycles tracker))
+  (file-cycles (ensure-tracker tracker)))
 
-
-(defmethod get-package-cycles ((tracker dependency-tracker))
+(defmethod get-package-cycles (&optional tracker)
   "Get all recorded package dependency cycles."
-  (package-cycles tracker))
-
+  (package-cycles (ensure-tracker tracker)))
 
 (defmethod record-definition ((tracker dependency-tracker) symbol type file 
-                            &key position package exported-p)
+                           &key position package exported-p)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
          (def (make-definition :symbol symbol
@@ -117,12 +124,11 @@
       (record-export tracker package symbol))
     def))
 
-
 (defmethod record-reference ((tracker dependency-tracker) symbol type file 
-                           &key position context package)
+                          &key position context package)
   "Record a symbol reference in the tracker."
   (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
-                                         (package-name (symbol-package symbol)))))
+                                        (package-name (symbol-package symbol)))))
          (ref (make-reference :symbol symbol
                             :type type
                             :file file
@@ -132,13 +138,11 @@
     (push ref (gethash key (slot-value tracker 'references)))
     ref))
 
-
 (defmethod record-package-use ((tracker dependency-tracker) using-package used-package)
   "Record that one package uses another package."
   (pushnew used-package 
            (gethash using-package (slot-value tracker 'package-uses))
            :test #'string=))
-
 
 (defmethod record-export ((tracker dependency-tracker) package-name symbol)
   "Record a symbol as being exported from a package."
@@ -149,27 +153,26 @@
                  (gethash (string package-name) (slot-value tracker 'package-exports))
                  :test #'eq)))))
 
-
 (defmethod record-macro-body-symbols ((tracker dependency-tracker) macro-name symbols)
   "Record the non-CL symbols used in a macro's body."
   (setf (gethash (make-tracking-key macro-name) 
                  (slot-value tracker 'macro-bodies))
         symbols))
 
-
-(defmethod get-macro-body-symbols ((tracker dependency-tracker) macro-name)
+(defmethod get-macro-body-symbols (&optional (tracker nil tracker-provided-p) macro-name)
   "Get all recorded symbols used in a macro's body."
-  (gethash (make-tracking-key macro-name) 
-           (slot-value tracker 'macro-bodies)))
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (gethash (make-tracking-key macro-name) 
+             (slot-value actual-tracker 'macro-bodies))))
 
-
-(defmethod lookup-macro-definition ((tracker dependency-tracker) symbol)
+(defmethod lookup-macro-definition (&optional (tracker nil tracker-provided-p) symbol)
   "Find a macro's definition if it exists."
-  (let* ((current-pkg (symbol-package symbol))
+  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+         (current-pkg (symbol-package symbol))
          (sym-name (symbol-name symbol)))
     (when current-pkg
       (let ((def (gethash (make-tracking-key symbol (package-name current-pkg))
-                         (slot-value tracker 'definitions))))
+                         (slot-value actual-tracker 'definitions))))
         (when (and def (eq (definition.type def) :macro))
           (return-from lookup-macro-definition def)))
       (dolist (used-pkg (package-use-list current-pkg))
@@ -177,57 +180,62 @@
             (find-symbol sym-name used-pkg)
           (when (and used-sym (member status '(:external :inherited)))
             (let* ((used-key (make-tracking-key used-sym (package-name used-pkg))))
-              (let ((def (gethash used-key (slot-value tracker 'definitions))))
+              (let ((def (gethash used-key (slot-value actual-tracker 'definitions))))
                 (when (and def (eq (definition.type def) :macro))
                   (return-from lookup-macro-definition def)))))))
-      (let ((def (gethash sym-name (slot-value tracker 'definitions))))
+      (let ((def (gethash sym-name (slot-value actual-tracker 'definitions))))
         (when (and def (eq (definition.type def) :macro))
           def)))))
 
-
-(defmethod get-definitions ((tracker dependency-tracker) symbol)
-  "Get all recorded definitions of a symbol."
-  (let* ((pkg-name (if (symbol-package symbol)
-                       (package-name (symbol-package symbol))
-                       "COMMON-LISP-USER"))
+(defmethod get-definitions (&optional tracker symbol)
+  "Get all recorded definitions of a symbol.
+   If only one argument is provided, treat it as the symbol and use the current tracker."
+  (when (and tracker (null symbol))
+    ;; If only one arg provided, it's the symbol
+    (setf symbol tracker
+          tracker nil))
+  (let* ((actual-tracker (or tracker (ensure-tracker)))
+         (pkg-name (if (symbol-package symbol)
+                      (package-name (symbol-package symbol))
+                      "COMMON-LISP-USER"))
          (key (make-tracking-key symbol pkg-name)))
-    (or (gethash key (slot-value tracker 'definitions))
+    (or (gethash key (slot-value actual-tracker 'definitions))
         ;; Try without package context as fallback
-        (gethash (symbol-name symbol) (slot-value tracker 'definitions)))))
+        (gethash (symbol-name symbol) (slot-value actual-tracker 'definitions)))))
 
-
-(defmethod get-references ((tracker dependency-tracker) symbol)
+(defmethod get-references (&optional (tracker nil tracker-provided-p) symbol)
   "Get all recorded references to a symbol."
-  (let ((key (if (symbol-package symbol)
+  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+         (key (if (symbol-package symbol)
                  (make-tracking-key symbol (package-name (symbol-package symbol)))
                  (symbol-name symbol))))
-    (gethash key (slot-value tracker 'references))))
+    (gethash key (slot-value actual-tracker 'references))))
 
-
-(defmethod get-file-definitions ((tracker dependency-tracker) file)
+(defmethod get-file-definitions (&optional (tracker nil tracker-provided-p) file)
   "Get all definitions in a file."
-  (gethash file (slot-value tracker 'file-map)))
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (gethash file (slot-value actual-tracker 'file-map))))
 
-
-(defmethod get-package-uses ((tracker dependency-tracker) package-name)
+(defmethod get-package-uses (&optional (tracker nil tracker-provided-p) package-name)
   "Get all packages that a given package uses."
-  (gethash package-name (slot-value tracker 'package-uses)))
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (gethash package-name (slot-value actual-tracker 'package-uses))))
 
-
-(defmethod get-package-exports ((tracker dependency-tracker) package-name)
+(defmethod get-package-exports (&optional (tracker nil tracker-provided-p) package-name)
   "Get all symbols exported by a package."
-  (mapcar #'(lambda (sym)
-              (let ((pkg (find-package (string package-name))))
-                (if pkg
-                    (intern (symbol-name sym) pkg)
-                    sym)))
-          (gethash (string package-name) (slot-value tracker 'package-exports))))
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (mapcar #'(lambda (sym)
+                (let ((pkg (find-package (string package-name))))
+                  (if pkg
+                      (intern (symbol-name sym) pkg)
+                      sym)))
+            (gethash (string package-name) (slot-value actual-tracker 'package-exports)))))
 
-
-(defmethod file-dependencies ((tracker dependency-tracker) file)
+(defmethod file-dependencies (&optional (tracker nil tracker-provided-p) file)
   "Get all files that this file depends on."
-  (let ((deps ())
-        (refs-seen (make-hash-table :test 'equal)))
+  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+         (deps ())
+         (refs-seen (make-hash-table :test 'equal)))
     ;; First collect all references in this file
     (maphash (lambda (key refs)
                (declare (ignore key))
@@ -238,11 +246,11 @@
                           (pkg (reference.package ref))
                           (key (make-tracking-key sym pkg)))
                      (setf (gethash key refs-seen) t)))))
-             (slot-value tracker 'references))
+             (slot-value actual-tracker 'references))
     ;; Then look up the definitions for each referenced symbol
     (maphash (lambda (key _)
                (declare (ignore _))
-               (let ((def (gethash key (slot-value tracker 'definitions))))
+               (let ((def (gethash key (slot-value actual-tracker 'definitions))))
                  (when def
                    (let ((def-file (definition.file def)))
                      (unless (equal def-file file)
@@ -250,50 +258,49 @@
              refs-seen)
     deps))
 
-
-(defmethod file-dependents ((tracker dependency-tracker) file)
+(defmethod file-dependents (&optional (tracker nil tracker-provided-p) file)
   "Get all files that depend on this file."
-  (let ((deps ()))
-    (dolist (def (get-file-definitions tracker file))
+  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+         (deps ()))
+    (dolist (def (get-file-definitions actual-tracker file))
       (let ((sym (definition.symbol def)))
-        (dolist (ref (get-references tracker sym))
+        (dolist (ref (get-references actual-tracker sym))
           (let ((ref-file (reference.file ref)))
             (unless (equal ref-file file)
               (pushnew ref-file deps :test #'equal))))))
     deps))
 
-
-(defmethod package-depends-on-p ((tracker dependency-tracker) package1 package2)
+(defmethod package-depends-on-p (&optional (tracker nil tracker-provided-p) package1 package2)
   "Check if package1 depends on package2 (directly or indirectly)."
-  (labels ((check-deps (pkg visited)
-             (when (member pkg visited :test #'string=)
-               (return-from check-deps nil))
-             (let ((uses (get-package-uses tracker pkg)))
-               (or (member package2 uses :test #'string=)
-                   (some (lambda (p)
-                          (check-deps p (cons pkg visited)))
-                        uses)))))
-    (check-deps package1 nil)))
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (labels ((check-deps (pkg visited)
+               (when (member pkg visited :test #'string=)
+                 (return-from check-deps nil))
+               (let ((uses (get-package-uses actual-tracker pkg)))
+                 (or (member package2 uses :test #'string=)
+                     (some (lambda (p)
+                            (check-deps p (cons pkg visited)))
+                          uses)))))
+      (check-deps package1 nil))))
 
-
-(defmethod clear-tracker ((tracker dependency-tracker))
+(defmethod clear-tracker (&optional (tracker nil tracker-provided-p))
   "Clear all recorded information from the tracker."
-  (with-slots (definitions references file-map package-uses 
-               package-exports macro-bodies) tracker
-    (clrhash definitions)
-    (clrhash references)
-    (clrhash file-map)
-    (clrhash package-uses)
-    (clrhash package-exports)
-    (clrhash macro-bodies)))
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (with-slots (definitions references file-map package-uses 
+                 package-exports macro-bodies) actual-tracker
+      (clrhash definitions)
+      (clrhash references)
+      (clrhash file-map)
+      (clrhash package-uses)
+      (clrhash package-exports)
+      (clrhash macro-bodies))))
 
-
-(defmethod clear-tracker :after ((tracker dependency-tracker))
+(defmethod clear-tracker :after (&optional (tracker nil tracker-provided-p))
   "Clear all recorded information including cycles from the tracker."
-  (setf (system-cycles tracker) nil)
-  (setf (file-cycles tracker) nil)
-  (setf (package-cycles tracker) nil))
-
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (setf (system-cycles actual-tracker) nil)
+    (setf (file-cycles actual-tracker) nil)
+    (setf (package-cycles actual-tracker) nil)))
 
 (defmethod print-object ((tracker dependency-tracker) stream)
   "Print a human-readable representation of the tracker."

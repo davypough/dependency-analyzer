@@ -39,6 +39,7 @@
            #:get-macro-body-symbols
            #:lookup-macro-definition
            #:clear-tracker
+           #:with-dependency-tracker
            ;; Accessors
            #:get-definitions
            #:get-references
