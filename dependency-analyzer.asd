@@ -35,5 +35,6 @@
                               (:file "tracker")
                               (:file "analyzer")
                               (:file "system-parser")
+                              (:file "file-parser-utils")
                               (:file "file-parser")
                               (:file "report")))))

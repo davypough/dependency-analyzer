@@ -1,10 +1,11 @@
 ;;;; Filename: file-parser.lisp
-
+;;;
 ;;; Core file parsing functionality for dependency analysis.
 ;;; Analyzes source files to track symbol definitions, references,
 ;;; and package relationships without expanding macros.
 
 (in-package #:dep)
+
 
 (defclass file-parser ()
   ((file 
@@ -32,36 +33,6 @@
   (:documentation
    "Parser for analyzing a single Lisp source file."))
 
-(defun normalize-package-name (designator)
-  "Convert a package designator to a normalized string form."
-  (typecase designator
-    (string
-      designator)
-    (symbol
-      (symbol-name designator))
-    (t
-      (princ-to-string designator))))
-
-(defun normalize-symbol-name (designator)
-  "Convert a symbol designator to a normalized string form."
-  (typecase designator
-    (string
-      designator)
-    (symbol
-      (symbol-name designator))
-    (t
-      (princ-to-string designator))))
-
-(defun find-exported-symbol (name package-name &optional current-package)
-  "Find a symbol in a package, checking exports and inherited symbols."
-  (let* ((target-pkg (find-package package-name))
-         (current-pkg (or current-package *package*)))
-    (declare (ignore current-pkg))
-    (when target-pkg
-      (multiple-value-bind (sym status)
-          (find-symbol (normalize-symbol-name name) target-pkg)
-        (when (and sym (member status '(:external :inherited)))
-          (values sym (package-name (symbol-package sym))))))))
 
 (defmethod parse-file ((parser file-parser))
   "Parse a single Lisp source file for definitions and references."
@@ -171,11 +142,13 @@
     (cons
      (analyze-form parser form))))
 
+
 (defmethod analyze-body ((parser file-parser) body)
   "Analyze a body of code for symbol references."
   (mapc (lambda (form)
           (analyze-subform parser form))
         body))
+
 
 (defmethod record-macro-body-symbols ((parser file-parser) macro-name body)
   "Record all non-CL symbols in a macro body as potential dependencies."
@@ -194,12 +167,14 @@
                 (collect-symbols (cdr form))))))
     (collect-symbols body)))
 
+
 (defmethod record-macro-dependencies ((parser file-parser) macro-def form)
   "Record that this code depends on the macro definition."
   (record-reference (definition.symbol macro-def)
                    :macro-expansion
                    (file parser)
                    :package (definition.package macro-def)))
+
 
 (defmethod record-function-definition ((parser file-parser) name args body)
   "Record a function definition in the tracker."
@@ -280,6 +255,7 @@
                   (record-export *current-tracker* pkg-name exported-sym))))))
       ;; Clean up package parsing state
       (pop (slot-value parser 'parsing-packages)))))
+
 
 (defun record-file-dependency-cycle (parser file-name)
   "Record a file dependency cycle in the tracker."
