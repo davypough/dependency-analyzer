@@ -2,11 +2,33 @@
 ;;;
 ;;; Report generation functionality for dependency analysis results.
 ;;; Provides multiple report formats for visualizing dependencies between
-;;; files, packages, and symbols.
+;;; files, packages, and symbols. Includes robust error handling for
+;;; file operations.
 
 
 (in-package #:dep)
 
+
+;;; Error Conditions
+
+(define-condition report-error (analyzer-error)
+  ((path 
+    :initarg :path 
+    :reader report-path
+    :documentation "Path that caused the error")
+   (reason 
+    :initarg :reason 
+    :reader reason
+    :documentation "Underlying cause of the error"))
+  (:documentation 
+   "Signaled when a report cannot be generated or saved.")
+  (:report (lambda (condition stream)
+             (format stream "Error generating report for path ~A: ~A"
+                     (report-path condition)
+                     (reason condition)))))
+
+
+;;; Utility Functions
 
 (defun pathname-to-string (pathname)
   "Convert a pathname to a string representation."
@@ -32,107 +54,6 @@
       nil))
 
 
-(defgeneric generate-report (format tracker &key stream)
-  (:documentation "Generate a dependency report in the specified format.")
-  (:method ((format (eql :text)) tracker &key (stream *standard-output*))
-    (let ((system-name (system.name tracker)))
-      ;; Header
-      (format stream "~&Dependency Analysis Report for System: ~A~%" system-name)
-      (format stream "~&================================================~%")
-      
-      ;; Cycle warnings - only show sections if cycles exist
-      (alexandria:when-let ((cycles (get-system-cycles tracker)))
-        (format stream "~&System Dependency Cycles:~%")
-        (dolist (cycle cycles)
-          (format stream "  ~A~%" cycle)))
-      
-      (alexandria:when-let ((cycles (get-file-cycles tracker)))
-        (format stream "~&File Dependency Cycles:~%")
-        (dolist (cycle cycles)
-          (format stream "  ~A~%" cycle)))
-      
-      (alexandria:when-let ((cycles (get-package-cycles tracker)))
-        (format stream "~&Package Dependency Cycles:~%")
-        (dolist (cycle cycles)
-          (format stream "  ~A~%" cycle)))
-      
-      ;; File dependencies
-      (format stream "~&~%File Dependencies:~%")
-      (maphash (lambda (file definitions)
-                 (declare (ignore definitions))
-                 (format stream "~&File: ~A~%" (pathname-to-string file))
-                 (let ((deps (file-dependencies tracker file)))
-                   (when deps
-                     (format stream "  Depends on:~%")
-                     (dolist (dep deps)
-                       (format stream "    ~A~%" (pathname-to-string dep)))))
-                 (let ((deps (file-dependents tracker file)))
-                   (when deps
-                     (format stream "  Required by:~%")
-                     (dolist (dep deps)
-                       (format stream "    ~A~%" (pathname-to-string dep))))))
-               (slot-value tracker 'file-map))
-      
-      ;; Package relationships
-      (format stream "~&~%Package Dependencies:~%")
-      (maphash (lambda (pkg used-pkgs)
-                 (format stream "~&Package: ~A~%" pkg)
-                 (when used-pkgs
-                   (format stream "  Uses packages:~%")
-                   (dolist (used used-pkgs)
-                     (format stream "    ~A~%" used)))
-                 (let ((exports (get-package-exports tracker pkg)))
-                   (when exports
-                     (format stream "  Exports:~%")
-                     (dolist (sym exports)
-                       (format stream "    ~A~%" sym)))))
-               (slot-value tracker 'package-uses))))
-
-  (:method ((format (eql :json)) tracker &key (stream *standard-output*))
-    (let* ((system-cycles (get-system-cycles tracker))
-           (file-cycles (get-file-cycles tracker))
-           (package-cycles (get-package-cycles tracker))
-           (files (build-file-dependency-json tracker))
-           (packages (build-package-dependency-json tracker))
-           (report-data
-             (alexandria:alist-hash-table
-              (remove nil
-                `(("system" . ,(system.name tracker))
-                  ,@(when (or system-cycles file-cycles package-cycles)
-                      `(("cycles" . ,(remove nil
-                                           `(,@(when system-cycles `(("system" . ,system-cycles)))
-                                             ,@(when file-cycles `(("files" . ,file-cycles)))
-                                             ,@(when package-cycles `(("packages" . ,package-cycles))))))))
-                  ,@(when files `(("files" . ,files)))
-                  ,@(when packages `(("packages" . ,packages)))))
-              :test 'equal)))
-      (yason:with-output (stream)
-        (yason:encode report-data))))
-
-  (:method ((format (eql :dot)) tracker &key (stream *standard-output*))
-    (format stream "digraph Dependencies {~%")
-    (format stream "  rankdir=LR;~%")
-    (format stream "  node [shape=box, fontname=\"Arial\"];~%")
-    (format stream "  edge [fontname=\"Arial\"];~%")
-    
-    ;; Generate file nodes and edges
-    (maphash (lambda (file definitions)
-               (declare (ignore definitions))
-               (let* ((file-name (source-file-name file))
-                      (file-path (simplify-path file))
-                      (file-id (string-to-dot-id file-name)))
-                 (format stream "  \"~A\" [label=\"~A\"];~%" 
-                         file-id file-path)
-                 (dolist (dep (file-dependencies tracker file))
-                   (let* ((dep-name (source-file-name dep))
-                          (dep-id (string-to-dot-id dep-name)))
-                     (format stream "  \"~A\" -> \"~A\";~%"
-                             file-id dep-id)))))
-             (slot-value tracker 'file-map))
-    
-    (format stream "}~%")))
-
-
 (defun string-to-dot-id (string)
   "Convert a string to a valid DOT graph identifier."
   (string-downcase
@@ -144,6 +65,52 @@
                 (otherwise
                  (write-char char s)))))))
 
+
+(defun abbreviate-path (path)
+  "Create an abbreviated version of a path string."
+  (let ((path-str (simplify-path path)))
+    (if (> (length path-str) 50)
+        (concatenate 'string "..." 
+                    (subseq path-str (max 0 (- (length path-str) 47))))
+        path-str)))
+
+
+(defun ensure-directory-exists (pathname)
+  "Ensure the directory component of pathname exists. Returns pathname if successful."
+  (handler-case
+      (let* ((namestring (namestring pathname))
+             (dir (directory-namestring pathname))
+             (normalized-dir (if (uiop:os-windows-p)
+                               ;; Convert forward slashes to backslashes on Windows
+                               (uiop:native-namestring dir)
+                               dir)))
+        ;; Print diagnostic info
+        (format *error-output* "~&Attempting to access directory: ~A~%" normalized-dir)
+        (ensure-directories-exist normalized-dir)
+        pathname)
+    (error (e)
+      (error 'report-error
+             :path pathname
+             :reason (format nil "Could not access directory: ~A~%Error details: ~A" 
+                           pathname e)))))
+
+
+(defun verify-writable (pathname)
+  "Verify the specified path is writable. Returns pathname if writable."
+  (handler-case 
+      (with-open-file (test pathname
+                       :direction :output
+                       :if-exists :append
+                       :if-does-not-exist :create)
+        (write-char #\Space test)
+        pathname)
+    (error (e)
+      (error 'report-error
+             :path pathname
+             :reason (format nil "Path is not writable: ~A" e)))))
+
+
+;;; JSON Building Functions
 
 (defun build-file-dependency-json (tracker)
   "Build JSON structure for file dependencies."
@@ -182,11 +149,178 @@
     result))
 
 
+;;; Report Generation Methods
+
+(defgeneric generate-report (format tracker &key stream)
+  (:documentation "Generate a dependency report in the specified format."))
+
+
+(defmethod generate-report ((format (eql :text)) tracker &key (stream *standard-output*))
+  (let ((system-name (system.name tracker)))
+    ;; Header
+    (format stream "~&Dependency Analysis Report for System: ~A~%" system-name)
+    (format stream "~&================================================~%")
+    
+    ;; Cycle warnings - only show sections if cycles exist
+    (alexandria:when-let ((cycles (get-system-cycles tracker)))
+      (format stream "~&System Dependency Cycles:~%")
+      (dolist (cycle cycles)
+        (format stream "  ~A~%" cycle)))
+    
+    (alexandria:when-let ((cycles (get-file-cycles tracker)))
+      (format stream "~&File Dependency Cycles:~%")
+      (dolist (cycle cycles)
+        (format stream "  ~A~%" cycle)))
+    
+    (alexandria:when-let ((cycles (get-package-cycles tracker)))
+      (format stream "~&Package Dependency Cycles:~%")
+      (dolist (cycle cycles)
+        (format stream "  ~A~%" cycle)))
+    
+    ;; File dependencies
+    (format stream "~&~%File Dependencies:~%")
+    (maphash (lambda (file definitions)
+               (declare (ignore definitions))
+               (format stream "~&File: ~A~%" (pathname-to-string file))
+               (let ((deps (file-dependencies tracker file)))
+                 (when deps
+                   (format stream "  Depends on:~%")
+                   (dolist (dep deps)
+                     (format stream "    ~A~%" (pathname-to-string dep)))))
+               (let ((deps (file-dependents tracker file)))
+                 (when deps
+                   (format stream "  Required by:~%")
+                   (dolist (dep deps)
+                     (format stream "    ~A~%" (pathname-to-string dep))))))
+             (slot-value tracker 'file-map))
+    
+    ;; Package relationships
+    (format stream "~&~%Package Dependencies:~%")
+    (maphash (lambda (pkg used-pkgs)
+               (format stream "~&Package: ~A~%" pkg)
+               (when used-pkgs
+                 (format stream "  Uses packages:~%")
+                 (dolist (used used-pkgs)
+                   (format stream "    ~A~%" used)))
+               (let ((exports (get-package-exports tracker pkg)))
+                 (when exports
+                   (format stream "  Exports:~%")
+                   (dolist (sym exports)
+                     (format stream "    ~A~%" sym)))))
+             (slot-value tracker 'package-uses))))
+
+
+(defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
+  (let ((*print-pretty* t)
+        (yason:*symbol-key-encoder* #'string-downcase)
+        (yason:*symbol-encoder* #'string-downcase))
+    (yason:with-output (stream :indent t)
+      (yason:with-object ()
+        ;; System name
+        (yason:encode-object-element "system" (system.name tracker))
+        
+        ;; Cycles (if any exist)
+        (let ((system-cycles (get-system-cycles tracker))
+              (file-cycles (get-file-cycles tracker))
+              (package-cycles (get-package-cycles tracker)))
+          (when (or system-cycles file-cycles package-cycles)
+            (yason:with-object-element ("cycles")
+              (yason:with-object ()
+                (when system-cycles
+                  (yason:encode-object-element "system" system-cycles))
+                (when file-cycles
+                  (yason:encode-object-element "files" file-cycles))
+                (when package-cycles
+                  (yason:encode-object-element "packages" package-cycles))))))
+        
+        ;; File dependencies
+        (let ((files (build-file-dependency-json tracker)))
+          (when files
+            (yason:with-object-element ("files")
+              (yason:encode files))))
+        
+        ;; Package dependencies
+        (let ((packages (build-package-dependency-json tracker)))
+          (when packages
+            (yason:with-object-element ("packages")
+              (yason:encode packages))))))))
+
+
+(defmethod generate-report ((format (eql :dot)) tracker &key (stream *standard-output*))
+  (format stream "digraph Dependencies {~%")
+  (format stream "  rankdir=LR;~%")
+  (format stream "  compound=true;~%")
+  (format stream "  node [shape=box, fontname=\"Arial\"];~%")
+  (format stream "  edge [fontname=\"Arial\"];~%")
+  
+  ;; Create package subgraph
+  (format stream "  subgraph cluster_packages {~%")
+  (format stream "    label=\"Package Dependencies\";~%")
+  (format stream "    style=dashed;~%")
+  (format stream "    node [style=filled,fillcolor=lightgrey];~%")
+  
+  ;; Add package nodes and edges
+  (maphash (lambda (pkg used-pkgs)
+             (let ((pkg-id (string-to-dot-id pkg)))
+               (format stream "    \"pkg_~A\" [label=\"~A\"];~%" pkg-id pkg)
+               (dolist (used used-pkgs)
+                 (let ((used-id (string-to-dot-id used)))
+                   (format stream "    \"pkg_~A\" [label=\"~A\"];~%" used-id used)
+                   (format stream "    \"pkg_~A\" -> \"pkg_~A\";~%"
+                           pkg-id used-id)))))
+           (slot-value tracker 'package-uses))
+  (format stream "  }~%~%")
+  
+  ;; Create file subgraph
+  (format stream "  subgraph cluster_files {~%")
+  (format stream "    label=\"File Dependencies\";~%")
+  (format stream "    style=dashed;~%")
+  
+  ;; Track all files we need nodes for
+  (let ((all-files (make-hash-table :test 'equal)))
+    ;; Collect files from file-map and dependents
+    (maphash (lambda (file definitions)
+               (declare (ignore definitions))
+               (setf (gethash file all-files) t)
+               (dolist (dependent (file-dependents tracker file))
+                 (setf (gethash dependent all-files) t)))
+             (slot-value tracker 'file-map))
+    
+    ;; Create file nodes
+    (maphash (lambda (file _)
+               (declare (ignore _))
+               (let* ((file-name (source-file-name file))
+                      (file-path (abbreviate-path file))
+                      (file-id (string-to-dot-id file-name)))
+                 (format stream "    \"~A\" [label=\"~A\"];~%" 
+                         file-id file-path)))
+             all-files)
+    
+    ;; Create file dependency edges
+    (maphash (lambda (file definitions)
+               (declare (ignore definitions))
+               (let* ((file-name (source-file-name file))
+                      (file-id (string-to-dot-id file-name)))
+                 (dolist (dependent (file-dependents tracker file))
+                   (let* ((dep-name (source-file-name dependent))
+                          (dep-id (string-to-dot-id dep-name)))
+                     (format stream "    \"~A\" -> \"~A\";~%"
+                             dep-id file-id)))))
+             (slot-value tracker 'file-map)))
+  
+  (format stream "  }~%")
+  (format stream "}~%"))
+
+
+;;; Main Report Function
+
 (defun report (&optional filename)
   "Generate a comprehensive dependency report for the current system analysis.
-   If FILENAME is provided, saves the report to that file."
+   If FILENAME is provided, saves the report to that file. Handles file system
+   errors gracefully."
   (unless *current-tracker*
     (error "No analysis results available. Please run (dep:analyze-system \"system-name\") first."))
+  
   (flet ((generate-all-reports (stream)
            ;; Header
            (format stream "~&~V,,,'-<~>" 70 "")
@@ -206,15 +340,27 @@
            (format stream "~V,,,'-<~>~%" 70 "")
            (format stream "~%")
            (generate-report :json *current-tracker* :stream stream)))
+    
     (if filename
-        ;; Save to file
-        (with-open-file (out filename 
-                         :direction :output 
-                         :if-exists :supersede
-                         :if-does-not-exist :create)
-          (generate-all-reports out)
-          (format t "~&Report saved to: ~A~%" filename))
+        ;; Save to file with error handling
+        (handler-case
+            (let ((pathname (pathname filename)))
+              ;; Verify directory exists and is writable
+              (ensure-directory-exists pathname)
+              (verify-writable pathname)
+              ;; Generate report
+              (with-open-file (out pathname
+                               :direction :output 
+                               :if-exists :supersede
+                               :if-does-not-exist :create)
+                (generate-all-reports out)
+                (format t "~&Report saved to: ~A~%" pathname)))
+          (report-error (e)
+            (format *error-output* "~&Failed to save report: ~A~%" e))
+          (error (e)
+            (format *error-output* "~&Unexpected error saving report: ~A~%" e)))
         ;; Display to standard output
         (generate-all-reports *standard-output*)))
+  
   ;; Return the tracker to allow for chaining
   *current-tracker*)
