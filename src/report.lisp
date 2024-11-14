@@ -110,6 +110,142 @@
              :reason (format nil "Path is not writable: ~A" e)))))
 
 
+;;; Utility Functions for ASCII Tree Visualization
+
+(defun build-file-dependency-tree (tracker)
+  "Build a tree structure representing file dependencies."
+  (let ((nodes (make-hash-table :test 'equal))
+        (roots nil))
+    ;; First pass: Create nodes for all files that are either defined in or referenced
+    (maphash (lambda (file definitions)
+               (declare (ignore definitions))
+               ;; Create node for the defined file
+               (setf (gethash file nodes)
+                     (list :name (source-file-name file)
+                           :full-name file
+                           :children nil 
+                           :parents nil))
+               ;; Create nodes for all files that reference this one
+               (dolist (dependent (file-dependents tracker file))
+                 (unless (gethash dependent nodes)
+                   (setf (gethash dependent nodes)
+                         (list :name (source-file-name dependent)
+                               :full-name dependent
+                               :children nil
+                               :parents nil)))))
+             (slot-value tracker 'file-map))
+    
+    ;; Second pass: Connect dependencies based on dependencies and dependents
+    (maphash (lambda (file node)
+               ;; Connect based on file dependencies
+               (dolist (dep (file-dependencies tracker file))
+                 (when-let ((dep-node (gethash dep nodes)))
+                   (pushnew node (getf dep-node :children)
+                           :test #'equal
+                           :key (lambda (n) (getf n :full-name)))
+                   (pushnew dep-node (getf node :parents)
+                           :test #'equal
+                           :key (lambda (n) (getf n :full-name)))))
+               ;; Connect based on file dependents
+               (dolist (dep (file-dependents tracker file))
+                 (when-let ((dep-node (gethash dep nodes)))
+                   (pushnew dep-node (getf node :children)
+                           :test #'equal
+                           :key (lambda (n) (getf n :full-name)))
+                   (pushnew node (getf dep-node :parents)
+                           :test #'equal
+                           :key (lambda (n) (getf n :full-name))))))
+             nodes)
+    
+    ;; Find root nodes (files that are not depended on by any other files)
+    (maphash (lambda (file node)
+               (when (null (getf node :parents))
+                 (push node roots)))
+             nodes)
+    (sort roots #'string< :key (lambda (node) (getf node :name)))))
+
+
+(defun build-package-dependency-tree (tracker)
+  "Build a tree structure representing package dependencies.
+   Returns two values:
+   1. List of root package nodes
+   2. List of circular dependencies"
+  (let ((nodes (make-hash-table :test 'equal))
+        (roots nil)
+        (cycles nil))
+    ;; First pass: Create nodes for all packages including CL
+    (maphash (lambda (pkg used-pkgs)
+               (declare (ignore used-pkgs))
+               ;; Create node for the package
+               (setf (gethash pkg nodes)
+                     (list :name pkg
+                           :children nil
+                           :parents nil))
+               ;; Create nodes for used packages including COMMON-LISP
+               (dolist (used (get-package-uses tracker pkg))
+                 (unless (gethash used nodes)
+                   (setf (gethash used nodes)
+                         (list :name used
+                               :children nil
+                               :parents nil)))))
+             (slot-value tracker 'package-uses))
+    
+    ;; Ensure COMMON-LISP package exists if any package uses it
+    (maphash (lambda (pkg used-pkgs)
+               (when (member "COMMON-LISP" used-pkgs :test #'string=)
+                 (unless (gethash "COMMON-LISP" nodes)
+                   (setf (gethash "COMMON-LISP" nodes)
+                         (list :name "COMMON-LISP"
+                               :children nil
+                               :parents nil)))))
+             (slot-value tracker 'package-uses))
+    
+    ;; Second pass: Connect dependencies
+    (maphash (lambda (pkg used-pkgs)
+               (let ((pkg-node (gethash pkg nodes)))
+                 (dolist (used used-pkgs)
+                   (when-let ((used-node (gethash used nodes)))
+                     ;; Check for circular dependency
+                     (when (member pkg (get-package-uses tracker used))
+                       (pushnew (format nil "~A ↔ ~A" pkg used)
+                               cycles :test #'string=))
+                     ;; Only add child/parent relationship if not already circular
+                     (unless (member pkg (get-package-uses tracker used))
+                       (pushnew pkg-node (getf used-node :children)
+                               :test #'equal
+                               :key (lambda (n) (getf n :name)))
+                       (pushnew used-node (getf pkg-node :parents)
+                               :test #'equal
+                               :key (lambda (n) (getf n :name))))))))
+             (slot-value tracker 'package-uses))
+    
+    ;; Find root packages (those with no parents)
+    (maphash (lambda (pkg node)
+               (when (null (getf node :parents))
+                 (push node roots)))
+             nodes)
+    (values (sort roots #'string< :key (lambda (node) (getf node :name)))
+            (sort cycles #'string<))))
+
+
+(defun print-ascii-tree (stream roots &optional (prefix "") (last-child-p nil))
+  "Print an ASCII representation of a dependency tree."
+  (dolist (node (butlast roots))
+    (format stream "~&~A├── ~A~%" prefix (getf node :name))
+    (print-ascii-tree stream 
+                      (sort (getf node :children) #'string< 
+                            :key (lambda (n) (getf n :name)))
+                      (concatenate 'string prefix "│   ")
+                      nil))
+  (when-let ((last-node (car (last roots))))
+    (format stream "~&~A└── ~A~%" prefix (getf last-node :name))
+    (print-ascii-tree stream 
+                      (sort (getf last-node :children) #'string< 
+                            :key (lambda (n) (getf n :name)))
+                      (concatenate 'string prefix "    ")
+                      t)))
+
+
 ;;; JSON Building Functions
 
 (defun build-file-dependency-json (tracker)
@@ -328,13 +464,40 @@
            (format stream "System: ~A~%" (system.name *current-tracker*))
            (format stream "Generated: ~A~%" (local-time:now))
            (format stream "~V,,,'-<~>~%" 70 "")
+           
+           ;; File Dependency Tree
+           (format stream "~%File Dependency Hierarchy:~%")
+           ;(format stream "~V,,,'-<~>~%" 70 "")
+           (let ((roots (build-file-dependency-tree *current-tracker*)))
+             (if roots
+                 (print-ascii-tree stream roots)
+                 (format stream "No file dependencies found.~%")))
+           (format stream "~%")
+
+           ;; Package Dependency Tree
+           (format stream "~%Package Dependency Hierarchy:~%")
+           ;(format stream "~V,,,'-<~>~%" 70 "")
+           (multiple-value-bind (roots cycles) 
+               (build-package-dependency-tree *current-tracker*)
+             (if roots
+                 (progn
+                   (print-ascii-tree stream roots)
+                   (when cycles
+                     (format stream "~%Circular Package Dependencies:~%")
+                     (dolist (cycle cycles)
+                       (format stream "  ~A~%" cycle))))
+                 (format stream "No package dependencies found.~%")))
+           (format stream "~%")
+           
            ;; Core report in text format
            (generate-report :text *current-tracker* :stream stream)
+           
            ;; Add DOT graph as appendix
            (format stream "~%~%APPENDIX A: Graphviz DOT Format~%")
            (format stream "~V,,,'-<~>~%" 70 "")
            (format stream "Save the following content to a .dot file and process with Graphviz:~%~%")
            (generate-report :dot *current-tracker* :stream stream)
+           
            ;; Add JSON as appendix
            (format stream "~%~%APPENDIX B: JSON Format~%")
            (format stream "~V,,,'-<~>~%" 70 "")
