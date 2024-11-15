@@ -104,7 +104,7 @@
 
 
 (defmethod analyze-function-call ((parser file-parser) form)
- "Handle general function call forms, with special handling for slot accessors."
+ "Handle function call forms by recording reference to operator and analyzing arguments."
  (let ((operator (car form)))
    (when (symbolp operator)
      (let* ((pkg (or (symbol-package operator)
@@ -114,32 +114,12 @@
                     operator
                     (or (find-symbol bare-name pkg)
                         (intern bare-name pkg)))))
-       ;; Check if this is a slot accessor
-       (let ((class (and (fboundp sym)
-                        (typep (fdefinition sym) 'standard-generic-function)
-                        (closer-mop:generic-function-methods (fdefinition sym))
-                        (closer-mop:method-specializers 
-                         (car (closer-mop:generic-function-methods (fdefinition sym)))))))
-         (if (and class (= (length form) 2)) ; Likely slot accessor call
-             (progn
-               ;; Record the accessor function reference
-               (record-reference *current-tracker* sym
-                               :call
-                               (file parser)
-                               :package (package-name pkg))
-               ;; Record reference to the class this accessor is for
-               (when (typep (car class) 'closer-mop:standard-class)
-                 (record-reference *current-tracker* 
-                                 (class-name (car class))
-                                 :class-reference
-                                 (file parser)
-                                 :package (package-name pkg))))
-             ;; Regular function call
-             (record-reference *current-tracker* sym
-                             :call
-                             (file parser)
-                             :package (package-name pkg))))))
-   ;; Still need to analyze the arguments
+       ;; Record the reference regardless of what type of function it might be
+       (record-reference *current-tracker* sym
+                        :reference
+                        (file parser)
+                        :package (package-name pkg))))
+   ;; Analyze the arguments
    (analyze-rest parser (cdr form))))
 
 
