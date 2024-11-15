@@ -23,4 +23,5 @@
                            (:file "project-parser")
                            (:file "file-parser-utils")
                            (:file "file-parser")
+                           (:file "report-utils")
                            (:file "report")))))
