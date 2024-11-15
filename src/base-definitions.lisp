@@ -62,6 +62,33 @@
    "Parser for analyzing an ASDF project and its components."))
 
 
+(defclass file-parser ()
+  ((file 
+    :initarg :file 
+    :reader file
+    :documentation "The source file being parsed")
+   (package 
+    :initarg :package
+    :initform (find-package :common-lisp-user)
+    :accessor current-package
+    :documentation "The current package context while parsing")
+   (current-package-name
+    :initarg :package-name
+    :initform "COMMON-LISP-USER"
+    :accessor current-package-name
+    :documentation "String name of the current package")
+   (parsing-files
+    :initform nil
+    :accessor parsing-files
+    :documentation "Stack of files being parsed for cycle reporting")
+   (parsing-packages
+    :initform nil
+    :accessor parsing-packages
+    :documentation "Stack of packages being parsed for cycle detection"))
+  (:documentation
+   "Parser for analyzing a single Lisp source file."))
+
+
 (defstruct (definition (:conc-name definition.))
   "Data structure holding info about a lisp definition--eg, defun, defvar"
   (symbol nil :type symbol :read-only t)

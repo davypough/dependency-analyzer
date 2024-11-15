@@ -4,34 +4,8 @@
 ;;; Analyzes source files to track symbol definitions, references,
 ;;; and package relationships without expanding macros.
 
+
 (in-package #:dep)
-
-
-(defclass file-parser ()
-  ((file 
-    :initarg :file 
-    :reader file
-    :documentation "The source file being parsed")
-   (package 
-    :initarg :package
-    :initform (find-package :common-lisp-user)
-    :accessor current-package
-    :documentation "The current package context while parsing")
-   (current-package-name
-    :initarg :package-name
-    :initform "COMMON-LISP-USER"
-    :accessor current-package-name
-    :documentation "String name of the current package")
-   (parsing-files
-    :initform nil
-    :accessor parsing-files
-    :documentation "Stack of files being parsed for cycle reporting")
-   (parsing-packages
-    :initform nil
-    :accessor parsing-packages
-    :documentation "Stack of packages being parsed for cycle detection"))
-  (:documentation
-   "Parser for analyzing a single Lisp source file."))
 
 
 (defmethod parse-file ((parser file-parser))
@@ -65,66 +39,92 @@
      (when (symbolp (car form))
        (let ((operator (car form)))
          (case operator
-           ((in-package)
-            (let* ((name (normalize-package-name (second form)))
-                   (package (or (find-package name)
-                              (make-package name))))
-              (setf (current-package parser) package
-                    (current-package-name parser) (package-name package)
-                    *package* package)))
-           ((defun defvar)
-            (let* ((name (second form))
-                   (type (case operator
-                          (defun :function)
-                          (defvar :variable)))
-                   (package (current-package parser)))
-              (record-definition *current-tracker* name
-                               type
-                               (file parser)
-                               :package (current-package-name parser)
-                               :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
-                                            :external))
-              (analyze-body parser (cddr form))))
-           (defmacro
-            (let* ((name (second form))
-                   (body (cdddr form))
-                   (package (current-package parser)))
-              (record-definition *current-tracker* name
-                               :macro
-                               (file parser)
-                               :package (current-package-name parser)
-                               :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
-                                           :external))
-              (record-macro-body-symbols *current-tracker* name body)))
-           (define-condition
-            (let* ((name (second form))
-                   (package (current-package parser)))
-              (record-definition *current-tracker* name
-                               :condition
-                               (file parser)
-                               :package (current-package-name parser)
-                               :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
-                                           :external))
-              (analyze-body parser (cddr form))))
-           ((defpackage)
-            (let ((name (normalize-package-name (second form))))
-              (record-package-definition parser name (cddr form))))
-           (otherwise
-            (when (symbolp operator)
-              (let* ((pkg (or (symbol-package operator)
-                             (current-package parser)))
-                     (bare-name (symbol-name operator))
-                     (sym (if (symbol-package operator)
-                             operator
-                             (or (find-symbol bare-name pkg)
-                                 (intern bare-name pkg)))))
-                (record-reference *current-tracker* sym
-                                :call
-                                (file parser)
-                                :package (package-name pkg))))
-            (analyze-body parser (cdr form)))))))
+           ((in-package) (analyze-in-package parser form))
+           ((defun defvar defparameter defconstant) (analyze-basic-definition parser form))
+           (defmacro (analyze-macro-definition parser form))
+           (define-condition (analyze-condition-definition parser form)) 
+           ((defpackage) (analyze-package-definition parser form))
+           (otherwise (analyze-function-call parser form))))))
     (symbol
      (analyze-subform parser form))))
+
+
+(defmethod analyze-in-package ((parser file-parser) form)
+  "Handle in-package forms by updating the current package context."
+  (let* ((name (normalize-package-name (second form)))
+         (package (or (find-package name)
+                     (make-package name))))
+    (setf (current-package parser) package
+          (current-package-name parser) (package-name package)
+          *package* package)))
+
+
+(defmethod analyze-basic-definition ((parser file-parser) form)
+  "Handle basic definition forms like defun and defvar."
+  (let* ((operator (car form))
+         (name (second form))
+         (type (case operator
+                (defun :function)
+                ((defvar defparameter defconstant) :variable)))
+         (package (current-package parser)))
+    (record-definition *current-tracker* name
+                      type
+                      (file parser)
+                      :package (current-package-name parser)
+                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
+                                    :external))
+    (analyze-body parser (cddr form))))
+
+
+(defmethod analyze-macro-definition ((parser file-parser) form)
+  "Handle macro definition forms."
+  (let* ((name (second form))
+         (body (cdddr form))
+         (package (current-package parser)))
+    (record-definition *current-tracker* name
+                      :macro
+                      (file parser)
+                      :package (current-package-name parser)
+                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
+                                    :external))
+    (record-macro-body-symbols *current-tracker* name body)))
+
+
+(defmethod analyze-condition-definition ((parser file-parser) form)
+  "Handle condition definition forms."
+  (let* ((name (second form))
+         (package (current-package parser)))
+    (record-definition *current-tracker* name
+                      :condition
+                      (file parser)
+                      :package (current-package-name parser)
+                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
+                                    :external))
+    (analyze-body parser (cddr form))))
+
+
+(defmethod analyze-function-call ((parser file-parser) form)
+  "Handle general function call forms."
+  (let ((operator (car form)))
+    (when (symbolp operator)
+      (let* ((pkg (or (symbol-package operator)
+                     (current-package parser)))
+             (bare-name (symbol-name operator))
+             (sym (if (symbol-package operator)
+                     operator
+                     (or (find-symbol bare-name pkg)
+                         (intern bare-name pkg)))))
+        (record-reference *current-tracker* sym
+                         :call
+                         (file parser)
+                         :package (package-name pkg))))
+    (analyze-body parser (cdr form))))
+
+
+(defmethod analyze-package-definition ((parser file-parser) form)
+  "Handle package definition forms."
+  (let ((name (normalize-package-name (second form))))
+    (record-package-definition parser name (cddr form))))
 
 
 (defmethod analyze-subform ((parser file-parser) form)
@@ -230,7 +230,7 @@
                             (record-reference *current-tracker* sym
                                             :call
                                             (file parser)
-                                            :package (package-name used-pkg)))))))))))
+                                            :package (package-name used-pkg))))))))))
           (dolist (opt options)
             (when (and (consp opt) (eq (car opt) :import-from))
               (let ((from-pkg-name (normalize-package-name (second opt)))
@@ -254,7 +254,7 @@
                   (export exported-sym package)
                   (record-export *current-tracker* pkg-name exported-sym))))))
       ;; Clean up package parsing state
-      (pop (slot-value parser 'parsing-packages)))))
+      (pop (slot-value parser 'parsing-packages))))))
 
 
 (defun record-file-dependency-cycle (parser file-name)
