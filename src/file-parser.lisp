@@ -39,7 +39,7 @@
      (when (symbolp (car form))
        (let ((operator (car form)))
          (case operator
-           ((in-package) (analyze-in-package parser form))
+           (in-package (analyze-in-package parser form))
            ((defun defvar defparameter defconstant) (analyze-basic-definition parser form))
            (defmacro (analyze-macro-definition parser form))
            (define-condition (analyze-condition-definition parser form)) 
