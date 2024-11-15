@@ -133,7 +133,9 @@
     (symbol 
      (unless (or (member form '(nil t))
                  (eq (symbol-package form) 
-                     (find-package :common-lisp)))
+                     (find-package :common-lisp))
+                 (eq (symbol-package form)
+                     (find-package :keyword)))
        (let ((pkg (symbol-package form)))
          (record-reference *current-tracker* form
                           :reference
