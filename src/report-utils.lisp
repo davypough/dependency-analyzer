@@ -293,3 +293,61 @@
                           :test 'equal)))))
              (slot-value tracker 'package-uses))
     result))
+
+
+(defmethod get-package-uses (&optional (tracker nil tracker-provided-p) package-name)
+  "Get all packages that a given package uses."
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (gethash package-name (slot-value actual-tracker 'package-uses))))
+
+
+(defmethod get-package-exports (&optional (tracker nil tracker-provided-p) package-name)
+  "Get all symbols exported by a package."
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (mapcar #'(lambda (sym)
+                (let ((pkg (find-package (string package-name))))
+                  (if pkg
+                      (intern (symbol-name sym) pkg)
+                      sym)))
+            (gethash (string package-name) (slot-value actual-tracker 'package-exports)))))
+
+
+(defmethod file-dependencies (&optional (tracker nil tracker-provided-p) file)
+  "Get all files that this file depends on."
+  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+         (deps ())
+         (refs-seen (make-hash-table :test 'equal)))
+    ;; First collect all references in this file
+    (maphash (lambda (key refs)
+               (declare (ignore key))
+               (dolist (ref refs)
+                 (when (equal (reference.file ref) file)
+                   ;; Track each referenced symbol with its package
+                   (let* ((sym (reference.symbol ref))
+                          (pkg (reference.package ref))
+                          (key (make-tracking-key sym pkg)))
+                     (setf (gethash key refs-seen) t)))))
+             (slot-value actual-tracker 'references))
+    ;; Then look up the definitions for each referenced symbol
+    (maphash (lambda (key _)
+               (declare (ignore _))
+               (let ((def (gethash key (slot-value actual-tracker 'definitions))))
+                 (when def
+                   (let ((def-file (definition.file def)))
+                     (unless (equal def-file file)
+                       (pushnew def-file deps :test #'equal))))))
+             refs-seen)
+    deps))
+
+(defmethod file-dependents (&optional (tracker nil tracker-provided-p) file)
+  "Get all files that depend on this file."
+  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+         (deps ()))
+    (dolist (def (get-file-definitions actual-tracker file))
+      (let ((sym (definition.symbol def)))
+        (dolist (ref (get-references actual-tracker sym))
+          (let ((ref-file (reference.file ref)))
+            (unless (equal ref-file file)
+              (pushnew ref-file deps :test #'equal))))))
+    deps))
+
