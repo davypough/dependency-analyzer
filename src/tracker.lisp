@@ -23,44 +23,6 @@
   (or tracker *current-tracker*
       (error "No tracker is currently bound. Please use 'with-dependency-tracker' to bind one.")))
 
-(defclass dependency-tracker ()
-  ((definitions 
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps symbols to their definition locations")
-   (references
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps symbols to where they are used")
-   (file-map
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps files to their contained definitions")
-   (package-uses
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps packages to the packages they use")
-   (package-exports
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps packages to their exported symbols")
-   (macro-bodies
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps macro names to symbols used in their bodies")
-   (project-cycles
-    :initform nil
-    :accessor project-cycles
-    :documentation "List of detected project dependency cycles")
-   (file-cycles
-    :initform nil
-    :accessor file-cycles
-    :documentation "List of detected file dependency cycles")
-   (package-cycles
-    :initform nil
-    :accessor package-cycles
-    :documentation "List of detected package dependency cycles")
-   (project-name
-    :initarg :project-name
-    :reader project.name
-    :documentation "Name of the ASDF project being analyzed"))
-  (:documentation 
-   "Main data structure for tracking dependencies between files and symbols."))
-
 
 (defun make-tracking-key (symbol &optional package)
   "Create a lookup key for a symbol, optionally in a specific package context."
