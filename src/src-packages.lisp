@@ -10,25 +10,25 @@
 (defpackage #:dependency-analyzer
   (:use #:cl #:alexandria #:trivia)
   (:nicknames #:dep)
-  (:export #:analyze-system
+  (:export #:analyze-project
            #:analyze-directory
            #:analyze-file
            #:generate-report
            #:report
            ;; Classes
            #:dependency-tracker
-           #:system-parser
+           #:project-parser
            #:file-parser
            ;; Class Accessors
            #:tracker                    
            ;; Condition types
            #:analyzer-error
-           #:system-parse-error
+           #:project-parse-error
            #:file-parse-error
            ;; Parser operations
-           #:parse-system
+           #:parse-project
            #:parse-file
-           #:create-system-parser
+           #:create-project-parser
            ;; Structure types
            #:reference        
            #:definition      
@@ -64,12 +64,12 @@
            #:file-dependents
            #:package-depends-on-p
            ;; Class accessors
-           #:system.name
+           #:project.name
            ;; Report types
            #:text-report
            #:json-report
            #:graph-report
            ;; Cycle detection
            #:get-package-cycles
-           #:get-system-cycles
+           #:get-project-cycles
            #:get-file-cycles))

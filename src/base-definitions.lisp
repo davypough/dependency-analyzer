@@ -29,10 +29,10 @@
    (macro-bodies
     :initform (make-hash-table :test 'equal)
     :documentation "Maps macro names to symbols used in their bodies")
-   (system-cycles
+   (project-cycles
     :initform nil
-    :accessor system-cycles
-    :documentation "List of detected system dependency cycles")
+    :accessor project-cycles
+    :documentation "List of detected project dependency cycles")
    (file-cycles
     :initform nil
     :accessor file-cycles
@@ -41,15 +41,29 @@
     :initform nil
     :accessor package-cycles
     :documentation "List of detected package dependency cycles")
-   (system-name
-    :initarg :system-name
-    :reader system.name
-    :documentation "Name of the ASDF system being analyzed"))
+   (project-name
+    :initarg :project-name
+    :reader project.name
+    :documentation "Name of the ASDF project being analyzed"))
   (:documentation 
    "Main data structure for tracking dependencies between files and symbols."))
 
 
+(defclass project-parser ()
+  ((project 
+    :initarg :project 
+    :reader project
+    :documentation "The ASDF project being analyzed")
+   (parsing-projects
+    :initform nil
+    :accessor parsing-projects
+    :documentation "Stack of projects being parsed for cycle reporting"))
+  (:documentation
+   "Parser for analyzing an ASDF project and its components."))
+
+
 (defstruct (definition (:conc-name definition.))
+  "Data structure holding info about a lisp definition--eg, defun, defvar"
   (symbol nil :type symbol :read-only t)
   (type nil :type keyword :read-only t)
   (file nil :type (or string pathname) :read-only t)
@@ -59,6 +73,7 @@
 
 
 (defstruct (reference (:conc-name reference.))
+  "Data structure holding info about a lisp reference to a definition"
   (symbol nil :type symbol :read-only t)
   (type nil :type keyword :read-only t)
   (file nil :type (or string pathname) :read-only t)

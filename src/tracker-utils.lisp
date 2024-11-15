@@ -7,7 +7,7 @@
 (in-package #:dep)
 
 
-(defmacro with-dependency-tracker ((&optional (tracker-form '(make-instance 'dependency-tracker :system-name "test-system"))) &body body)
+(defmacro with-dependency-tracker ((&optional (tracker-form '(make-instance 'dependency-tracker :project-name "test-project"))) &body body)
   "Execute BODY with *CURRENT-TRACKER* bound to the result of TRACKER-FORM.
    If TRACKER-FORM is not provided, creates a new tracker instance."
   `(let ((tracker ,tracker-form))

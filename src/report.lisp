@@ -292,58 +292,57 @@
 
 
 (defmethod generate-report ((format (eql :text)) tracker &key (stream *standard-output*))
-  (let ((system-name (system.name tracker)))
-    ;; Header
-    (format stream "~&Dependency Analysis Report for System: ~A~%" system-name)
-    (format stream "~&================================================~%")
-    
-    ;; Cycle warnings - only show sections if cycles exist
-    (alexandria:when-let ((cycles (get-system-cycles tracker)))
-      (format stream "~&System Dependency Cycles:~%")
-      (dolist (cycle cycles)
-        (format stream "  ~A~%" cycle)))
-    
-    (alexandria:when-let ((cycles (get-file-cycles tracker)))
-      (format stream "~&File Dependency Cycles:~%")
-      (dolist (cycle cycles)
-        (format stream "  ~A~%" cycle)))
-    
-    (alexandria:when-let ((cycles (get-package-cycles tracker)))
-      (format stream "~&Package Dependency Cycles:~%")
-      (dolist (cycle cycles)
-        (format stream "  ~A~%" cycle)))
-    
-    ;; File dependencies
-    (format stream "~&~%File Dependencies:~%")
-    (maphash (lambda (file definitions)
-               (declare (ignore definitions))
-               (format stream "~&File: ~A~%" (pathname-to-string file))
-               (let ((deps (file-dependencies tracker file)))
-                 (when deps
-                   (format stream "  Depends on:~%")
-                   (dolist (dep deps)
-                     (format stream "    ~A~%" (pathname-to-string dep)))))
-               (let ((deps (file-dependents tracker file)))
-                 (when deps
-                   (format stream "  Required by:~%")
-                   (dolist (dep deps)
-                     (format stream "    ~A~%" (pathname-to-string dep))))))
-             (slot-value tracker 'file-map))
-    
-    ;; Package relationships
-    (format stream "~&~%Package Dependencies:~%")
-    (maphash (lambda (pkg used-pkgs)
-               (format stream "~&Package: ~A~%" pkg)
-               (when used-pkgs
-                 (format stream "  Uses packages:~%")
-                 (dolist (used used-pkgs)
-                   (format stream "    ~A~%" used)))
-               (let ((exports (get-package-exports tracker pkg)))
-                 (when exports
-                   (format stream "  Exports:~%")
-                   (dolist (sym exports)
-                     (format stream "    ~A~%" sym)))))
-             (slot-value tracker 'package-uses))))
+  ;; Header
+  (format stream "~&Dependency Analysis Report for Project: ~A~%" (project.name tracker))
+  (format stream "~&================================================~%")
+  
+  ;; Cycle warnings - only show sections if cycles exist
+  (alexandria:when-let ((cycles (get-project-cycles tracker)))
+    (format stream "~&Project Dependency Cycles:~%")
+    (dolist (cycle cycles)
+      (format stream "  ~A~%" cycle)))
+  
+  (alexandria:when-let ((cycles (get-file-cycles tracker)))
+    (format stream "~&File Dependency Cycles:~%")
+    (dolist (cycle cycles)
+      (format stream "  ~A~%" cycle)))
+  
+  (alexandria:when-let ((cycles (get-package-cycles tracker)))
+    (format stream "~&Package Dependency Cycles:~%")
+    (dolist (cycle cycles)
+      (format stream "  ~A~%" cycle)))
+  
+  ;; File dependencies
+  (format stream "~&~%File Dependencies:~%")
+  (maphash (lambda (file definitions)
+             (declare (ignore definitions))
+             (format stream "~&File: ~A~%" (pathname-to-string file))
+             (let ((deps (file-dependencies tracker file)))
+               (when deps
+                 (format stream "  Depends on:~%")
+                 (dolist (dep deps)
+                   (format stream "    ~A~%" (pathname-to-string dep)))))
+             (let ((deps (file-dependents tracker file)))
+               (when deps
+                 (format stream "  Required by:~%")
+                 (dolist (dep deps)
+                   (format stream "    ~A~%" (pathname-to-string dep))))))
+           (slot-value tracker 'file-map))
+  
+  ;; Package relationships
+  (format stream "~&~%Package Dependencies:~%")
+  (maphash (lambda (pkg used-pkgs)
+             (format stream "~&Package: ~A~%" pkg)
+             (when used-pkgs
+               (format stream "  Uses packages:~%")
+               (dolist (used used-pkgs)
+                 (format stream "    ~A~%" used)))
+             (let ((exports (get-package-exports tracker pkg)))
+               (when exports
+                 (format stream "  Exports:~%")
+                 (dolist (sym exports)
+                   (format stream "    ~A~%" sym)))))
+           (slot-value tracker 'package-uses)))
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
@@ -352,18 +351,18 @@
         (yason:*symbol-encoder* #'string-downcase))
     (yason:with-output (stream :indent t)
       (yason:with-object ()
-        ;; System name
-        (yason:encode-object-element "system" (system.name tracker))
+        ;; project name
+        (yason:encode-object-element "project" (project.name tracker))
         
         ;; Cycles (if any exist)
-        (let ((system-cycles (get-system-cycles tracker))
+        (let ((project-cycles (get-project-cycles tracker))
               (file-cycles (get-file-cycles tracker))
               (package-cycles (get-package-cycles tracker)))
-          (when (or system-cycles file-cycles package-cycles)
+          (when (or project-cycles file-cycles package-cycles)
             (yason:with-object-element ("cycles")
               (yason:with-object ()
-                (when system-cycles
-                  (yason:encode-object-element "system" system-cycles))
+                (when project-cycles
+                  (yason:encode-object-element "project" project-cycles))
                 (when file-cycles
                   (yason:encode-object-element "files" file-cycles))
                 (when package-cycles
@@ -451,17 +450,17 @@
 ;;; Main Report Function
 
 (defun report (&optional filename)
-  "Generate a comprehensive dependency report for the current system analysis.
-   If FILENAME is provided, saves the report to that file. Handles file system
+  "Generate a comprehensive dependency report for the current project analysis.
+   If FILENAME is provided, saves the report to that file. Handles file project
    errors gracefully."
   (unless *current-tracker*
-    (error "No analysis results available. Please run (dep:analyze-system \"system-name\") first."))
+    (error "No analysis results available. Please run (dep:analyze-project \"project-name\") first."))
   
   (flet ((generate-all-reports (stream)
            ;; Header
            (format stream "~&~V,,,'-<~>" 70 "")
            (format stream "~&Dependency Analysis Report~%")
-           (format stream "System: ~A~%" (system.name *current-tracker*))
+           (format stream "Project: ~A~%" (project.name *current-tracker*))
            (format stream "Generated: ~A~%" (local-time:now))
            (format stream "~V,,,'-<~>~%" 70 "")
            
