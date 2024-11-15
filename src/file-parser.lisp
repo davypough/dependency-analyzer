@@ -104,21 +104,43 @@
 
 
 (defmethod analyze-function-call ((parser file-parser) form)
-  "Handle general function call forms."
-  (let ((operator (car form)))
-    (when (symbolp operator)
-      (let* ((pkg (or (symbol-package operator)
-                     (current-package parser)))
-             (bare-name (symbol-name operator))
-             (sym (if (symbol-package operator)
-                     operator
-                     (or (find-symbol bare-name pkg)
-                         (intern bare-name pkg)))))
-        (record-reference *current-tracker* sym
-                         :call
-                         (file parser)
-                         :package (package-name pkg))))
-    (analyze-rest parser (cdr form))))
+ "Handle general function call forms, with special handling for slot accessors."
+ (let ((operator (car form)))
+   (when (symbolp operator)
+     (let* ((pkg (or (symbol-package operator)
+                    (current-package parser)))
+            (bare-name (symbol-name operator))
+            (sym (if (symbol-package operator)
+                    operator
+                    (or (find-symbol bare-name pkg)
+                        (intern bare-name pkg)))))
+       ;; Check if this is a slot accessor
+       (let ((class (and (fboundp sym)
+                        (typep (fdefinition sym) 'standard-generic-function)
+                        (closer-mop:generic-function-methods (fdefinition sym))
+                        (closer-mop:method-specializers 
+                         (car (closer-mop:generic-function-methods (fdefinition sym)))))))
+         (if (and class (= (length form) 2)) ; Likely slot accessor call
+             (progn
+               ;; Record the accessor function reference
+               (record-reference *current-tracker* sym
+                               :call
+                               (file parser)
+                               :package (package-name pkg))
+               ;; Record reference to the class this accessor is for
+               (when (typep (car class) 'closer-mop:standard-class)
+                 (record-reference *current-tracker* 
+                                 (class-name (car class))
+                                 :class-reference
+                                 (file parser)
+                                 :package (package-name pkg))))
+             ;; Regular function call
+             (record-reference *current-tracker* sym
+                             :call
+                             (file parser)
+                             :package (package-name pkg))))))
+   ;; Still need to analyze the arguments
+   (analyze-rest parser (cdr form))))
 
 
 (defmethod analyze-package-definition ((parser file-parser) form)
@@ -128,32 +150,49 @@
 
 
 (defmethod analyze-subform ((parser file-parser) form)
-  "Analyze a single form for symbol references. Handles all Common Lisp form types,
-   recursively analyzing structures that might contain symbols."
-  (typecase form
-    (symbol 
-     (unless (or (member form '(nil t))
-                 (eq (symbol-package form) (find-package :common-lisp))
-                 (eq (symbol-package form) (find-package :keyword)))
-       (let ((pkg (symbol-package form)))
-         (record-reference *current-tracker* form
-                          :reference
-                          (file parser)
-                          :package (package-name pkg)))))
-    (cons
-     (analyze-form parser form))
-    (array
-     (dotimes (i (array-total-size form))
-       (analyze-subform parser (row-major-aref form i))))
-    (hash-table
-     (maphash (lambda (k v)
-                (analyze-subform parser k)
-                (analyze-subform parser v))
-              form))
-    ;; Self-evaluating objects - no analysis needed
-    ((or number character string package pathname) nil)
-    ;; Catch-all for any other types we might encounter
-    (t nil)))
+ "Analyze a single form for symbol references. Handles all Common Lisp form types,
+  recursively analyzing structures that might contain symbols.
+
+  User-defined types (created via deftype) are handled implicitly based on their 
+  underlying implementation type. For example, a value of a type defined as 
+  (deftype my-string-list () '(or null (cons string))) would be analyzed via
+  the cons and string handling cases."
+ (typecase form
+   (symbol 
+    (unless (or (member form '(nil t))
+                (eq (symbol-package form) (find-package :common-lisp))
+                (eq (symbol-package form) (find-package :keyword)))
+      (let ((pkg (symbol-package form)))
+        (record-reference *current-tracker* form
+                         :reference
+                         (file parser)
+                         :package (package-name pkg)))))
+   (cons
+    (analyze-form parser form))
+   (array
+    (dotimes (i (array-total-size form))
+      (analyze-subform parser (row-major-aref form i))))
+   (hash-table
+    (maphash (lambda (k v)
+               (analyze-subform parser k)
+               (analyze-subform parser v))
+             form))
+   (structure-object
+    (dolist (slot (closer-mop:class-slots (class-of form)))
+      (when (closer-mop:slot-boundp-using-class (class-of form) form slot)
+        (analyze-subform parser (closer-mop:slot-value-using-class 
+                                (class-of form) form slot)))))
+   (standard-object
+    (dolist (slot (closer-mop:class-slots (class-of form)))
+      (when (closer-mop:slot-boundp-using-class (class-of form) form slot)
+        (analyze-subform parser (closer-mop:slot-value-using-class 
+                                (class-of form) form slot)))))
+   ;; Self-evaluating objects - no analysis needed
+   ((or number character string package pathname)
+    nil)
+   ;; Catch-all for any other types we might encounter
+   (t
+    nil)))
 
 
 (defmethod analyze-rest ((parser file-parser) rest)
