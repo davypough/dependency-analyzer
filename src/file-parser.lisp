@@ -128,21 +128,32 @@
 
 
 (defmethod analyze-subform ((parser file-parser) form)
-  "Analyze a single form for symbol references."
+  "Analyze a single form for symbol references. Handles all Common Lisp form types,
+   recursively analyzing structures that might contain symbols."
   (typecase form
     (symbol 
      (unless (or (member form '(nil t))
-                 (eq (symbol-package form) 
-                     (find-package :common-lisp))
-                 (eq (symbol-package form)
-                     (find-package :keyword)))
+                 (eq (symbol-package form) (find-package :common-lisp))
+                 (eq (symbol-package form) (find-package :keyword)))
        (let ((pkg (symbol-package form)))
          (record-reference *current-tracker* form
                           :reference
                           (file parser)
                           :package (package-name pkg)))))
     (cons
-     (analyze-form parser form))))
+     (analyze-form parser form))
+    (array
+     (dotimes (i (array-total-size form))
+       (analyze-subform parser (row-major-aref form i))))
+    (hash-table
+     (maphash (lambda (k v)
+                (analyze-subform parser k)
+                (analyze-subform parser v))
+              form))
+    ;; Self-evaluating objects - no analysis needed
+    ((or number character string package pathname) nil)
+    ;; Catch-all for any other types we might encounter
+    (t nil)))
 
 
 (defmethod analyze-rest ((parser file-parser) rest)
