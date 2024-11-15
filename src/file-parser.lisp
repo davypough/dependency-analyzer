@@ -73,7 +73,7 @@
                       :package (current-package-name parser)
                       :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
                                     :external))
-    (analyze-body parser (cddr form))))
+    (analyze-rest parser (cddr form))))
 
 
 (defmethod analyze-macro-definition ((parser file-parser) form)
@@ -100,7 +100,7 @@
                       :package (current-package-name parser)
                       :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
                                     :external))
-    (analyze-body parser (cddr form))))
+    (analyze-rest parser (cddr form))))
 
 
 (defmethod analyze-function-call ((parser file-parser) form)
@@ -118,7 +118,7 @@
                          :call
                          (file parser)
                          :package (package-name pkg))))
-    (analyze-body parser (cdr form))))
+    (analyze-rest parser (cdr form))))
 
 
 (defmethod analyze-package-definition ((parser file-parser) form)
@@ -143,11 +143,11 @@
      (analyze-form parser form))))
 
 
-(defmethod analyze-body ((parser file-parser) body)
+(defmethod analyze-rest ((parser file-parser) rest)
   "Analyze a body of code for symbol references."
   (mapc (lambda (form)
           (analyze-subform parser form))
-        body))
+        rest))
 
 
 (defmethod record-macro-body-symbols ((parser file-parser) macro-name body)
