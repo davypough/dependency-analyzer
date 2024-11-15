@@ -61,21 +61,6 @@
   (:documentation 
    "Main data structure for tracking dependencies between files and symbols."))
 
-(defstruct (definition (:conc-name definition.))
-  (symbol nil :type symbol :read-only t)
-  (type nil :type keyword :read-only t)
-  (file nil :type (or string pathname) :read-only t)
-  (package nil :type (or string symbol) :read-only t)
-  (position nil :type (or null integer))
-  (exported-p nil :type boolean))
-
-(defstruct (reference (:conc-name reference.))
-  (symbol nil :type symbol :read-only t)
-  (type nil :type keyword :read-only t)
-  (file nil :type (or string pathname) :read-only t)
-  (position nil :type (or null integer))
-  (context nil :type t)
-  (package nil :type (or string symbol null)))
 
 (defun make-tracking-key (symbol &optional package)
   "Create a lookup key for a symbol, optionally in a specific package context."

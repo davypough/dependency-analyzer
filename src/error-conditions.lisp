@@ -1,4 +1,4 @@
-;;;; Filename: conditions.lisp
+;;;; Filename: error-conditions.lisp
 
 ;;; Condition system for the dependency analyzer.
 ;;; Defines a hierarchy of error conditions for handling various failure modes
