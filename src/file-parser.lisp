@@ -110,14 +110,18 @@
         (value (third form)))
     (when (and (listp place) (= (length place) 2))
       (let ((accessor (first place))
-            (symbol (second place)))
-        (when (and (symbolp symbol)
+            (name-form (second place)))
+        (when (and (symbolp accessor)
                   (member accessor '(symbol-value symbol-function 
                                   macro-function fdefinition)))
-          ;; Only handle quoted symbol names
-          (when (and (listp symbol)
-                     (eq (car symbol) 'quote))
-            (let ((sym (second symbol)))
+          ;; Handle both 'symbol and (quote symbol) forms
+          (let ((sym (typecase name-form
+                      (symbol name-form)  ; Handle bare symbol
+                      (cons (and (eq (car name-form) 'quote)  ; Handle (quote sym)
+                               (symbolp (cadr name-form))
+                               (cadr name-form)))
+                      (t nil))))
+            (when sym
               (ecase accessor
                 (symbol-value
                  (record-definition *current-tracker* sym
@@ -125,29 +129,29 @@
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1 
-                                                 (find-symbol (symbol-name sym) 
-                                                            (current-package parser)))
-                                                :external)))
+                                                (find-symbol (symbol-name sym) 
+                                                           (current-package parser)))
+                                               :external)))
                 ((symbol-function fdefinition)
                  (record-definition *current-tracker* sym
                                   :function
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1
-                                                 (find-symbol (symbol-name sym)
-                                                            (current-package parser)))
-                                                :external)))
+                                                (find-symbol (symbol-name sym)
+                                                           (current-package parser)))
+                                               :external)))
                 (macro-function
                  (record-definition *current-tracker* sym
                                   :macro
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1
-                                                 (find-symbol (symbol-name sym)
-                                                            (current-package parser)))
-                                                :external)))))))
+                                                (find-symbol (symbol-name sym)
+                                                           (current-package parser)))
+                                               :external))))))))
         ;; Always analyze the value form for references
-        (analyze-subform parser value)))))
+        (analyze-subform parser value))))
 
 
 (defmethod analyze-function-call ((parser file-parser) form)
