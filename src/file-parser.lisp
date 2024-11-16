@@ -44,6 +44,7 @@
            (defmacro (analyze-macro-definition parser form))
            (define-condition (analyze-condition-definition parser form)) 
            ((defpackage) (analyze-package-definition parser form))
+           (setf (analyze-setf-definition parser form))
            (otherwise (analyze-function-call parser form))))))
     (symbol
      (analyze-subform parser form))))
@@ -103,6 +104,52 @@
     (analyze-rest parser (cddr form))))
 
 
+(defmethod analyze-setf-definition ((parser file-parser) form)
+  "Handle setf forms that create global variable, function, or macro definitions."
+  (let ((place (second form))
+        (value (third form)))
+    (when (and (listp place) (= (length place) 2))
+      (let ((accessor (first place))
+            (symbol (second place)))
+        (when (and (symbolp symbol)
+                  (member accessor '(symbol-value symbol-function 
+                                  macro-function fdefinition)))
+          ;; Only handle quoted symbol names
+          (when (and (listp symbol)
+                     (eq (car symbol) 'quote))
+            (let ((sym (second symbol)))
+              (ecase accessor
+                (symbol-value
+                 (record-definition *current-tracker* sym
+                                  :variable
+                                  (file parser)
+                                  :package (current-package-name parser)
+                                  :exported-p (eq (nth-value 1 
+                                                 (find-symbol (symbol-name sym) 
+                                                            (current-package parser)))
+                                                :external)))
+                ((symbol-function fdefinition)
+                 (record-definition *current-tracker* sym
+                                  :function
+                                  (file parser)
+                                  :package (current-package-name parser)
+                                  :exported-p (eq (nth-value 1
+                                                 (find-symbol (symbol-name sym)
+                                                            (current-package parser)))
+                                                :external)))
+                (macro-function
+                 (record-definition *current-tracker* sym
+                                  :macro
+                                  (file parser)
+                                  :package (current-package-name parser)
+                                  :exported-p (eq (nth-value 1
+                                                 (find-symbol (symbol-name sym)
+                                                            (current-package parser)))
+                                                :external)))))))
+        ;; Always analyze the value form for references
+        (analyze-subform parser value)))))
+
+
 (defmethod analyze-function-call ((parser file-parser) form)
  "Handle function call forms by recording reference to operator and analyzing arguments."
  (let ((operator (car form)))
@@ -129,26 +176,91 @@
     (record-package-definition parser name (cddr form))))
 
 
+(defun extract-lambda-bindings (lambda-list)
+  "Extract all symbols that would be bound by a lambda list.
+   Returns a list of bound symbols including parameters and their destructuring."
+  (let ((bindings nil)
+        (state :required))
+    (dolist (item lambda-list)
+      (case item
+        ((&optional &rest &key &aux)
+         (setf state item))
+        (&allow-other-keys
+         nil)
+        ((&whole &environment)
+         (setf state item))
+        (t (case state
+             (:required 
+              (push (if (listp item) (car item) item) bindings))
+             (&optional
+              (push (if (listp item) (car item) item) bindings))
+             (&rest
+              (push item bindings))
+             (&key
+              (push (if (listp item)
+                       (if (listp (car item))
+                           (cadar item)  ; for ((keyword var))
+                           (car item))   ; for (var)
+                       item)
+                    bindings))
+             (&aux
+              (push (if (listp item) (car item) item) bindings))
+             ((&whole &environment)
+              (push item bindings)
+              (setf state :required))))))
+    bindings))
+
+
 (defmethod analyze-subform ((parser file-parser) form)
  "Analyze a single form for symbol references. Handles all Common Lisp form types,
-  recursively analyzing structures that might contain symbols.
-
-  User-defined types (created via deftype) are handled implicitly based on their 
-  underlying implementation type. For example, a value of a type defined as 
-  (deftype my-string-list () '(or null (cons string))) would be analyzed via
-  the cons and string handling cases."
+  recursively analyzing structures that might contain symbols."
  (typecase form
    (symbol 
     (unless (or (member form '(nil t))
                 (eq (symbol-package form) (find-package :common-lisp))
-                (eq (symbol-package form) (find-package :keyword)))
-      (let ((pkg (symbol-package form)))
-        (record-reference *current-tracker* form
-                         :reference
-                         (file parser)
-                         :package (package-name pkg)))))
+                (eq (symbol-package form) (find-package :keyword))
+                (member form '(&optional &rest &body &key &allow-other-keys 
+                             &aux &whole &environment)))
+      (let* ((pkg (symbol-package form))
+             (bare-name (symbol-name form))
+             (pkg-name (if pkg (package-name pkg) (current-package-name parser)))
+             (current-file (file parser)))
+        ;; Record the reference unless it's bound by an enclosing lambda
+        (when (not (member form (bound-symbols parser)))
+          (record-reference *current-tracker* form
+                          :reference
+                          current-file
+                          :package pkg-name)
+          ;; Only check for undefined symbols if not locally bound
+          (let ((def (get-definitions *current-tracker* form)))
+            (unless (or def
+                       (and pkg 
+                            (eq pkg (current-package parser))
+                            (equal current-file 
+                                   (and def (definition.file def)))))
+              (record-anomaly *current-tracker*
+                             :undefined-reference
+                             :warning
+                             current-file
+                             (format nil "Reference to undefined symbol ~A::~A" 
+                                    pkg-name bare-name)
+                             form)))))))
    (cons
-    (analyze-form parser form))
+    (if (eq (car form) 'lambda)
+        ;; Special handling for lambda forms
+        (let* ((lambda-list (second form))
+               (body (cddr form))
+               (bound (extract-lambda-bindings lambda-list))
+               (old-bound (bound-symbols parser)))
+          ;; Add new bindings to parser state
+          (setf (bound-symbols parser)
+                (append bound (bound-symbols parser)))
+          ;; Analyze the body with updated bindings
+          (analyze-rest parser body)
+          ;; Restore old bindings
+          (setf (bound-symbols parser) old-bound))
+        ;; Normal list analysis
+        (analyze-form parser form)))
    (array
     (dotimes (i (array-total-size form))
       (analyze-subform parser (row-major-aref form i))))

@@ -41,12 +41,25 @@
     :initform nil
     :accessor package-cycles
     :documentation "List of detected package dependency cycles")
+   (anomalies
+    :initform (make-hash-table :test 'equal)
+    :accessor anomalies
+    :documentation "Maps anomaly types to lists of detected anomalies")
    (project-name
     :initarg :project-name
     :reader project.name
     :documentation "Name of the ASDF project being analyzed"))
   (:documentation 
    "Main data structure for tracking dependencies between files and symbols."))
+
+
+(defstruct (anomaly (:conc-name anomaly.))
+  "Data structure for recording dependency analysis anomalies"
+  (type nil :type keyword :read-only t)
+  (severity nil :type keyword :read-only t)
+  (location nil :type (or string pathname) :read-only t)
+  (description nil :type string :read-only t)
+  (context nil :type t :read-only t))
 
 
 (defclass project-parser ()
@@ -84,7 +97,11 @@
    (parsing-packages
     :initform nil
     :accessor parsing-packages
-    :documentation "Stack of packages being parsed for cycle detection"))
+    :documentation "Stack of packages being parsed for cycle detection")
+   (bound-symbols
+    :initform nil
+    :accessor bound-symbols
+    :documentation "Stack of symbols bound by enclosing lambda forms"))
   (:documentation
    "Parser for analyzing a single Lisp source file."))
 

@@ -28,6 +28,30 @@
                      (reason condition)))))
 
 
+(defun format-anomalies (stream tracker)
+  "Format all anomalies in a consistent way, grouped by type and severity."
+  (let ((found-anomalies nil))
+    ;; First get all anomaly types
+    (maphash (lambda (type anomaly-list)
+               (when anomaly-list
+                 (setf found-anomalies t)
+                 (format stream "~&~%~A Anomalies:~%" 
+                         (string-capitalize (symbol-name type)))
+                 ;; Group by severity within each type
+                 (loop for severity in '(:error :warning :info)
+                       for severity-anomalies = (remove severity anomaly-list 
+                                                      :key #'anomaly.severity 
+                                                      :test-not #'eq)
+                       when severity-anomalies do
+                         (format stream "  ~A:~%" (string-upcase (symbol-name severity)))
+                         (dolist (a (reverse severity-anomalies)) ; Reverse to show in detection order
+                           (format stream "    ~A~%" (anomaly.description a))
+                           (format stream "      Location: ~A~%" (anomaly.location a))))))
+             (anomalies tracker))
+    ;; Return whether we found any anomalies
+    found-anomalies))
+
+
 ;;; Report Generation Methods
 
 (defgeneric generate-report (format tracker &key stream)
@@ -38,6 +62,10 @@
   ;; Header
   (format stream "~&Dependency Analysis Report for Project: ~A~%" (project.name tracker))
   (format stream "~&================================================~%")
+  
+  ;; Anomalies section first
+  (when (format-anomalies stream tracker)
+    (format stream "~&------------------------------------------------~%"))
   
   ;; Cycle warnings - only show sections if cycles exist
   (alexandria:when-let ((cycles (get-project-cycles tracker)))
@@ -94,8 +122,26 @@
         (yason:*symbol-encoder* #'string-downcase))
     (yason:with-output (stream :indent t)
       (yason:with-object ()
-        ;; project name
+        ;; Project name
         (yason:encode-object-element "project" (project.name tracker))
+        
+        ;; Anomalies (new section)
+        (let ((anomaly-map (make-hash-table :test 'equal)))
+          (maphash (lambda (type anomaly-list)
+                    (when anomaly-list
+                      (setf (gethash (string-downcase (symbol-name type)) anomaly-map)
+                            (mapcar (lambda (a)
+                                    (alexandria:alist-hash-table
+                                     `(("severity" . ,(string-downcase 
+                                                     (symbol-name (anomaly.severity a))))
+                                       ("location" . ,(pathname-to-string (anomaly.location a)))
+                                       ("description" . ,(anomaly.description a)))
+                                     :test 'equal))
+                                  (reverse anomaly-list)))))
+                  (anomalies tracker))
+          (unless (zerop (hash-table-count anomaly-map))
+            (yason:with-object-element ("anomalies")
+              (yason:encode anomaly-map))))
         
         ;; Cycles (if any exist)
         (let ((project-cycles (get-project-cycles tracker))

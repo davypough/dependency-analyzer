@@ -212,8 +212,14 @@
     (when position
       (let* ((cycle (cons file-name (ldiff (parsing-files parser) position)))
              (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
-        ;; Record the cycle in the dependency tracker
-        (record-file-cycle chain)))))
+        ;; Record as both a cycle and an anomaly
+        (record-file-cycle chain)
+        (record-anomaly *current-tracker*
+                       :file-cycle
+                       :error
+                       file-name
+                       (format nil "File dependency cycle detected: ~A" chain)
+                       cycle)))))
 
 
 (defun detect-package-cycle (pkg-name current-packages)
@@ -222,4 +228,11 @@
     (when position
       (let* ((cycle (cons pkg-name (ldiff current-packages position)))
              (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
-        (record-package-cycle chain)))))
+        ;; Record as both a cycle and an anomaly
+        (record-package-cycle chain)
+        (record-anomaly *current-tracker*
+                       :package-cycle
+                       :error
+                       pkg-name
+                       (format nil "Package dependency cycle detected: ~A" chain)
+                       cycle)))))

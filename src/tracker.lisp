@@ -31,6 +31,7 @@
                     (symbol-name symbol))))
     result))
 
+
 (defmethod get-definitions (&optional tracker symbol)
   "Get all recorded definitions of a symbol.
    If only one argument is provided, treat it as the symbol and use the current tracker."
@@ -46,6 +47,7 @@
     (or (gethash key (slot-value actual-tracker 'definitions))
         ;; Try without package context as fallback
         (gethash (symbol-name symbol) (slot-value actual-tracker 'definitions)))))
+
 
 (defmethod get-references (&optional (tracker nil tracker-provided-p) symbol)
   "Get all recorded references to a symbol."
