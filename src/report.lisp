@@ -40,7 +40,7 @@
     (dolist (cycle cycles)
       (format stream "  ~A~%" cycle)))
   
-  ;; File dependencies - now only showing forward dependencies
+  ;; Enhanced file dependencies section with symbol references
   (format stream "~&~%File Dependencies:~%")
   (format stream "------------------------------------------------~%")
   (maphash (lambda (file definitions)
@@ -48,9 +48,13 @@
              (let ((deps (file-dependencies tracker file)))
                (when deps
                  (format stream "~&File: ~A~%" (pathname-to-string file))
-                 (format stream "  Depends on:~%")
+                 (format stream "      Depends on:~%")
                  (dolist (dep deps)
-                   (format stream "    ~A~%" (pathname-to-string dep))))))
+                   (format stream "        ~A~%" (pathname-to-string dep))
+                   ;; Add symbol references that create this dependency
+                   (let ((refs (collect-file-references tracker file dep)))
+                     (when refs
+                       (format stream "        References: ~{~A~^, ~}~%" refs)))))))
            (slot-value tracker 'file-map))
   
   ;; Package relationships
@@ -67,43 +71,7 @@
                  (format stream "  Exports:~%")
                  (dolist (sym (sort exports #'string< :key #'symbol-name))
                    (format stream "    ~A~%" sym)))))
-           (slot-value tracker 'package-uses))
-  
-  ;; Symbol cross-reference section  
-  (format stream "~&~%Symbol Cross-Reference:~%")
-  (format stream "------------------------------------------------~%")
-  (let ((symbols (make-hash-table :test 'equal)))
-    ;; Collect all symbols with their definitions and references
-    (maphash (lambda (key def)
-               (when (typep def 'definition)
-                 (push def (gethash (definition.symbol def) symbols))))
-             (slot-value tracker 'definitions))
-    
-    ;; Display organized by symbol
-    (maphash (lambda (sym definitions)
-               (format stream "~&~%Symbol: ~A~%" sym)
-               ;; Show definitions
-               (dolist (def (sort definitions #'string< 
-                                 :key (lambda (d) 
-                                       (format nil "~A" (definition.type d)))))
-                 (format stream "  ~A definition in ~A~%" 
-                         (string-capitalize (definition.type def))
-                         (pathname-to-string (definition.file def)))
-                 (when (definition.exported-p def)
-                   (format stream "    Exported from package ~A~%" 
-                           (definition.package def))))
-               
-               ;; Show references
-               (let ((refs (get-references tracker sym)))
-                 (when refs
-                   (format stream "  Referenced in:~%")
-                   (dolist (ref (sort refs #'string< 
-                                    :key (lambda (r) 
-                                          (pathname-to-string (reference.file r)))))
-                     (format stream "    ~A (~A)~%" 
-                             (pathname-to-string (reference.file ref))
-                             (reference.type ref))))))
-             symbols)))
+           (slot-value tracker 'package-uses)))
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
@@ -165,7 +133,7 @@
                               :test 'equal))))
                       generic-fns))))
         
-        ;; File dependencies
+        ;; File dependencies with references
         (let ((files (build-file-dependency-json tracker)))
           (when files
             (yason:with-object-element ("files")
@@ -175,66 +143,7 @@
         (let ((packages (build-package-dependency-json tracker)))
           (when packages
             (yason:with-object-element ("packages")
-              (yason:encode packages))))
-        
-        ;; Symbol cross-reference
-        (yason:with-object-element ("symbols")
-          (yason:with-object ()
-            (let ((symbol-map (make-hash-table :test 'equal)))
-              ;; Collect all symbols with their definitions and references
-              (maphash (lambda (key def)
-                        (when (typep def 'definition)
-                          (push def (gethash (definition.symbol def) symbol-map))))
-                      (slot-value tracker 'definitions))
-              
-              ;; Encode each symbol's information
-              (maphash (lambda (sym definitions)
-                        (yason:with-object-element ((symbol-name sym))
-                          (yason:with-object ()
-                            ;; Encode definitions
-                            (yason:with-object-element ("definitions")
-                              (yason:with-array ()
-                                (dolist (def definitions)
-                                  (yason:with-object ()
-                                    (yason:encode-object-element 
-                                     "type" 
-                                     (definition.type def))
-                                    (yason:encode-object-element 
-                                     "file" 
-                                     (pathname-to-string (definition.file def)))
-                                    (yason:encode-object-element 
-                                     "package" 
-                                     (definition.package def))
-                                    (yason:encode-object-element 
-                                     "exported" 
-                                     (definition.exported-p def))
-                                    (when (definition.context def)
-                                      (yason:encode-object-element 
-                                       "context" 
-                                       (definition.context def)))))))
-                            
-                            ;; Encode references
-                            (let ((refs (get-references tracker sym)))
-                              (when refs
-                                (yason:with-object-element ("references")
-                                  (yason:with-array ()
-                                    (dolist (ref refs)
-                                      (yason:with-object ()
-                                        (yason:encode-object-element 
-                                         "type" 
-                                         (reference.type ref))
-                                        (yason:encode-object-element 
-                                         "file" 
-                                         (pathname-to-string (reference.file ref)))
-                                        (when (reference.package ref)
-                                          (yason:encode-object-element 
-                                           "package" 
-                                           (reference.package ref)))
-                                        (when (reference.context ref)
-                                          (yason:encode-object-element 
-                                           "context" 
-                                           (reference.context ref))))))))))))
-                      symbol-map))))))))
+              (yason:encode packages))))))))
 
 
 (defmethod generate-report ((format (eql :dot)) tracker &key (stream *standard-output*))
@@ -294,88 +203,25 @@
                              ""))))
              all-files)
     
-    ;; Create file dependency edges (forward direction only)
+    ;; Create file dependency edges with reference labels
     (maphash (lambda (file definitions)
                (declare (ignore definitions))
                (let* ((file-name (source-file-name file))
                       (file-id (string-to-dot-id file-name)))
                  (dolist (dep (file-dependencies tracker file))
                    (let* ((dep-name (source-file-name dep))
-                          (dep-id (string-to-dot-id dep-name)))
-                     (format stream "    \"~A\" -> \"~A\";~%"
-                             file-id dep-id)))))
+                          (dep-id (string-to-dot-id dep-name))
+                          (refs (collect-file-references tracker file dep))
+                          ;; Create abbreviated label with "References: " prefix
+                          (label (format nil "References: ~A"
+                                       (if (> (length refs) 3)
+                                           (format nil "~{~A~^, ~}, ..." 
+                                                 (subseq (mapcar #'symbol-name refs) 0 3))
+                                           (format nil "~{~A~^, ~}" 
+                                                 (mapcar #'symbol-name refs))))))
+                     (format stream "    \"~A\" -> \"~A\" [label=\"~A\"];~%"
+                             file-id dep-id label)))))
              (slot-value tracker 'file-map)))
-  (format stream "  }~%~%")
-  
-  ;; Create generic function/method subgraph
-  (format stream "  subgraph cluster_methods {~%")
-  (format stream "    label=\"Generic Functions and Methods\";~%")
-  (format stream "    style=dashed;~%")
-  (format stream "    node [style=filled];~%")
-  
-  (let ((gf-map (make-hash-table :test 'equal))
-        (nodes-seen (make-hash-table :test 'equal)))
-    ;; Collect generic functions and methods
-    (maphash (lambda (key def)
-               (when (typep def 'definition)
-                 (case (definition.type def)
-                   ((:generic-function :method)
-                    (push def (gethash (definition.symbol def) gf-map))))))
-             (slot-value tracker 'definitions))
-    
-    ;; Create nodes and edges for generic functions and methods
-    (maphash (lambda (gf-name definitions)
-               (let ((gf-def (find :generic-function definitions 
-                                 :key #'definition.type))
-                     (methods (remove :generic-function definitions 
-                                    :key #'definition.type)))
-                 ;; Create generic function node
-                 (let ((gf-id (string-to-dot-id (format nil "gf_~A" gf-name))))
-                   (unless (gethash gf-id nodes-seen)
-                     (setf (gethash gf-id nodes-seen) t)
-                     (format stream "    \"~A\" [label=\"~A\",fillcolor=lightyellow];~%" 
-                             gf-id gf-name))
-                   
-                   ;; Create method nodes and connect to generic function
-                   (dolist (method methods)
-                     (let* ((context (definition.context method))
-                            (method-id (string-to-dot-id 
-                                      (format nil "method_~A_~A_~A"
-                                              gf-name
-                                              (getf context :qualifiers)
-                                              (getf context :specializers))))
-                            (method-label (format-method-signature 
-                                         gf-name
-                                         (getf context :qualifiers)
-                                         (getf context :specializers))))
-                       (unless (gethash method-id nodes-seen)
-                         (setf (gethash method-id nodes-seen) t)
-                         (format stream "    \"~A\" [label=\"~A\",fillcolor=lightgreen];~%" 
-                                 method-id method-label))
-                       ;; Connect method to its generic function
-                       (format stream "    \"~A\" -> \"~A\";~%"
-                               method-id gf-id)
-                       
-                       ;; Add edges to specializer classes
-                       (dolist (spec (getf context :specializers))
-                         (unless (eq spec t)
-                           (let* ((spec-name (if (listp spec)
-                                               (if (eq (car spec) 'eql)
-                                                   'eql
-                                                   (cadr spec))
-                                               spec))
-                                  (spec-id (string-to-dot-id 
-                                          (format nil "class_~A" spec-name))))
-                             ;; Create class node if needed
-                             (unless (gethash spec-id nodes-seen)
-                               (setf (gethash spec-id nodes-seen) t)
-                               (format stream "    \"~A\" [label=\"~A\",fillcolor=lightpink];~%" 
-                                       spec-id spec-name))
-                             ;; Connect method to specializer
-                             (format stream "    \"~A\" -> \"~A\" [style=dashed];~%"
-                                     method-id spec-id)))))))))
-             gf-map))
-  
   (format stream "  }~%~%")
   
   ;; Add any dependency cycles found

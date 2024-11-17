@@ -108,6 +108,26 @@
     (remove-duplicates (nreverse bindings))))
 
 
+(defun collect-file-references (tracker source-file target-file)
+  "Collect all symbols in SOURCE-FILE that reference definitions in TARGET-FILE.
+   Returns a list of symbols that create the dependency relationship."
+  (let ((refs ())
+        (target-defs (get-file-definitions tracker target-file)))
+    ;; Build hash table of symbols defined in target file for quick lookup
+    (let ((target-symbols (make-hash-table :test 'equal)))
+      (dolist (def target-defs)
+        (setf (gethash (definition.symbol def) target-symbols) t))
+      ;; Check all references in source file to see if they reference target symbols
+      (maphash (lambda (key refs-list)
+                 (dolist (ref refs-list)
+                   (when (and (equal (reference.file ref) source-file)
+                            (gethash (reference.symbol ref) target-symbols))
+                     (pushnew (reference.symbol ref) refs :test #'equal))))
+               (slot-value tracker 'references)))
+    ;; Return sorted list of referenced symbols
+    (sort refs #'string< :key #'symbol-name)))
+
+
 (defun method-qualifiers-match-p (recorded-qualifiers target-qualifiers)
   "Compare two lists of method qualifiers for equality.
    Handles both ordering-sensitive (e.g., :before vs :after)

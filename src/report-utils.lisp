@@ -294,8 +294,7 @@
 
 
 (defun build-file-dependency-json (tracker)
-  "Build JSON structure for file dependencies, showing only forward dependencies.
-   A file will only appear as a top-level key if it's not a dependency of another file."
+  "Build JSON structure for file dependencies, showing forward dependencies and their references."
   (let ((result (make-hash-table :test 'equal))
         (is-dependency (make-hash-table :test 'equal)))
     
@@ -311,13 +310,22 @@
                (declare (ignore definitions))
                (unless (gethash file is-dependency)
                  (let* ((file-str (pathname-to-string file))
-                        (deps (remove nil (mapcar #'pathname-to-string 
-                                                (file-dependencies tracker file)))))
+                        (deps (file-dependencies tracker file)))
                    (when deps  ; Only include files that have dependencies
-                     (setf (gethash file-str result)
-                           (alexandria:alist-hash-table
-                            `(("depends_on" . ,deps))
-                            :test 'equal))))))
+                     (let ((deps-with-refs 
+                            (mapcar (lambda (dep)
+                                    (alexandria:alist-hash-table
+                                     `(("file" . ,(pathname-to-string dep))
+                                       ;; Add "References: " prefix to maintain consistency
+                                       ("dependencies" . ,(format nil "References: ~{~A~^, ~}"
+                                                               (collect-file-references 
+                                                                tracker file dep))))
+                                     :test 'equal))
+                                  deps)))
+                       (setf (gethash file-str result)
+                             (alexandria:alist-hash-table
+                              `(("depends_on" . ,deps-with-refs))
+                              :test 'equal)))))))
              (slot-value tracker 'file-map))
     result))
 
