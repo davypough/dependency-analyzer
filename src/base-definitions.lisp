@@ -113,7 +113,8 @@
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol) :read-only t)
   (position nil :type (or null integer))
-  (exported-p nil :type boolean))
+  (exported-p nil :type boolean)
+  (context nil :type t))
 
 
 (defstruct (reference (:conc-name reference.))

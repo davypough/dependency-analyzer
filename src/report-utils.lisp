@@ -86,59 +86,6 @@
              :reason (format nil "Path is not writable: ~A" e)))))
 
 
-#+ignore (defun build-file-dependency-tree (tracker)
-  "Build a tree structure representing file dependencies."
-  (let ((nodes (make-hash-table :test 'equal))
-        (roots nil))
-    ;; First pass: Create nodes for all files that are either defined in or referenced
-    (maphash (lambda (file definitions)
-               (declare (ignore definitions))
-               ;; Create node for the defined file
-               (setf (gethash file nodes)
-                     (list :name (source-file-name file)
-                           :full-name file
-                           :children nil 
-                           :parents nil))
-               ;; Create nodes for all files that reference this one
-               (dolist (dependent (file-dependents tracker file))
-                 (unless (gethash dependent nodes)
-                   (setf (gethash dependent nodes)
-                         (list :name (source-file-name dependent)
-                               :full-name dependent
-                               :children nil
-                               :parents nil)))))
-             (slot-value tracker 'file-map))
-    
-    ;; Second pass: Connect dependencies based on dependencies and dependents
-    (maphash (lambda (file node)
-               ;; Connect based on file dependencies
-               (dolist (dep (file-dependencies tracker file))
-                 (when-let ((dep-node (gethash dep nodes)))
-                   (pushnew node (getf dep-node :children)
-                           :test #'equal
-                           :key (lambda (n) (getf n :full-name)))
-                   (pushnew dep-node (getf node :parents)
-                           :test #'equal
-                           :key (lambda (n) (getf n :full-name)))))
-               ;; Connect based on file dependents
-               (dolist (dep (file-dependents tracker file))
-                 (when-let ((dep-node (gethash dep nodes)))
-                   (pushnew dep-node (getf node :children)
-                           :test #'equal
-                           :key (lambda (n) (getf n :full-name)))
-                   (pushnew node (getf dep-node :parents)
-                           :test #'equal
-                           :key (lambda (n) (getf n :full-name))))))
-             nodes)
-    
-    ;; Find root nodes (files that are not depended on by any other files)
-    (maphash (lambda (file node)
-               (when (null (getf node :parents))
-                 (push node roots)))
-             nodes)
-    (sort roots #'string< :key (lambda (node) (getf node :name)))))
-
-
 (defun build-file-dependency-tree (tracker)
   "Build a tree structure representing file dependencies."
   (let ((nodes (make-hash-table :test 'equal))

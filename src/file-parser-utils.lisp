@@ -43,8 +43,114 @@
           (values sym (package-name (symbol-package sym))))))))
 
 
+(defun extract-method-specializers (lambda-list)
+  "Extract the specializer types from a method lambda list.
+   Handles standard, extended, and specialized lambda list syntax including:
+   - Standard parameters (defaulting to T)
+   - (var class) specializers
+   - (var (eql value)) specializers"
+  (loop for param in lambda-list
+        until (member param lambda-list-keywords)
+        collect (cond ((and (listp param) (= (length param) 2))
+                      (second param))                    ; (var type)
+                     ((and (listp param)                ; (var (eql val))
+                           (listp (second param))
+                           (eq (first (second param)) 'eql))
+                      (second param))
+                     ((symbolp param) t)                ; unspecialized
+                     (t param))))                       ; other cases
+
+
+(defun extract-lambda-bindings (lambda-list)
+  "Extract all symbols that would be bound by a lambda list.
+   Returns a list of bound symbols including parameters and their destructuring.
+   Handles method specializer syntax as well as standard lambda lists."
+  (let ((bindings nil)
+        (state :required))
+    (dolist (item lambda-list)
+      (case item
+        ((&optional &rest &key &aux)
+         (setf state item))
+        (&allow-other-keys
+         nil)
+        ((&whole &environment)
+         (setf state item))
+        (t (case state
+             (:required 
+              (push (etypecase item
+                     (symbol item)
+                     (cons (if (and (= (length item) 2)
+                                   (not (member (second item) lambda-list-keywords)))
+                             (first item)    ; Method specializer form (var type)
+                             (if (listp (first item))
+                                 (first (first item)) ; Destructuring
+                                 (first item)))))     ; Regular parameter with default
+                    bindings))
+             (&optional
+              (push (if (listp item) (car item) item) bindings))
+             (&rest
+              (push item bindings))
+             (&key
+              (push (cond ((listp item)
+                          (cond ((listp (car item))
+                                (cadar item))    ; ((keyword var))
+                               ((and (= (length item) 2)
+                                     (not (member (second item) lambda-list-keywords)))
+                                (car item))      ; (var specializer)
+                               (t (car item))))  ; (var default)
+                         (t item))              ; var
+                    bindings))
+             (&aux
+              (push (if (listp item) (car item) item) bindings))
+             ((&whole &environment)
+              (push item bindings)
+              (setf state :required))))))
+    (remove-duplicates (nreverse bindings))))
+
+
+(defun method-qualifiers-match-p (recorded-qualifiers target-qualifiers)
+  "Compare two lists of method qualifiers for equality.
+   Handles both ordering-sensitive (e.g., :before vs :after)
+   and ordering-insensitive (e.g., :method :around) qualifiers."
+  (and (= (length recorded-qualifiers) (length target-qualifiers))
+       (or (equal recorded-qualifiers target-qualifiers)
+           ;; For qualifiers where order doesn't matter
+           (and (intersection recorded-qualifiers target-qualifiers)
+                (subsetp recorded-qualifiers target-qualifiers)
+                (subsetp target-qualifiers recorded-qualifiers)))))
+
+
+(defun specializers-match-p (recorded-specializers target-specializers)
+  "Compare two lists of method specializers for equality.
+   Handles standard classes, EQL specializers, and T (unspecialized) parameters."
+  (and (= (length recorded-specializers) (length target-specializers))
+       (every (lambda (rec target)
+                (cond ((eq rec t) (eq target t))
+                      ((eq target t) (eq rec t))
+                      ((and (listp rec) (eq (car rec) 'eql)
+                            (listp target) (eq (car target) 'eql))
+                       (equal rec target))
+                      (t (eq rec target))))
+              recorded-specializers target-specializers)))
+
+
+(defun find-method-definition (tracker gf-name qualifiers specializers)
+  "Find a method definition matching the given generic function name,
+   qualifiers, and specializers."
+  (let* ((key (make-tracking-key gf-name))
+         (methods (remove :method (gethash key (slot-value tracker 'definitions))
+                         :key #'definition.type :test-not #'eq)))
+    (find-if (lambda (def)
+               (let ((context (definition.context def)))
+                 (and (method-qualifiers-match-p 
+                       (getf context :qualifiers) qualifiers)
+                      (specializers-match-p
+                       (getf context :specializers) specializers))))
+             methods)))
+
+
 (defmethod record-definition ((tracker dependency-tracker) symbol type file 
-                           &key position package exported-p)
+                           &key position package exported-p context)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
          (def (make-definition :symbol symbol
@@ -52,7 +158,8 @@
                              :file file
                              :package package
                              :position position
-                             :exported-p exported-p)))
+                             :exported-p exported-p
+                             :context context)))
     (setf (gethash key (slot-value tracker 'definitions)) def)
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p

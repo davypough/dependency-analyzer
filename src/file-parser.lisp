@@ -42,12 +42,108 @@
            (in-package (analyze-in-package parser form))
            ((defun defvar defparameter defconstant) (analyze-basic-definition parser form))
            (defmacro (analyze-macro-definition parser form))
+           (defgeneric (analyze-generic-definition parser form))
+           (defmethod (analyze-method-definition parser form))
            (define-condition (analyze-condition-definition parser form)) 
            ((defpackage) (analyze-package-definition parser form))
            (setf (analyze-setf-definition parser form))
            (otherwise (analyze-function-call parser form))))))
     (symbol
      (analyze-subform parser form))))
+
+
+(defmethod analyze-generic-definition ((parser file-parser) form)
+  "Handle generic function definition forms."
+  (let* ((name (second form))
+         (lambda-list (third form))
+         (options (cdddr form))
+         (package (current-package parser)))
+    ;; Record the generic function definition
+    (record-definition *current-tracker* name
+                      :generic-function
+                      (file parser)
+                      :package (current-package-name parser)
+                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
+                                    :external)
+                      :context (list :lambda-list lambda-list))
+    
+    ;; Process method options without analyzing lambda list
+    (dolist (option options)
+      (when (and (listp option) (eq (car option) :method))
+        (analyze-method-definition-internal parser name (cdr option))))))
+
+
+
+(defmethod analyze-method-definition ((parser file-parser) form)
+  "Handle method definition forms."
+  (destructuring-bind (defmethod name &rest rest) form
+    ;; Extract qualifiers and lambda-list
+    (let ((qualifiers nil)
+          (lambda-list nil)
+          (current rest))
+      ;; Collect qualifiers until we hit the lambda-list
+      (loop while (and current (not (listp (car current))))
+            do (push (pop current) qualifiers))
+      (setf qualifiers (nreverse qualifiers)
+            lambda-list (pop current))
+      
+      (analyze-method-definition-internal parser name qualifiers lambda-list current))))
+
+
+(defmethod analyze-generic-function-form ((parser file-parser) form)
+  "Handle generic function and method definition forms."
+  (destructuring-bind (def-type name &rest rest) form
+    (let ((package (current-package parser)))
+      (ecase def-type
+        (defgeneric
+         (destructuring-bind (lambda-list &rest options) rest
+           ;; Record the generic function definition
+           (record-definition *current-tracker* name
+                            :generic-function
+                            (file parser)
+                            :package (current-package-name parser)
+                            :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
+                                          :external)
+                            :context (list :lambda-list lambda-list))
+           ;; Process :method options as method definitions
+           (dolist (option options)
+             (when (and (listp option) (eq (car option) :method))
+               (analyze-method-definition-internal parser name (cdr option))))
+           ;; Analyze other options for references
+           (analyze-rest parser options)))
+        (defmethod
+         (analyze-method-definition-internal parser name rest))))))
+
+
+(defun analyze-method-definition-internal (parser name qualifiers lambda-list body)
+  "Process the common parts of method definition from both defmethod and defgeneric :method options."
+  (let* ((package (current-package parser))
+         ;; Process lambda-list to extract specializers
+         (specializers (extract-method-specializers lambda-list)))
+    ;; Record the method definition with its full context
+    (record-definition *current-tracker* name
+                      :method
+                      (file parser)
+                      :package (current-package-name parser)
+                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
+                                    :external)
+                      :context (list :qualifiers qualifiers
+                                   :specializers specializers))
+    ;; Record references to specializer types
+    (dolist (spec specializers)
+      (unless (eq spec t)
+        (let ((type-name (etypecase spec
+                          (symbol spec)
+                          (cons (if (eq (car spec) 'eql)
+                                  'eql
+                                  (cadr spec))))))
+          (when (symbolp type-name)
+            (record-reference *current-tracker* type-name
+                            :class-reference
+                            (file parser)
+                            :package (current-package-name parser))))))
+    ;; Analyze the method body
+    (analyze-rest parser body)))
 
 
 (defmethod analyze-in-package ((parser file-parser) form)
@@ -178,41 +274,6 @@
   "Handle package definition forms."
   (let ((name (normalize-package-name (second form))))
     (record-package-definition parser name (cddr form))))
-
-
-(defun extract-lambda-bindings (lambda-list)
-  "Extract all symbols that would be bound by a lambda list.
-   Returns a list of bound symbols including parameters and their destructuring."
-  (let ((bindings nil)
-        (state :required))
-    (dolist (item lambda-list)
-      (case item
-        ((&optional &rest &key &aux)
-         (setf state item))
-        (&allow-other-keys
-         nil)
-        ((&whole &environment)
-         (setf state item))
-        (t (case state
-             (:required 
-              (push (if (listp item) (car item) item) bindings))
-             (&optional
-              (push (if (listp item) (car item) item) bindings))
-             (&rest
-              (push item bindings))
-             (&key
-              (push (if (listp item)
-                       (if (listp (car item))
-                           (cadar item)  ; for ((keyword var))
-                           (car item))   ; for (var)
-                       item)
-                    bindings))
-             (&aux
-              (push (if (listp item) (car item) item) bindings))
-             ((&whole &environment)
-              (push item bindings)
-              (setf state :required))))))
-    bindings))
 
 
 (defmethod analyze-subform ((parser file-parser) form)
