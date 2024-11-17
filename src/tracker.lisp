@@ -9,6 +9,7 @@
 (defparameter *current-tracker* nil
   "The currently active dependency tracker instance.")
 
+
 (defmacro with-dependency-tracker ((&optional (tracker-form '(make-instance 'dependency-tracker :project-name "test-project"))) &body body)
   "Execute BODY with *CURRENT-TRACKER* bound to the result of TRACKER-FORM.
    If TRACKER-FORM is not provided, creates a new tracker instance."
@@ -57,11 +58,11 @@
                  (symbol-name symbol))))
     (gethash key (slot-value actual-tracker 'references))))
 
+
 (defmethod get-file-definitions (&optional (tracker nil tracker-provided-p) file)
   "Get all definitions in a file."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
     (gethash file (slot-value actual-tracker 'file-map))))
-
 
 
 (defmethod package-depends-on-p (&optional (tracker nil tracker-provided-p) package1 package2)

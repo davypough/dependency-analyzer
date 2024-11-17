@@ -10,13 +10,20 @@
 
 
 (defun record-dependency-cycle (parser project-name)
-  "Record a project dependency cycle in the tracker."
+  "Record a project dependency cycle in the tracker.
+   A cycle exists if we encounter a project that is already being parsed."
   (let ((position (member project-name (parsing-projects parser) :test #'string=)))
     (when position
       (let* ((cycle (cons project-name (ldiff (parsing-projects parser) position)))
-             (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
-        ;; Record the cycle in the dependency tracker
-        (record-project-cycle chain)))))
+             (chain (format nil "~{~A~^ -> ~}" cycle)))
+        ;; Record the cycle and create an anomaly
+        (record-project-cycle chain)
+        (record-anomaly *current-tracker*
+                       :project-cycle
+                       :error
+                       project-name
+                       (format nil "Project dependency cycle detected: ~A" chain)
+                       cycle)))))
 
 
 (defmethod parse-project ((parser project-parser))
@@ -25,7 +32,8 @@
 
 
 (defun parse-project-for (parser project)
-  "Parse the given project using the parser."
+  "Parse the given project using the parser.
+   Records any dependency cycles encountered during parsing."
   (let* ((project-name (asdf:component-name project))
          (components (asdf:component-children project)))
     (handler-case
@@ -38,7 +46,7 @@
           (push project-name (parsing-projects parser))
           (unwind-protect
               (progn
-                ;; Parse dependent projects first, reusing the same parser instance
+                ;; Parse dependent projects first
                 (dolist (dep (asdf:system-depends-on project))
                   (let* ((dep-name (if (listp dep) (second dep) dep))
                          (dep-sys (asdf:find-system dep-name nil)))
@@ -49,7 +57,6 @@
             ;; Always remove project from parsing stack
             (pop (parsing-projects parser))))
       (error (e)
-        ;; Pop project-name from parsing-projects
         (pop (parsing-projects parser))
         (error 'project-parse-error 
                :project-name project-name

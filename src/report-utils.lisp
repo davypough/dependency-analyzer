@@ -8,6 +8,104 @@
 (in-package #:dep)
 
 
+;;; Error Conditions
+
+(define-condition report-error (analyzer-error)
+  ((path 
+    :initarg :path 
+    :reader report-path
+    :documentation "Path that caused the error")
+   (reason 
+    :initarg :reason 
+    :reader reason
+    :documentation "Underlying cause of the error"))
+  (:documentation 
+   "Signaled when a report cannot be generated or saved.")
+  (:report (lambda (condition stream)
+             (format stream "Error generating report for path ~A: ~A"
+                     (report-path condition)
+                     (reason condition)))))
+
+
+(defun format-anomalies (stream tracker)
+  "Format all anomalies in a consistent way, grouped by type and severity."
+  (let ((found-anomalies nil))
+    ;; First get all anomaly types
+    (maphash (lambda (type anomaly-list)
+               (when anomaly-list
+                 (setf found-anomalies t)
+                 (format stream "~&~%~A Anomalies:~%" 
+                         (string-capitalize (symbol-name type)))
+                 ;; Group by severity within each type
+                 (loop for severity in '(:error :warning :info)
+                       for severity-anomalies = (remove severity anomaly-list 
+                                                      :key #'anomaly.severity 
+                                                      :test-not #'eq)
+                       when severity-anomalies do
+                         (format stream "  ~A:~%" (string-upcase (symbol-name severity)))
+                         (dolist (a (reverse severity-anomalies)) ; Reverse to show in detection order
+                           (format stream "    ~A~%" (anomaly.description a))
+                           (format stream "      Location: ~A~%" (anomaly.location a))))))
+             (anomalies tracker))
+    ;; Return whether we found any anomalies
+    found-anomalies))
+
+
+(defun format-specializers (specializers)
+  "Format method specializers in a readable way.
+   Examples:
+   - (t t) -> T T
+   - ((eql :square)) -> (EQL :SQUARE)
+   - (string number) -> STRING NUMBER"
+  (let ((result (format nil "~{~A~^ ~}"
+                       (mapcar (lambda (spec)
+                               (etypecase spec
+                                 ((eql t) 
+                                  "T")
+                                 (cons 
+                                  (if (eq (car spec) 'eql)
+                                      (format nil "(EQL ~A)" (cadr spec))
+                                      (format nil "~A" spec)))
+                                 (symbol
+                                  (format nil "~A" spec))))
+                             specializers))))
+    (if (string= result "") "T" result)))
+
+
+(defun format-qualifiers (qualifiers)
+  "Format method qualifiers in a readable way.
+   Examples:
+   - (:before) -> :BEFORE
+   - (:before :around) -> :BEFORE :AROUND
+   - nil -> \"\""
+  (typecase qualifiers
+    (null "")
+    (list (format nil "~{~A~^ ~}" 
+                  (mapcar (lambda (q)
+                          (typecase q
+                            (keyword (format nil "~A" q))
+                            (symbol (format nil "~A" q))
+                            (t (princ-to-string q))))
+                         qualifiers)))))
+
+
+(defun format-method-signature (name qualifiers specializers)
+  "Format a complete method signature.
+   Examples:
+   - (name () (t t)) -> name (T T)
+   - (name (:before) (string t)) -> name :BEFORE (STRING T)
+   - (name () ((eql :square))) -> name ((EQL :SQUARE))
+   - (name (:around :writer) (my-class t)) -> name :AROUND :WRITER (MY-CLASS T)"
+  (let ((qual-str (format-qualifiers qualifiers))
+        (spec-str (format-specializers specializers)))
+    (cond ((and (string= qual-str "") (string= spec-str ""))
+           (format nil "~A" name))
+          ((string= qual-str "")
+           (format nil "~A (~A)" name spec-str))
+          (t
+           (format nil "~A ~A (~A)" name qual-str spec-str)))))
+
+
 (defun pathname-to-string (pathname)
   "Convert a pathname to a string representation."
   (if pathname
@@ -89,46 +187,36 @@
 (defun build-file-dependency-tree (tracker)
   "Build a tree structure representing file dependencies."
   (let ((nodes (make-hash-table :test 'equal))
-        (roots nil))
+        (roots nil)
+        (is-dependency (make-hash-table :test 'equal)))  ; Track files that are dependencies
+    
+    ;; First create nodes for all files
     (maphash (lambda (file definitions)
                (declare (ignore definitions))
                (setf (gethash file nodes)
                      (list :name (source-file-name file)
                            :full-name file
-                           :children nil 
-                           :parents nil))
-               (dolist (dependent (file-dependents tracker file))
-                 (unless (gethash dependent nodes)
-                   (setf (gethash dependent nodes)
-                         (list :name (source-file-name dependent)
-                               :full-name dependent
-                               :children nil
-                               :parents nil)))))
+                           :children nil)))
              (slot-value tracker 'file-map))
     
+    ;; Then establish dependencies and track which files are dependencies
     (maphash (lambda (file node)
+               ;; Get files this one depends on
                (dolist (dep (file-dependencies tracker file))
-                 (when-let ((dep-node (gethash dep nodes)))
-                   (pushnew node (getf dep-node :children)
-                           :test #'equal
-                           :key (lambda (n) (getf n :full-name)))
-                   (pushnew dep-node (getf node :parents)
-                           :test #'equal
-                           :key (lambda (n) (getf n :full-name)))))
-               (dolist (dep (file-dependents tracker file))
                  (when-let ((dep-node (gethash dep nodes)))
                    (pushnew dep-node (getf node :children)
                            :test #'equal
                            :key (lambda (n) (getf n :full-name)))
-                   (pushnew node (getf dep-node :parents)
-                           :test #'equal
-                           :key (lambda (n) (getf n :full-name))))))
+                   ;; Mark this dep as being a dependency
+                   (setf (gethash dep is-dependency) t))))
              nodes)
     
+    ;; Find root nodes (files that aren't dependencies of any other file)
     (maphash (lambda (file node)
-               (when (null (getf node :parents))
+               (unless (gethash file is-dependency)
                  (push node roots)))
              nodes)
+    
     (sort roots #'string< :key (lambda (node) (getf node :name)))))
 
 
@@ -206,22 +294,30 @@
 
 
 (defun build-file-dependency-json (tracker)
-  "Build JSON structure for file dependencies."
-  (let ((result (make-hash-table :test 'equal)))
+  "Build JSON structure for file dependencies, showing only forward dependencies.
+   A file will only appear as a top-level key if it's not a dependency of another file."
+  (let ((result (make-hash-table :test 'equal))
+        (is-dependency (make-hash-table :test 'equal)))
+    
+    ;; First pass: identify which files are dependencies
     (maphash (lambda (file definitions)
                (declare (ignore definitions))
-               (let* ((file-str (pathname-to-string file))
-                      (deps (remove nil (mapcar #'pathname-to-string 
-                                              (file-dependencies tracker file))))
-                      (required-by (remove nil (mapcar #'pathname-to-string 
-                                                     (file-dependents tracker file)))))
-                 (when (or deps required-by)
-                   (setf (gethash file-str result)
-                         (alexandria:alist-hash-table
-                          (remove nil
-                                 `(,@(when deps `(("depends_on" . ,deps)))
-                                   ,@(when required-by `(("required_by" . ,required-by)))))
-                          :test 'equal)))))
+               (dolist (dep (file-dependencies tracker file))
+                 (setf (gethash dep is-dependency) t)))
+             (slot-value tracker 'file-map))
+    
+    ;; Second pass: only include non-dependency files as top-level entries
+    (maphash (lambda (file definitions)
+               (declare (ignore definitions))
+               (unless (gethash file is-dependency)
+                 (let* ((file-str (pathname-to-string file))
+                        (deps (remove nil (mapcar #'pathname-to-string 
+                                                (file-dependencies tracker file)))))
+                   (when deps  ; Only include files that have dependencies
+                     (setf (gethash file-str result)
+                           (alexandria:alist-hash-table
+                            `(("depends_on" . ,deps))
+                            :test 'equal))))))
              (slot-value tracker 'file-map))
     result))
 
@@ -260,7 +356,13 @@
 
 
 (defmethod file-dependencies (&optional (tracker nil tracker-provided-p) file)
-  "Get all files that this file depends on."
+  "Get all files that this file depends on.
+   Returns a list of files that contain definitions used by this file.
+   
+   TRACKER - Optional dependency tracker instance (defaults to *current-tracker*)
+   FILE - The source file to analyze dependencies for
+   
+   A file A depends on file B if A contains references to symbols defined in B."
   (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
          (deps ())
          (refs-seen (make-hash-table :test 'equal)))
@@ -275,6 +377,7 @@
                           (key (make-tracking-key sym pkg)))
                      (setf (gethash key refs-seen) t)))))
              (slot-value actual-tracker 'references))
+    
     ;; Then look up the definitions for each referenced symbol
     (maphash (lambda (key _)
                (declare (ignore _))
@@ -284,17 +387,10 @@
                      (unless (equal def-file file)
                        (pushnew def-file deps :test #'equal))))))
              refs-seen)
-    deps))
-
-(defmethod file-dependents (&optional (tracker nil tracker-provided-p) file)
-  "Get all files that depend on this file."
-  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
-         (deps ()))
-    (dolist (def (get-file-definitions actual-tracker file))
-      (let ((sym (definition.symbol def)))
-        (dolist (ref (get-references actual-tracker sym))
-          (let ((ref-file (reference.file ref)))
-            (unless (equal ref-file file)
-              (pushnew ref-file deps :test #'equal))))))
-    deps))
-
+    
+    ;; Return sorted list of dependencies
+    (sort deps #'string< 
+          :key (lambda (path)
+                 (if path 
+                     (namestring path)
+                     "")))))

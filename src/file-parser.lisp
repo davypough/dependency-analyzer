@@ -73,7 +73,6 @@
         (analyze-method-definition-internal parser name (cdr option))))))
 
 
-
 (defmethod analyze-method-definition ((parser file-parser) form)
   "Handle method definition forms."
   (destructuring-bind (defmethod name &rest rest) form
@@ -115,35 +114,14 @@
          (analyze-method-definition-internal parser name rest))))))
 
 
-(defun analyze-method-definition-internal (parser name qualifiers lambda-list body)
-  "Process the common parts of method definition from both defmethod and defgeneric :method options."
-  (let* ((package (current-package parser))
-         ;; Process lambda-list to extract specializers
-         (specializers (extract-method-specializers lambda-list)))
-    ;; Record the method definition with its full context
-    (record-definition *current-tracker* name
-                      :method
-                      (file parser)
-                      :package (current-package-name parser)
-                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
-                                    :external)
-                      :context (list :qualifiers qualifiers
-                                   :specializers specializers))
-    ;; Record references to specializer types
-    (dolist (spec specializers)
-      (unless (eq spec t)
-        (let ((type-name (etypecase spec
-                          (symbol spec)
-                          (cons (if (eq (car spec) 'eql)
-                                  'eql
-                                  (cadr spec))))))
-          (when (symbolp type-name)
-            (record-reference *current-tracker* type-name
-                            :class-reference
-                            (file parser)
-                            :package (current-package-name parser))))))
-    ;; Analyze the method body
-    (analyze-rest parser body)))
+(defun user-defined-type-p (spec)
+  "Return true if spec represents a user-defined type (not from CL package)."
+  (typecase spec
+    (symbol (not (find-symbol (symbol-name spec) (find-package :cl))))
+    (cons (case (car spec)
+            ((eql equal equalp member satisfies) nil)  ; Common predicates from CL
+            (t t)))  ; Other compound specs might reference user types
+    (t nil)))
 
 
 (defmethod analyze-in-package ((parser file-parser) form)

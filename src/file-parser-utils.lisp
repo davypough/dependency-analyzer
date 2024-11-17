@@ -134,6 +134,33 @@
               recorded-specializers target-specializers)))
 
 
+(defun analyze-method-definition-internal (parser name qualifiers lambda-list body)
+  "Process the common parts of method definition from both defmethod and defgeneric :method options."
+  (let* ((package (current-package parser))
+         (specializers (extract-method-specializers lambda-list)))
+    
+    ;; Record the method definition with its context
+    (record-definition *current-tracker* name
+                      :method
+                      (file parser)
+                      :package (current-package-name parser)
+                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
+                                    :external)
+                      :context (list :qualifiers qualifiers
+                                   :specializers specializers))
+
+    ;; Record references only for user-defined specializers 
+    (dolist (spec specializers)
+      (when (user-defined-type-p spec)
+        (record-reference *current-tracker* spec
+                         :class-reference
+                         (file parser)
+                         :package (current-package-name parser))))
+                         
+    ;; Analyze the method body
+    (analyze-rest parser body)))
+
+
 (defun find-method-definition (tracker gf-name qualifiers specializers)
   "Find a method definition matching the given generic function name,
    qualifiers, and specializers."
@@ -314,12 +341,13 @@
 ;;; Cycle Detection Utils
 
 (defun record-file-dependency-cycle (parser file-name)
-  "Record a file dependency cycle in the tracker."
+  "Record a file dependency cycle in the tracker.
+   A cycle exists if we encounter a file that is already in our parsing stack."
   (let ((position (member file-name (parsing-files parser) :test #'equal)))
     (when position
       (let* ((cycle (cons file-name (ldiff (parsing-files parser) position)))
-             (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
-        ;; Record as both a cycle and an anomaly
+             (chain (format nil "~{~A~^ -> ~}" cycle)))
+        ;; Record the cycle in the dependency tracker
         (record-file-cycle chain)
         (record-anomaly *current-tracker*
                        :file-cycle

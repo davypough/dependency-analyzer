@@ -9,104 +9,6 @@
 (in-package #:dep)
 
 
-;;; Error Conditions
-
-(define-condition report-error (analyzer-error)
-  ((path 
-    :initarg :path 
-    :reader report-path
-    :documentation "Path that caused the error")
-   (reason 
-    :initarg :reason 
-    :reader reason
-    :documentation "Underlying cause of the error"))
-  (:documentation 
-   "Signaled when a report cannot be generated or saved.")
-  (:report (lambda (condition stream)
-             (format stream "Error generating report for path ~A: ~A"
-                     (report-path condition)
-                     (reason condition)))))
-
-
-(defun format-anomalies (stream tracker)
-  "Format all anomalies in a consistent way, grouped by type and severity."
-  (let ((found-anomalies nil))
-    ;; First get all anomaly types
-    (maphash (lambda (type anomaly-list)
-               (when anomaly-list
-                 (setf found-anomalies t)
-                 (format stream "~&~%~A Anomalies:~%" 
-                         (string-capitalize (symbol-name type)))
-                 ;; Group by severity within each type
-                 (loop for severity in '(:error :warning :info)
-                       for severity-anomalies = (remove severity anomaly-list 
-                                                      :key #'anomaly.severity 
-                                                      :test-not #'eq)
-                       when severity-anomalies do
-                         (format stream "  ~A:~%" (string-upcase (symbol-name severity)))
-                         (dolist (a (reverse severity-anomalies)) ; Reverse to show in detection order
-                           (format stream "    ~A~%" (anomaly.description a))
-                           (format stream "      Location: ~A~%" (anomaly.location a))))))
-             (anomalies tracker))
-    ;; Return whether we found any anomalies
-    found-anomalies))
-
-
-(defun format-specializers (specializers)
-  "Format method specializers in a readable way.
-   Examples:
-   - (t t) -> T T
-   - ((eql :square)) -> (EQL :SQUARE)
-   - (string number) -> STRING NUMBER"
-  (let ((result (format nil "~{~A~^ ~}"
-                       (mapcar (lambda (spec)
-                               (etypecase spec
-                                 ((eql t) 
-                                  "T")
-                                 (cons 
-                                  (if (eq (car spec) 'eql)
-                                      (format nil "(EQL ~A)" (cadr spec))
-                                      (format nil "~A" spec)))
-                                 (symbol
-                                  (format nil "~A" spec))))
-                             specializers))))
-    (if (string= result "") "T" result)))
-
-
-(defun format-qualifiers (qualifiers)
-  "Format method qualifiers in a readable way.
-   Examples:
-   - (:before) -> :BEFORE
-   - (:before :around) -> :BEFORE :AROUND
-   - nil -> \"\""
-  (typecase qualifiers
-    (null "")
-    (list (format nil "~{~A~^ ~}" 
-                  (mapcar (lambda (q)
-                          (typecase q
-                            (keyword (format nil "~A" q))
-                            (symbol (format nil "~A" q))
-                            (t (princ-to-string q))))
-                         qualifiers)))))
-
-
-(defun format-method-signature (name qualifiers specializers)
-  "Format a complete method signature.
-   Examples:
-   - (name () (t t)) -> name (T T)
-   - (name (:before) (string t)) -> name :BEFORE (STRING T)
-   - (name () ((eql :square))) -> name ((EQL :SQUARE))
-   - (name (:around :writer) (my-class t)) -> name :AROUND :WRITER (MY-CLASS T)"
-  (let ((qual-str (format-qualifiers qualifiers))
-        (spec-str (format-specializers specializers)))
-    (cond ((and (string= qual-str "") (string= spec-str ""))
-           (format nil "~A" name))
-          ((string= qual-str "")
-           (format nil "~A (~A)" name spec-str))
-          (t
-           (format nil "~A ~A (~A)" name qual-str spec-str)))))
-
-
 ;;; Report Generation Methods
 
 (defgeneric generate-report (format tracker &key stream)
@@ -138,69 +40,15 @@
     (dolist (cycle cycles)
       (format stream "  ~A~%" cycle)))
   
-  ;; Generic Functions and Methods section
-  (format stream "~&~%Generic Functions and Methods:~%")
-  (format stream "------------------------------------------------~%")
-  (let ((generic-fns (make-hash-table :test 'equal)))
-    ;; First collect all generic functions and their methods
-    (maphash (lambda (key def)
-               (when (typep def 'definition)
-                 (case (definition.type def)
-                   (:generic-function
-                    (push def (gethash (definition.symbol def) generic-fns)))
-                   (:method
-                    (push def (gethash (definition.symbol def) generic-fns))))))
-             (slot-value tracker 'definitions))
-    
-    ;; Then display them organized by generic function
-    (maphash (lambda (gf-name definitions)
-               (let ((gf-def (find :generic-function definitions 
-                                 :key #'definition.type))
-                     (methods (remove :generic-function definitions 
-                                    :key #'definition.type)))
-                 ;; Print generic function header
-                 (format stream "~&~%Generic Function: ~A~%" gf-name)
-                 (when gf-def
-                   (format stream "  Defined in: ~A~%" 
-                           (pathname-to-string (definition.file gf-def)))
-                   (when-let ((lambda-list (getf (definition.context gf-def) 
-                                               :lambda-list)))
-                     (format stream "  Lambda List: ~A~%" lambda-list)))
-                 
-                 ;; Print methods sorted by qualifiers and specializers
-                 (when methods
-                   (format stream "  Methods:~%")
-                   (dolist (method (sort methods #'string< 
-                                       :key (lambda (m)
-                                             (let ((context (definition.context m)))
-                                               (format-method-signature 
-                                                (definition.symbol m)
-                                                (getf context :qualifiers)
-                                                (getf context :specializers))))))
-                     (let ((context (definition.context method)))
-                       (format stream "    ~A~%"
-                               (format-method-signature 
-                                (definition.symbol method)
-                                (getf context :qualifiers)
-                                (getf context :specializers)))
-                       (format stream "      Defined in: ~A~%" 
-                               (pathname-to-string (definition.file method))))))))
-             generic-fns))
-  
-  ;; File dependencies
+  ;; File dependencies - now only showing forward dependencies
   (format stream "~&~%File Dependencies:~%")
   (format stream "------------------------------------------------~%")
   (maphash (lambda (file definitions)
              (declare (ignore definitions))
-             (format stream "~&File: ~A~%" (pathname-to-string file))
              (let ((deps (file-dependencies tracker file)))
                (when deps
+                 (format stream "~&File: ~A~%" (pathname-to-string file))
                  (format stream "  Depends on:~%")
-                 (dolist (dep deps)
-                   (format stream "    ~A~%" (pathname-to-string dep)))))
-             (let ((deps (file-dependents tracker file)))
-               (when deps
-                 (format stream "  Required by:~%")
                  (dolist (dep deps)
                    (format stream "    ~A~%" (pathname-to-string dep))))))
            (slot-value tracker 'file-map))
@@ -221,7 +69,7 @@
                    (format stream "    ~A~%" sym)))))
            (slot-value tracker 'package-uses))
   
-  ;; Symbol cross-reference section
+  ;; Symbol cross-reference section  
   (format stream "~&~%Symbol Cross-Reference:~%")
   (format stream "------------------------------------------------~%")
   (let ((symbols (make-hash-table :test 'equal)))
@@ -243,20 +91,7 @@
                          (pathname-to-string (definition.file def)))
                  (when (definition.exported-p def)
                    (format stream "    Exported from package ~A~%" 
-                           (definition.package def)))
-                 (when (and (member (definition.type def) '(:method :generic-function))
-                          (definition.context def))
-                   (let ((context (definition.context def)))
-                     (case (definition.type def)
-                       (:method
-                        (format stream "    Method signature: ~A~%"
-                                (format-method-signature 
-                                 sym
-                                 (getf context :qualifiers)
-                                 (getf context :specializers))))
-                       (:generic-function
-                        (when-let ((lambda-list (getf context :lambda-list)))
-                          (format stream "    Lambda list: ~A~%" lambda-list)))))))
+                           (definition.package def))))
                
                ;; Show references
                (let ((refs (get-references tracker sym)))
@@ -433,36 +268,42 @@
   (format stream "    style=dashed;~%")
   (format stream "    node [style=filled,fillcolor=lightblue];~%")
   
-  ;; Track all files we need nodes for
-  (let ((all-files (make-hash-table :test 'equal)))
-    ;; Collect files from file-map and dependents
+  ;; Track all files and their dependencies
+  (let ((all-files (make-hash-table :test 'equal))
+        (is-dependency (make-hash-table :test 'equal)))
+    
+    ;; First identify all dependencies
     (maphash (lambda (file definitions)
                (declare (ignore definitions))
                (setf (gethash file all-files) t)
-               (dolist (dependent (file-dependents tracker file))
-                 (setf (gethash dependent all-files) t)))
+               (dolist (dep (file-dependencies tracker file))
+                 (setf (gethash dep all-files) t)
+                 (setf (gethash dep is-dependency) t)))
              (slot-value tracker 'file-map))
     
-    ;; Create file nodes
+    ;; Create nodes, marking root nodes differently
     (maphash (lambda (file _)
                (declare (ignore _))
                (let* ((file-name (source-file-name file))
                       (file-path (abbreviate-path file))
                       (file-id (string-to-dot-id file-name)))
-                 (format stream "    \"~A\" [label=\"~A\"];~%" 
-                         file-id file-path)))
+                 (format stream "    \"~A\" [label=\"~A\"~A];~%" 
+                         file-id file-path
+                         (if (not (gethash file is-dependency))
+                             ",fillcolor=lightgreen"  ; Root nodes in different color
+                             ""))))
              all-files)
     
-    ;; Create file dependency edges
+    ;; Create file dependency edges (forward direction only)
     (maphash (lambda (file definitions)
                (declare (ignore definitions))
                (let* ((file-name (source-file-name file))
                       (file-id (string-to-dot-id file-name)))
-                 (dolist (dependent (file-dependents tracker file))
-                   (let* ((dep-name (source-file-name dependent))
+                 (dolist (dep (file-dependencies tracker file))
+                   (let* ((dep-name (source-file-name dep))
                           (dep-id (string-to-dot-id dep-name)))
                      (format stream "    \"~A\" -> \"~A\";~%"
-                             dep-id file-id)))))
+                             file-id dep-id)))))
              (slot-value tracker 'file-map)))
   (format stream "  }~%~%")
   
