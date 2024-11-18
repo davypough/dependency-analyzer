@@ -94,15 +94,15 @@
 
 
 (defun analyze-project (project-name)
-  "Analyze an ASDF project and create a dependency tracker with results.
-   Returns the dependency tracker containing the analysis results.
-   Example: (analyze-project \"my-project\")"
-  (with-dependency-tracker ((make-instance 'dependency-tracker :project-name project-name))
-    (let* ((system (asdf:find-system project-name)))
-      (unless system
-        (error 'project-parse-error 
-               :project-name project-name
-               :reason "System not found"))
+  "Analyze an ASDF project and create a dependency tracker with results."
+  (let ((system (asdf:find-system project-name)))
+    (unless system
+      (error 'project-parse-error 
+             :project-name project-name
+             :reason "System not found"))
+    (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                           :project-name project-name
+                                           :project-root (asdf:system-source-directory system)))
       (let ((parser (make-instance 'project-parser :project system)))
         (parse-project parser)
         *current-tracker*))))

@@ -51,6 +51,21 @@
     found-anomalies))
 
 
+(defun project-pathname (pathname)
+  "Convert a pathname to a string representation relative to project root.
+   Returns a path starting with / that is relative to the project root.
+   E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
+  (when pathname
+    (let* ((project-root (project-root *current-tracker*))
+           (namestring (namestring pathname)))
+      (if project-root
+          (let ((relative (enough-namestring pathname project-root)))
+            (if (char= (char relative 0) #\/)
+                relative
+                (concatenate 'string "/" relative)))
+          namestring))))
+
+
 (defun format-specializers (specializers)
   "Format method specializers in a readable way.
    Examples:
@@ -180,7 +195,7 @@
         pathname)
     (error (e)
       (error 'report-error
-             :path pathname
+             :path (project-pathname pathname)
              :reason (format nil "Path is not writable: ~A" e)))))
 
 
@@ -294,40 +309,40 @@
 
 
 (defun build-file-dependency-json (tracker)
-  "Build JSON structure for file dependencies, showing forward dependencies and their references."
-  (let ((result (make-hash-table :test 'equal))
-        (is-dependency (make-hash-table :test 'equal)))
-    
-    ;; First pass: identify which files are dependencies
-    (maphash (lambda (file definitions)
-               (declare (ignore definitions))
-               (dolist (dep (file-dependencies tracker file))
-                 (setf (gethash dep is-dependency) t)))
-             (slot-value tracker 'file-map))
-    
-    ;; Second pass: only include non-dependency files as top-level entries
-    (maphash (lambda (file definitions)
-               (declare (ignore definitions))
-               (unless (gethash file is-dependency)
-                 (let* ((file-str (pathname-to-string file))
-                        (deps (file-dependencies tracker file)))
-                   (when deps  ; Only include files that have dependencies
-                     (let ((deps-with-refs 
-                            (mapcar (lambda (dep)
-                                    (alexandria:alist-hash-table
-                                     `(("file" . ,(pathname-to-string dep))
-                                       ;; Add "References: " prefix to maintain consistency
-                                       ("dependencies" . ,(format nil "References: ~{~A~^, ~}"
-                                                               (collect-file-references 
-                                                                tracker file dep))))
-                                     :test 'equal))
-                                  deps)))
-                       (setf (gethash file-str result)
-                             (alexandria:alist-hash-table
-                              `(("depends_on" . ,deps-with-refs))
-                              :test 'equal)))))))
-             (slot-value tracker 'file-map))
-    result))
+ "Build JSON structure for file dependencies, showing forward dependencies and their references."
+ (let ((result (make-hash-table :test 'equal))
+       (is-dependency (make-hash-table :test 'equal)))
+   
+   ;; First pass: identify which files are dependencies
+   (maphash (lambda (file definitions)
+              (declare (ignore definitions))
+              (dolist (dep (file-dependencies tracker file))
+                (setf (gethash dep is-dependency) t)))
+            (slot-value tracker 'file-map))
+   
+   ;; Second pass: only include non-dependency files as top-level entries
+   (maphash (lambda (file definitions)
+              (declare (ignore definitions))
+              (unless (gethash file is-dependency)
+                (let* ((file-str (project-pathname file))
+                       (deps (file-dependencies tracker file)))
+                  (when deps  ; Only include files that have dependencies
+                    (let ((deps-with-refs 
+                           (mapcar (lambda (dep)
+                                   (alexandria:alist-hash-table
+                                    `(("file" . ,(project-pathname dep))
+                                      ;; Add "References: " prefix to maintain consistency
+                                      ("dependencies" . ,(format nil "References: ~{~A~^, ~}"
+                                                              (collect-file-references 
+                                                               tracker file dep))))
+                                    :test 'equal))
+                                 deps)))
+                      (setf (gethash file-str result)
+                            (alexandria:alist-hash-table
+                             `(("depends_on" . ,deps-with-refs))
+                             :test 'equal)))))))
+            (slot-value tracker 'file-map))
+   result))
 
 
 (defun build-package-dependency-json (tracker)

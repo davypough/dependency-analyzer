@@ -48,7 +48,11 @@
    (project-name
     :initarg :project-name
     :reader project.name
-    :documentation "Name of the ASDF project being analyzed"))
+    :documentation "Name of the ASDF project being analyzed")
+   (project-root
+    :initarg :project-root
+    :reader project-root
+    :documentation "Root directory of the project being analyzed"))
   (:documentation 
    "Main data structure for tracking dependencies between files and symbols."))
 

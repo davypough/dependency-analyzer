@@ -47,10 +47,10 @@
              (declare (ignore definitions))
              (let ((deps (file-dependencies tracker file)))
                (when deps
-                 (format stream "~&File: ~A~%" (pathname-to-string file))
+                 (format stream "~&File: ~A~%" (project-pathname file))
                  (format stream "      Depends on:~%")
                  (dolist (dep deps)
-                   (format stream "        ~A~%" (pathname-to-string dep))
+                   (format stream "        ~A~%" (project-pathname dep))
                    ;; Add symbol references that create this dependency
                    (let ((refs (collect-file-references tracker file dep)))
                      (when refs
@@ -141,11 +141,11 @@
              (slot-value tracker 'file-map))
     
     ;; Create nodes, marking root nodes differently
-    (maphash (lambda (file _)
-               (declare (ignore _))
+    (maphash (lambda (file definitions)
+               (declare (ignore definitions))
                (let* ((file-name (source-file-name file))
-                      (file-path (abbreviate-path file))
-                      (file-id (string-to-dot-id file-name)))
+                      (file-id (string-to-dot-id file-name))
+                      (file-path (project-pathname file)))
                  (format stream "    \"~A\" [label=\"~A\"~A];~%" 
                          file-id file-path
                          (if (not (gethash file is-dependency))
