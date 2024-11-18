@@ -44,27 +44,28 @@
 
 
 (defun extract-method-specializers (lambda-list)
-  "Extract the specializer types from a method lambda list.
-   Handles standard, extended, and specialized lambda list syntax including:
-   - Standard parameters (defaulting to T)
-   - (var class) specializers
-   - (var (eql value)) specializers"
+  "Extract the specializer types from a method lambda list."
   (loop for param in lambda-list
         until (member param lambda-list-keywords)
-        collect (cond ((and (listp param) (= (length param) 2))
-                      (second param))                    ; (var type)
-                     ((and (listp param)                ; (var (eql val))
-                           (listp (second param))
-                           (eq (first (second param)) 'eql))
-                      (second param))
-                     ((symbolp param) t)                ; unspecialized
-                     (t param))))                       ; other cases
+        collect (if (and (listp param) (= (length param) 2))
+                   (second param)    ; (var type) -> type
+                   t)))             ; var -> t
 
 
-(defun extract-lambda-bindings (lambda-list)
-  "Extract all symbols that would be bound by a lambda list.
-   Returns a list of bound symbols including parameters and their destructuring.
-   Handles method specializer syntax as well as standard lambda lists."
+(defun extract-lambda-bindings (lambda-list &optional parser)
+  "Extract bindings from lambda list and optionally analyze initialization forms.
+   Handles:
+   - Regular function parameters
+   - Generic function parameters 
+   - Method specialized parameters ((var specializer))
+   - Complex lambda lists with destructuring
+   - &optional, &rest, &key parameters with defaults
+   - &aux bindings
+   
+   Returns just the binding symbols, stripping:
+   - Lambda list keywords
+   - Specializer forms
+   - Default value forms (which are analyzed if parser provided)"
   (let ((bindings nil)
         (state :required))
     (dolist (item lambda-list)
@@ -77,35 +78,146 @@
          (setf state item))
         (t (case state
              (:required 
-              (push (etypecase item
-                     (symbol item)
-                     (cons (if (and (= (length item) 2)
-                                   (not (member (second item) lambda-list-keywords)))
-                             (first item)    ; Method specializer form (var type)
-                             (if (listp (first item))
-                                 (first (first item)) ; Destructuring
-                                 (first item)))))     ; Regular parameter with default
-                    bindings))
+              (setf bindings 
+                    (append bindings
+                            (typecase item
+                              (symbol (list item))
+                              (cons
+                               (let ((var (if (and (listp (car item)) 
+                                                  (= (length (car item)) 2))
+                                            ;; Handle method specializers (var type)
+                                            (caar item)
+                                            (car item))))
+                                 ;; Handle initialization form if present
+                                 (when (and parser (cddr item))
+                                   (analyze-subform parser (third item)))
+                                 (extract-destructuring-bindings var)))))))
              (&optional
-              (push (if (listp item) (car item) item) bindings))
+              (when (and parser (listp item) (cddr item))
+                (analyze-subform parser (third item)))
+              (setf bindings
+                    (append bindings
+                            (if (listp item)
+                                (extract-destructuring-bindings (car item))
+                                (list item)))))
              (&rest
-              (push item bindings))
+              (typecase item
+                (symbol 
+                 (unless (member item lambda-list-keywords)
+                   (push item bindings)))
+                (cons 
+                 (push (car item) bindings))))
              (&key
-              (push (cond ((listp item)
-                          (cond ((listp (car item))
-                                (cadar item))    ; ((keyword var))
-                               ((and (= (length item) 2)
-                                     (not (member (second item) lambda-list-keywords)))
-                                (car item))      ; (var specializer)
-                               (t (car item))))  ; (var default)
-                         (t item))              ; var
-                    bindings))
+              (when (and parser (listp item) (cddr item))
+                (analyze-subform parser (third item)))
+              (setf bindings
+                    (append bindings
+                            (cond ((symbolp item)
+                                   (list item))
+                                  ((listp item)
+                                   (if (listp (car item))
+                                       (extract-destructuring-bindings (cadar item))
+                                       (extract-destructuring-bindings (car item))))))))
              (&aux
-              (push (if (listp item) (car item) item) bindings))
+              (when (and parser (listp item) (cdr item))
+                (analyze-subform parser (second item)))
+              (setf bindings
+                    (append bindings
+                            (if (listp item)
+                                (extract-destructuring-bindings (car item))
+                                (list item)))))
              ((&whole &environment)
               (push item bindings)
               (setf state :required))))))
-    (remove-duplicates (nreverse bindings))))
+    (remove-duplicates bindings)))
+
+
+(defun extract-destructuring-bindings (form)
+  "Extract all bindings from a destructuring form, handling nested structures.
+   Handles:
+   - Regular symbols
+   - Cons cells and lists
+   - Dotted lists
+   - Lambda-list keywords
+   - Method parameter specializers ((var type))
+   
+   Returns only the binding symbols, stripping:
+   - Lambda list keywords
+   - Method specializers"
+  (typecase form
+    (symbol 
+     (unless (member form lambda-list-keywords)
+       (list form)))
+    (cons
+     (case (car form)
+       (&optional (extract-destructuring-bindings (cdr form)))
+       (&rest (extract-destructuring-bindings (cdr form)))
+       (&key (extract-destructuring-bindings (cdr form)))
+       (&aux (extract-destructuring-bindings (cdr form)))
+       (otherwise
+        (if (consp (car form))
+            ;; Handle both nested destructuring and method specializers
+            (if (and (listp (car form)) 
+                    (= (length (car form)) 2))
+                ;; Method specializer case - just take the variable
+                (cons (first (car form))
+                      (extract-destructuring-bindings (cdr form)))
+                ;; Regular nested destructuring
+                (append (extract-destructuring-bindings (car form))
+                       (extract-destructuring-bindings (cdr form))))
+            ;; Handle dotted list case and regular cons
+            (let ((bindings (if (symbolp (car form))
+                               (list (car form))
+                               (extract-destructuring-bindings (car form)))))
+              (when (cdr form)
+                (if (symbolp (cdr form))
+                    (push (cdr form) bindings)
+                    (setf bindings 
+                          (append bindings 
+                                  (extract-destructuring-bindings (cdr form))))))
+              bindings)))))
+    (t nil)))
+
+
+(defun process-declarations (declarations parser)
+  "Process declarations, returning list of:
+   - special variables that should be treated as references
+   - ignored symbols that should not be treated as undefined references
+   - type declarations for documentation"
+  (let ((specials nil)
+        (ignores nil)
+        (types nil))
+    (dolist (decl declarations)
+      (when (listp decl)
+        (case (car decl)
+          ((special)
+           ;; Special vars are added to specials list and analyzed as references
+           (dolist (var (cdr decl))
+             (pushnew var specials)
+             (analyze-subform parser var)))
+          
+          ((ignore ignored)
+           ;; Ignored vars should not trigger undefined warnings
+           (dolist (var (cdr decl))
+             (pushnew var ignores)))
+          
+          ((type ftype)
+           ;; Process type declarations
+           (dolist (var (cddr decl))
+             (push (cons var (second decl)) types)))
+          
+          ((optimize)
+           ;; Optimize declarations don't affect dependency analysis
+           nil)
+          
+          (otherwise
+           ;; Handle (type var) shorthand declarations
+           (when (and (symbolp (car decl))
+                     (find-symbol (symbol-name (car decl)) 
+                                (find-package :common-lisp)))
+             (dolist (var (cdr decl))
+               (push (cons var (car decl)) types)))))))
+    (values specials ignores types)))
 
 
 (defun collect-file-references (tracker source-file target-file)
@@ -141,44 +253,28 @@
 
 
 (defun specializers-match-p (recorded-specializers target-specializers)
-  "Compare two lists of method specializers for equality.
-   Handles standard classes, EQL specializers, and T (unspecialized) parameters."
+  "Compare two lists of method specializers for equality."
   (and (= (length recorded-specializers) (length target-specializers))
-       (every (lambda (rec target)
-                (cond ((eq rec t) (eq target t))
-                      ((eq target t) (eq rec t))
-                      ((and (listp rec) (eq (car rec) 'eql)
-                            (listp target) (eq (car target) 'eql))
-                       (equal rec target))
-                      (t (eq rec target))))
-              recorded-specializers target-specializers)))
+       (every #'eq recorded-specializers target-specializers)))
 
 
 (defun analyze-method-definition-internal (parser name qualifiers lambda-list body)
   "Process the common parts of method definition from both defmethod and defgeneric :method options."
-  (let* ((package (current-package parser))
-         (specializers (extract-method-specializers lambda-list)))
-    
-    ;; Record the method definition with its context
-    (record-definition *current-tracker* name
-                      :method
-                      (file parser)
-                      :package (current-package-name parser)
-                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
-                                    :external)
-                      :context (list :qualifiers qualifiers
-                                   :specializers specializers))
-
-    ;; Record references only for user-defined specializers 
-    (dolist (spec specializers)
-      (when (user-defined-type-p spec)
-        (record-reference *current-tracker* spec
-                         :class-reference
-                         (file parser)
-                         :package (current-package-name parser))))
+  ;; Record the method definition with its qualifiers and specializers
+  (record-definition *current-tracker* name
+                    :method
+                    (file parser)
+                    :package (current-package-name parser)
+                    :exported-p (eq (nth-value 1 
+                                   (find-symbol (symbol-name name)
+                                              (current-package parser)))
+                                  :external)
+                    :context (list :qualifiers qualifiers
+                                 :specializers (extract-method-specializers lambda-list)))
                          
-    ;; Analyze the method body
-    (analyze-rest parser body)))
+  ;; Reuse existing function analysis logic
+  (let ((defun-form `(defun ,name ,lambda-list ,@body)))
+    (analyze-basic-definition parser defun-form)))
 
 
 (defun find-method-definition (tracker gf-name qualifiers specializers)

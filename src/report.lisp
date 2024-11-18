@@ -54,7 +54,7 @@
                    ;; Add symbol references that create this dependency
                    (let ((refs (collect-file-references tracker file dep)))
                      (when refs
-                       (format stream "        References: ~{~A~^, ~}~%" refs)))))))
+                       (format stream "      References: ~{~A~^, ~}~%" refs)))))))
            (slot-value tracker 'file-map))
   
   ;; Package relationships
@@ -82,56 +82,6 @@
       (yason:with-object ()
         ;; Project name
         (yason:encode-object-element "project" (project.name tracker))
-        
-        ;; Generic Functions and Methods
-        (yason:with-object-element ("generic_functions")
-          (yason:with-object ()
-            (let ((generic-fns (make-hash-table :test 'equal)))
-              ;; First collect all generic functions and their methods
-              (maphash (lambda (key def)
-                        (when (typep def 'definition)
-                          (case (definition.type def)
-                            (:generic-function
-                             (push def (gethash (definition.symbol def) generic-fns)))
-                            (:method
-                             (push def (gethash (definition.symbol def) generic-fns))))))
-                      (slot-value tracker 'definitions))
-              
-              ;; Then encode each generic function and its methods
-              (maphash #'(lambda (gf-name definitions)
-                          (let ((gf-def (find :generic-function definitions 
-                                            :key #'definition.type))
-                                (methods (remove :generic-function definitions 
-                                               :key #'definition.type)))
-                            (yason:encode-object-element 
-                             (symbol-name gf-name)
-                             (alexandria:alist-hash-table
-                              `(("file" . ,(when gf-def 
-                                           (pathname-to-string 
-                                            (definition.file gf-def))))
-                                ("lambda_list" . ,(when gf-def
-                                                  (getf (definition.context gf-def)
-                                                        :lambda-list)))
-                                ("methods" . ,(mapcar 
-                                             (lambda (method)
-                                               (let ((context (definition.context method)))
-                                                 (alexandria:alist-hash-table
-                                                  `(("signature" 
-                                                     . ,(format-method-signature
-                                                         (definition.symbol method)
-                                                         (getf context :qualifiers)
-                                                         (getf context :specializers)))
-                                                    ("qualifiers" 
-                                                     . ,(getf context :qualifiers))
-                                                    ("specializers" 
-                                                     . ,(getf context :specializers))
-                                                    ("file" 
-                                                     . ,(pathname-to-string 
-                                                         (definition.file method))))
-                                                  :test 'equal)))
-                                             methods)))
-                              :test 'equal))))
-                      generic-fns))))
         
         ;; File dependencies with references
         (let ((files (build-file-dependency-json tracker)))

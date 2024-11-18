@@ -101,9 +101,21 @@
    (bound-symbols
     :initform nil
     :accessor bound-symbols
-    :documentation "Stack of symbols bound by enclosing lambda forms"))
-  (:documentation
-   "Parser for analyzing a single Lisp source file."))
+    :documentation "Stack of symbols bound by enclosing lambda forms")
+  (block-names
+   :initform nil
+   :accessor block-names
+   :documentation "Stack of currently bound block names")
+  (go-tags
+   :initform nil
+   :accessor go-tags
+   :documentation "Stack of currently bound go tags")
+  (symbol-macro-bindings
+   :initform nil
+   :accessor symbol-macro-bindings
+   :documentation "Association list of symbol-macro expansions"))
+ (:documentation
+  "Parser for analyzing a single Lisp source file."))
 
 
 (defstruct (definition (:conc-name definition.))
