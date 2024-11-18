@@ -17,8 +17,8 @@
 
 (defmethod generate-report ((format (eql :text)) tracker &key (stream *standard-output*))
   ;; Header
-  (format stream "~&Dependency Analysis Report for Project: ~A~%" (project.name tracker))
-  (format stream "~&================================================~%")
+  ;(format stream "~&Dependency Analysis Report for Project: ~A~%" (project.name tracker))
+  ;(format stream "~&================================================~%")
   
   ;; Anomalies section first
   (when (format-anomalies stream tracker)
@@ -41,8 +41,8 @@
       (format stream "  ~A~%" cycle)))
   
   ;; Enhanced file dependencies section with symbol references
-  (format stream "~&~%File Dependencies:~%")
   (format stream "------------------------------------------------~%")
+  (format stream "~&~%File Dependencies:~2%")
   (maphash (lambda (file definitions)
              (declare (ignore definitions))
              (let ((deps (file-dependencies tracker file)))
@@ -58,8 +58,8 @@
            (slot-value tracker 'file-map))
   
   ;; Package relationships
-  (format stream "~&~%Package Dependencies:~%")
-  (format stream "------------------------------------------------~%")
+  (format stream "~%------------------------------------------------~%")
+  (format stream "~&~%Package Dependencies:~2%")
   (maphash (lambda (pkg used-pkgs)
              (format stream "~&Package: ~A~%" pkg)
              (when used-pkgs
