@@ -92,29 +92,40 @@
   (destructuring-bind (def-op name-and-options &rest slots) form
     (declare (ignore def-op))
     ;; Handle both simple name and (name options...) forms
-    (let* ((name (if (listp name-and-options) 
+    (let* ((name (if (and (listp name-and-options) 
+                         (symbolp (car name-and-options)))
                      (car name-and-options)
                      name-and-options))
-           (options (when (listp name-and-options) 
-                     (cdr name-and-options)))
+           (options (if (and (listp name-and-options)
+                           (symbolp (car name-and-options)))
+                       (cdr name-and-options)
+                       nil))
+           ;; Get real slots list - if first item looks like an option, start options list
+           (real-slots (if (and (consp (car slots))
+                              (keywordp (caar slots)))
+                          (progn
+                            (setf options (append options (list (car slots))))
+                            (cdr slots))
+                          slots))
            (package (current-package parser))
            ;; Parse structure options
-           (conc-name (let ((override (find :conc-name options 
-                                          :key #'car)))
-                       (if override
-                           (cadr override)
-                           (concatenate 'string 
-                                      (symbol-name name)
-                                      "-"))))
+           (conc-name-option (find :conc-name options :key #'car))
+           (conc-name (cond ((null conc-name-option) 
+                            (concatenate 'string (symbol-name name) "-"))
+                           ((null (second conc-name-option)) 
+                            "")
+                           (t 
+                            (let ((prefix (second conc-name-option)))
+                              (if (symbolp prefix)
+                                  (symbol-name prefix)
+                                  prefix)))))
            (include (find :include options :key #'car))
-           (constructor (let ((override (find :constructor options 
-                                            :key #'car)))
+           (constructor (let ((override (find :constructor options :key #'car)))
                          (if override
                              (or (cadr override)
                                  (symbolicate "MAKE-" name))
                              (symbolicate "MAKE-" name))))
-           (copier (let ((override (find :copier options
-                                       :key #'car)))
+           (copier (let ((override (find :copier options :key #'car)))
                     (if override
                         (cadr override)
                         (symbolicate "COPY-" name)))))
@@ -125,9 +136,9 @@
                         (file parser)
                         :package (current-package-name parser)
                         :exported-p (eq (nth-value 1 
-                                       (find-symbol (symbol-name name)
-                                                  package))
-                                      :external))
+                                      (find-symbol (symbol-name name)
+                                                 package))
+                                     :external))
       
       ;; Record constructor
       (when constructor
@@ -136,9 +147,9 @@
                           (file parser)
                           :package (current-package-name parser)
                           :exported-p (eq (nth-value 1 
-                                         (find-symbol (symbol-name constructor)
-                                                    package))
-                                        :external)))
+                                        (find-symbol (symbol-name constructor)
+                                                   package))
+                                       :external)))
       
       ;; Record copier
       (when copier
@@ -147,29 +158,29 @@
                           (file parser)
                           :package (current-package-name parser)
                           :exported-p (eq (nth-value 1 
-                                         (find-symbol (symbol-name copier)
-                                                    package))
-                                        :external)))
+                                        (find-symbol (symbol-name copier)
+                                                   package))
+                                       :external)))
       
       ;; Handle included structure slots if present
       (when include
         (analyze-subform parser (cadr include)))
       
       ;; Process each slot
-      (dolist (slot slots)
+      (dolist (slot real-slots)
         (let* ((slot-name (if (listp slot) (car slot) slot))
-               (accessor-name (if (stringp conc-name)
-                                (symbolicate conc-name slot-name)
-                                slot-name)))
+               (accessor-name-str (concatenate 'string conc-name (symbol-name slot-name)))
+               (accessor-symbol (intern accessor-name-str package)))
+          
           ;; Record accessor function
-          (record-definition *current-tracker* accessor-name
+          (record-definition *current-tracker* accessor-symbol
                            :function
                            (file parser)
                            :package (current-package-name parser)
                            :exported-p (eq (nth-value 1 
-                                          (find-symbol (symbol-name accessor-name)
-                                                     package))
-                                         :external))
+                                         (find-symbol (symbol-name accessor-symbol)
+                                                    package))
+                                        :external))
           
           ;; Analyze slot options if present
           (when (listp slot)
@@ -1023,7 +1034,7 @@
                                (current-package-name parser)))
                    (current-file (file parser)))
               ;; Only check for undefined symbols if not locally bound
-              (let ((def (get-definitions *current-tracker* form)))
+              (let ((def (get-definitions form)))
                 (unless (or def
                            (and pkg 
                                 (eq pkg (current-package parser))
