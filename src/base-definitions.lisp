@@ -133,11 +133,14 @@
   (context nil :type t))
 
 
-(defstruct (reference (:conc-name reference.))
-  "Data structure holding info about a lisp reference to a definition"
-  (symbol nil :type symbol :read-only t)
-  (type nil :type keyword :read-only t)
-  (file nil :type (or string pathname) :read-only t)
-  (position nil :type (or null integer))
-  (context nil :type t)
-  (package nil :type (or string symbol null)))
+(eval-when (:compile-toplevel :load-toplevel :execute)  ;prevents double loading???
+  (unless (find-class 'reference nil)
+    (defstruct (reference (:conc-name reference.))
+      "Data structure holding info about a lisp reference to a definition"
+      (symbol nil :type symbol :read-only t)
+      (type nil :type keyword :read-only t)      ; :call or :reference
+      (visibility nil :type keyword :read-only t) ; :inherited, :imported, or :local
+      (file nil :type (or string pathname) :read-only t)
+      (position nil :type (or null integer))
+      (context nil :type t)
+      (package nil :type (or string symbol null)))))

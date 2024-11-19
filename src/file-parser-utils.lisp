@@ -258,25 +258,6 @@
        (every #'eq recorded-specializers target-specializers)))
 
 
-(defun analyze-method-definition-internal (parser name qualifiers lambda-list body)
-  "Process the common parts of method definition from both defmethod and defgeneric :method options."
-  ;; Record the method definition with its qualifiers and specializers
-  (record-definition *current-tracker* name
-                    :method
-                    (file parser)
-                    :package (current-package-name parser)
-                    :exported-p (eq (nth-value 1 
-                                   (find-symbol (symbol-name name)
-                                              (current-package parser)))
-                                  :external)
-                    :context (list :qualifiers qualifiers
-                                 :specializers (extract-method-specializers lambda-list)))
-                         
-  ;; Reuse existing function analysis logic
-  (let ((defun-form `(defun ,name ,lambda-list ,@body)))
-    (analyze-basic-definition parser defun-form)))
-
-
 (defun find-method-definition (tracker gf-name qualifiers specializers)
   "Find a method definition matching the given generic function name,
    qualifiers, and specializers."
@@ -311,19 +292,21 @@
 
 
 (defmethod record-reference ((tracker dependency-tracker) symbol type file 
-                          &key position context package)
-  "Record a symbol reference in the tracker."
+                          &key position context package visibility)
+  "Record a symbol reference in the tracker.
+   TYPE is :call or :reference
+   VISIBILITY is :inherited, :imported, or :local (defaults to :local)"
   (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
                                         (package-name (symbol-package symbol)))))
          (ref (make-reference :symbol symbol
                             :type type
+                            :visibility (or visibility :local)
                             :file file
                             :position position
                             :context context
                             :package package)))
     (push ref (gethash key (slot-value tracker 'references)))
     ref))
-
 
 
 (defmethod record-package-use ((tracker dependency-tracker) using-package used-package)
@@ -417,11 +400,12 @@
         (multiple-value-bind (s status)
             (find-symbol (symbol-name sym) package)
           (when (and s (eq status :inherited))
-            ;; Record the inherited relationship
+            ;; Record the inherited relationship 
             (record-reference *current-tracker* sym
                             :inherited
                             (file parser)
-                            :package (package-name used-pkg))
+                            :package (package-name used-pkg)
+                            :visibility :inherited)  ; Updated from no visibility
             ;; Also record potential call reference if it's a function
             (when (and (fboundp sym) 
                       (not (macro-function sym))
@@ -429,7 +413,8 @@
               (record-reference *current-tracker* sym
                               :call
                               (file parser)
-                              :package (package-name used-pkg)))))))))
+                              :package (package-name used-pkg)
+                              :visibility :inherited))))))))
 
 
 (defun process-package-import-option (package from-pkg-name pkg-name parser sym)
@@ -441,9 +426,10 @@
       (import from-sym package)
       (record-package-use *current-tracker* pkg-name from-pkg-name)
       (record-reference *current-tracker* from-sym
-                       :import
+                       :reference
                        (file parser)
-                       :package from-pkg-name))))
+                       :package from-pkg-name
+                       :visibility :imported)))) 
 
 
 (defun process-package-export-option (package pkg-name sym)
