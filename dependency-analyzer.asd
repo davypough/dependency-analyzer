@@ -5,10 +5,6 @@
   :version "0.1.0"
   :depends-on (#:alexandria
                #:asdf
-               #:cl-ppcre
-               #:closer-mop
-               #:trivia
-               #:trivial-types
                #:yason        ;JSON report generation
                #:local-time)  ;report timestamps
   :serial t

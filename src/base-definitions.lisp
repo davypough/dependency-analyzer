@@ -10,6 +10,44 @@
   "The currently active dependency tracker instance.")
 
 
+(defun string-member-p (x strings)
+  "Checks if X is a member of STRINGS using string=."
+  (find x strings :test #'string=))
+
+
+(deftype string-member (&rest strings)
+  '(satisfies string-member-p))
+
+
+(defstruct (definition (:conc-name definition.))
+  "Data structure holding info about a lisp definition--eg, defun, defvar"
+  (symbol nil :type symbol :read-only t)
+  (type nil :type (string-member "STRUCTURE" "VARIABLE" "FUNCTION" "MACRO" 
+                                 "GENERIC-FUNCTION" "METHOD" "CONDITION")
+            :read-only t)
+  (file nil :type (or string pathname) :read-only t)
+  (package nil :type (or string symbol) :read-only t) 
+  (exported-p nil :type boolean :read-only t))
+
+
+(defstruct (reference (:conc-name reference.))
+  "Data structure holding info about a lisp reference to a definition"
+  (symbol nil :type symbol :read-only t)
+  (type nil :type (string-member "REFERENCE" "CALL") :read-only t)
+  (file nil :type (or string pathname) :read-only t)
+  (package nil :type (or string symbol null) :read-only t)
+  (visibility nil :type (string-member "LOCAL" "INHERITED" "IMPORTED") :read-only t))
+
+
+(defstruct (anomaly (:conc-name anomaly.))
+  "Data structure for recording dependency analysis anomalies"
+  (type nil :type keyword :read-only t)
+  (severity nil :type keyword :read-only t)
+  (location nil :type (or string pathname) :read-only t)
+  (description nil :type string :read-only t)
+  (context nil :type t :read-only t))
+
+
 (defclass dependency-tracker ()
   ((definitions 
     :initform (make-hash-table :test 'equal)
@@ -55,15 +93,6 @@
     :documentation "Root directory of the project being analyzed"))
   (:documentation 
    "Main data structure for tracking dependencies between files and symbols."))
-
-
-(defstruct (anomaly (:conc-name anomaly.))
-  "Data structure for recording dependency analysis anomalies"
-  (type nil :type keyword :read-only t)
-  (severity nil :type keyword :read-only t)
-  (location nil :type (or string pathname) :read-only t)
-  (description nil :type string :read-only t)
-  (context nil :type t :read-only t))
 
 
 (defclass project-parser ()
@@ -120,27 +149,3 @@
    :documentation "Association list of symbol-macro expansions"))
  (:documentation
   "Parser for analyzing a single Lisp source file."))
-
-
-(defstruct (definition (:conc-name definition.))
-  "Data structure holding info about a lisp definition--eg, defun, defvar"
-  (symbol nil :type symbol :read-only t)
-  (type nil :type keyword :read-only t)
-  (file nil :type (or string pathname) :read-only t)
-  (package nil :type (or string symbol) :read-only t)
-  (position nil :type (or null integer))
-  (exported-p nil :type boolean)
-  (context nil :type t))
-
-
-(eval-when (:compile-toplevel :load-toplevel :execute)  ;prevents double loading???
-  (unless (find-class 'reference nil)
-    (defstruct (reference (:conc-name reference.))
-      "Data structure holding info about a lisp reference to a definition"
-      (symbol nil :type symbol :read-only t)
-      (type nil :type keyword :read-only t)      ; :call or :reference
-      (visibility nil :type keyword :read-only t) ; :inherited, :imported, or :local
-      (file nil :type (or string pathname) :read-only t)
-      (position nil :type (or null integer))
-      (context nil :type t)
-      (package nil :type (or string symbol null)))))

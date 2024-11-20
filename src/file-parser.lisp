@@ -100,7 +100,7 @@
       
       ;; Record the structure type definition
       (record-definition *current-tracker* name
-                        :structure
+                        "STRUCTURE"
                         (file parser)
                         :package (current-package-name parser)
                         :exported-p (eq (nth-value 1 
@@ -120,7 +120,7 @@
           
           ;; Record accessor function definition (new)
           (record-definition *current-tracker* accessor-symbol
-                           :function
+                           "FUNCTION"
                            (file parser)
                            :package (current-package-name parser)
                            :exported-p (eq (nth-value 1 
@@ -136,124 +136,6 @@
                             (eq (symbol-package value) 
                                 (find-package :common-lisp)))
                   when value do (analyze-subform parser value))))))))
-
-
-(defun analyze-method-combination-definition (parser form)
-  "Handle method combination definitions with their complex options."
-  (destructuring-bind (def-op name &optional short-form-options &rest body) form
-    (declare (ignore def-op))
-    (let* ((package (current-package parser)))
-      ;; Record the method combination definition
-      (record-definition *current-tracker* name
-                        :method-combination
-                        (file parser)
-                        :package (current-package-name parser)
-                        :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
-                                      :external))
-
-      (if (listp short-form-options)
-          ;; Long form definition
-          (destructuring-bind (method-group-specs &rest options) body
-            ;; Create a lambda-list from group vars and option vars
-            (let* ((group-vars (mapcan (lambda (group-spec)
-                                       (when (listp group-spec)
-                                         (list (car group-spec))))
-                                     method-group-specs))
-                   (option-vars (mapcan (lambda (option)
-                                        (when (eq (car option) :arguments)
-                                          (copy-list (cdr option))))
-                                      options))
-                   (gf-var (cdr (assoc :generic-function options)))
-                   (all-vars (append group-vars 
-                                   option-vars
-                                   (when gf-var (list gf-var))))
-                   ;; Construct a defun form for consistent binding handling
-                   (defun-form `(defun ,name ,all-vars
-                                ,@(cddr body))))
-              (analyze-basic-definition parser defun-form)))
-
-          ;; Short form definition - just analyze options and body
-          (progn
-            (when short-form-options
-              (analyze-subform parser short-form-options))
-            (analyze-rest parser body))))))
-
-
-(defun analyze-symbol-macro-definition (parser form)
- "Handle symbol macro definitions."
- (destructuring-bind (def-op name expansion) form
-   (declare (ignore def-op))
-   (let ((package (current-package parser)))
-     ;; Record the symbol macro definition
-     (record-definition *current-tracker* name
-                       :symbol-macro
-                       (file parser)
-                       :package (current-package-name parser)
-                       :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) package))
-                                     :external))
-     
-     ;; Add to symbol macro bindings for future expansion
-     (push (cons name expansion) (symbol-macro-bindings parser))
-     
-     ;; Analyze the expansion form
-     (analyze-subform parser expansion))))
-
-
-(defun analyze-macro-character-definition (parser form)
- "Handle reader macro character definitions."
- (destructuring-bind (set-op char fn &optional non-terminating-p) form
-   (declare (ignore set-op non-terminating-p))
-   ;; Analyze the character (though usually literal)
-   (analyze-subform parser char)
-   
-   ;; If the function is a lambda form, analyze it
-   (when (and (listp fn) (eq (car fn) 'lambda))
-     (destructuring-bind (lambda lambda-list &rest body) fn
-       (declare (ignore lambda))
-       (let ((old-bound (bound-symbols parser)))
-         ;; Add stream and char parameters to bindings
-         (setf (bound-symbols parser)
-               (append (extract-lambda-bindings lambda-list parser)
-                      (bound-symbols parser)))
-         
-         ;; Analyze the reader macro body
-         (analyze-rest parser body)
-         
-         ;; Restore bindings
-         (setf (bound-symbols parser) old-bound))))
-   
-   ;; If the function is a reference, analyze it
-   (when (symbolp fn)
-     (analyze-subform parser fn))))
-
-
-(defun analyze-dispatch-macro-definition (parser form)
- "Handle dispatch macro character definitions."
- (destructuring-bind (set-op disp-char sub-char fn) form
-   (declare (ignore set-op))
-   ;; Analyze the characters (though usually literal)
-   (analyze-subform parser disp-char)
-   (analyze-subform parser sub-char)
-   
-   ;; If the function is a lambda form, analyze it
-   (when (and (listp fn) (eq (car fn) 'lambda))
-     (destructuring-bind (lambda lambda-list &rest body) fn
-       (declare (ignore lambda))
-       (let ((old-bound (bound-symbols parser)))
-         ;; Add stream, char, and arg parameters to bindings
-         (setf (bound-symbols parser)
-               (append (extract-lambda-bindings lambda-list parser)
-                      (bound-symbols parser)))
-         
-         ;; Analyze the reader macro body
-         (analyze-rest parser body)
-         
-         ;; Restore bindings
-         (setf (bound-symbols parser) old-bound))))
-   
-   ;; If the function is a reference, analyze it
-   (when (symbolp fn)
-     (analyze-subform parser fn))))
 
 
 (defun analyze-body-with-declarations (parser body)
@@ -278,223 +160,6 @@
    
    ;; Analyze remaining body forms
    (analyze-rest parser forms)))
-
-
-(defun analyze-multiple-value-bind-form (parser form)
- "Handle multiple-value-bind forms, establishing variable bindings."
- (destructuring-bind (mvb vars value-form &rest body) form
-   (declare (ignore mvb))
-   (let ((old-bound (bound-symbols parser)))
-     ;; First analyze the value-producing form
-     (analyze-subform parser value-form)
-     
-     ;; Add variable bindings
-     (setf (bound-symbols parser)
-           (append vars (bound-symbols parser)))
-     
-     ;; Analyze body with bindings in effect
-     (analyze-rest parser body)
-     
-     ;; Restore original bindings
-     (setf (bound-symbols parser) old-bound))))
-
-
-(defun analyze-destructuring-bind-form (parser form)
- "Handle destructuring-bind forms, establishing complex bindings."
- (destructuring-bind (db lambda-list value-form &rest body) form
-   (declare (ignore db))
-   (let ((old-bound (bound-symbols parser)))
-     ;; First analyze the value-producing form
-     (analyze-subform parser value-form)
-     
-     ;; Extract and add bindings from lambda list
-     (let ((bound (extract-lambda-bindings lambda-list parser)))
-       (setf (bound-symbols parser)
-             (append bound (bound-symbols parser))))
-     
-     ;; Analyze body with bindings in effect
-     (analyze-rest parser body)
-     
-     ;; Restore original bindings
-     (setf (bound-symbols parser) old-bound))))
-
-
-(defun analyze-do-form (parser form do-type)
- "Handle do/do* forms, establishing proper binding scope."
- (destructuring-bind (op var-specs end-test &rest body) form
-   (declare (ignore op))
-   (let ((old-bound (bound-symbols parser))
-         (new-bound nil))
-   
-     ;; For do*, analyze each binding in sequence
-     (if (eq do-type 'do*)
-         (dolist (spec var-specs)
-           (destructuring-bind (var &optional init step) 
-               (if (listp spec) spec (list spec))
-             ;; Analyze init form in current scope
-             (when init
-               (analyze-subform parser init))
-             ;; Add this binding to scope before next spec
-             (push var new-bound)
-             (setf (bound-symbols parser)
-                   (cons var (bound-symbols parser)))
-             ;; Analyze step form with var bound
-             (when step
-               (analyze-subform parser step))))
-         
-         ;; For do, analyze all init forms before adding any bindings
-         (dolist (spec var-specs)
-           (destructuring-bind (var &optional init step)
-               (if (listp spec) spec (list spec))
-             ;; Analyze init form in original scope
-             (when init
-               (analyze-subform parser init))
-             ;; Collect var for binding
-             (push var new-bound)
-             ;; Save step form for later analysis
-             (when step
-               (analyze-subform parser step)))))
-     
-     ;; For regular do, add all bindings now
-     (when (eq do-type 'do)
-       (setf (bound-symbols parser)
-             (append new-bound (bound-symbols parser))))
-     
-     ;; Analyze end test
-     (when end-test
-       (destructuring-bind (test &rest result) end-test
-         (analyze-subform parser test)
-         (analyze-rest parser result)))
-     
-     ;; Analyze body with bindings in effect
-     (analyze-rest parser body)
-     
-     ;; Restore original bindings
-     (setf (bound-symbols parser) old-bound))))
-
-
-(defun analyze-symbol-macrolet-form (parser form)
- "Handle symbol-macrolet forms, tracking expansions as special bindings."
- (destructuring-bind (op bindings &body body) form
-   (declare (ignore op))
-   (let ((old-bound (bound-symbols parser))
-         (old-symbol-macros (symbol-macro-bindings parser)))
-     ;; Process each binding
-     (dolist (binding bindings)
-       (destructuring-bind (name expansion) binding
-         ;; Record expansion for reference
-         (push (cons name expansion) (symbol-macro-bindings parser))
-         ;; Analyze the expansion form for references
-         (analyze-subform parser expansion)
-         ;; Add name to bound symbols to prevent undefined warnings
-         (push name (bound-symbols parser))))
-     
-     ;; Analyze body with bindings in effect
-     (analyze-rest parser body)
-     
-     ;; Restore original state
-     (setf (bound-symbols parser) old-bound
-           (symbol-macro-bindings parser) old-symbol-macros))))
-
-
-(defun analyze-with-slots-form (parser form)
- "Handle with-slots forms, tracking slot bindings."
- (destructuring-bind (op slot-entries instance &body body) form
-   (declare (ignore op))
-   (let ((old-bound (bound-symbols parser))
-         (slot-names nil))
-     
-     ;; Analyze the instance form
-     (analyze-subform parser instance)
-     
-     ;; Process slot specifications
-     (dolist (entry slot-entries)
-       (if (symbolp entry)
-           ;; Simple slot name - same var name as slot
-           (push entry slot-names)
-           ;; (var-name slot-name) form
-           (destructuring-bind (var-name slot-name) entry
-             (declare (ignore slot-name))
-             (push var-name slot-names))))
-     
-     ;; Add slot names to bindings
-     (setf (bound-symbols parser)
-           (append slot-names (bound-symbols parser)))
-     
-     ;; Analyze body with bindings in effect
-     (analyze-rest parser body)
-     
-     ;; Restore original bindings
-     (setf (bound-symbols parser) old-bound))))
-
-
-(defun analyze-with-accessors-form (parser form)
- "Handle with-accessors forms, tracking accessor bindings."
- (destructuring-bind (op accessor-entries instance &body body) form
-   (declare (ignore op))
-   (let ((old-bound (bound-symbols parser))
-         (accessor-names nil))
-     
-     ;; Analyze the instance form
-     (analyze-subform parser instance)
-     
-     ;; Process accessor specifications
-     (dolist (entry accessor-entries)
-       (destructuring-bind (var-name accessor-name) entry
-         ;; Record reference to the accessor function
-         (analyze-subform parser accessor-name)
-         ;; Add variable name to bindings
-         (push var-name accessor-names)))
-     
-     ;; Add accessor names to bindings
-     (setf (bound-symbols parser)
-           (append accessor-names (bound-symbols parser)))
-     
-     ;; Analyze body with bindings in effect
-     (analyze-rest parser body)
-     
-     ;; Restore original bindings
-     (setf (bound-symbols parser) old-bound))))
-
-
-(defun analyze-loop-form (parser form)
- "Handle loop forms, analyzing clauses and establishing proper binding scope."
- (let ((old-bound (bound-symbols parser))
-       (new-bindings nil))
-   (do* ((clauses (cdr form) (cdr clauses))
-         (clause (car clauses) (car clauses)))
-        ((null clauses))
-     (when (and (symbolp clause) (cdr clauses))  ; Named clause
-       (case clause
-         ((with)
-          (analyze-loop-with-clause parser (cadr clauses) new-bindings)
-          (pop clauses))
-         ((for as)
-          (analyze-loop-for-as-clause parser (cadr clauses) new-bindings)
-          (pop clauses))
-         ((into)
-          (push (cadr clauses) new-bindings)
-          (pop clauses))
-         ;; Skip other loop keywords
-         ((initially finally do doing return collect collecting
-           append appending nconc nconcing count counting sum summing
-           maximize maximizing minimize minimizing if when unless
-           while until repeat always never thereis
-           in on = across from upfrom downfrom to upto downto above
-           below by regarding then else end)
-          nil)
-         (t 
-          ;; If not a keyword, analyze as a form
-          (analyze-subform parser clause))))
-     (when (consp clause)
-       (analyze-subform parser clause)))
-   
-   ;; Add collected bindings to scope
-   (setf (bound-symbols parser)
-         (append new-bindings (bound-symbols parser)))
-   
-   ;; Restore original bindings
-   (setf (bound-symbols parser) old-bound)))
 
 
 (defun analyze-loop-with-clause (parser clause bindings)
@@ -558,75 +223,6 @@
              (analyze-subform parser (cadr rest))
              (setf rest (cddr rest)))
             (t (setf rest nil)))))))))
-
-
-(defun analyze-block-form (parser form)
- "Handle block forms, establishing block name binding."
- (destructuring-bind (block-op name &rest body) form
-   (declare (ignore block-op))
-   (let ((old-blocks (block-names parser)))
-     ;; Add block name to scope
-     (push name (block-names parser))
-     
-     ;; Analyze body with block name in scope
-     (analyze-rest parser body)
-     
-     ;; Restore original block names
-     (setf (block-names parser) old-blocks))))
-
-
-(defun analyze-return-from-form (parser form)
- "Handle return-from forms, checking block name reference."
- (destructuring-bind (return-op block-name &optional value) form
-   (declare (ignore return-op))
-   ;; Check if block-name is bound
-   (unless (member block-name (block-names parser))
-     (record-anomaly *current-tracker*
-                    :undefined-block
-                    :error
-                    (file parser)
-                    (format nil "Return from undefined block ~A" block-name)
-                    block-name))
-   
-   ;; Analyze the return value if present
-   (when value
-     (analyze-subform parser value))))
-
-
-(defun analyze-tagbody-form (parser form)
- "Handle tagbody forms, establishing tag bindings."
- (let ((old-tags (go-tags parser))
-       (new-tags nil))
-   ;; First pass: collect all tags
-   (dolist (item (cdr form))
-     (when (atom item)  ; Tags are atoms (usually symbols or integers)
-       (push item new-tags)))
-   
-   ;; Add tags to scope
-   (setf (go-tags parser)
-         (append new-tags (go-tags parser)))
-   
-   ;; Second pass: analyze all non-tag forms
-   (dolist (item (cdr form))
-     (unless (atom item)
-       (analyze-subform parser item)))
-   
-   ;; Restore original tags
-   (setf (go-tags parser) old-tags)))
-
-
-(defun analyze-go-form (parser form)
- "Handle go forms, checking tag reference."
- (destructuring-bind (go-op tag) form
-   (declare (ignore go-op))
-   ;; Check if tag is bound
-   (unless (member tag (go-tags parser))
-     (record-anomaly *current-tracker*
-                    :undefined-tag
-                    :error
-                    (file parser)
-                    (format nil "GO to undefined tag ~A" tag)
-                    tag))))
 
 
 (defun analyze-let-form (parser form let-type)
@@ -793,12 +389,12 @@
   (let* ((operator (car form))
          (name (second form))
          (type (case operator
-                (defun :function)
-                (defmacro :macro)  ;; Added this case
-                ((defvar defparameter defconstant) :variable)
-                (defgeneric :generic-function)  ;; Added this case 
-                (defmethod :method)  ;; Added this case
-                (define-condition :condition)))  ;; Added this case
+                (defun "FUNCTION")
+                (defmacro "MACRO")  ;; Added this case
+                ((defvar defparameter defconstant) "VARIABLE")
+                (defgeneric "GENERIC-FUNCTION")  ;; Added this case 
+                (defmethod "METHOD")  ;; Added this case
+                (define-condition "CONDITION")))  ;; Added this case
          (package (current-package parser)))
     
     ;; Record the definition
@@ -868,7 +464,7 @@
               (ecase accessor
                 (symbol-value
                  (record-definition *current-tracker* sym
-                                  :variable
+                                  "VARIABLE"
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1 
@@ -877,7 +473,7 @@
                                                :external)))
                 ((symbol-function fdefinition)
                  (record-definition *current-tracker* sym
-                                  :function
+                                  "FUNCTION"
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1
@@ -886,7 +482,7 @@
                                                :external)))
                 (macro-function
                  (record-definition *current-tracker* sym
-                                  :macro
+                                  "MACRO"
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1
@@ -909,18 +505,18 @@
                    (or (find-symbol bare-name pkg)
                        (intern bare-name pkg))))
            (visibility (cond
-                       ((null (symbol-package operator)) :local)  ; Uninterned symbol
-                       ((eq pkg (current-package parser)) :local) ; In current package
+                       ((null (symbol-package operator)) "LOCAL")  ; Uninterned symbol
+                       ((eq pkg (current-package parser)) "LOCAL") ; In current package
                        (t (multiple-value-bind (sym status)
                               (find-symbol bare-name (current-package parser))
                             (declare (ignore sym))
                             (case status
-                              (:inherited :inherited)
-                              (:external :imported)
-                              (otherwise :local)))))))
+                              (:inherited "INHERITED")
+                              (:external "IMPORTED")
+                              (otherwise "LOCAL")))))))
       ;; Record the reference specifically as a function call
       (record-reference *current-tracker* sym
-               :call                    ; type
+               "CALL"
                (file parser)
                :package (package-name pkg)
                :visibility visibility)))     ; Updated from :local
@@ -951,17 +547,17 @@
                          (current-package-name parser)))
              (current-file (file parser))
              (visibility (cond 
-                         ((null pkg) :local)  ; Uninterned symbol
-                         ((eq pkg current-pkg) :local)  ; In current package
+                         ((null pkg) "LOCAL")  ; Uninterned symbol
+                         ((eq pkg current-pkg) "LOCAL")  ; In current package
                          (t (multiple-value-bind (sym status)
                                (find-symbol (symbol-name form) current-pkg)
                              (declare (ignore sym))
                              (case status
-                               (:inherited :inherited)
-                               (:external :imported)
-                               (otherwise :local)))))))
+                               (:inherited "INHERITED")
+                               (:external "IMPORTED") 
+                               (otherwise "LOCAL")))))))
         (record-reference *current-tracker* form
-                         :reference
+                         "REFERENCE"
                          current-file
                          :package pkg-name
                          :visibility visibility))))  ; Already correct
@@ -977,61 +573,6 @@
   (mapc (lambda (form)
           (analyze-subform parser form))
         rest))
-
-
-(defmethod record-macro-body-symbols ((parser file-parser) macro-name body)
-  "Record all non-CL symbols in a macro body as potential dependencies."
-  (labels ((collect-symbols (form)
-             (typecase form
-               (symbol 
-                (unless (or (member form '(nil t))
-                           (eq (symbol-package form) 
-                               (find-package :common-lisp)))
-                  ;; Need to determine visibility like in analyze-subform
-                  (let* ((pkg (symbol-package form))
-                        (current-pkg (current-package parser))
-                        (visibility (cond
-                                   ((null pkg) :local)
-                                   ((eq pkg current-pkg) :local)
-                                   (t (multiple-value-bind (sym status)
-                                        (find-symbol (symbol-name form) current-pkg)
-                                      (declare (ignore sym))
-                                      (case status
-                                        (:inherited :inherited)
-                                        (:external :imported)
-                                        (otherwise :local)))))))
-                    (record-reference *current-tracker* form
-                                  :macro-body
-                                  (file parser)
-                                  :package (current-package-name parser)
-                                  :visibility visibility))))  ; Updated from no visibility
-               (cons
-                (collect-symbols (car form))
-                (collect-symbols (cdr form))))))
-    (collect-symbols body)))
-
-
-(defmethod record-macro-dependencies ((parser file-parser) macro-def form)
-  "Record that this code depends on the macro definition."
-  (record-reference *current-tracker* 
-                   (definition.symbol macro-def)
-                   :macro-expansion
-                   (file parser)
-                   :package (definition.package macro-def)
-                   :visibility :local))
-
-
-(defmethod record-function-definition ((parser file-parser) name args body)
-  "Record a function definition in the tracker."
-  (let* ((package (current-package parser))
-         (sym-name (normalize-symbol-name name))
-         (sym (intern sym-name package)))
-    (record-definition *current-tracker* sym
-                      :function 
-                      (file parser)
-                      :package (package-name package)
-                      :exported-p (eq (nth-value 1 (find-symbol sym-name package)) 
-                                    :external))))
 
 
 (defmethod record-package-definition ((parser file-parser) name options)
@@ -1063,18 +604,18 @@
                     (do-external-symbols (sym used-pkg)
                       (multiple-value-bind (s status)
                             (find-symbol (symbol-name sym) package)
-                        (when (and s (eq status :inherited))
+                        (when (and s (string= status "INHERITED"))
                           (record-reference *current-tracker* sym
                             (if (and (fboundp sym) 
                                      (not (macro-function sym))
                                      (not (special-operator-p sym)))
-                              :call
-                              :reference)
+                              "CALL"
+                              "REFERENCE")
                             (file parser)
                             :package (package-name used-pkg)
-                            :visibility :inherited)))))))))
+                            :visibility "INHERITED")))))))))
           (dolist (opt options)
-            (when (and (consp opt) (eq (car opt) :import-from))
+            (when (and (consp opt) (eq (car opt) "IMPORT-FROM"))
               (let ((from-pkg-name (normalize-package-name (second opt)))
                     (from-pkg (find-package (second opt))))
                 (when from-pkg
@@ -1085,12 +626,12 @@
                       (when from-sym
                         (import from-sym package)
                         (record-reference *current-tracker* from-sym
-                                        :reference
+                                        "REFERENCE"
                                         (file parser)
                                         :package from-pkg-name
-                                        :visibility :imported))))))))
+                                        :visibility "IMPORTED"))))))))
           (dolist (opt options)
-            (when (and (consp opt) (eq (car opt) :export))
+            (when (and (consp opt) (eq (car opt) "EXPORT"))
               (dolist (sym (cdr opt))
                 (let* ((name (normalize-symbol-name sym))
                        (exported-sym (intern name package)))

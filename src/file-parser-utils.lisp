@@ -31,18 +31,6 @@
       (princ-to-string designator))))
 
 
-(defun find-exported-symbol (name package-name &optional current-package)
-  "Find a symbol in a package, checking exports and inherited symbols."
-  (let* ((target-pkg (find-package package-name))
-         (current-pkg (or current-package *package*)))
-    (declare (ignore current-pkg))
-    (when target-pkg
-      (multiple-value-bind (sym status)
-          (find-symbol (normalize-symbol-name name) target-pkg)
-        (when (and sym (member status '(:external :inherited)))
-          (values sym (package-name (symbol-package sym))))))))
-
-
 (defun extract-method-specializers (lambda-list)
   "Extract the specializer types from a method lambda list."
   (loop for param in lambda-list
@@ -240,50 +228,15 @@
     (sort refs #'string< :key #'symbol-name)))
 
 
-(defun method-qualifiers-match-p (recorded-qualifiers target-qualifiers)
-  "Compare two lists of method qualifiers for equality.
-   Handles both ordering-sensitive (e.g., :before vs :after)
-   and ordering-insensitive (e.g., :method :around) qualifiers."
-  (and (= (length recorded-qualifiers) (length target-qualifiers))
-       (or (equal recorded-qualifiers target-qualifiers)
-           ;; For qualifiers where order doesn't matter
-           (and (intersection recorded-qualifiers target-qualifiers)
-                (subsetp recorded-qualifiers target-qualifiers)
-                (subsetp target-qualifiers recorded-qualifiers)))))
-
-
-(defun specializers-match-p (recorded-specializers target-specializers)
-  "Compare two lists of method specializers for equality."
-  (and (= (length recorded-specializers) (length target-specializers))
-       (every #'eq recorded-specializers target-specializers)))
-
-
-(defun find-method-definition (tracker gf-name qualifiers specializers)
-  "Find a method definition matching the given generic function name,
-   qualifiers, and specializers."
-  (let* ((key (make-tracking-key gf-name))
-         (methods (remove :method (gethash key (slot-value tracker 'definitions))
-                         :key #'definition.type :test-not #'eq)))
-    (find-if (lambda (def)
-               (let ((context (definition.context def)))
-                 (and (method-qualifiers-match-p 
-                       (getf context :qualifiers) qualifiers)
-                      (specializers-match-p
-                       (getf context :specializers) specializers))))
-             methods)))
-
-
 (defmethod record-definition ((tracker dependency-tracker) symbol type file 
-                           &key position package exported-p context)
+                           &key package exported-p)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
          (def (make-definition :symbol symbol
-                             :type type
+                             :type (string-upcase (string type))
                              :file file
                              :package package
-                             :position position
-                             :exported-p exported-p
-                             :context context)))
+                             :exported-p exported-p)))
     (setf (gethash key (slot-value tracker 'definitions)) def)
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p
@@ -292,19 +245,17 @@
 
 
 (defmethod record-reference ((tracker dependency-tracker) symbol type file 
-                          &key position context package visibility)
+                          &key package visibility)
   "Record a symbol reference in the tracker.
-   TYPE is :call or :reference
-   VISIBILITY is :inherited, :imported, or :local (defaults to :local)"
+   TYPE is call or reference
+   VISIBILITY is inherited, imported, or local (defaults to local)"
   (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
                                         (package-name (symbol-package symbol)))))
          (ref (make-reference :symbol symbol
-                            :type type
-                            :visibility (or visibility :local)
+                            :type (string-upcase (string type))
                             :file file
-                            :position position
-                            :context context
-                            :package package)))
+                            :package package
+                            :visibility (or (string-upcase (string visibility)) "LOCAL"))))
     (push ref (gethash key (slot-value tracker 'references)))
     ref))
 
@@ -362,28 +313,6 @@
     (gethash (make-tracking-key macro-name) 
              (slot-value actual-tracker 'macro-bodies))))
 
-(defmethod lookup-macro-definition (&optional (tracker nil tracker-provided-p) symbol)
-  "Find a macro's definition if it exists."
-  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
-         (current-pkg (symbol-package symbol))
-         (sym-name (symbol-name symbol)))
-    (when current-pkg
-      (let ((def (gethash (make-tracking-key symbol (package-name current-pkg))
-                         (slot-value actual-tracker 'definitions))))
-        (when (and def (eq (definition.type def) :macro))
-          (return-from lookup-macro-definition def)))
-      (dolist (used-pkg (package-use-list current-pkg))
-        (multiple-value-bind (used-sym status)
-            (find-symbol sym-name used-pkg)
-          (when (and used-sym (member status '(:external :inherited)))
-            (let* ((used-key (make-tracking-key used-sym (package-name used-pkg))))
-              (let ((def (gethash used-key (slot-value actual-tracker 'definitions))))
-                (when (and def (eq (definition.type def) :macro))
-                  (return-from lookup-macro-definition def)))))))
-      (let ((def (gethash sym-name (slot-value actual-tracker 'definitions))))
-        (when (and def (eq (definition.type def) :macro))
-          def)))))
-
 
 ;;; Package Option Processing Utils
 
@@ -402,19 +331,19 @@
           (when (and s (eq status :inherited))
             ;; Record the inherited relationship 
             (record-reference *current-tracker* sym
-                            :inherited
+                            "INHERITED"
                             (file parser)
                             :package (package-name used-pkg)
-                            :visibility :inherited)  ; Updated from no visibility
+                            :visibility "INHERITED")  ; Updated from no visibility
             ;; Also record potential call reference if it's a function
             (when (and (fboundp sym) 
                       (not (macro-function sym))
                       (not (special-operator-p sym)))
               (record-reference *current-tracker* sym
-                              :call
+                              "CALL"
                               (file parser)
                               :package (package-name used-pkg)
-                              :visibility :inherited))))))))
+                              :visibility "INHERITED"))))))))
 
 
 (defun process-package-import-option (package from-pkg-name pkg-name parser sym)
@@ -426,10 +355,10 @@
       (import from-sym package)
       (record-package-use *current-tracker* pkg-name from-pkg-name)
       (record-reference *current-tracker* from-sym
-                       :reference
+                       "REFERENCE"
                        (file parser)
                        :package from-pkg-name
-                       :visibility :imported)))) 
+                       :visibility "IMPORTED")))) 
 
 
 (defun process-package-export-option (package pkg-name sym)
