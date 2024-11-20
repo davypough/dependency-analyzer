@@ -11,25 +11,18 @@
 (defmethod parse-file ((parser file-parser))
   "Parse a single Lisp source file for definitions and references."
   (with-slots (file package parsing-files) parser
-    (handler-case
-        (progn
-          ;; Record any cycles but continue parsing
-          (record-file-dependency-cycle parser file)
-          (push file parsing-files)
-          
-          (with-open-file (stream file :direction :input)
-            (let ((*package* package))
-              (loop for form = (read stream nil nil)
-                    while form
-                    do (analyze-form parser form))))
-          
-          ;; Remove file from parsing stack
-          (pop parsing-files))
-      (error (e)
-        (pop parsing-files)
-        (error 'file-parse-error
-               :file file
-               :reason e)))))
+    ;; Record any cycles but continue parsing
+    (record-file-dependency-cycle parser file)
+    (push file parsing-files)
+    
+    (with-open-file (stream file :direction :input)
+      (let ((*package* package))
+        (loop for form = (read stream nil nil)
+              while form
+              do (analyze-form parser form))))
+    
+    ;; Remove file from parsing stack
+    (pop parsing-files)))
 
 
 (defmethod analyze-form ((parser file-parser) form)
@@ -600,20 +593,19 @@
                   (when used-pkg
                     (use-package used-pkg package)
                     (record-package-use *current-tracker* pkg-name (package-name used-pkg))
-                    ;; Record both inherited and call references for exported symbols
                     (do-external-symbols (sym used-pkg)
                       (multiple-value-bind (s status)
                             (find-symbol (symbol-name sym) package)
                         (when (and s (string= status "INHERITED"))
                           (record-reference *current-tracker* sym
-                            (if (and (fboundp sym) 
-                                     (not (macro-function sym))
-                                     (not (special-operator-p sym)))
-                              "CALL"
-                              "REFERENCE")
-                            (file parser)
-                            :package (package-name used-pkg)
-                            :visibility "INHERITED")))))))))
+                                          (if (and (fboundp sym) 
+                                                   (not (macro-function sym))
+                                                   (not (special-operator-p sym)))
+                                            "CALL"
+                                            "REFERENCE")
+                                          (file parser)
+                                          :package (package-name used-pkg)
+                                          :visibility "INHERITED")))))))))
           (dolist (opt options)
             (when (and (consp opt) (eq (car opt) "IMPORT-FROM"))
               (let ((from-pkg-name (normalize-package-name (second opt)))

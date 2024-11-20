@@ -36,31 +36,24 @@
    Records any dependency cycles encountered during parsing."
   (let* ((project-name (asdf:component-name project))
          (components (asdf:component-children project)))
-    (handler-case
+    ;; Check for cycle before proceeding
+    (when (member project-name (parsing-projects parser) :test #'string=)
+      (record-dependency-cycle parser project-name)
+      (return-from parse-project-for nil))
+    ;; Add project to parsing stack and proceed
+    (push project-name (parsing-projects parser))
+    (unwind-protect
         (progn
-          ;; Check for cycle before proceeding
-          (when (member project-name (parsing-projects parser) :test #'string=)
-            (record-dependency-cycle parser project-name)
-            (return-from parse-project-for nil))
-          ;; Add project to parsing stack and proceed
-          (push project-name (parsing-projects parser))
-          (unwind-protect
-              (progn
-                ;; Parse dependent projects first
-                (dolist (dep (asdf:system-depends-on project))
-                  (let* ((dep-name (if (listp dep) (second dep) dep))
-                         (dep-sys (asdf:find-system dep-name nil)))
-                    (when dep-sys
-                      (parse-project-for parser dep-sys))))
-                ;; Then parse this project's components
-                (mapc (lambda (c) (parse-component c parser)) components))
-            ;; Always remove project from parsing stack
-            (pop (parsing-projects parser))))
-      (error (e)
-        (pop (parsing-projects parser))
-        (error 'project-parse-error 
-               :project-name project-name
-               :reason e)))))
+          ;; Parse dependent projects first
+          (dolist (dep (asdf:system-depends-on project))
+            (let* ((dep-name (if (listp dep) (second dep) dep))
+                   (dep-sys (asdf:find-system dep-name nil)))
+              (when dep-sys
+                (parse-project-for parser dep-sys))))
+          ;; Then parse this project's components
+          (mapc (lambda (c) (parse-component c parser)) components))
+      ;; Always remove project from parsing stack
+      (pop (parsing-projects parser)))))
 
 
 (defmethod parse-component ((component t) parser)
@@ -86,26 +79,21 @@
 (defun create-project-parser (project-name)
   "Create a project parser for the named ASDF system."
   (let ((system (asdf:find-system project-name)))
-    (unless system
-      (error 'project-parse-error 
-             :project-name project-name
-             :reason "System not found"))
+    (unless system 
+      (return-from create-project-parser nil))
     (make-instance 'project-parser :project system)))
 
 
 (defun analyze-project (project-name)
   "Analyze an ASDF project and create a dependency tracker with results."
   (let ((system (asdf:find-system project-name)))
-    (unless system
-      (error 'project-parse-error 
-             :project-name project-name
-             :reason "System not found"))
-    (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                           :project-name project-name
-                                           :project-root (asdf:system-source-directory system)))
-      (let ((parser (make-instance 'project-parser :project system)))
-        (parse-project parser)
-        *current-tracker*))))
+    (when system
+      (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                             :project-name project-name
+                                             :project-root (asdf:system-source-directory system)))
+        (let ((parser (make-instance 'project-parser :project system)))
+          (parse-project parser)
+          *current-tracker*)))))
 
 
 (defun analyze-directory (directory &optional (filespecs '("*.lisp")))

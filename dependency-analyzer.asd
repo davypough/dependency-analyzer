@@ -10,7 +10,6 @@
   :serial t
   :components ((:module "src"
                  :components ((:file "src-packages")
-                              (:file "error-conditions")
                               (:file "base-definitions")
                               (:file "tracker-utils")
                               (:file "tracker")

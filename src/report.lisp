@@ -193,10 +193,9 @@
 
 (defun report (&optional filename)
   "Generate a comprehensive dependency report for the current project analysis.
-   If FILENAME is provided, saves the report to that file. Handles file project
-   errors gracefully."
+   If FILENAME is provided, saves the report to that file."
   (unless *current-tracker*
-    (error "No analysis results available. Please run (dep:analyze-project \"project-name\") first."))
+    (return-from report nil))
   
   (flet ((generate-all-reports (stream)
            ;; Header
@@ -244,23 +243,16 @@
            (generate-report :json *current-tracker* :stream stream)))
     
     (if filename
-        ;; Save to file with error handling
-        (handler-case
-            (let ((pathname (pathname filename)))
-              ;; Verify directory exists and is writable
-              (ensure-directory-exists pathname)
-              (verify-writable pathname)
-              ;; Generate report
-              (with-open-file (out pathname
-                               :direction :output 
-                               :if-exists :supersede
-                               :if-does-not-exist :create)
-                (generate-all-reports out)
-                (format t "~&Report saved to: ~A~%" pathname)))
-          (report-error (e)
-            (format *error-output* "~&Failed to save report: ~A~%" e))
-          (error (e)
-            (format *error-output* "~&Unexpected error saving report: ~A~%" e)))
+        ;; Save to file
+        (let ((pathname (pathname filename)))
+          (ensure-directory-exists pathname)
+          (verify-writable pathname)
+          (with-open-file (out pathname
+                           :direction :output 
+                           :if-exists :supersede
+                           :if-does-not-exist :create)
+            (generate-all-reports out)
+            (format t "~&Report saved to: ~A~%" pathname)))
         ;; Display to standard output
         (generate-all-reports *standard-output*)))
   

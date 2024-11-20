@@ -13,16 +13,9 @@
    ;; Main analysis functions
    #:analyze-project
    #:analyze-directory
-   
    ;; Report generation
    #:report  
    #:generate-report
-   
-   ;; Error conditions
-   #:analyzer-error
-   #:project-parse-error
-   #:file-parse-error
-   
    ;; Cycle detection
    #:get-package-cycles
    #:get-project-cycles  

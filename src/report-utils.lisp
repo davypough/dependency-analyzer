@@ -10,22 +10,6 @@
 
 ;;; Error Conditions
 
-(define-condition report-error (analyzer-error)
-  ((path 
-    :initarg :path 
-    :reader report-path
-    :documentation "Path that caused the error")
-   (reason 
-    :initarg :reason 
-    :reader reason
-    :documentation "Underlying cause of the error"))
-  (:documentation 
-   "Signaled when a report cannot be generated or saved.")
-  (:report (lambda (condition stream)
-             (format stream "Error generating report for path ~A: ~A"
-                     (report-path condition)
-                     (reason condition)))))
-
 
 (defun format-anomalies (stream tracker)
   "Format all anomalies in a consistent way, grouped by type and severity."
@@ -168,35 +152,24 @@
 
 (defun ensure-directory-exists (pathname)
   "Ensure the directory component of pathname exists. Returns pathname if successful."
-  (handler-case
-      (let* ((namestring (namestring pathname))
-             (dir (directory-namestring pathname))
-             (normalized-dir (if (uiop:os-windows-p)
-                               (uiop:native-namestring dir)
-                               dir)))
-        (format *error-output* "~&Attempting to access directory: ~A~%" normalized-dir)
-        (ensure-directories-exist normalized-dir)
-        pathname)
-    (error (e)
-      (error 'report-error
-             :path pathname
-             :reason (format nil "Could not access directory: ~A~%Error details: ~A" 
-                           pathname e)))))
+  (let* ((namestring (namestring pathname))
+         (dir (directory-namestring pathname))
+         (normalized-dir (if (uiop:os-windows-p)
+                           (uiop:native-namestring dir)
+                           dir)))
+    (format *error-output* "~&Attempting to access directory: ~A~%" normalized-dir)
+    (ensure-directories-exist normalized-dir)
+    pathname))
 
 
 (defun verify-writable (pathname)
   "Verify the specified path is writable. Returns pathname if writable."
-  (handler-case 
-      (with-open-file (test pathname
-                       :direction :output
-                       :if-exists :append
-                       :if-does-not-exist :create)
-        (write-char #\Space test)
-        pathname)
-    (error (e)
-      (error 'report-error
-             :path (project-pathname pathname)
-             :reason (format nil "Path is not writable: ~A" e)))))
+  (with-open-file (test pathname
+                   :direction :output
+                   :if-exists :append
+                   :if-does-not-exist :create)
+    (write-char #\Space test)
+    pathname))
 
 
 (defun build-file-dependency-tree (tracker)
