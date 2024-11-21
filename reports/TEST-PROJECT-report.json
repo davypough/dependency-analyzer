@@ -1,0 +1,34 @@
+{
+  "project":"TEST-PROJECT",
+  "systems":{},
+  "anomalies":
+  {
+    "error":
+    [
+    ],
+    "warning":
+    [
+    ],
+    "info":
+    [
+    ]
+  },
+  "systems":{},
+  "files":{
+    "/source/single-pkg-refs.lisp": {
+      "depends_on": [
+        {
+          "file": "/source/single-pkg-defs.lisp",
+          "dependencies": "References: *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+, CIRCLE-RADIUS, COMPUTE-AREA, CONDITION-NAME, DEFMACRO-NAME, DEFUN-NAME, FDEFINITION-FUNCTION-NAME, MACRO-FUNCTION-NAME, PERSON.AGE, PROCESS-DATA, SYMBOL-FUNCTION-NAME, SYMBOL-VALUE-VARIABLE"
+        }
+      ]
+    }
+  },
+  "packages":{
+    "USER-MAIN-PACKAGE": {
+      "uses": [
+        "COMMON-LISP"
+      ]
+    }
+  }
+}

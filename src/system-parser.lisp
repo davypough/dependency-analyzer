@@ -78,23 +78,8 @@
     (make-instance 'system-parser :system system)))
 
 
-(defun analyze-system (system-name)
-  "Analyze an ASDF system and create a dependency tracker with results.
-   Returns the dependency tracker containing the analysis results.
-   Example: (analyze-system \"my-system\")"
-  (with-dependency-tracker ((make-instance 'dependency-tracker :system-name system-name))
-    (let ((system (asdf:find-system system-name)))
-      (let ((parser (make-instance 'system-parser :system system)))
-        (parse-system parser)
-        *current-tracker*))))
-
-
-(defun analyze-directory (directory &optional (filespecs '("*.lisp" "*.asd")))
-  "Analyze source files in a directory structure and its subdirectories.
-   DIRECTORY - The root directory to analyze
-   FILESPECS - Optional file patterns to match (default: '(\"*.lisp\" \"*.asd\"))
-   Returns the dependency tracker containing the analysis results.
-   Example: (analyze-directory #P\"/path/to/project/\")"
+(defun analyze-directory (directory &key (filespecs '("*.lisp" "*.asd")) (overwrite t))
+  "Analyze source files in a directory structure and its subdirectories."
   (with-dependency-tracker ((make-instance 'dependency-tracker 
                                          :project-name (format nil "DIR:~A" directory)
                                          :project-root (pathname directory)))
@@ -132,4 +117,4 @@
                 (t (let ((file-parser (make-instance 'file-parser :file file)))
                      (parse-file file-parser)))))
         (detect-system-cycles *current-tracker*)
-        *current-tracker*)))))
+        *current-tracker*))))

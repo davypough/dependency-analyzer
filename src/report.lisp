@@ -223,11 +223,11 @@
 ;; Package Dependencies
 (format stream "Package Dependencies:~%")
 (maphash (lambda (pkg used-pkgs)
-           (format stream "~&Package: ~A~%" pkg)
+           (format stream "~&~A " pkg)
            (when used-pkgs
-             (format stream "  Uses packages:~%")
+             (format stream "uses")
              (dolist (used used-pkgs)
-               (format stream "    ~A~%" used)))
+               (format stream " ~A" used)))
            (let ((exports (get-package-exports tracker pkg)))
              (when exports
                (format stream "  Exports:~%")
@@ -241,14 +241,13 @@
            (declare (ignore definitions))
            (let ((deps (file-dependencies tracker file)))
              (when deps
-               (format stream "~&File: ~A~%" (project-pathname file))
-               (format stream "      Depends on:~%")
+               (format stream "~A depends on " (project-pathname file))
                (dolist (dep deps)
-                 (format stream "        ~A~%" (project-pathname dep))
+                 (format stream "~A " (project-pathname dep))
                  ;; Symbol references creating the dependency
                  (let ((refs (collect-file-references tracker file dep)))
                    (when refs
-                     (format stream "          References: ~{~A~^, ~}~%" refs)))))))
+                     (format stream "~&                             references ~{~A~^, ~}~%" refs)))))))
          (slot-value tracker 'file-map)))
 
 
@@ -400,37 +399,31 @@
 
 
 (defun report (&optional filename)
- "Generate a comprehensive dependency report for the current project analysis.
-  If FILENAME is provided, saves the report to that file. Returns the tracker
-  to allow for chaining."
- (unless *current-tracker*
-   (return-from report nil))
- (flet ((generate-all-reports (stream)
-          ;; Main text report
-          (generate-report :text *current-tracker* :stream stream)
-          
-          ;; Appendices
-          (format stream "~%APPENDIX A: Graphviz DOT Format~%")
-          (format stream "~V,,,'-<~>~%" 70 "")
-          (format stream "Save the following content to a .dot file and process with Graphviz:~%~%")
-          (generate-report :dot *current-tracker* :stream stream)
-          
-          (format stream "~%APPENDIX B: JSON Format~%")
-          (format stream "~V,,,'-<~>~%" 70 "")
-          (format stream "~%")
-          (generate-report :json *current-tracker* :stream stream)))
-   (if filename
-       ;; Save to file
-       (let ((pathname (pathname filename)))
-         (ensure-directory-exists pathname)
-         (verify-writable pathname)
-         (with-open-file (out pathname
-                          :direction :output 
-                          :if-exists :supersede
-                          :if-does-not-exist :create)
-           (generate-all-reports out)
-           (format t "~&Report saved to: ~A~%" pathname)))
-       ;; Display to standard output
-       (generate-all-reports *standard-output*)))
- ;; Return the tracker to allow for chaining
- *current-tracker*)
+  "Generate comprehensive dependency reports for the current project.
+   If FILENAME is provided, saves text report to that file.
+   Otherwise writes to reports/ directory with project-based filenames."
+  (unless *current-tracker*
+    (return-from report nil))
+  
+  ;; Always output text report to terminal
+  (generate-report :text *current-tracker* :stream *standard-output*)
+  
+  (let* ((project-name (project.name *current-tracker*))
+         (text-path (if filename
+                       (parse-namestring filename)
+                       (make-report-path project-name :text)))
+         (json-path (make-report-path project-name :json))
+         (dot-path (make-report-path project-name :dot)))
+    
+    ;; Generate each report format
+    (report-to-file text-path :text *current-tracker*)
+    (report-to-file json-path :json *current-tracker*)
+    (report-to-file dot-path :dot *current-tracker*)
+    
+    (format t "~2%Reports saved to:~%")
+    (format t "  Text: ~A~%" (project-pathname text-path))
+    (format t "  JSON: ~A~%" (project-pathname json-path))
+    (format t "  Graphviz DOT: ~A~%" (project-pathname dot-path)))
+  
+  ;; Return tracker for chaining
+  *current-tracker*)

@@ -84,7 +84,7 @@
     (make-instance 'project-parser :project system)))
 
 
-(defun analyze-project (project-name)
+(defun analyze-project (project-name &key (overwrite t))
   "Analyze an ASDF project and its associated subsystems."
   (let* ((project (asdf:find-system project-name))
          (asd-file (asdf:system-source-file project))
