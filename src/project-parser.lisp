@@ -129,9 +129,6 @@
       (let ((files (collect-all-files (pathname directory) filespecs)))
         ;; Parse each file
         (dolist (file files)
-          (handler-case
               (let ((file-parser (make-instance 'file-parser :file file)))
-                (parse-file file-parser))
-            (error (e)
-              (warn "Error parsing file ~A: ~A" file e))))
+                (parse-file file-parser)))
         *current-tracker*))))

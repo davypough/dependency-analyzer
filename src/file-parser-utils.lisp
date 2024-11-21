@@ -233,7 +233,7 @@
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
          (def (make-definition :symbol symbol
-                             :type (string-upcase (string type))
+                             :type type
                              :file file
                              :package package
                              :exported-p exported-p)))
@@ -252,10 +252,10 @@
   (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
                                         (package-name (symbol-package symbol)))))
          (ref (make-reference :symbol symbol
-                            :type (string-upcase (string type))
+                            :type type
                             :file file
                             :package package
-                            :visibility (or (string-upcase (string visibility)) "LOCAL"))))
+                            :visibility (or visibility :LOCAL))))
     (push ref (gethash key (slot-value tracker 'references)))
     ref))
 
@@ -328,22 +328,22 @@
       (do-external-symbols (sym used-pkg)
         (multiple-value-bind (s status)
             (find-symbol (symbol-name sym) package)
-          (when (and s (eq status :inherited))
+          (when (and s (eq status :INHERITED))
             ;; Record the inherited relationship 
             (record-reference *current-tracker* sym
-                            "INHERITED"
+                            :INHERITED
                             (file parser)
                             :package (package-name used-pkg)
-                            :visibility "INHERITED")  ; Updated from no visibility
+                            :visibility :INHERITED)  ; Updated from no visibility
             ;; Also record potential call reference if it's a function
             (when (and (fboundp sym) 
                       (not (macro-function sym))
                       (not (special-operator-p sym)))
               (record-reference *current-tracker* sym
-                              "CALL"
+                              :CALL
                               (file parser)
                               :package (package-name used-pkg)
-                              :visibility "INHERITED"))))))))
+                              :visibility :INHERITED))))))))
 
 
 (defun process-package-import-option (package from-pkg-name pkg-name parser sym)
@@ -355,10 +355,10 @@
       (import from-sym package)
       (record-package-use *current-tracker* pkg-name from-pkg-name)
       (record-reference *current-tracker* from-sym
-                       "REFERENCE"
+                       :REFERENCE
                        (file parser)
                        :package from-pkg-name
-                       :visibility "IMPORTED")))) 
+                       :visibility :IMPORTED)))) 
 
 
 (defun process-package-export-option (package pkg-name sym)

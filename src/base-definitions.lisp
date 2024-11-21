@@ -10,26 +10,11 @@
   "The currently active dependency tracker instance.")
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun compute-string-member-name (strings)
-    (intern (format nil "~A-~A" 
-                    "STRING-MEMBER"
-                    (substitute #\- #\Space (format nil "~{~A~^-~}" strings)))
-            'dep))
-  (deftype string-member (&rest strings)
-    (let ((pred-name (compute-string-member-name strings)))
-      (setf (symbol-function pred-name)
-            (lambda (x)
-              (and (stringp x)
-                   (member x strings :test #'string=))))
-      `(satisfies ,pred-name))))
-
-
 (defstruct (definition (:conc-name definition.))
   "Data structure holding info about a lisp definition--eg, defun, defvar"
   (symbol nil :type symbol :read-only t)
-  (type nil :type (string-member "STRUCTURE" "VARIABLE" "FUNCTION" "MACRO" 
-                                 "GENERIC-FUNCTION" "METHOD" "CONDITION")
+  (type nil :type (member :STRUCTURE :VARIABLE :FUNCTION :MACRO 
+                                 :GENERIC-FUNCTION :METHOD :CONDITION)
             :read-only t)
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol) :read-only t) 
@@ -39,10 +24,10 @@
 (defstruct (reference (:conc-name reference.))
   "Data structure holding info about a lisp reference to a definition"
   (symbol nil :type symbol :read-only t)
-  (type nil :type (string-member "REFERENCE" "CALL") :read-only t)
+  (type nil :type (member :REFERENCE :CALL) :read-only t)
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol null) :read-only t)
-  (visibility nil :type (string-member "LOCAL" "INHERITED" "IMPORTED") :read-only t))
+  (visibility nil :type (member :LOCAL :INHERITED :IMPORTED) :read-only t))
 
 
 (defstruct (anomaly (:conc-name anomaly.))

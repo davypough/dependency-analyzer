@@ -28,32 +28,24 @@
   "Parse the given system using the parser."
   (let* ((system-name (asdf:component-name system))
          (components (asdf:component-children system)))
-    (handler-case
+    ;; Check for cycle before proceeding
+    (when (member system-name (parsing-systems parser) :test #'string=)
+      (record-dependency-cycle parser system-name)
+      (return-from parse-system-for nil))
+    ;; Add system to parsing stack and proceed
+    (push system-name (parsing-systems parser))
+    (unwind-protect
         (progn
-          ;; Check for cycle before proceeding
-          (when (member system-name (parsing-systems parser) :test #'string=)
-            (record-dependency-cycle parser system-name)
-            (return-from parse-system-for nil))
-          ;; Add system to parsing stack and proceed
-          (push system-name (parsing-systems parser))
-          (unwind-protect
-              (progn
-                ;; Parse dependent systems first, reusing the same parser instance
-                (dolist (dep (asdf:system-depends-on system))
-                  (let* ((dep-name (if (listp dep) (second dep) dep))
-                         (dep-sys (asdf:find-system dep-name nil)))
-                    (when dep-sys
-                      (parse-system-for parser dep-sys))))
-                ;; Then parse this system's components
-                (mapc (lambda (c) (parse-component c parser)) components))
-            ;; Always remove system from parsing stack
-            (pop (parsing-systems parser))))
-      (error (e)
-        ;; Pop system-name from parsing-systems
-        (pop (parsing-systems parser))
-        (error 'system-parse-error 
-               :system-name system-name
-               :reason e)))))
+          ;; Parse dependent systems first, reusing the same parser instance
+          (dolist (dep (asdf:system-depends-on system))
+            (let* ((dep-name (if (listp dep) (second dep) dep))
+                   (dep-sys (asdf:find-system dep-name nil)))
+              (when dep-sys
+                (parse-system-for parser dep-sys))))
+          ;; Then parse this system's components
+          (mapc (lambda (c) (parse-component c parser)) components))
+      ;; Always remove system from parsing stack
+      (pop (parsing-systems parser)))))
 
 
 (defmethod parse-component ((component t) parser)
@@ -91,11 +83,7 @@
    Returns the dependency tracker containing the analysis results.
    Example: (analyze-system \"my-system\")"
   (with-dependency-tracker ((make-instance 'dependency-tracker :system-name system-name))
-    (let* ((system (asdf:find-system system-name)))
-      (unless system
-        (error 'system-parse-error 
-               :system-name system-name
-               :reason "System not found"))
+    (let ((system (asdf:find-system system-name)))
       (let ((parser (make-instance 'system-parser :system system)))
         (parse-system parser)
         *current-tracker*))))
@@ -134,9 +122,6 @@
       (let ((files (collect-all-files (pathname directory) filespecs)))
         ;; Parse each file
         (dolist (file files)
-          (handler-case
-              (let ((file-parser (make-instance 'file-parser :file file)))
-                (parse-file file-parser))
-            (error (e)
-              (warn "Error parsing file ~A: ~A" file e))))
+          (let ((file-parser (make-instance 'file-parser :file file)))
+            (parse-file file-parser)))
         *current-tracker*))))

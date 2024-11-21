@@ -93,7 +93,7 @@
       
       ;; Record the structure type definition
       (record-definition *current-tracker* name
-                        "STRUCTURE"
+                        :STRUCTURE
                         (file parser)
                         :package (current-package-name parser)
                         :exported-p (eq (nth-value 1 
@@ -113,7 +113,7 @@
           
           ;; Record accessor function definition (new)
           (record-definition *current-tracker* accessor-symbol
-                           "FUNCTION"
+                           :FUNCTION
                            (file parser)
                            :package (current-package-name parser)
                            :exported-p (eq (nth-value 1 
@@ -382,12 +382,12 @@
   (let* ((operator (car form))
          (name (second form))
          (type (case operator
-                (defun "FUNCTION")
-                (defmacro "MACRO")  ;; Added this case
-                ((defvar defparameter defconstant) "VARIABLE")
-                (defgeneric "GENERIC-FUNCTION")  ;; Added this case 
-                (defmethod "METHOD")  ;; Added this case
-                (define-condition "CONDITION")))  ;; Added this case
+                (defun :FUNCTION)
+                (defmacro :MACRO)  ;; Added this case
+                ((defvar defparameter defconstant) :VARIABLE)
+                (defgeneric :GENERIC-FUNCTION)  ;; Added this case 
+                (defmethod :METHOD)  ;; Added this case
+                (define-condition :CONDITION)))  ;; Added this case
          (package (current-package parser)))
     
     ;; Record the definition
@@ -457,7 +457,7 @@
               (ecase accessor
                 (symbol-value
                  (record-definition *current-tracker* sym
-                                  "VARIABLE"
+                                  :VARIABLE
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1 
@@ -466,7 +466,7 @@
                                                :external)))
                 ((symbol-function fdefinition)
                  (record-definition *current-tracker* sym
-                                  "FUNCTION"
+                                  :FUNCTION
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1
@@ -475,7 +475,7 @@
                                                :external)))
                 (macro-function
                  (record-definition *current-tracker* sym
-                                  "MACRO"
+                                  :MACRO
                                   (file parser)
                                   :package (current-package-name parser)
                                   :exported-p (eq (nth-value 1
@@ -498,18 +498,18 @@
                    (or (find-symbol bare-name pkg)
                        (intern bare-name pkg))))
            (visibility (cond
-                       ((null (symbol-package operator)) "LOCAL")  ; Uninterned symbol
-                       ((eq pkg (current-package parser)) "LOCAL") ; In current package
+                       ((null (symbol-package operator)) :LOCAL)  ; Uninterned symbol
+                       ((eq pkg (current-package parser)) :LOCAL) ; In current package
                        (t (multiple-value-bind (sym status)
                               (find-symbol bare-name (current-package parser))
                             (declare (ignore sym))
                             (case status
-                              (:inherited "INHERITED")
-                              (:external "IMPORTED")
-                              (otherwise "LOCAL")))))))
+                              (:inherited :INHERITED)
+                              (:external :IMPORTED)
+                              (otherwise :LOCAL)))))))
       ;; Record the reference specifically as a function call
       (record-reference *current-tracker* sym
-               "CALL"
+               :CALL
                (file parser)
                :package (package-name pkg)
                :visibility visibility)))     ; Updated from :local
@@ -540,17 +540,17 @@
                          (current-package-name parser)))
              (current-file (file parser))
              (visibility (cond 
-                         ((null pkg) "LOCAL")  ; Uninterned symbol
-                         ((eq pkg current-pkg) "LOCAL")  ; In current package
+                         ((null pkg) :LOCAL)  ; Uninterned symbol
+                         ((eq pkg current-pkg) :LOCAL)  ; In current package
                          (t (multiple-value-bind (sym status)
                                (find-symbol (symbol-name form) current-pkg)
                              (declare (ignore sym))
                              (case status
-                               (:inherited "INHERITED")
-                               (:external "IMPORTED") 
-                               (otherwise "LOCAL")))))))
+                               (:inherited :INHERITED)
+                               (:external :IMPORTED) 
+                               (otherwise :LOCAL)))))))
         (record-reference *current-tracker* form
-                         "REFERENCE"
+                         :REFERENCE
                          current-file
                          :package pkg-name
                          :visibility visibility))))  ; Already correct
@@ -596,18 +596,18 @@
                     (do-external-symbols (sym used-pkg)
                       (multiple-value-bind (s status)
                             (find-symbol (symbol-name sym) package)
-                        (when (and s (string= status "INHERITED"))
+                        (when (and s (eq status :INHERITED))
                           (record-reference *current-tracker* sym
                                           (if (and (fboundp sym) 
                                                    (not (macro-function sym))
                                                    (not (special-operator-p sym)))
-                                            "CALL"
-                                            "REFERENCE")
+                                            :CALL
+                                            :REFERENCE)
                                           (file parser)
                                           :package (package-name used-pkg)
-                                          :visibility "INHERITED")))))))))
+                                          :visibility :INHERITED)))))))))
           (dolist (opt options)
-            (when (and (consp opt) (eq (car opt) "IMPORT-FROM"))
+            (when (and (consp opt) (eq (car opt) :import-from))
               (let ((from-pkg-name (normalize-package-name (second opt)))
                     (from-pkg (find-package (second opt))))
                 (when from-pkg
@@ -618,12 +618,12 @@
                       (when from-sym
                         (import from-sym package)
                         (record-reference *current-tracker* from-sym
-                                        "REFERENCE"
+                                        :REFERENCE
                                         (file parser)
                                         :package from-pkg-name
-                                        :visibility "IMPORTED"))))))))
+                                        :visibility :IMPORTED))))))))
           (dolist (opt options)
-            (when (and (consp opt) (eq (car opt) "EXPORT"))
+            (when (and (consp opt) (eq (car opt) :export))
               (dolist (sym (cdr opt))
                 (let* ((name (normalize-symbol-name sym))
                        (exported-sym (intern name package)))
