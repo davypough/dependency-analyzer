@@ -20,7 +20,7 @@
         (record-project-cycle chain)
         (record-anomaly *current-tracker*
                        :project-cycle
-                       :error
+                       :ERROR
                        project-name
                        (format nil "Project dependency cycle detected: ~A" chain)
                        cycle)))))
@@ -149,7 +149,7 @@
                       (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
                  (record-anomaly tracker 
                                :system-cycle
-                               :warning
+                               :WARNING
                                sys
                                (format nil "System dependency cycle detected: ~A" chain)
                                cycle)))

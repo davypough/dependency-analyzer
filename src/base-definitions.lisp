@@ -33,7 +33,7 @@
 (defstruct (anomaly (:conc-name anomaly.))
   "Data structure for recording dependency analysis anomalies"
   (type nil :type keyword :read-only t)
-  (severity nil :type keyword :read-only t)
+  (severity nil :type (member :ERROR :WARNING :INFO) :read-only t)
   (location nil :type (or string pathname) :read-only t)
   (description nil :type string :read-only t)
   (context nil :type t :read-only t))

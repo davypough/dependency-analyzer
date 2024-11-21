@@ -382,7 +382,7 @@
         (record-file-cycle chain)
         (record-anomaly *current-tracker*
                        :file-cycle
-                       :error
+                       :ERROR
                        file-name
                        (format nil "File dependency cycle detected: ~A" chain)
                        cycle)))))
@@ -398,7 +398,7 @@
         (record-package-cycle chain)
         (record-anomaly *current-tracker*
                        :package-cycle
-                       :error
+                       :ERROR
                        pkg-name
                        (format nil "Package dependency cycle detected: ~A" chain)
                        cycle)))))

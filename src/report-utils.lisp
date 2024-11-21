@@ -21,7 +21,7 @@
                  (format stream "~&~%~A Anomalies:~%" 
                          (string-capitalize (symbol-name type)))
                  ;; Group by severity within each type
-                 (loop for severity in '(:error :warning :info)
+                 (loop for severity in '(:ERROR :WARNING :INFO)
                        for severity-anomalies = (remove severity anomaly-list 
                                                       :key #'anomaly.severity 
                                                       :test-not #'eq)
