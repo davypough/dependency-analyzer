@@ -1,77 +1,121 @@
 ;;;; Filename: report.lisp
 ;;;
 ;;; Report generation functionality for dependency analysis results.
-;;; Provides multiple report formats for visualizing dependencies between
-;;; files, packages, and symbols. Includes robust error handling for
-;;; file operations.
+;;; Organized into major sections: Executive Summary, Architectural Overview,
+;;; Critical Components, Maintenance Hotspots, and Detailed References.
 
 
 (in-package #:dep)
 
 
-;;; Report Generation Methods
-
 (defgeneric generate-report (format tracker &key stream)
-  (:documentation "Generate a dependency report in the specified format."))
+ (:documentation "Generate a dependency report in the specified format."))
 
 
 (defmethod generate-report ((format (eql :text)) tracker &key (stream *standard-output*))
-  ;; Header
-  ;(format stream "~&Dependency Analysis Report for Project: ~A~%" (project.name tracker))
-  ;(format stream "~&================================================~%")
-  
-  ;; Anomalies section first
-  (when (format-anomalies stream tracker)
-    (format stream "~&------------------------------------------------~%"))
-  
-  ;; Cycle warnings - only show sections if cycles exist
-  (alexandria:when-let ((cycles (get-project-cycles tracker)))
-    (format stream "~&Project Dependency Cycles:~%")
-    (dolist (cycle cycles)
-      (format stream "  ~A~%" cycle)))
-  
-  (alexandria:when-let ((cycles (get-file-cycles tracker)))
-    (format stream "~&File Dependency Cycles:~%")
-    (dolist (cycle cycles)
-      (format stream "  ~A~%" cycle)))
-  
-  (alexandria:when-let ((cycles (get-package-cycles tracker)))
-    (format stream "~&Package Dependency Cycles:~%")
-    (dolist (cycle cycles)
-      (format stream "  ~A~%" cycle)))
-  
-  ;; Enhanced file dependencies section with symbol references
-  (format stream "------------------------------------------------~%")
-  (format stream "~&~%File Dependencies:~2%")
-  (maphash (lambda (file definitions)
-             (declare (ignore definitions))
-             (let ((deps (file-dependencies tracker file)))
-               (when deps
-                 (format stream "~&File: ~A~%" (project-pathname file))
-                 (format stream "      Depends on:~%")
-                 (dolist (dep deps)
-                   (format stream "        ~A~%" (project-pathname dep))
-                   ;; Add symbol references that create this dependency
-                   (let ((refs (collect-file-references tracker file dep)))
-                     (when refs
-                       (format stream "      References: ~{~A~^, ~}~%" refs)))))))
-           (slot-value tracker 'file-map))
-  
-  ;; Package relationships
-  (format stream "~%------------------------------------------------~%")
-  (format stream "~&~%Package Dependencies:~2%")
-  (maphash (lambda (pkg used-pkgs)
-             (format stream "~&Package: ~A~%" pkg)
-             (when used-pkgs
-               (format stream "  Uses packages:~%")
-               (dolist (used used-pkgs)
-                 (format stream "    ~A~%" used)))
-             (let ((exports (get-package-exports tracker pkg)))
-               (when exports
-                 (format stream "  Exports:~%")
-                 (dolist (sym (sort exports #'string< :key #'symbol-name))
-                   (format stream "    ~A~%" sym)))))
-           (slot-value tracker 'package-uses)))
+ ;; Top Banner
+ (format stream "~&~V,,,'-<~>" 70 "")
+ (format stream "~&Dependency Analysis Report~%")
+ (format stream "Project: ~A~%" (project.name tracker))
+ (format stream "Generated: ~A~%" (local-time:now))
+ (format stream "~V,,,'-<~>~2%" 70 "")
+
+ ;; 1. Executive Summary
+ (format stream "EXECUTIVE SUMMARY~%")
+ (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "Project Statistics:~%")
+ (format stream "  Files: ~A~%" (hash-table-count (slot-value tracker 'file-map)))
+ (format stream "  Packages: ~A~%" (hash-table-count (slot-value tracker 'package-uses)))
+ (format stream "  Definitions: ~A~%" (hash-table-count (slot-value tracker 'definitions)))
+ ;; TODO: Add coupling metrics when implemented
+ (format stream "~%Key Findings:~%")
+ (when (or (get-file-cycles tracker)
+           (get-package-cycles tracker))
+   (format stream "  * Circular dependencies detected~%"))
+ (format stream "~2%")
+
+;; 2. Architectural Overview
+(format stream "ARCHITECTURAL OVERVIEW~%")
+(format stream "~V,,,'-<~>~%" 30 "")
+(format stream "Package Hierarchy:~%")
+(multiple-value-bind (roots cycles) 
+    (build-package-dependency-tree tracker)
+  (if roots
+      (print-ascii-tree stream roots)
+      (format stream "  No package dependencies found.~%")))
+(format stream "~%File Hierarchy:~%")
+(let ((file-roots (build-file-dependency-tree tracker)))
+  (if file-roots
+      (print-ascii-tree stream file-roots)
+      (format stream "  No file dependencies found.~%")))
+;; TODO: Add layering analysis when implemented
+(format stream "~2%")
+
+ ;; 3. Critical Components
+ (format stream "CRITICAL COMPONENTS~%")
+ (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "Most Referenced Files: (Not Yet Implemented)~%")
+ (format stream "Most Referenced Packages: (Not Yet Implemented)~%")
+ (format stream "~2%")
+
+ ;; 4. Maintenance Hotspots
+ (format stream "MAINTENANCE HOTSPOTS~%")
+ (format stream "~V,,,'-<~>~%" 30 "")
+ 
+ ;; Display any cycles found
+ (alexandria:when-let ((cycles (get-project-cycles tracker)))
+   (format stream "Project Dependency Cycles:~%")
+   (dolist (cycle cycles)
+     (format stream "  ~A~%" cycle)))
+ 
+ (alexandria:when-let ((cycles (get-file-cycles tracker)))
+   (format stream "File Dependency Cycles:~%")
+   (dolist (cycle cycles)
+     (format stream "  ~A~%" cycle)))
+ 
+ (alexandria:when-let ((cycles (get-package-cycles tracker)))
+   (format stream "Package Dependency Cycles:~%")
+   (dolist (cycle cycles)
+     (format stream "  ~A~%" cycle)))
+ 
+ ;; TODO: Add complexity metrics when implemented
+ (format stream "~2%")
+
+ ;; 5. Detailed References
+ (format stream "DETAILED REFERENCES~%")
+ (format stream "~V,,,'-<~>~%" 30 "")
+ 
+ ;; File Dependencies
+ (format stream "File Dependencies:~%")
+ (maphash (lambda (file definitions)
+            (declare (ignore definitions))
+            (let ((deps (file-dependencies tracker file)))
+              (when deps
+                (format stream "~&File: ~A~%" (project-pathname file))
+                (format stream "      Depends on:~%")
+                (dolist (dep deps)
+                  (format stream "        ~A~%" (project-pathname dep))
+                  ;; Symbol references creating the dependency
+                  (let ((refs (collect-file-references tracker file dep)))
+                    (when refs
+                      (format stream "      References: ~{~A~^, ~}~%" refs)))))))
+          (slot-value tracker 'file-map))
+ 
+ ;; Package Dependencies
+ (format stream "~%Package Dependencies:~%")
+ (maphash (lambda (pkg used-pkgs)
+            (format stream "~&Package: ~A~%" pkg)
+            (when used-pkgs
+              (format stream "  Uses packages:~%")
+              (dolist (used used-pkgs)
+                (format stream "    ~A~%" used)))
+            (let ((exports (get-package-exports tracker pkg)))
+              (when exports
+                (format stream "  Exports:~%")
+                (dolist (sym (sort exports #'string< :key #'symbol-name))
+                  (format stream "    ~A~%" sym)))))
+          (slot-value tracker 'package-uses))
+ (format stream "~2%"))
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
@@ -189,72 +233,40 @@
   (format stream "}~%"))
 
 
-;;; Main Report Function
-
 (defun report (&optional filename)
-  "Generate a comprehensive dependency report for the current project analysis.
-   If FILENAME is provided, saves the report to that file."
-  (unless *current-tracker*
-    (return-from report nil))
-  
-  (flet ((generate-all-reports (stream)
-           ;; Header
-           (format stream "~&~V,,,'-<~>" 70 "")
-           (format stream "~&Dependency Analysis Report~%")
-           (format stream "Project: ~A~%" (project.name *current-tracker*))
-           (format stream "Generated: ~A~%" (local-time:now))
-           (format stream "~V,,,'-<~>~%" 70 "")
-           
-           ;; File Dependency Tree
-           (format stream "~%File Dependency Hierarchy:~%")
-           (let ((roots (build-file-dependency-tree *current-tracker*)))
-             (if roots
-                 (print-ascii-tree stream roots)
-                 (format stream "No file dependencies found.~%")))
-           (format stream "~%")
-
-           ;; Package Dependency Tree
-           (format stream "~%Package Dependency Hierarchy:~%")
-           (multiple-value-bind (roots cycles) 
-               (build-package-dependency-tree *current-tracker*)
-             (if roots
-                 (progn
-                   (print-ascii-tree stream roots)
-                   (when cycles
-                     (format stream "~%Circular Package Dependencies:~%")
-                     (dolist (cycle cycles)
-                       (format stream "  ~A~%" cycle))))
-                 (format stream "No package dependencies found.~%")))
-           (format stream "~%")
-           
-           ;; Core report in text format
-           (generate-report :text *current-tracker* :stream stream)
-           
-           ;; Add DOT graph as appendix
-           (format stream "~%~%APPENDIX A: Graphviz DOT Format~%")
-           (format stream "~V,,,'-<~>~%" 70 "")
-           (format stream "Save the following content to a .dot file and process with Graphviz:~%~%")
-           (generate-report :dot *current-tracker* :stream stream)
-           
-           ;; Add JSON as appendix
-           (format stream "~%~%APPENDIX B: JSON Format~%")
-           (format stream "~V,,,'-<~>~%" 70 "")
-           (format stream "~%")
-           (generate-report :json *current-tracker* :stream stream)))
-    
-    (if filename
-        ;; Save to file
-        (let ((pathname (pathname filename)))
-          (ensure-directory-exists pathname)
-          (verify-writable pathname)
-          (with-open-file (out pathname
-                           :direction :output 
-                           :if-exists :supersede
-                           :if-does-not-exist :create)
-            (generate-all-reports out)
-            (format t "~&Report saved to: ~A~%" pathname)))
-        ;; Display to standard output
-        (generate-all-reports *standard-output*)))
-  
-  ;; Return the tracker to allow for chaining
-  *current-tracker*)
+ "Generate a comprehensive dependency report for the current project analysis.
+  If FILENAME is provided, saves the report to that file."
+ (unless *current-tracker*
+   (return-from report nil))
+ 
+ (flet ((generate-all-reports (stream)
+          ;; Main text report
+          (generate-report :text *current-tracker* :stream stream)
+          
+          ;; Appendices
+          (format stream "~%APPENDIX A: Graphviz DOT Format~%")
+          (format stream "~V,,,'-<~>~%" 70 "")
+          (format stream "Save the following content to a .dot file and process with Graphviz:~%~%")
+          (generate-report :dot *current-tracker* :stream stream)
+          
+          (format stream "~%APPENDIX B: JSON Format~%")
+          (format stream "~V,,,'-<~>~%" 70 "")
+          (format stream "~%")
+          (generate-report :json *current-tracker* :stream stream)))
+   
+   (if filename
+       ;; Save to file
+       (let ((pathname (pathname filename)))
+         (ensure-directory-exists pathname)
+         (verify-writable pathname)
+         (with-open-file (out pathname
+                          :direction :output 
+                          :if-exists :supersede
+                          :if-does-not-exist :create)
+           (generate-all-reports out)
+           (format t "~&Report saved to: ~A~%" pathname)))
+       ;; Display to standard output
+       (generate-all-reports *standard-output*)))
+ 
+ ;; Return the tracker to allow for chaining
+ *current-tracker*)
