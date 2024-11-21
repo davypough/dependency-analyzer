@@ -89,23 +89,20 @@
         *current-tracker*))))
 
 
-(defun analyze-directory (directory &optional (filespecs '("*.lisp")))
+(defun analyze-directory (directory &optional (filespecs '("*.lisp" "*.asd")))
   "Analyze source files in a directory structure and its subdirectories.
    DIRECTORY - The root directory to analyze
-   FILESPECS - Optional file patterns to match (default: '(\"*.lisp\"))
-               Can be a single string pattern or list of patterns
+   FILESPECS - Optional file patterns to match (default: '(\"*.lisp\" \"*.asd\"))
    Returns the dependency tracker containing the analysis results.
-   Example: (analyze-directory #P\"/path/to/project/\")
-            (analyze-directory #P\"/path/to/project/\" '(\"*.lisp\" \"*.cl\" \"*.lsp\"))"
+   Example: (analyze-directory #P\"/path/to/project/\")"
   (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                         :system-name (format nil "DIR:~A" directory)))
+                                         :project-name (format nil "DIR:~A" directory)
+                                         :project-root (pathname directory)))
     (labels ((collect-files-for-pattern (dir pattern)
                (let ((files nil))
-                 ;; Get matching files in current directory
                  (dolist (file (directory (merge-pathnames pattern dir)))
                    (when (probe-file file)
                      (push file files)))
-                 ;; Always process subdirectories
                  (dolist (subdir (directory (merge-pathnames "*.*" dir)))
                    (when (and (probe-file subdir)
                             (directory-pathname-p subdir))
@@ -117,11 +114,22 @@
                    (setf files (nunion files 
                                      (collect-files-for-pattern dir pattern)
                                      :test #'equal)))
-                 files)))
-      ;; Collect all matching files
+                 files))
+             (analyze-asd-file (file)
+               (with-open-file (stream file :direction :input)
+                 (loop for form = (read stream nil nil)
+                       while form
+                       when (and (listp form)
+                                (eq (first form) 'asdf:defsystem)
+                                (stringp (second form)))
+                       do (let* ((sys-name (second form))
+                                (depends-on (getf (cddr form) :depends-on)))
+                            (record-system-dependencies *current-tracker* sys-name depends-on))))))
       (let ((files (collect-all-files (pathname directory) filespecs)))
-        ;; Parse each file
         (dolist (file files)
-          (let ((file-parser (make-instance 'file-parser :file file)))
-            (parse-file file-parser)))
-        *current-tracker*))))
+          (cond ((string-equal (pathname-type file) "asd")
+                 (analyze-asd-file file))
+                (t (let ((file-parser (make-instance 'file-parser :file file)))
+                     (parse-file file-parser)))))
+        (detect-system-cycles *current-tracker*)
+        *current-tracker*)))))

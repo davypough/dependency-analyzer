@@ -390,3 +390,16 @@
                  (if path 
                      (namestring path)
                      "")))))
+
+
+(defmethod get-system-cycles (&optional (tracker nil tracker-provided-p))
+  "Get all recorded system dependency cycles from the tracker."
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+        (cycles nil))
+    (maphash (lambda (type anomaly-list)
+               (when (eq type :system-cycle)
+                 (dolist (a anomaly-list)
+                   (push (anomaly.context a) cycles))))
+             (anomalies actual-tracker))
+    (sort cycles #'string< :key (lambda (cycle)
+                                 (format nil "~{~A~^->~}" cycle)))))

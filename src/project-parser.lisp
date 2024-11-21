@@ -85,50 +85,77 @@
 
 
 (defun analyze-project (project-name)
-  "Analyze an ASDF project and create a dependency tracker with results."
-  (let ((system (asdf:find-system project-name)))
-    (when system
-      (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                             :project-name project-name
-                                             :project-root (asdf:system-source-directory system)))
-        (let ((parser (make-instance 'project-parser :project system)))
-          (parse-project parser)
-          *current-tracker*)))))
+  "Analyze an ASDF project and its associated subsystems."
+  (let* ((project (asdf:find-system project-name))
+         (asd-file (asdf:system-source-file project))
+         (systems nil))
+    (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                         :project-name (string project-name)
+                                         :project-root (asdf:system-source-directory project)))
+      ;; First parse the asd file for system dependencies
+      (with-open-file (stream asd-file :direction :input)
+        (loop for form = (read stream nil nil)
+              while form
+              when (and (listp form)
+                       (eq (first form) 'asdf:defsystem)
+                       (stringp (second form)))
+              do (let* ((sys-name (second form))
+                       (sys (asdf:find-system sys-name))
+                       (depends-on (getf (cddr form) :depends-on)))
+                   (when sys 
+                     (push sys systems)
+                     (record-system-dependencies *current-tracker* sys-name depends-on)))))
+      ;; Then parse all source files
+      (let ((source-files (find-project-files project-name)))
+        (dolist (file source-files)
+          (when (probe-file file)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-file file-parser)))))
+      *current-tracker*)))
 
 
-(defun analyze-directory (directory &optional (filespecs '("*.lisp")))
-  "Analyze source files in a directory structure and its subdirectories.
-   DIRECTORY - The root directory to analyze
-   FILESPECS - Optional file patterns to match (default: '(\"*.lisp\"))
-               Can be a single string pattern or list of patterns
-   Returns the dependency tracker containing the analysis results.
-   Example: (analyze-directory #P\"/path/to/project/\")
-            (analyze-directory #P\"/path/to/project/\" '(\"*.lisp\" \"*.cl\" \"*.lsp\"))"
-  (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                         :project-name (format nil "DIR:~A" directory)))
-    (labels ((collect-files-for-pattern (dir pattern)
-               (let ((files nil))
-                 ;; Get matching files in current directory
-                 (dolist (file (directory (merge-pathnames pattern dir)))
-                   (when (probe-file file)
-                     (push file files)))
-                 ;; Always process subdirectories
-                 (dolist (subdir (directory (merge-pathnames "*.*" dir)))
-                   (when (and (probe-file subdir)
-                            (directory-pathname-p subdir))
-                     (setf files (nconc files (collect-files-for-pattern subdir pattern)))))
-                 files))
-             (collect-all-files (dir patterns)
-               (let ((files nil))
-                 (dolist (pattern (if (listp patterns) patterns (list patterns)))
-                   (setf files (nunion files 
-                                     (collect-files-for-pattern dir pattern)
-                                     :test #'equal)))
-                 files)))
-      ;; Collect all matching files
-      (let ((files (collect-all-files (pathname directory) filespecs)))
-        ;; Parse each file
-        (dolist (file files)
-              (let ((file-parser (make-instance 'file-parser :file file)))
-                (parse-file file-parser)))
-        *current-tracker*))))
+(defun record-system-dependencies (tracker system-name depends-on)
+  "Record dependencies between systems defined in the project."
+  (let ((deps (if (listp depends-on) 
+                  depends-on 
+                  (and depends-on (list depends-on)))))
+    (setf (gethash (string system-name) (slot-value tracker 'subsystems))
+          (mapcar #'string deps))))
+
+
+(defun get-system-dependencies (tracker system-name)
+  "Get list of systems that a system depends on."
+  (gethash (string system-name) (slot-value tracker 'subsystems)))
+
+
+(defun system-depends-on-p (tracker system1 system2)
+  "Check if system1 depends on system2 (directly or indirectly)."
+  (labels ((check-deps (sys visited)
+             (when (member sys visited :test #'string=)
+               (return-from check-deps nil))
+             (let ((deps (get-system-dependencies tracker sys)))
+               (or (member system2 deps :test #'string=)
+                   (some (lambda (dep)
+                          (check-deps dep (cons sys visited)))
+                        deps)))))
+    (check-deps (string system1) nil)))
+
+
+(defun detect-system-cycles (tracker)
+  "Detect cycles in system dependencies."
+  (labels ((traverse (sys path)
+             (when (member sys path :test #'string=)
+               (let* ((cycle (cons sys (ldiff path (member sys path :test #'string=))))
+                      (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
+                 (record-anomaly tracker 
+                               :system-cycle
+                               :warning
+                               sys
+                               (format nil "System dependency cycle detected: ~A" chain)
+                               cycle)))
+             (dolist (dep (get-system-dependencies tracker sys))
+               (traverse dep (cons sys path)))))
+    (maphash (lambda (sys deps)
+               (declare (ignore deps))
+               (traverse sys nil))
+             (slot-value tracker 'subsystems))))

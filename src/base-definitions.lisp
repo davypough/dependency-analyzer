@@ -52,6 +52,9 @@
    (package-uses
     :initform (make-hash-table :test 'equal)
     :documentation "Maps packages to the packages they use")
+   (subsystems
+    :initform (make-hash-table :test 'equal) 
+    :documentation "Maps system names to their dependencies")
    (package-exports
     :initform (make-hash-table :test 'equal)
     :documentation "Maps packages to their exported symbols")
@@ -81,9 +84,7 @@
    (project-root
     :initarg :project-root
     :reader project-root
-    :documentation "Root directory of the project being analyzed"))
-  (:documentation 
-   "Main data structure for tracking dependencies between files and symbols."))
+    :documentation "Root directory of the project being analyzed")))
 
 
 (defclass project-parser ()
