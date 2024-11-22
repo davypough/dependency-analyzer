@@ -3,6 +3,7 @@
 ;;; Core file parsing functionality for dependency analysis.
 ;;; Analyzes source files to track symbol definitions, references,
 ;;; and package relationships without expanding macros.
+;;; Also provides ASDF component parsing coordination.
 
 
 (in-package #:dep)
@@ -14,7 +15,6 @@
     ;; Record any cycles but continue parsing
     (record-file-dependency-cycle parser file)
     (push file parsing-files)
-    
     (with-open-file (stream file :direction :input)
       (let ((*package* package))
         (loop for form = (read stream nil nil)
@@ -260,6 +260,22 @@
     
     ;; Restore original bindings
     (setf (bound-symbols parser) old-bound)))
+
+
+(defun analyze-binding-form (parser form form-type)
+ "Handle binding forms (let, let*, flet, labels, macrolet, symbol-macrolet).
+  FORM-TYPE is one of: let, let*, flet, labels, macrolet, symbol-macrolet"
+ (case form-type
+   ((let let*)
+    (analyze-let-form parser form form-type))
+   ((flet labels) 
+    (analyze-flet-form parser form form-type))
+   (macrolet
+    (analyze-macrolet-form parser form))
+   (symbol-macrolet
+    ;; For symbol-macrolet, just analyze the body forms
+    ;; We don't try to track macro expansions
+    (analyze-rest parser (cddr form)))))
 
 
 (defun analyze-flet-form (parser form flet-type)
@@ -655,3 +671,23 @@
              (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
         ;; Record the cycle in the dependency tracker
         (record-file-cycle chain)))))
+
+
+(defmethod parse-component ((component t) parser)
+  "Parse a single ASDF system component based on its type."
+  (typecase component
+    (asdf:cl-source-file
+      (parse-source-file parser component))
+    (asdf:module
+      (mapc (lambda (c) (parse-component c parser))
+            (asdf:component-children component)))
+    (t
+      (warn "Skipping unknown component type: ~A" component))))
+
+
+(defmethod parse-source-file ((parser t) source-file)
+  "Parse a source file component using the file parser."
+  (let ((file (asdf:component-pathname source-file)))
+    (when (probe-file file)
+      (let ((file-parser (make-instance 'file-parser :file file)))
+        (parse-file file-parser)))))

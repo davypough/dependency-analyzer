@@ -8,7 +8,54 @@
 (in-package #:dep)
 
 
-;;; Error Conditions
+(defparameter *print-width* 80
+  "Default maximum width for formatted report output.")
+
+
+(defun format-file-dependency-line (source target)
+  "Format a file dependency line 'X depends on Y'.
+   Returns both the formatted string and its display length."
+  (let ((line (format nil "~A depends on ~A" 
+                      (project-pathname source)
+                      (project-pathname target))))
+    (values line (length line))))
+
+
+(defun format-references-list (refs &key depends-pos (max-width *print-width*))
+  "Format a list of reference symbols with 'references' aligned under 'depends on'.
+   REFS - List of reference symbols
+   DEPENDS-POS - Column position of 'depends on' label
+   MAX-WIDTH - Maximum line width (defaults to *print-width*)"
+  (with-output-to-string (s)
+    (let* ((prefix (format nil "~vA" depends-pos ""))
+           (ref-strings (mapcar #'symbol-name (sort refs #'string< :key #'symbol-name)))
+           (available-width (- max-width depends-pos))
+           (first-line t))
+      ;; Handle empty reference list
+      (when (null refs)
+        (return-from format-references-list ""))
+      
+      ;; Start with "references" aligned under "depends on"
+      (format s "~Areferences " prefix)
+      
+      (loop with col = (+ depends-pos 11) ; length of "references " after prefix
+            for ref in ref-strings
+            do (let ((need-space (not first-line))
+                    (ref-len (length ref)))
+                 ;; Check if we need to wrap
+                 (when (> (+ col (if need-space 2 0) ref-len) max-width)
+                   ;; Start new line aligned with first "references"
+                   (format s "~%~A           " prefix)
+                   (setf col (+ depends-pos 11)
+                         need-space nil))
+                 ;; Add separator if needed
+                 (when need-space
+                   (format s ", ")
+                   (incf col 2))
+                 ;; Add reference
+                 (format s "~A" ref)
+                 (incf col ref-len)
+                 (setf first-line nil))))))
 
 
 (defun format-anomalies (stream tracker)

@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: TEST-PROJECT
-Generated: 2024-11-21T22:44:48.624216Z
+Generated: 2024-11-22T00:44:51.452428Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
@@ -10,8 +10,8 @@ Project Statistics:
   Systems: 0
   Files: 2
   Packages: 1
-  Definitions: 17
-  References: 1037
+  Definitions: 18
+  References: 1043
   Anomalies: 0
 
 
@@ -49,5 +49,9 @@ Package Dependencies:
 USER-MAIN-PACKAGE uses COMMON-LISP
 
 File Dependencies:
-/source/single-pkg-refs.lisp depends on /source/single-pkg-defs.lisp 
-                             references *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+, CIRCLE-RADIUS, COMPUTE-AREA, CONDITION-NAME, DEFMACRO-NAME, DEFUN-NAME, FDEFINITION-FUNCTION-NAME, MACRO-FUNCTION-NAME, PERSON.AGE, PROCESS-DATA, SYMBOL-FUNCTION-NAME, SYMBOL-VALUE-VARIABLE
+/source/single-pkg-refs.lisp depends on /source/single-pkg-defs.lisp
+  references *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+
+             CIRCLE-RADIUS, COMPUTE-AREA, CONDITION-NAME, DEFMACRO-NAME
+             DEFUN-NAME, FDEFINITION-FUNCTION-NAME, MACRO-FUNCTION-NAME
+             PERSON.AGE, PROCESS-DATA, SYMBOL-FUNCTION-NAME
+             SYMBOL-VALUE-VARIABLE

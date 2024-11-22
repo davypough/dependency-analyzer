@@ -56,7 +56,7 @@
                 (format stream "    ~A~%" dep))))
           (slot-value tracker 'subsystems))
  (format stream "~2%")
-;; 2. Architectural Overview
+ ;; 2. Architectural Overview
  (format stream "ARCHITECTURAL OVERVIEW~%")
  (format stream "~V,,,'-<~>~%" 30 "")
  ;; System Overview
@@ -90,15 +90,15 @@
        (print-ascii-tree stream file-roots)
        (format stream "  No file dependencies found.~%")))
  (format stream "~2%")
-;; 3. Anomalies and Analysis
-(format stream "ANOMALIES AND ANALYSIS~%")
-(format stream "~V,,,'-<~>~%" 30 "")
-(flet ((print-anomaly (a indent)
-         (format stream "~A~A~%" indent (anomaly.description a))
-         (format stream "~A  Location: ~A~%" indent (anomaly.location a))
-         (when (anomaly.context a)
-           (format stream "~A  Context: ~A~%" indent (anomaly.context a)))
-         (format stream "~%")))
+ ;; 3. Anomalies and Analysis
+ (format stream "ANOMALIES AND ANALYSIS~%")
+ (format stream "~V,,,'-<~>~%" 30 "")
+ (flet ((print-anomaly (a indent)
+        (format stream "~A~A~%" indent (anomaly.description a))
+        (format stream "~A  Location: ~A~%" indent (anomaly.location a))
+        (when (anomaly.context a)
+          (format stream "~A  Context: ~A~%" indent (anomaly.context a)))
+        (format stream "~%")))
   (dolist (severity '(:ERROR :WARNING :INFO))
     (let ((found-severity nil))
       ;; Check if we have any anomalies of this severity
@@ -191,12 +191,12 @@
    (dolist (cycle cycles)
      (format stream "  ~A~%" cycle)))
  (format stream "~2%")
-;; 5. Detailed References
-(format stream "DETAILED REFERENCES~%")
-(format stream "~V,,,'-<~>~%" 30 "")
-;; System Dependencies
-(format stream "System Dependencies:~%")
-(let ((printed-systems (make-hash-table :test 'equal)))
+ ;; 5. Detailed References
+ (format stream "DETAILED REFERENCES~%")
+ (format stream "~V,,,'-<~>~%" 30 "")
+ ;; System Dependencies
+ (format stream "System Dependencies:~%")
+ (let ((printed-systems (make-hash-table :test 'equal)))
   (maphash (lambda (sys-name deps)
              (unless (gethash sys-name printed-systems)
                (format stream "~&System: ~A~%" sys-name)
@@ -219,10 +219,10 @@
                    (dolist (pkg (sort sys-packages #'string<))
                      (format stream "    ~A~%" pkg))))))
            (slot-value tracker 'subsystems)))
-(format stream "~2%")
-;; Package Dependencies
-(format stream "Package Dependencies:~%")
-(maphash (lambda (pkg used-pkgs)
+ (format stream "~2%")
+ ;; Package Dependencies
+ (format stream "Package Dependencies:~%")
+ (maphash (lambda (pkg used-pkgs)
            (format stream "~&~A " pkg)
            (when used-pkgs
              (format stream "uses")
@@ -234,21 +234,32 @@
                (dolist (sym (sort exports #'string< :key #'symbol-name))
                  (format stream "    ~A~%" sym)))))
          (slot-value tracker 'package-uses))
-(format stream "~2%")
-;; File Dependencies
-(format stream "File Dependencies:~%")
-(maphash (lambda (file definitions)
-           (declare (ignore definitions))
-           (let ((deps (file-dependencies tracker file)))
-             (when deps
-               (format stream "~A depends on " (project-pathname file))
-               (dolist (dep deps)
-                 (format stream "~A " (project-pathname dep))
-                 ;; Symbol references creating the dependency
-                 (let ((refs (collect-file-references tracker file dep)))
-                   (when refs
-                     (format stream "~&                             references ~{~A~^, ~}~%" refs)))))))
-         (slot-value tracker 'file-map)))
+ (format stream "~2%")
+ ;; File Dependencies
+ (format stream "File Dependencies:~%")
+ (let ((deps-table (make-hash-table :test 'equal))
+       (depends-on-pos nil))
+  ;; First find position of "depends on" label
+  (let ((sample-line (format nil "X depends on Y")))
+    (setf depends-on-pos (search "depends on" sample-line)))
+  ;; Output dependencies with aligned references
+  (maphash (lambda (file definitions)
+             (declare (ignore definitions))
+             (let ((deps (file-dependencies tracker file)))
+               (when deps
+                 (dolist (dep deps)
+                   (let* ((dep-line (format nil "~A depends on ~A" 
+                                          (project-pathname file)
+                                          (project-pathname dep)))
+                          (refs (collect-file-references tracker file dep)))
+                     (format stream "~A" dep-line)
+                     (when refs
+                       (format stream "~%~A"
+                               (format-references-list refs 
+                                                     :depends-pos depends-on-pos
+                                                     :max-width *print-width*)))
+                     (format stream "~%"))))))
+           (slot-value tracker 'file-map))))
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
