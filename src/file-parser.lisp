@@ -9,23 +9,44 @@
 (in-package #:dep)
 
 
-(defmethod parse-file ((parser file-parser))
-  "Parse a single Lisp source file for definitions and references."
+(defmethod parse-definitions-in-file ((parser file-parser))
+  "First pass parser that records only definitions and package context from a file."
   (with-slots (file package parsing-files) parser
-    ;; Record any cycles but continue parsing
-    (record-file-dependency-cycle parser file)
     (push file parsing-files)
     (with-open-file (stream file :direction :input)
       (let ((*package* package))
         (loop for form = (read stream nil nil)
               while form
-              do (analyze-form parser form))))
-    
-    ;; Remove file from parsing stack
+              do (analyze-definition-form parser form))))
     (pop parsing-files)))
 
 
-(defmethod analyze-form ((parser file-parser) form)
+(defmethod analyze-definition-form ((parser file-parser) form)
+  "Analyze a form for definitions only - packages, structures, functions, etc."
+  (etypecase form
+    (list 
+     (when (symbolp (car form))
+       (let ((operator (car form)))
+         (case operator
+           ;; Package context must be handled first
+           (in-package (analyze-in-package parser form))
+           (defpackage (analyze-package-definition parser form))
+           
+           ;; Structure definitions need special handling
+           (defstruct (analyze-struct-definition parser form))
+           
+           ;; Variable definitions unified
+           ((defvar defparameter defconstant) 
+            (analyze-variable-definition parser form))
+           (setf 
+            (when (and (cddr form)  ; Must have 3+ elements
+                      (listp (second form))
+                      (eq (caadr form) 'symbol-value))
+              (analyze-variable-definition parser form)))))))
+    (t nil)))
+
+
+#+ignore (defmethod analyze-form ((parser file-parser) form)
   "Analyze a form for definitions and references."
   (etypecase form
     (list 
@@ -58,77 +79,144 @@
 
 
 (defun analyze-struct-definition (parser form)
-  "Handle structure definitions, including options and slot definitions."
-  (destructuring-bind (def-op name-and-options &rest slots) form
-    (declare (ignore def-op))
-    ;; Handle both simple name and (name options...) forms
-    (let* ((name (if (and (listp name-and-options) 
-                         (symbolp (car name-and-options)))
-                     (car name-and-options)
-                     name-and-options))
-           (options (if (and (listp name-and-options)
-                           (symbolp (car name-and-options)))
-                       (cdr name-and-options)
-                       nil))
-           ;; Get real slots list - if first item looks like an option, start options list
-           (real-slots (if (and (consp (car slots))
-                              (keywordp (caar slots)))
-                          (progn
-                            (setf options (append options (list (car slots))))
-                            (cdr slots))
-                          slots))
-           (package (current-package parser))
-           ;; Parse structure options
-           (conc-name-option (find :conc-name options :key #'car))
-           (conc-name (cond ((null conc-name-option) 
-                            (concatenate 'string (symbol-name name) "-"))
-                           ((null (second conc-name-option)) 
-                            "")
-                           (t 
-                            (let ((prefix (second conc-name-option)))
-                              (if (symbolp prefix)
-                                  (symbol-name prefix)
-                                  prefix)))))
-           (include (find :include options :key #'car)))
+ "Handle structure definitions, recording structure name, slot accessors,
+  slot keywords, type member symbols, and any nested definitions.
+  Note: Does not analyze references - those are handled in second pass."
+ (destructuring-bind (def-op name-and-options &rest slots) form
+   (declare (ignore def-op))
+   ;; Handle both simple name and (name options...) forms
+   (let* ((name (if (and (listp name-and-options) 
+                        (symbolp (car name-and-options)))
+                    (car name-and-options)
+                    name-and-options))
+          (options (if (and (listp name-and-options)
+                          (symbolp (car name-and-options)))
+                      (cdr name-and-options)
+                      nil))
+          ;; Get real slots list - if first item looks like options, start options list
+          (real-slots (if (and (consp (car slots))
+                             (keywordp (caar slots)))
+                         (progn
+                           (setf options (append options (list (car slots))))
+                           (cdr slots))
+                         slots))
+          (package (current-package parser))
+          ;; Parse conc-name for accessor generation
+          (conc-name-option (find :conc-name options :key #'car))
+          (conc-name (cond ((null conc-name-option) 
+                           (concatenate 'string (symbol-name name) "-"))
+                          ((null (second conc-name-option)) 
+                           "")
+                          (t 
+                           (let ((prefix (second conc-name-option)))
+                             (if (symbolp prefix)
+                                 (symbol-name prefix)
+                                 prefix))))))
+     
+     ;; Record the structure type definition
+     (record-definition *current-tracker* name
+                       :STRUCTURE
+                       (file parser)
+                       :package (current-package-name parser)
+                       :exported-p (eq (nth-value 1 
+                                     (find-symbol (symbol-name name)
+                                                package))
+                                    :external))
+     
+     ;; Handle included structure if present - must analyze before slots
+     (let ((include (find :include options :key #'car)))
+       (when include
+         ;; The included structure name might be a defstruct form
+         (analyze-definition-form parser (cadr include))))
+     
+     ;; Process each slot to record accessor functions and slot keywords
+     (dolist (slot real-slots)
+       (let* ((slot-name (if (listp slot) (car slot) slot))
+              (accessor-name-str (concatenate 'string conc-name (symbol-name slot-name)))
+              (accessor-symbol (intern accessor-name-str package)))
+         
+         ;; Record accessor function definition
+         (record-definition *current-tracker* accessor-symbol
+                          :FUNCTION
+                          (file parser)
+                          :package (current-package-name parser)
+                          :exported-p (eq (nth-value 1 
+                                        (find-symbol accessor-name-str package))
+                                       :external))
+         
+         ;; Record slot keyword
+         (record-definition *current-tracker* slot-name
+                          :FUNCTION  ; Keywords are functions
+                          (file parser)
+                          :package "KEYWORD"
+                          :exported-p t)
+         
+         ;; For each slot, look for member type symbols to record and any nested definitions
+         (when (listp slot)
+           ;; Process slot options
+           (loop for (key value) on (cddr slot) by #'cddr
+                 when (eq key :type)
+                 do (when (listp value)
+                      ;; Record any member type symbols
+                      (when (eq (car value) 'member)
+                        (dolist (member (cdr value))
+                          (typecase member
+                            ((or symbol string)
+                             (record-definition *current-tracker* member
+                                             :FUNCTION  ; Keywords/symbols as functions
+                                             (file parser)
+                                             :package (if (keywordp member)
+                                                        "KEYWORD"
+                                                        (current-package-name parser))
+                                             :exported-p t))))))
+                 ;; Look for any nested definitions in slot values or type specs
+                 do (analyze-definition-form parser value)))))
+     
+     ;; Check for any nested definitions in structure options
+     (when (listp name-and-options)
+       (dolist (option (cdr name-and-options))
+         (analyze-definition-form parser option))))))
+
+
+(defun analyze-variable-definition (parser form)
+  "Record variable definitions and scan initialization forms for nested definitions.
+   Handles defvar, defparameter, defconstant, and setf of symbol-value."
+  (let ((operator (car form))
+        (package (current-package parser)))
+    (cond
+      ;; Handle defvar/defparameter/defconstant
+      ((member operator '(defvar defparameter defconstant))
+       (let ((name (second form)))
+         ;; Record the variable definition
+         (record-definition *current-tracker* name
+                          :VARIABLE
+                          (file parser)
+                          :package (current-package-name parser)
+                          :exported-p (eq (nth-value 1 
+                                        (find-symbol (symbol-name name) package))
+                                       :external))
+         ;; Check for nested definitions in initialization form if present
+         (when (cddr form)
+           (analyze-definition-form parser (third form)))))
       
-      ;; Record the structure type definition
-      (record-definition *current-tracker* name
-                        :STRUCTURE
-                        (file parser)
-                        :package (current-package-name parser)
-                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name)
-                                                 package))
-                                     :external))
-      
-      ;; Handle included structure slots if present
-      (when include
-        (analyze-subform parser (cadr include)))
-      
-      ;; Process each slot
-      (dolist (slot real-slots)
-        (let* ((slot-name (if (listp slot) (car slot) slot))
-               (accessor-name-str (concatenate 'string conc-name (symbol-name slot-name)))
-               (accessor-symbol (intern accessor-name-str package)))
-          
-          ;; Record accessor function definition (new)
-          (record-definition *current-tracker* accessor-symbol
-                           :FUNCTION
-                           (file parser)
-                           :package (current-package-name parser)
-                           :exported-p (eq (nth-value 1 
-                                         (find-symbol accessor-name-str package))
-                                        :external))
-          
-          ;; Analyze slot options if present
-          (when (listp slot)
-            (loop for (key value) on (cddr slot) by #'cddr
-                  ;; Skip CL types in type declarations
-                  unless (and (eq key :type)
-                            (symbolp value)
-                            (eq (symbol-package value) 
-                                (find-package :common-lisp)))
-                  when value do (analyze-subform parser value))))))))
+      ;; Handle (setf (symbol-value 'name) value)
+      ((eq operator 'setf)
+       (let* ((place (second form))
+              (sym (typecase (cadr place)
+                    (symbol (cadr place))
+                    (cons (and (eq (car (cadr place)) 'quote)
+                             (cadr (cadr place)))))))
+         (when sym
+           ;; Record the variable definition
+           (record-definition *current-tracker* sym
+                            :VARIABLE
+                            (file parser)
+                            :package (current-package-name parser)
+                            :exported-p (eq (nth-value 1 
+                                          (find-symbol (symbol-name sym) package))
+                                         :external))
+           ;; Check for nested definitions in value form
+           (analyze-definition-form parser (third form))))))))
 
 
 (defun analyze-body-with-declarations (parser body)

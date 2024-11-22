@@ -17,23 +17,21 @@
                   (string= name ""))))))
 
 
-(defun find-system-files (system-name)
-  "Get a list of all source files in an ASDF system."
-  (let ((system (asdf:find-system system-name)))
-    (unless system
-      (error 'system-parse-error 
-             :system-name system-name
-             :reason "System not found"))
-    (collect-source-files system)))
-
-
-(defmethod collect-source-files ((component asdf:component))
-  "Recursively collect all source files from an ASDF component."
-  (typecase component
-    (asdf:cl-source-file
-      (list (asdf:component-pathname component)))
-    (asdf:module
-      (mapcan #'collect-source-files 
-              (asdf:component-children component)))
-    (t
-      nil)))
+(defun collect-directory-files (directory patterns)
+  "Collect all files matching patterns in directory and its subdirectories.
+   DIRECTORY - Root directory to search
+   PATTERNS - String or list of strings with file patterns (e.g. \"*.lisp\")"
+  (labels ((collect-for-pattern (dir pattern)
+             (let ((files nil))
+               (dolist (file (directory (merge-pathnames pattern dir)))
+                 (push file files))
+               (dolist (subdir (directory (merge-pathnames "*.*" dir)))
+                 (when (directory-pathname-p subdir)
+                   (setf files (nconc files (collect-for-pattern subdir pattern)))))
+               files)))
+    (let ((files nil))
+      (dolist (pattern (if (listp patterns) patterns (list patterns)))
+        (setf files (nunion files 
+                           (collect-for-pattern (pathname directory) pattern)
+                           :test #'equal)))
+      (sort files #'string< :key #'namestring))))

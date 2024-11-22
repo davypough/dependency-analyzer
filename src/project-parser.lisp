@@ -65,30 +65,39 @@
 
 
 (defun analyze-project (project-name &key (overwrite t))
- "Analyze an ASDF project and its associated subsystems."
- (let* ((project (asdf:find-system project-name))
-        (asd-file (asdf:system-source-file project))
-        (systems nil))
-   (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                        :project-name (string project-name)
-                                        :project-root (asdf:system-source-directory project)))
-     ;; First parse the asd file for system dependencies
-     (with-open-file (stream asd-file :direction :input)
-       (loop for form = (read stream nil nil)
-             while form
-             when (and (listp form)
-                      (eq (first form) 'asdf:defsystem)
-                      (stringp (second form)))
-             do (let* ((sys-name (second form))
-                      (sys (asdf:find-system sys-name))
-                      (depends-on (getf (cddr form) :depends-on)))
-                  (when sys 
-                    (push sys systems)
-                    (record-system-dependencies *current-tracker* sys-name depends-on)))))
-     ;; Then parse all source files
-     (let ((source-files (find-project-files project-name)))
-       (dolist (file source-files)
-         (when (probe-file file)
-           (let ((file-parser (make-instance 'file-parser :file file)))
-             (parse-file file-parser)))))
-     *current-tracker*)))
+  "Analyze an ASDF project and its associated subsystems in two passes:
+   1. Collect all definitions across all files
+   2. Analyze references to those definitions"
+  (let* ((project (asdf:find-system project-name))
+         (asd-file (asdf:system-source-file project))
+         (systems nil))
+    (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                          :project-name (string project-name)
+                                          :project-root (asdf:system-source-directory project)))
+      ;; First parse the asd file for system dependencies
+      (with-open-file (stream asd-file :direction :input)
+        (loop for form = (read stream nil nil)
+              while form
+              when (and (listp form)
+                       (eq (first form) 'asdf:defsystem)
+                       (stringp (second form)))
+              do (let* ((sys-name (second form))
+                       (sys (asdf:find-system sys-name))
+                       (depends-on (getf (cddr form) :depends-on)))
+                   (when sys 
+                     (push sys systems)
+                     (record-system-dependencies *current-tracker* sys-name depends-on)))))
+      
+      ;; Get all source files upfront
+      (let ((source-files (find-project-files project-name)))
+        ;; First pass: collect all definitions
+        (dolist (file source-files)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-definitions-in-file file-parser)))
+        
+        ;; Second pass: analyze references
+        (dolist (file source-files)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-references-in-file file-parser))))
+      
+      *current-tracker*)))

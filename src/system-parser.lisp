@@ -59,43 +59,22 @@
    (make-instance 'system-parser :system system)))
 
 
-(defun analyze-directory (directory &key (filespecs '("*.lisp" "*.asd")) (overwrite t))
- "Analyze source files in a directory structure and its subdirectories."
- (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                        :project-name (format nil "DIR:~A" directory)
-                                        :project-root (pathname directory)))
-   (labels ((collect-files-for-pattern (dir pattern)
-              (let ((files nil))
-                (dolist (file (directory (merge-pathnames pattern dir)))
-                  (when (probe-file file)
-                    (push file files)))
-                (dolist (subdir (directory (merge-pathnames "*.*" dir)))
-                  (when (and (probe-file subdir)
-                           (directory-pathname-p subdir))
-                    (setf files (nconc files (collect-files-for-pattern subdir pattern)))))
-                files))
-            (collect-all-files (dir patterns)
-              (let ((files nil))
-                (dolist (pattern (if (listp patterns) patterns (list patterns)))
-                  (setf files (nunion files 
-                                    (collect-files-for-pattern dir pattern)
-                                    :test #'equal)))
-                files))
-            (analyze-asd-file (file)
-              (with-open-file (stream file :direction :input)
-                (loop for form = (read stream nil nil)
-                      while form
-                      when (and (listp form)
-                               (eq (first form) 'asdf:defsystem)
-                               (stringp (second form)))
-                      do (let* ((sys-name (second form))
-                               (depends-on (getf (cddr form) :depends-on)))
-                           (record-system-dependencies *current-tracker* sys-name depends-on))))))
-     (let ((files (collect-all-files (pathname directory) filespecs)))
-       (dolist (file files)
-         (cond ((string-equal (pathname-type file) "asd")
-                (analyze-asd-file file))
-               (t (let ((file-parser (make-instance 'file-parser :file file)))
-                    (parse-file file-parser)))))
-       (detect-system-cycles *current-tracker*)
-       *current-tracker*))))
+(defun analyze-directory (directory &key (filespecs '("*.lisp")))
+  "Analyze source files in a directory structure and its subdirectories in two passes:
+   1. Collect all definitions across all files
+   2. Analyze references to those definitions"
+  (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                         :project-name (format nil "DIR:~A" directory)
+                                         :project-root (pathname directory)))
+    (let ((files (collect-directory-files directory filespecs)))
+      ;; First pass: collect all definitions
+      (dolist (file files)
+        (let ((file-parser (make-instance 'file-parser :file file)))
+          (parse-definitions-in-file file-parser)))
+      
+      ;; Second pass: analyze references
+      (dolist (file files)
+        (let ((file-parser (make-instance 'file-parser :file file)))
+          (parse-references-in-file file-parser)))
+      
+      *current-tracker*)))
