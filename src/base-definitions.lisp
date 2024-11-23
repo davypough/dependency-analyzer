@@ -11,10 +11,10 @@
 
 
 (defstruct (definition (:conc-name definition.))
-  "Data structure holding info about a lisp definition--eg, defun, defvar"
-  (symbol nil :type symbol :read-only t)
+  "Data structure holding info about a lisp definition--eg, defun, defvar, or package"
+  (symbol nil :type (or symbol string) :read-only t)
   (type nil :type (member :STRUCTURE :VARIABLE :FUNCTION :MACRO 
-                                 :GENERIC-FUNCTION :METHOD :CONDITION)
+                          :GENERIC-FUNCTION :METHOD :CONDITION :PACKAGE)
             :read-only t)
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol) :read-only t) 

@@ -13,17 +13,12 @@ digraph Dependencies {
     label="Package Dependencies";
     style=dashed;
     node [style=filled,fillcolor=lightgrey];
-    "pkg_user_main_package" [label="USER-MAIN-PACKAGE"];
-    "pkg_common_lisp" [label="COMMON-LISP"];
-    "pkg_user_main_package" -> "pkg_common_lisp";
   }
 
   subgraph cluster_files {
     label="File Dependencies";
     style=dashed;
     node [style=filled,fillcolor=lightblue];
-    "single_pkg_defs_lisp" [label="/source/single-pkg-defs.lisp"];
-    "single_pkg_refs_lisp" [label="/source/single-pkg-refs.lisp",fillcolor=lightgreen];
-    "single_pkg_refs_lisp" -> "single_pkg_defs_lisp" [label="References: *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+, ..."];
+    "single_pkg_defs_lisp" [label="/source/single-pkg-defs.lisp",fillcolor=lightgreen];
   }
 }

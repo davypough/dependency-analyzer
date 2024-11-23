@@ -31,15 +31,6 @@
       (princ-to-string designator))))
 
 
-(defun extract-method-specializers (lambda-list)
-  "Extract the specializer types from a method lambda list."
-  (loop for param in lambda-list
-        until (member param lambda-list-keywords)
-        collect (if (and (listp param) (= (length param) 2))
-                   (second param)    ; (var type) -> type
-                   t)))             ; var -> t
-
-
 (defun extract-lambda-bindings (lambda-list &optional parser)
   "Extract bindings from lambda list and optionally analyze initialization forms.
    Handles:
@@ -208,6 +199,30 @@
     (values specials ignores types)))
 
 
+(defun analyze-body-with-declarations (parser body)
+ "Analyze body forms handling declarations and doc strings."
+ (let ((forms body)
+       (declarations nil))
+   ;; Skip documentation string if present  
+   (when (and (stringp (car forms)) (cdr forms))
+     (pop forms))
+  
+   ;; Collect declarations
+   (loop while (and (consp (car forms))
+                   (eq (caar forms) 'declare))
+         do (push (pop forms) declarations))
+   ;; Process declarations
+   (when declarations
+     (multiple-value-bind (specials ignores types)
+         (process-declarations (mapcan #'cdr (nreverse declarations)) 
+                             parser)
+       (declare (ignore specials ignores types))))
+   ;; Analyze remaining body forms directly
+   (mapc (lambda (form)
+           (analyze-subform parser form))
+         forms)))
+
+
 (defun collect-file-references (tracker source-file target-file)
   "Collect all symbols in SOURCE-FILE that reference definitions in TARGET-FILE.
    Returns a list of symbols that create the dependency relationship."
@@ -266,14 +281,19 @@
            (gethash using-package (slot-value tracker 'package-uses))
            :test #'string=))
 
+
 (defmethod record-export ((tracker dependency-tracker) package-name symbol)
-  "Record a symbol as being exported from a package."
+  "Record a symbol as being exported from a package.
+   Both package-name and symbol can be either strings or symbols."
   (let ((pkg (find-package (string package-name))))
     (when pkg
-      (let ((exported-sym (intern (symbol-name symbol) pkg)))
+      (let ((exported-sym (etypecase symbol
+                           (string (intern symbol pkg))
+                           (symbol (intern (symbol-name symbol) pkg)))))
         (pushnew exported-sym 
                  (gethash (string package-name) (slot-value tracker 'package-exports))
                  :test #'eq)))))
+
 
 (defmethod record-macro-body-symbols ((tracker dependency-tracker) macro-name symbols)
   "Record the non-CL symbols used in a macro's body."
@@ -369,25 +389,6 @@
     (record-export *current-tracker* pkg-name exported-sym)))
 
 
-;;; Cycle Detection Utils
-
-(defun record-file-dependency-cycle (parser file-name)
-  "Record a file dependency cycle in the tracker.
-   A cycle exists if we encounter a file that is already in our parsing stack."
-  (let ((position (member file-name (parsing-files parser) :test #'equal)))
-    (when position
-      (let* ((cycle (cons file-name (ldiff (parsing-files parser) position)))
-             (chain (format nil "~{~A~^ -> ~}" cycle)))
-        ;; Record the cycle in the dependency tracker
-        (record-file-cycle chain)
-        (record-anomaly *current-tracker*
-                       :file-cycle
-                       :ERROR
-                       file-name
-                       (format nil "File dependency cycle detected: ~A" chain)
-                       cycle)))))
-
-
 (defun detect-package-cycle (pkg-name current-packages)
   "Check for and record any package dependency cycles."
   (let ((position (member pkg-name current-packages :test #'string=)))
@@ -402,3 +403,75 @@
                        pkg-name
                        (format nil "Package dependency cycle detected: ~A" chain)
                        cycle)))))
+
+
+(defmethod analyze-subform ((parser file-parser) form)
+ "Analyze a single form for symbol references, recording only references to
+  user-defined symbols within project packages."
+ (typecase form
+   (symbol 
+    (let ((pkg (symbol-package form)))
+      (unless (or (member form '(nil t))
+                  (null pkg) ; uninterned symbols
+                  (eq pkg (find-package :common-lisp))
+                  (eq pkg (find-package :keyword))
+                  (eq pkg (find-package :asdf))
+                  (member form '(&optional &rest &body &key &allow-other-keys 
+                               &aux &whole &environment))
+                  (member form (bound-symbols parser))
+                  ;; Skip symbols from system packages - ones that start with "SB-" are SBCL internals
+                  (let ((pkg-name (package-name pkg)))
+                    (or (string-equal "SB-" pkg-name :end2 (min 3 (length pkg-name)))
+                        (member pkg-name '("ASDF" "UIOP" "ALEXANDRIA" "CLOSER-MOP" "CCL" 
+                                         "EXTENSIONS" "EXT" "SYSTEM") 
+                                :test #'string-equal))))
+        (let* ((current-pkg (current-package parser))
+               (pkg-name (if pkg 
+                          (package-name pkg) 
+                          (current-package-name parser)))
+               (current-file (file parser))
+               (visibility (cond 
+                          ((null pkg) :LOCAL)  ; Uninterned symbol
+                          ((eq pkg current-pkg) :LOCAL)  ; In current package
+                          (t (multiple-value-bind (sym status)
+                               (find-symbol (symbol-name form) current-pkg)
+                             (declare (ignore sym))
+                             (case status
+                               (:inherited :INHERITED)
+                               (:external :IMPORTED) 
+                               (otherwise :LOCAL)))))))
+          ;; Only record if symbol is defined in our project
+          (when (or (gethash (make-tracking-key form pkg-name) 
+                           (slot-value *current-tracker* 'definitions))
+                   ;; Or if it's in one of our project packages
+                   (gethash pkg-name (slot-value *current-tracker* 'package-uses)))
+            (record-reference *current-tracker* form
+                           :REFERENCE
+                           current-file
+                           :package pkg-name
+                           :visibility visibility))))))
+   (cons
+    (analyze-form parser form))
+   ;; Skip self-evaluating types
+   ((or number character string package pathname array)
+    nil)))
+
+
+(defmethod parse-component ((component t) parser)
+  "Parse a single ASDF system component based on its type."
+  (typecase component
+    (asdf:cl-source-file
+      (parse-source-file parser component))
+    (asdf:module
+      (mapc (lambda (c) (parse-component c parser))
+            (asdf:component-children component)))
+    (t
+      (warn "Skipping unknown component type: ~A" component))))
+
+
+(defmethod parse-source-file ((parser t) source-file)
+  "Parse a source file component using the file parser."
+  (let ((file (asdf:component-pathname source-file)))
+    (when (probe-file file)
+      (let ((file-parser (make-instance 'file-parser :file file)))
+        (parse-file file-parser)))))

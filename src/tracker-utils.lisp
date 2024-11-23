@@ -23,12 +23,18 @@
       (error "No tracker is currently bound. Please use 'with-dependency-tracker' to bind one.")))
 
 
-(defun make-tracking-key (symbol &optional package)
-  "Create a lookup key for a symbol, optionally in a specific package context."
-  (let ((result (if package
-                    (format nil "~A::~A" package (symbol-name symbol))
-                    (symbol-name symbol))))
-    result))
+(defun make-tracking-key (designator &optional package)
+  "Create a lookup key for a symbol or package name, optionally in a specific package context.
+   DESIGNATOR can be either a symbol or a string.
+   For symbols: Creates a key based on the symbol name and optional package
+   For strings: Uses the string directly as a name
+   Returns a string key that uniquely identifies the entity."
+  (let ((name (etypecase designator
+                (string designator)
+                (symbol (symbol-name designator)))))
+    (if package
+        (format nil "~A::~A" package name)
+        name)))
 
 
 (defun record-anomaly (tracker type severity location description &optional context)
@@ -40,5 +46,3 @@
                               :context context)))
     (push anomaly (gethash type (anomalies tracker)))
     anomaly))
-
-
