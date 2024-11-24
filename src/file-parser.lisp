@@ -193,10 +193,9 @@
                                              (symbol-name prefix)
                                              prefix))))))
              ;; Get user-introduced keywords from entire form
-             (user-keywords (remove-duplicates 
-                           (set-difference (remove-if-not #'keywordp 
+             (user-keywords  (set-difference (remove-if-not #'keywordp 
                                                         (alexandria:flatten form))
-                                         standard-keywords))))
+                                         standard-keywords)))
 
         ;; Record the structure definition with collected user keywords
         (record-definition *current-tracker* name
