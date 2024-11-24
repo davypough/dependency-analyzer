@@ -17,7 +17,8 @@
                           :GENERIC-FUNCTION :METHOD :CONDITION :PACKAGE)
             :read-only t)
   (file nil :type (or string pathname) :read-only t)
-  (package nil :type (or string symbol) :read-only t) 
+  (package nil :type (or string symbol) :read-only t)
+  (user-data nil :type list :read-only t)
   (exported-p nil :type boolean :read-only t))
 
 

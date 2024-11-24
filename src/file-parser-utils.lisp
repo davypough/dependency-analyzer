@@ -334,8 +334,6 @@
              (slot-value actual-tracker 'macro-bodies))))
 
 
-;;; Package Option Processing Utils
-
 (defun process-package-use-option (package used-pkg-name options parser)
   "Process a :use package option."
   (let ((used-pkg (find-package used-pkg-name)))
@@ -344,18 +342,18 @@
       (record-package-use *current-tracker* 
                          (package-name package) 
                          (package-name used-pkg))
-      ;; Record both inherited and call references for exported symbols
+      ;; Record references for all exported symbols from used package
       (do-external-symbols (sym used-pkg)
         (multiple-value-bind (s status)
             (find-symbol (symbol-name sym) package)
           (when (and s (eq status :INHERITED))
-            ;; Record the inherited relationship 
+            ;; Record basic reference with inherited visibility
             (record-reference *current-tracker* sym
-                            :INHERITED
+                            :REFERENCE  ; Changed from :INHERITED to :REFERENCE
                             (file parser)
                             :package (package-name used-pkg)
-                            :visibility :INHERITED)  ; Updated from no visibility
-            ;; Also record potential call reference if it's a function
+                            :visibility :INHERITED)
+            ;; If it's a function, also record potential call reference
             (when (and (fboundp sym) 
                       (not (macro-function sym))
                       (not (special-operator-p sym)))
@@ -406,55 +404,45 @@
 
 
 (defmethod analyze-subform ((parser file-parser) form)
- "Analyze a single form for symbol references, recording only references to
-  user-defined symbols within project packages."
- (typecase form
-   (symbol 
-    (let ((pkg (symbol-package form)))
-      (unless (or (member form '(nil t))
-                  (null pkg) ; uninterned symbols
-                  (eq pkg (find-package :common-lisp))
-                  (eq pkg (find-package :keyword))
-                  (eq pkg (find-package :asdf))
-                  (member form '(&optional &rest &body &key &allow-other-keys 
-                               &aux &whole &environment))
-                  (member form (bound-symbols parser))
-                  ;; Skip symbols from system packages - ones that start with "SB-" are SBCL internals
-                  (let ((pkg-name (package-name pkg)))
-                    (or (string-equal "SB-" pkg-name :end2 (min 3 (length pkg-name)))
-                        (member pkg-name '("ASDF" "UIOP" "ALEXANDRIA" "CLOSER-MOP" "CCL" 
-                                         "EXTENSIONS" "EXT" "SYSTEM") 
-                                :test #'string-equal))))
-        (let* ((current-pkg (current-package parser))
-               (pkg-name (if pkg 
-                          (package-name pkg) 
-                          (current-package-name parser)))
-               (current-file (file parser))
-               (visibility (cond 
-                          ((null pkg) :LOCAL)  ; Uninterned symbol
-                          ((eq pkg current-pkg) :LOCAL)  ; In current package
-                          (t (multiple-value-bind (sym status)
-                               (find-symbol (symbol-name form) current-pkg)
-                             (declare (ignore sym))
-                             (case status
-                               (:inherited :INHERITED)
-                               (:external :IMPORTED) 
-                               (otherwise :LOCAL)))))))
-          ;; Only record if symbol is defined in our project
-          (when (or (gethash (make-tracking-key form pkg-name) 
-                           (slot-value *current-tracker* 'definitions))
-                   ;; Or if it's in one of our project packages
-                   (gethash pkg-name (slot-value *current-tracker* 'package-uses)))
-            (record-reference *current-tracker* form
-                           :REFERENCE
-                           current-file
-                           :package pkg-name
-                           :visibility visibility))))))
-   (cons
-    (analyze-form parser form))
-   ;; Skip self-evaluating types
-   ((or number character string package pathname array)
-    nil)))
+  "Analyze a single form for symbol references, recording only references to
+   symbols that have definition records. Recursively examines all subforms including
+   array elements and hash tables."
+  (typecase form
+    (symbol 
+     (let* ((pkg (symbol-package form))
+            (current-pkg (current-package parser))
+            (pkg-name (if pkg 
+                       (package-name pkg) 
+                       (current-package-name parser)))
+            (current-file (file parser))
+            (visibility (cond 
+                       ((null pkg) :LOCAL)
+                       ((eq pkg current-pkg) :LOCAL)
+                       (t (multiple-value-bind (sym status)
+                            (find-symbol (symbol-name form) current-pkg)
+                          (declare (ignore sym))
+                          (case status
+                            (:inherited :INHERITED)
+                            (:external :IMPORTED) 
+                            (otherwise :LOCAL)))))))
+       (when (gethash (make-tracking-key form pkg-name) 
+                     (slot-value *current-tracker* 'definitions))
+         (record-reference *current-tracker* form
+                         :REFERENCE
+                         current-file
+                         :package pkg-name
+                         :visibility visibility))))
+    (cons
+     (analyze-form parser form))
+    (array
+     (dotimes (i (array-total-size form))
+       (analyze-subform parser (row-major-aref form i))))
+    (hash-table
+     (maphash (lambda (k v)
+                (analyze-subform parser k)
+                (analyze-subform parser v))
+              form))
+    (t nil)))
 
 
 (defmethod parse-component ((component t) parser)
