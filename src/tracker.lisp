@@ -42,16 +42,18 @@
 
 
 (defmethod get-definitions (&optional tracker symbol)
-  "Get all recorded definitions of a symbol.
-   If only one argument is provided, treat it as the symbol and use the current tracker."
+  "Get all recorded definitions of a symbol or string.
+   If only one arg provided, treat it as the symbol/string and use the current tracker."
   (when (and tracker (null symbol))
-    ;; If only one arg provided, it's the symbol
+    ;; If only one arg provided, it's the symbol/string
     (setf symbol tracker
           tracker nil))
   (let* ((actual-tracker (or tracker (ensure-tracker)))
-         (pkg-name (if (symbol-package symbol)
-                      (package-name (symbol-package symbol))
-                      "COMMON-LISP-USER"))
+         (pkg-name (etypecase symbol
+                    (string "COMMON-LISP-USER")  
+                    (symbol (if (symbol-package symbol)
+                              (package-name (symbol-package symbol))
+                              "COMMON-LISP-USER"))))
          (key (make-tracking-key symbol pkg-name)))
     (or (gethash key (slot-value actual-tracker 'definitions))
         ;; Try without package context as fallback
@@ -115,3 +117,37 @@
             (project.name tracker)
             (hash-table-count (slot-value tracker 'definitions))
             (hash-table-count (slot-value tracker 'file-map)))))
+
+
+(defmethod record-system-dependencies ((tracker dependency-tracker) system-name depends-on)
+  "Record ASDF system dependencies in the tracker's subsystems table.
+   SYSTEM-NAME - Name of the system (string or symbol)
+   DEPENDS-ON - List of dependencies from ASDF system definition
+                Can include direct names or feature expressions:
+                - Direct: \"system-name\" or :system-name
+                - Feature: (:feature :os-type :system-name)
+   Dependencies are normalized to strings for consistent tracking."
+  (flet ((normalize-dep (dep)
+           "Convert dependency spec to normalized string form, handling:
+            - String dependencies: \"system-name\" -> \"SYSTEM-NAME\"
+            - Symbol dependencies: :system-name -> \"SYSTEM-NAME\"
+            - Feature conditionals: (:feature :os :name) -> \"NAME\""
+           (typecase dep
+             (string (string-upcase dep))  
+             (symbol (string-upcase dep))
+             (cons 
+              (if (eq (first dep) :feature)
+                  ;; Feature conditional - extract system name
+                  (normalize-dep (third dep))
+                  ;; Other list form - take first element
+                  (normalize-dep (first dep))))
+             (t nil))))  ; Skip invalid specs
+    
+    ;; Convert system name to normalized string
+    (let ((sys-name (normalize-dep system-name)))
+      ;; Process and record each valid dependency
+      (setf (gethash sys-name (slot-value tracker 'subsystems))
+            (loop for dep in depends-on
+                  for normalized = (normalize-dep dep)
+                  when normalized 
+                  collect normalized)))))

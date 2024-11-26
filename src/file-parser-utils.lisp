@@ -9,26 +9,25 @@
 
 ;;; Name and Symbol Utils
 
+
 (defun normalize-package-name (designator)
-  "Convert a package designator to a normalized string form."
+  "Convert a package designator to a normalized string form.
+   Handles package objects, symbols (interned or uninterned), and strings uniformly.
+   Examples:
+     'my-package  -> \"MY-PACKAGE\"
+     #:my-package -> \"MY-PACKAGE\"
+     \"MY-PACKAGE\" -> \"MY-PACKAGE\"
+     #<PACKAGE MY-PACKAGE> -> \"MY-PACKAGE\""
   (typecase designator
+    (package 
+      (package-name designator))
     (string
-      designator)
-    (symbol
-      (symbol-name designator))
+      (string-upcase designator))
+    (symbol  
+      ;; Works for both interned and uninterned symbols
+      (string-upcase (symbol-name designator)))
     (t
-      (princ-to-string designator))))
-
-
-(defun normalize-symbol-name (designator)
-  "Convert a symbol designator to a normalized string form."
-  (typecase designator
-    (string
-      designator)
-    (symbol
-      (symbol-name designator))
-    (t
-      (princ-to-string designator))))
+      (error "Invalid package designator: ~S" designator))))
 
 
 (defun extract-lambda-bindings (lambda-list &optional parser)
@@ -260,7 +259,7 @@
 
 
 (defmethod record-reference ((tracker dependency-tracker) symbol type file 
-                          &key package visibility)
+                          &key package visibility definition)
   "Record a symbol reference in the tracker.
    TYPE is call or reference
    VISIBILITY is inherited, imported, or local (defaults to local)"
@@ -270,7 +269,8 @@
                             :type type
                             :file file
                             :package package
-                            :visibility (or visibility :LOCAL))))
+                            :visibility (or visibility :LOCAL)
+                            :definition definition)))
     (push ref (gethash key (slot-value tracker 'references)))
     ref))
 
@@ -335,13 +335,20 @@
 
 
 (defun process-package-use-option (package used-pkg-name options parser)
-  "Process a :use package option."
-  (let ((used-pkg (find-package used-pkg-name)))
+  "Process a :use package option, recording package dependencies and inherited symbols.
+   Handles all package name forms consistently using string normalization.
+   
+   PACKAGE - The package object being defined
+   USED-PKG-NAME - Name of package being used (string, already normalized)
+   OPTIONS - Full defpackage options list
+   PARSER - Current file parser for context"
+  (let* ((used-pkg (find-package used-pkg-name))
+         (using-pkg-name (normalize-package-name package)))
     (when used-pkg
       (use-package used-pkg package)
       (record-package-use *current-tracker* 
-                         (package-name package) 
-                         (package-name used-pkg))
+                         using-pkg-name
+                         used-pkg-name)
       ;; Record references for all exported symbols from used package
       (do-external-symbols (sym used-pkg)
         (multiple-value-bind (s status)
@@ -349,52 +356,79 @@
           (when (and s (eq status :INHERITED))
             ;; Record basic reference with inherited visibility
             (record-reference *current-tracker* sym
-                            :REFERENCE  ; Changed from :INHERITED to :REFERENCE
+                            :VALUE
                             (file parser)
-                            :package (package-name used-pkg)
+                            :package used-pkg-name
                             :visibility :INHERITED)
             ;; If it's a function, also record potential call reference
             (when (and (fboundp sym) 
                       (not (macro-function sym))
                       (not (special-operator-p sym)))
               (record-reference *current-tracker* sym
-                              :CALL
+                              :OPERATOR
                               (file parser)
-                              :package (package-name used-pkg)
+                              :package used-pkg-name
                               :visibility :INHERITED))))))))
 
 
-(defun process-package-import-option (package from-pkg-name pkg-name parser sym)
-  "Process an :import-from package option for a single symbol."
+(defun process-package-import-option (package from-pkg-name pkg-name parser symbol)
+  "Process an :import-from package option for a single symbol.
+   Records dependencies between packages and the imported symbol reference.
+   
+   PACKAGE - The package object being defined
+   FROM-PKG-NAME - Package name to import from (string, already normalized)
+   PKG-NAME - Name of package being defined (string, already normalized)
+   PARSER - Current file parser for context
+   SYMBOL - Symbol to import (can be string, symbol, or uninterned symbol)"
   (let* ((from-pkg (find-package from-pkg-name))
-         (name (normalize-symbol-name sym))
-         (from-sym (find-symbol name from-pkg)))
+         (sym-name (normalize-symbol-name symbol))
+         (from-sym (and from-pkg (find-symbol sym-name from-pkg))))
     (when (and from-pkg from-sym)
       (import from-sym package)
       (record-package-use *current-tracker* pkg-name from-pkg-name)
       (record-reference *current-tracker* from-sym
-                       :REFERENCE
+                       :VALUE
                        (file parser)
                        :package from-pkg-name
-                       :visibility :IMPORTED)))) 
+                       :visibility :IMPORTED))))
 
 
-(defun process-package-export-option (package pkg-name sym)
-  "Process an :export package option for a single symbol."
-  (let* ((name (normalize-symbol-name sym))
-         (exported-sym (intern name package)))
-    (export exported-sym package)
-    (record-export *current-tracker* pkg-name exported-sym)))
+(defun process-package-export-option (package pkg-name symbol)
+  "Process an :export package option for a single symbol.
+   Records the symbol as being exported from the package.
+   
+   PACKAGE - The package object being defined  
+   PKG-NAME - Name of package being defined (string, already normalized)
+   SYMBOL - Symbol to export (can be string, symbol, or uninterned symbol)
+   
+   Returns the exported symbol if successful."
+  (let* ((sym-name (normalize-symbol-name symbol))
+         (exported-sym (and sym-name 
+                           (intern sym-name package))))
+    (when exported-sym
+      (export exported-sym package)
+      (record-export *current-tracker* pkg-name exported-sym)
+      exported-sym)))
 
 
 (defun detect-package-cycle (pkg-name current-packages)
-  "Check for and record any package dependency cycles."
+  "Check for and record any package dependency cycles.
+   A cycle exists if the package being processed appears in the current package stack.
+   
+   PKG-NAME - Name of package being checked (string, already normalized)
+   CURRENT-PACKAGES - Stack of packages currently being processed (list of strings)
+   
+   Example cycle: A -> B -> C -> A would be recorded as \"A -> B -> C -> A\"
+   
+   Records both:
+   1. The cycle chain in the tracker's package-cycles list
+   2. An anomaly record with severity ERROR"
   (let ((position (member pkg-name current-packages :test #'string=)))
     (when position
       (let* ((cycle (cons pkg-name (ldiff current-packages position)))
              (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
         ;; Record as both a cycle and an anomaly
-        (record-package-cycle chain)
+        (record-package-cycle *current-tracker* chain)
         (record-anomaly *current-tracker*
                        :package-cycle
                        :ERROR
@@ -428,7 +462,7 @@
        (when (gethash (make-tracking-key form pkg-name) 
                      (slot-value *current-tracker* 'definitions))
          (record-reference *current-tracker* form
-                         :REFERENCE
+                         :VALUE
                          current-file
                          :package pkg-name
                          :visibility visibility))))
@@ -463,3 +497,131 @@
     (when (probe-file file)
       (let ((file-parser (make-instance 'file-parser :file file)))
         (parse-file file-parser)))))
+
+
+(defun record-helper-functions (parser body)
+ "Record helper functions defined within a body using defun/flet/labels.
+  PARSER - The file parser for context
+  BODY - List of body forms to scan for function definitions
+  Returns list of helper function names recorded."
+ (let ((helper-functions nil)
+       (file (file parser))
+       (pkg-name (current-package-name parser))
+       (pkg (current-package parser)))
+   ;; Scan body for function definitions
+   (dolist (form body)
+     (when (and (listp form)
+                (member (car form) '(defun flet labels)))
+       (push (if (eq (car form) 'defun)
+                (second form)
+                (caar (cdr form)))
+             helper-functions)))
+   ;; Record each helper function
+   (dolist (func helper-functions)
+     (record-definition *current-tracker* func
+                      :FUNCTION
+                      file
+                      :package pkg-name
+                      :exported-p nil))
+   helper-functions))
+
+
+(defun preceding-forms-in-body (form parser)
+ "Find forms that precede the given form in the same body context.
+  Used to find relevant declarations for symbol-value and symbol-function forms.
+  Returns a list of preceding forms in reverse order (most recent first)."
+ (let* ((file (file parser))
+        (preceding nil))
+   (with-open-file (stream file :direction :input)
+     (loop with found = nil
+           for current-form = (read stream nil nil)
+           while (and current-form (not found))
+           do (if (equal current-form form)
+                 (setf found t)
+                 (push current-form preceding))
+           finally (return (remove-if-not 
+                          ;; Only keep declarations and type specs
+                          (lambda (f)
+                            (and (listp f)
+                                 (or (eq (car f) 'declare)
+                                     (and (eq (car f) 'type)
+                                          (= (length f) 3)))))
+                          preceding))))))
+
+
+(defun analyze-lambda-list (parser lambda-list)
+ "Analyze a lambda list for type declarations and default values that 
+  could create dependencies."
+ (let ((state :required))
+   (dolist (item lambda-list)
+     (case item
+       ((&optional &rest &key &aux)
+        (setf state item))
+       ((&whole &environment &allow-other-keys)
+        nil)
+       (t (case state
+            (:required 
+             (typecase item
+               (symbol nil) ; Simple parameter
+               (cons ; Destructuring or type declaration
+                (when (> (length item) 1)
+                  ;; Check for type declarations
+                  (analyze-definition-form parser (second item))))))
+            (&optional
+             (when (and (listp item) (cddr item))
+               (analyze-definition-form parser (third item)))) ; Default value
+            (&key
+             (when (listp item)
+               (let ((key-item (if (listp (car item))
+                                  (cadar item)
+                                  (car item))))
+                 (when (and (listp item) (cddr item))
+                   (analyze-definition-form parser (third item)))))) ; Default value
+            (&aux
+             (when (and (listp item) (cdr item))
+               (analyze-definition-form parser (second item))))))))))
+
+
+(defun extract-spec-symbols-from-slot (slot-spec)
+ "Extract potential definition-reference symbols from a slot specification.
+  Only collects symbols that could be user-defined, ignoring CL symbols."
+ (let ((symbols nil))
+   (when (listp slot-spec)
+     (destructuring-bind (name &optional initform &rest slot-options) slot-spec
+       (declare (ignore name))
+       ;; Check initform for non-quoted symbols
+       (when (and initform (not (quoted-form-p initform)))
+         (collect-non-cl-symbols initform symbols))
+       ;; Process slot options
+       (loop for (option value) on slot-options by #'cddr
+             do (case option
+                  (:type (collect-non-cl-symbols value symbols))))))
+   symbols))
+
+
+(defun cl-symbol-p (symbol)
+ "Return true if symbol is from the common-lisp package."
+ (and (symbolp symbol)
+      (eq (symbol-package symbol) 
+          (find-package :common-lisp))))
+
+
+(defun collect-non-cl-symbols (form symbols)
+  "Recursively collect all non-CL symbols from form into symbols list.
+   Handles nested lists and ignores quoted forms."
+  (typecase form
+    (symbol 
+     (unless (or (null form) (cl-symbol-p form))
+       (push form symbols)))
+    (cons
+     (unless (quoted-form-p form)
+       (setf symbols (collect-non-cl-symbols (car form) symbols))
+       (setf symbols (collect-non-cl-symbols (cdr form) symbols)))))
+  symbols)
+
+
+(defun quoted-form-p (form)
+ "Return true if form is quoted with quote or function quote."
+ (and (consp form)
+      (or (eq (car form) 'quote)
+          (eq (car form) 'function))))

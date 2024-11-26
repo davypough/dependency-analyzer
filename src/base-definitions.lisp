@@ -10,6 +10,14 @@
   "The currently active dependency tracker instance.")
 
 
+(defmacro prt (&rest forms)
+  "Print the names & values of given forms (ie,variables or accessors).
+   Can wrap around an expression, returning its value."
+  `(progn ,@(loop for form in forms
+              collect `(format t "~&  ~S => ~S~%" ',form ,form))
+          ,@(last `,forms)))
+
+
 (defstruct (definition (:conc-name definition.))
   "Data structure holding info about a lisp definition--eg, defun, defvar, or package"
   (symbol nil :type (or symbol string) :read-only t)
@@ -25,10 +33,11 @@
 (defstruct (reference (:conc-name reference.))
   "Data structure holding info about a lisp reference to a definition"
   (symbol nil :type symbol :read-only t)
-  (type nil :type (member :REFERENCE :CALL) :read-only t)
+  (type nil :type (member :OPERATOR :VALUE) :read-only t)
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol null) :read-only t)
-  (visibility nil :type (member :LOCAL :INHERITED :IMPORTED) :read-only t))
+  (visibility nil :type (member :LOCAL :INHERITED :IMPORTED) :read-only t)
+  (definition nil :type (or null definition) :read-only t))
 
 
 (defstruct (anomaly (:conc-name anomaly.))

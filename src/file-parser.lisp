@@ -15,26 +15,23 @@
   (with-slots (file parsing-files) parser
     (push file parsing-files)
     (with-open-file (stream file :direction :input)
-      (loop for form = (read stream nil nil)
-            unless (null form)
-              do (analyze-definition-form parser form)))
+      (loop for form = (read stream nil :eof)
+            until (eq form :eof)
+            do (analyze-definition-form parser form)))
     (pop parsing-files)))
 
 
 (defmethod parse-references-in-file ((parser file-parser))
   "Second pass parser that records references to previously recorded definitions.
    Processes in-package forms to maintain proper package context, 
-   then analyzes all forms for references. Unlike the definition pass, 
-   this analyzes both cons forms and atoms since references can occur as either."
+   then analyzes all forms for references."
   (with-slots (file package) parser
     (with-open-file (stream file :direction :input)
       (let ((*package* package))
-        (loop for form = (read stream nil nil)
-              while form
-              do (if (consp form)
-                     (if (eq (car form) 'in-package)
-                         (analyze-in-package parser form)
-                         (analyze-reference-form parser form))
+        (loop for form = (read stream nil :eof)
+              until (eq form :eof)
+              do (if (and (consp form) (eq (car form) 'in-package))
+                     (analyze-in-package parser form)
                      (analyze-reference-form parser form)))))))
 
 
@@ -65,6 +62,7 @@
             ((defun defmacro) (analyze-defun-defmacro parser form))
             (defgeneric (analyze-defgeneric parser form))
             (defmethod (analyze-defmethod parser form))
+            (defsetf (analyze-defsetf parser form))
             (define-condition (analyze-define-condition parser form))
             (define-method-combination (analyze-method-combination parser form))
             (define-setf-expander (analyze-define-setf-expander parser form))
@@ -94,16 +92,15 @@
 
 
 (defmethod analyze-reference-form ((parser file-parser) form)
-  "Walk form recording :CALL and :REFERENCE symbol references.
-   :CALL references are symbols in operator position.
-   :REFERENCE references are symbols in value/key position.
-   All symbols are checked against definition records."
+  "Walk form recording references to user-defined symbols (not CL symbols).
+   References are marked as :OPERATOR when in operator position, :VALUE otherwise.
+   Creates reference records for symbols with definitions, linking to the definition.
+   Creates anomaly records for undefined non-CL symbols."
   (labels ((walk (x op-position)
              (typecase x
                (cons 
-                (when op-position  
-                  (walk (car x) t))    
-                (walk (cdr x) nil))    
+                (walk (car x) t)    ; Head is operator position
+                (walk (cdr x) nil)) ; Rest are value position  
                (array
                 (dotimes (i (array-total-size x))
                   (walk (row-major-aref x i) nil)))
@@ -113,7 +110,7 @@
                           (walk v nil))
                         x))
                (symbol
-                (when x  ; Skip nil
+                (when (and x (not (cl-symbol-p x)))  ; Skip nil and CL symbols
                   (let* ((pkg (or (symbol-package x) 
                                 (current-package parser)))
                          (pkg-name (package-name pkg))
@@ -121,20 +118,33 @@
                                      ((null (symbol-package x)) :LOCAL)
                                      ((eq pkg (current-package parser)) :LOCAL)
                                      (t (multiple-value-bind (sym status)
-                                            (find-symbol (symbol-name x) 
-                                                       (current-package parser))
-                                          (declare (ignore sym))
-                                          (case status
-                                            (:inherited :INHERITED)
-                                            (:external :IMPORTED)
-                                            (otherwise :LOCAL)))))))
-                    (when (gethash (make-tracking-key x pkg-name)
-                                 (slot-value *current-tracker* 'definitions))
-                      (record-reference *current-tracker* x
-                                      (if op-position :CALL :REFERENCE)
+                                          (find-symbol (symbol-name x) 
+                                                     (current-package parser))
+                                        (declare (ignore sym))
+                                        (case status
+                                          (:inherited :INHERITED)
+                                          (:external :IMPORTED)
+                                          (otherwise :LOCAL))))))
+                         (key (make-tracking-key x pkg-name))
+                         (def (gethash key (slot-value *current-tracker* 'definitions))))
+                    ;; Create reference linking to definition if it exists
+                    (if def
+                        (record-reference *current-tracker* x
+                                        (if op-position :OPERATOR :VALUE)
+                                        (file parser)
+                                        :package pkg-name 
+                                        :visibility visibility
+                                        :definition def)
+                        ;; Otherwise record as undefined reference anomaly
+                        (record-anomaly *current-tracker*
+                                      :undefined-reference
+                                      :ERROR 
                                       (file parser)
-                                      :package pkg-name
-                                      :visibility visibility)))))
+                                      (format nil "~A ~A has no definition" 
+                                            (if op-position "Function" "Symbol")
+                                            x)
+                                      (format nil "Referenced in ~A position"
+                                             (if op-position "operator" "value")))))))
                (t nil))))
     (walk form nil)))
 
@@ -147,7 +157,7 @@
    - Symbol exporting (:export)
    - All other package options for potential dependencies"
   (destructuring-bind (def-op name &rest options) form
-    (declare (ignore def-op))
+    (declare (ignore def-op)) 
     ;; 1. Form Analysis Context
     (let* ((pkg-name (normalize-package-name name))
            (file (file parser))
@@ -155,12 +165,12 @@
                        (make-package pkg-name)))
            (spec-symbols nil))
 
-      ;; 2. Primary Definition Record
+      ;; 2. Primary Definition Record - using package's own name
       (record-definition *current-tracker* pkg-name
                         :PACKAGE
                         file
-                        :package "KEYWORD"  ; Package names are keywords
-                        :exported-p t)      ; Package names always accessible
+                        :package pkg-name  ; Changed from "KEYWORD"
+                        :exported-p t)     ; Package names always accessible
       
       ;; 3. Interface Elements
       (let ((exported-syms nil))
@@ -207,12 +217,11 @@
                      (push item spec-symbols))))))))
 
       ;; 6. Symbol Collection/Association
-      ;; Store unique package names and symbols with package definition
-      (let ((unique-symbols (remove-duplicates spec-symbols :test #'string=)))
-        (when unique-symbols
-          (setf (definition.spec-symbols 
-                 (get-definitions pkg-name))
-                unique-symbols)))
+      ;; Get definition record before setting spec-symbols
+      (let* ((unique-symbols (remove-duplicates spec-symbols :test #'string=))
+             (def (get-definitions *current-tracker* pkg-name)))
+        (when (and def unique-symbols)
+          (setf (definition.spec-symbols def) unique-symbols)))
 
       ;; Check for package dependency cycles
       (detect-package-cycle pkg-name (parsing-packages parser)))))
@@ -339,52 +348,6 @@
                  unique-symbols)))))))
 
 
-;;; Helper function to extract specification symbols from a slot definition
-(defun extract-spec-symbols-from-slot (slot-spec)
- "Extract potential definition-reference symbols from a slot specification.
-  Only collects symbols that could be user-defined, ignoring CL symbols."
- (let ((symbols nil))
-   (when (listp slot-spec)
-     (destructuring-bind (name &optional initform &rest slot-options) slot-spec
-       (declare (ignore name))
-       ;; Check initform for non-quoted symbols
-       (when (and initform (not (quoted-form-p initform)))
-         (collect-non-cl-symbols initform symbols))
-       ;; Process slot options
-       (loop for (option value) on slot-options by #'cddr
-             do (case option
-                  (:type (collect-non-cl-symbols value symbols))))))
-   symbols))
-
-
-(defun cl-symbol-p (symbol)
- "Return true if symbol is from the common-lisp package."
- (and (symbolp symbol)
-      (eq (symbol-package symbol) 
-          (find-package :common-lisp))))
-
-
-(defun collect-non-cl-symbols (form symbols)
-  "Recursively collect all non-CL symbols from form into symbols list.
-   Handles nested lists and ignores quoted forms."
-  (typecase form
-    (symbol 
-     (unless (or (null form) (cl-symbol-p form))
-       (push form symbols)))
-    (cons
-     (unless (quoted-form-p form)
-       (setf symbols (collect-non-cl-symbols (car form) symbols))
-       (setf symbols (collect-non-cl-symbols (cdr form) symbols)))))
-  symbols)
-
-
-(defun quoted-form-p (form)
- "Return true if form is quoted with quote or function quote."
- (and (consp form)
-      (or (eq (car form) 'quote)
-          (eq (car form) 'function))))
-
-
 (defun analyze-defvar-defparameter-defconstant (parser form)
   "Handle defvar, defparameter, and defconstant forms. Analyzes:
    - Variable name and its exportedness
@@ -397,7 +360,7 @@
     (let* ((pkg (current-package parser))
            (pkg-name (current-package-name parser))
            (file (file parser))
-           (spec-symbols nil))  ; Collect non-CL symbols for dependency tracking
+           (spec-symbols nil))  
       
       ;; 2. Primary Definition Record
       (record-definition *current-tracker* name
@@ -408,24 +371,18 @@
                                        (find-symbol (symbol-name name) pkg))
                                       :external))
       
-      ;; 3. Interface Elements - None for variables
+      ;; 3. Interface Elements 
+      ;; None for variables
       
       ;; 4. Specification Elements
       ;; Process type declarations if present
       (dolist (decl decls)
-        (when (and (listp decl) 
-                   (eq (car decl) 'declare))
-          (dolist (spec (cdr decl))
-            (when (and (listp spec)
-                      (eq (car spec) 'type))
-              (unless (cl-symbol-p (second spec))
-                (push (second spec) spec-symbols))))))
+        (analyze-definition-form parser decl))
       
       ;; 5. Implementation Elements
       ;; Analyze initialization form if present
       (when initform
-        (unless (quoted-form-p initform)
-          (collect-non-cl-symbols initform spec-symbols)))
+        (analyze-definition-form parser initform))
       
       ;; 6. Symbol Collection/Association
       ;; Store unique non-CL spec symbols with variable definition
@@ -461,51 +418,29 @@
                                        (find-symbol (symbol-name name) pkg))
                                       :external))
       
-      ;; 3. Interface Elements 
+      ;; 3. Interface Elements
       ;; For macros, record any helper functions defined in the body
       (when (eq def-op 'defmacro)
-        (let ((helper-functions nil))
-          (dolist (form body)
-            (when (and (listp form) 
-                      (member (car form) '(defun flet labels)))
-              (push (if (eq (car form) 'defun)
-                       (second form)
-                       (caar (cdr form)))
-                    helper-functions)))
-          ;; Record helper functions as internal
-          (dolist (func helper-functions)
-            (record-definition *current-tracker* func
-                             :FUNCTION
-                             file
-                             :package pkg-name
-                             :exported-p nil))))
+        (record-helper-functions parser body))
       
       ;; 4. Specification Elements
       ;; Process lambda list including type declarations and defaults
       (analyze-lambda-list parser lambda-list)
-      ;; Collect non-CL symbols from lambda list type declarations
+      ;; Analyze all lambda list items for potential nested definitions
       (dolist (item lambda-list)
-        (when (and (listp item) (> (length item) 1))
-          (let ((type-spec (second item)))
-            (unless (or (quoted-form-p type-spec)
-                       (cl-symbol-p type-spec))
-              (push type-spec spec-symbols)))))
-      
+        (analyze-definition-form parser item))
+     
       ;; 5. Implementation Elements
       ;; Process declarations and body forms
       (multiple-value-bind (decls forms)
           (parse-body body :documentation t)
-        ;; Handle declarations
-        (dolist (decl decls)
-          (when (and (listp decl) (eq (car decl) 'declare))
-            (dolist (spec (cdr decl))
-              (when (and (listp spec) (eq (car spec) 'type))
-                (unless (cl-symbol-p (second spec))
-                  (push (second spec) spec-symbols))))))
-        ;; Analyze body forms for nested definitions
+        ;; Handle declarations by analyzing all declaration specs
+        (dolist (decl decls) 
+          (analyze-definition-form parser decl))
+        ;; Analyze body forms fully
         (dolist (form forms)
           (unless (quoted-form-p form)
-            (collect-non-cl-symbols form spec-symbols)))
+            (analyze-definition-form parser form)))
         ;; For macros, record symbols used in body
         (when (eq def-op 'defmacro)
           (record-macro-body-symbols *current-tracker* name spec-symbols)))
@@ -517,39 +452,6 @@
           (setf (definition.spec-symbols 
                  (get-definitions name))
                 unique-symbols))))))
-
-
-(defun analyze-lambda-list (parser lambda-list)
- "Analyze a lambda list for type declarations and default values that 
-  could create dependencies."
- (let ((state :required))
-   (dolist (item lambda-list)
-     (case item
-       ((&optional &rest &key &aux)
-        (setf state item))
-       ((&whole &environment &allow-other-keys)
-        nil)
-       (t (case state
-            (:required 
-             (typecase item
-               (symbol nil) ; Simple parameter
-               (cons ; Destructuring or type declaration
-                (when (> (length item) 1)
-                  ;; Check for type declarations
-                  (analyze-definition-form parser (second item))))))
-            (&optional
-             (when (and (listp item) (cddr item))
-               (analyze-definition-form parser (third item)))) ; Default value
-            (&key
-             (when (listp item)
-               (let ((key-item (if (listp (car item))
-                                  (cadar item)
-                                  (car item))))
-                 (when (and (listp item) (cddr item))
-                   (analyze-definition-form parser (third item)))))) ; Default value
-            (&aux
-             (when (and (listp item) (cdr item))
-               (analyze-definition-form parser (second item))))))))))
 
 
 (defun analyze-defgeneric (parser form)
@@ -732,9 +634,8 @@
            while (and rest (not (listp (car rest))))
            do (let ((qual (pop rest)))
                 (push qual qualifiers)
-                ;; Analyze qualifier if it's a compound form
-                (when (consp qual)
-                  (collect-non-cl-symbols qual spec-symbols)))
+                ;; Analyze qualifier fully
+                (analyze-definition-form parser qual))
            finally (when rest
                     (setf lambda-list (pop rest)
                           method-body rest)))
@@ -744,28 +645,13 @@
      (when lambda-list
        (loop for param in lambda-list
              do (typecase param
-                  (symbol nil) ; Simple parameter
+                  (symbol 
+                   (analyze-definition-form parser param))
                   (cons  ; Specialized parameter
                    (destructuring-bind (param-name &optional specializer) param
-                     (declare (ignore param-name))
+                     (analyze-definition-form parser param-name)
                      (when specializer
-                       ;; Handle different specializer types
-                       (typecase specializer
-                         (symbol  ; Regular type specializer
-                          (unless (cl-symbol-p specializer)
-                            (push specializer spec-symbols)))
-                         (cons    ; EQL or other specializer
-                          (case (car specializer)
-                            (eql  ; (eql form)
-                             (when (cddr specializer)
-                               (collect-non-cl-symbols (third specializer) 
-                                                     spec-symbols))
-                             (unless (quoted-form-p (second specializer))
-                               (collect-non-cl-symbols (second specializer) 
-                                                     spec-symbols)))
-                            (t    ; Other specializer form
-                             (collect-non-cl-symbols specializer 
-                                                   spec-symbols)))))))))))
+                       (analyze-definition-form parser specializer)))))))
      
      ;; 4b. Analyze lambda list for type declarations and defaults
      (analyze-lambda-list parser lambda-list)
@@ -777,15 +663,10 @@
            (parse-body method-body :documentation t)
          ;; Handle declarations
          (dolist (decl decls)
-           (when (and (listp decl) (eq (car decl) 'declare))
-             (dolist (spec (cdr decl))
-               (when (and (listp spec) (eq (car spec) 'type))
-                 (unless (cl-symbol-p (second spec))
-                   (push (second spec) spec-symbols))))))
-         ;; Analyze remaining body forms
+           (analyze-definition-form parser decl))
+         ;; Analyze remaining body forms recursively
          (dolist (form forms)
-           (unless (quoted-form-p form)
-             (collect-non-cl-symbols form spec-symbols)))))
+           (analyze-definition-form parser form))))
      
      ;; 6. Symbol Collection/Association
      ;; Store unique non-CL spec symbols with method definition
@@ -796,146 +677,14 @@
                unique-symbols))))))
 
 
-(defun analyze-define-condition (parser form)
-  "Handle define-condition forms, recording condition definition and analyzing:
-   - Condition name and its exportedness
-   - Superclass relationships
-   - Slot definitions including reader/writer/accessor functions
-   - Special condition options like :report
-   - Non-CL symbols in slot types and initforms"
-  (destructuring-bind (def-op name superclasses &rest slots-and-options) form
-    (declare (ignore def-op))
-    ;; 1. Form Analysis Context
-    (let* ((pkg (current-package parser))
-           (pkg-name (current-package-name parser))
-           (file (file parser))
-           (spec-symbols nil))   ; Collect non-CL symbols for dependency tracking
-      
-      ;; 2. Primary Definition Record
-      (record-definition *current-tracker* name
-                        :CONDITION
-                        file
-                        :package pkg-name
-                        :exported-p (eq (nth-value 1 
-                                       (find-symbol (symbol-name name) pkg))
-                                      :external))
-      
-      ;; 3. Interface Elements - collect for later recording
-      (let ((interface-functions nil))
-        ;; Process slots for readers/writers/accessors
-        (dolist (slot slots-and-options)
-          (when (and (listp slot) (car slot))  ; Valid slot definition
-            (loop for (option value) on (cdr slot) by #'cddr
-                  when (member option '(:reader :writer :accessor))
-                  do (push value interface-functions))))
-        
-        ;; Record all interface function definitions
-        (dolist (func interface-functions)
-          (record-definition *current-tracker* func
-                           :FUNCTION
-                           file
-                           :package pkg-name
-                           :exported-p (eq (nth-value 1 
-                                         (find-symbol (symbol-name func) pkg))
-                                        :external))))
-      
-      ;; 4. Specification Elements
-      ;; 4a. Process superclasses
-      (dolist (super superclasses)
-        (unless (cl-symbol-p super)
-          (push super spec-symbols)))
-      
-      ;; 4b. Process slots and collect specification symbols
-      (dolist (slot slots-and-options)
-        (when (and (listp slot) (car slot))  ; Valid slot definition
-          (loop for (option value) on (cdr slot) by #'cddr
-                do (case option
-                     (:type 
-                      (collect-non-cl-symbols value spec-symbols))
-                     (:initform 
-                      (unless (quoted-form-p value)
-                        (collect-non-cl-symbols value spec-symbols)))))))
-      
-      ;; 5. Implementation Elements
-      (dolist (option slots-and-options)
-        (when (and (listp option) (keywordp (car option)))
-          (case (car option)
-            (:report
-             (let ((reporter (second option)))
-               (typecase reporter
-                 (symbol  ; Function name
-                  (push reporter spec-symbols))
-                 (cons    ; Lambda form
-                  (when (eq (car reporter) 'lambda)
-                    (analyze-lambda-list parser (cadr reporter))
-                    (dolist (form (cddr reporter))
-                      (analyze-definition-form parser form)))))))
-            (:default-initargs
-             (loop for (key value) on (cdr option) by #'cddr
-                   unless (quoted-form-p value)
-                   do (collect-non-cl-symbols value spec-symbols))))))
-      
-      ;; 6. Symbol Collection/Association
-      ;; Store unique non-CL spec symbols with condition definition
-      (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
-        (when unique-symbols
-          (setf (definition.spec-symbols 
-                 (get-definitions name))
-                unique-symbols))))))
-
-
-(defun analyze-define-method-combination (parser form)
-  "Handle define-method-combination forms. Records the definition and analyzes all parts
-   for nested definitions including group names, patterns, and option values. Supports 
-   both short and long forms."
-  (destructuring-bind (def-op name &rest args) form
-    (declare (ignore def-op))
-    (let ((package (current-package parser)))
-      ;; Record the method combination definition
-      (record-definition *current-tracker* name
-                        :FUNCTION
-                        (file parser)
-                        :package (current-package-name parser)
-                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name)
-                                                 package))
-                                     :external))
-      (if (and (car args) (listp (car args)))
-          ;; Long form
-          (destructuring-bind (lambda-list &rest body) args
-            ;; Analyze lambda list for type declarations and defaults
-            (analyze-lambda-list parser lambda-list)
-            ;; Process all body forms including method group specs
-            (dolist (form body)
-              (if (and (listp form) 
-                       (member (car form) '(:arguments :generic-function :documentation)))
-                  ;; Handle option forms - analyze all parts
-                  (dolist (part (cdr form))
-                    (analyze-definition-form parser part))
-                  ;; Handle method group spec
-                  (when (listp form)
-                    (destructuring-bind (group-name pattern &rest group-options) form
-                      ;; Analyze group name - could be user-defined
-                      (analyze-definition-form parser group-name)
-                      ;; Analyze pattern - could contain user predicates
-                      (analyze-definition-form parser pattern)
-                      ;; Analyze all option keywords and values
-                      (loop for (key value) on group-options by #'cddr
-                            do (analyze-definition-form parser key)
-                            do (analyze-definition-form parser value)))))))
-          ;; Short form - analyze all options and their values
-          (loop for (option value) on args by #'cddr
-                do (analyze-definition-form parser option)
-                do (analyze-definition-form parser value))))))
-
-
-(defun analyze-setf-expander (parser form)
- "Handle define-setf-expander forms. Analyzes:
-  - Expander name and exportedness
-  - Lambda list parameters and their types
-  - Body declarations and forms 
-  - Sub-definitions in body"
- (destructuring-bind (def-op name lambda-list &rest body) form
+(defun analyze-defsetf (parser form)
+ "Handle defsetf forms in both short and long forms. Analyzes:
+  - Access function name and exportedness
+  - Short form: update function reference
+  - Long form: lambda list, store vars, declarations, body
+  - Helper functions defined in body
+  Returns the setf definition record."
+ (destructuring-bind (def-op name &rest args) form
    (declare (ignore def-op))
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
@@ -945,84 +694,7 @@
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
-                       :FUNCTION  ; Setf expanders are functions
-                       file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
-                                     :external))
-     
-     ;; 3. Interface Elements
-     ;; Collect any helper functions defined in the body
-     (let ((helper-functions nil))
-       (dolist (form body)
-         (when (and (listp form)
-                    (member (car form) '(defun flet labels)))
-           (push (if (eq (car form) 'defun)
-                    (second form)
-                    (caar (cdr form)))
-                 helper-functions)))
-       ;; Record helper functions as internal
-       (dolist (func helper-functions)
-         (record-definition *current-tracker* func
-                          :FUNCTION
-                          file
-                          :package pkg-name
-                          :exported-p nil)))
-
-     ;; 4. Specification Elements
-     ;; Process lambda list for parameters and types
-     (analyze-lambda-list parser lambda-list)
-     ;; Collect non-CL symbols from lambda list type declarations
-     (dolist (item lambda-list)
-       (when (and (listp item) (> (length item) 1))
-         (let ((type-spec (second item)))
-           (unless (or (quoted-form-p type-spec)
-                      (cl-symbol-p type-spec))
-             (push type-spec spec-symbols)))))
-
-     ;; 5. Implementation Elements
-     ;; Process body forms and declarations
-     (multiple-value-bind (decls forms)
-         (parse-body body :documentation t)
-       ;; Handle declarations
-       (dolist (decl decls)
-         (when (and (listp decl) (eq (car decl) 'declare))
-           (dolist (spec (cdr decl))
-             (when (and (listp spec) (eq (car spec) 'type))
-               (unless (cl-symbol-p (second spec))
-                 (push (second spec) spec-symbols))))))
-       ;; Analyze remaining body forms
-       (dolist (form forms)
-         (unless (quoted-form-p form)
-           (collect-non-cl-symbols form spec-symbols))))
-
-     ;; 6. Symbol Collection/Association
-     ;; Store unique non-CL spec symbols with expander definition
-     (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
-       (when unique-symbols
-         (setf (definition.spec-symbols 
-                (get-definitions name))
-               unique-symbols))))))
-
-
-(defun analyze-define-modify-macro (parser form)
- "Handle define-modify-macro forms. Analyzes:
-  - Macro name and exportedness
-  - Lambda list parameters and their types
-  - Underlying function reference
-  - Documentation string if present"
- (destructuring-bind (def-op name lambda-list function &optional documentation) form
-   (declare (ignore def-op documentation))
-   ;; 1. Form Analysis Context
-   (let* ((pkg (current-package parser))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (spec-symbols nil))
-
-     ;; 2. Primary Definition Record
-     (record-definition *current-tracker* name
-                       :MACRO
+                       :SETF
                        file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
@@ -1030,226 +702,46 @@
                                      :external))
 
      ;; 3. Interface Elements
-     ;; Record underlying function as a reference
-     (unless (cl-symbol-p function)
-       (push function spec-symbols))
+     (if (and (car args) (listp (car args)))
+       ;; Long form - collect helper functions from body
+       (record-helper-functions parser (cdddr args))
+       ;; Short form - analyze update function
+       (when (car args)
+         (analyze-definition-form parser (car args))))
 
      ;; 4. Specification Elements
-     ;; Process lambda list for parameters and types
-     (analyze-lambda-list parser lambda-list)
-     ;; Collect non-CL symbols from lambda list type declarations
-     (dolist (item lambda-list)
-       (when (and (listp item) (> (length item) 1))
-         (let ((type-spec (second item)))
-           (unless (or (quoted-form-p type-spec)
-                      (cl-symbol-p type-spec))
-             (push type-spec spec-symbols)))))
+     (if (and (car args) (listp (car args)))
+         ;; Long form
+         (destructuring-bind (lambda-list store-vars &rest body) args
+           ;; Process access function lambda list
+           (analyze-lambda-list parser lambda-list)
+           (dolist (item lambda-list)
+             (analyze-definition-form parser item))
+           ;; Process store variables and their type declarations
+           (dolist (var store-vars)
+             (analyze-definition-form parser var))
+           ;; Process body forms
+           (multiple-value-bind (decls forms)
+               (parse-body body :documentation t)
+             ;; Handle declarations
+             (dolist (decl decls)
+               (analyze-definition-form parser decl))
+             ;; Analyze body forms
+             (dolist (form forms)
+               (analyze-definition-form parser form))))
+         ;; Short form - all analysis already done in step 3
+         nil)
 
      ;; 5. Implementation Elements
-     ;; None - modify macros don't have implementation bodies
-     
+     ;; All processing handled in step 4
+
      ;; 6. Symbol Collection/Association
-     ;; Store unique non-CL spec symbols with macro definition
+     ;; Store unique non-CL spec symbols with setf definition
      (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
        (when unique-symbols
          (setf (definition.spec-symbols 
                 (get-definitions name))
                unique-symbols))))))
-
-
-(defun analyze-define-compiler-macro (parser form)
- "Handle define-compiler-macro forms. Analyzes:
-  - Compiler macro name and exportedness
-  - Lambda list parameters and their types
-  - Body declarations and forms
-  - Helper functions defined in body"
- (destructuring-bind (def-op name lambda-list &rest body) form
-   (declare (ignore def-op))
-   ;; 1. Form Analysis Context
-   (let* ((pkg (current-package parser))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (spec-symbols nil))
-
-     ;; 2. Primary Definition Record
-     (record-definition *current-tracker* name
-                       :MACRO
-                       file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
-                                     :external))
-
-     ;; 3. Interface Elements
-     ;; Collect helper functions defined in the body
-     (let ((helper-functions nil))
-       (dolist (form body)
-         (when (and (listp form)
-                    (member (car form) '(defun flet labels)))
-           (push (if (eq (car form) 'defun)
-                    (second form)
-                    (caar (cdr form)))
-                 helper-functions)))
-       ;; Record helper functions as internal
-       (dolist (func helper-functions)
-         (record-definition *current-tracker* func
-                          :FUNCTION
-                          file
-                          :package pkg-name
-                          :exported-p nil)))
-
-     ;; 4. Specification Elements
-     ;; Process lambda list for parameters and types
-     (analyze-lambda-list parser lambda-list)
-     ;; Collect non-CL symbols from lambda list type declarations
-     (dolist (item lambda-list)
-       (when (and (listp item) (> (length item) 1))
-         (let ((type-spec (second item)))
-           (unless (or (quoted-form-p type-spec)
-                      (cl-symbol-p type-spec))
-             (push type-spec spec-symbols)))))
-
-     ;; 5. Implementation Elements
-     ;; Process body forms and declarations
-     (multiple-value-bind (decls forms)
-         (parse-body body :documentation t)
-       ;; Handle declarations
-       (dolist (decl decls)
-         (when (and (listp decl) (eq (car decl) 'declare))
-           (dolist (spec (cdr decl))
-             (when (and (listp spec) (eq (car spec) 'type))
-               (unless (cl-symbol-p (second spec))
-                 (push (second spec) spec-symbols))))))
-       ;; Analyze body forms and record their symbols
-       (dolist (form forms)
-         (unless (quoted-form-p form)
-           (collect-non-cl-symbols form spec-symbols)))
-       ;; Record macro body symbols for expansion analysis
-       (record-macro-body-symbols *current-tracker* name spec-symbols))
-
-     ;; 6. Symbol Collection/Association
-     ;; Store unique non-CL spec symbols with compiler macro definition
-     (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
-       (when unique-symbols
-         (setf (definition.spec-symbols 
-                (get-definitions name))
-               unique-symbols))))))
-
-
-(defun analyze-setf-symbol-value (parser form)
- "Handle (setf (symbol-value 'name) value) forms. Analyzes:
-  - Variable name and exportedness
-  - Value form for dependencies
-  - Any related type declarations
-  Returns the variable definition record."
- (destructuring-bind (setf (symbol-value quoted-name) value-form) form
-   ;; 1. Form Analysis Context
-   (let* ((pkg (current-package parser))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (spec-symbols nil)
-          (name (second quoted-name)))  ; Extract symbol from 'name form
-
-     ;; 2. Primary Definition Record
-     (record-definition *current-tracker* name
-                       :VARIABLE
-                       file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
-                                     :external))
-
-     ;; 3. Interface Elements
-     ;; None - variables don't have interface elements
-
-     ;; 4. Specification Elements
-     ;; Look for any type declarations preceding the setf
-     (let ((preceding-forms (preceding-forms-in-body form parser)))
-       (dolist (prev-form preceding-forms)
-         (when (and (listp prev-form)
-                    (eq (car prev-form) 'declare))
-           (dolist (decl (cdr prev-form))
-             (when (and (listp decl)
-                       (eq (car decl) 'type)
-                       (eq (third decl) name))
-               (unless (cl-symbol-p (second decl))
-                 (push (second decl) spec-symbols)))))))
-
-     ;; 5. Implementation Elements
-     ;; Analyze value form for dependencies
-     (unless (quoted-form-p value-form)
-       (collect-non-cl-symbols value-form spec-symbols))
-
-     ;; 6. Symbol Collection/Association
-     ;; Store unique non-CL spec symbols with variable definition
-     (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
-       (when unique-symbols
-         (setf (definition.spec-symbols 
-                (get-definitions name))
-               unique-symbols))))))
-
-
-(defun preceding-forms-in-body (form parser)
- "Find forms that precede the given form in the same body context.
-  Used to find relevant declarations for symbol-value and symbol-function forms.
-  Returns a list of preceding forms in reverse order (most recent first)."
- (let* ((file (file parser))
-        (preceding nil))
-   (with-open-file (stream file :direction :input)
-     (loop with found = nil
-           for current-form = (read stream nil nil)
-           while (and current-form (not found))
-           do (if (equal current-form form)
-                 (setf found t)
-                 (push current-form preceding))
-           finally (return (remove-if-not 
-                          ;; Only keep declarations and type specs
-                          (lambda (f)
-                            (and (listp f)
-                                 (or (eq (car f) 'declare)
-                                     (and (eq (car f) 'type)
-                                          (= (length f) 3)))))
-                          preceding))))))
-
-
-(defun analyze-setf-symbol-function-fdefinition-macro-function (parser form)
-  "Handle (setf (symbol-function|fdefinition|macro-function 'name) function-form) definitions.
-   Form structure: (setf (accessor 'name) function-form)"
-  (let ((accessor (caadr form))           ; symbol-function, fdefinition, or macro-function
-        (name (cadr (cadr (cadr form))))         ; Get symbol from ('accessor 'name)
-        (function-form (third form))      ; The function/lambda form
-        (package (current-package parser)))
-    (cond
-      ;; Handle symbol-function and fdefinition
-      ((member accessor '(symbol-function fdefinition))
-       (when (and (listp function-form)
-                  (eq (car function-form) 'lambda))
-         ;; Record function definition
-         (record-definition *current-tracker* name
-                          :FUNCTION
-                          (file parser)
-                          :package (current-package-name parser)
-                          :exported-p (eq (nth-value 1 
-                                        (find-symbol (symbol-name name) package))
-                                       :external))
-         ;; Analyze lambda list and body
-         (analyze-lambda-list parser (cadr function-form))
-         (dolist (form (cddr function-form))
-           (analyze-definition-form parser form))))
-      ;; Handle macro-function
-      ((eq accessor 'macro-function)
-       (when (listp function-form)  ; Macro function might not use lambda directly
-         ;; Record macro definition
-         (record-definition *current-tracker* name
-                          :MACRO
-                          (file parser)
-                          :package (current-package-name parser)
-                          :exported-p (eq (nth-value 1 
-                                        (find-symbol (symbol-name name) package))
-                                       :external))
-         ;; Analyze the function body
-         (dolist (form (cdr function-form))
-           (analyze-definition-form parser form)))))))
 
 
 (defun analyze-defclass (parser form)
@@ -1300,59 +792,41 @@
                                        :external))))
 
      ;; 4. Specification Elements
-     ;; 4a. Process superclasses
+     ;; 4a. Process superclasses - full analysis
      (dolist (super superclasses)
-       (unless (cl-symbol-p super)
-         (push super spec-symbols)))
+       (analyze-definition-form parser super))
 
      ;; 4b. Process slot specifications
      (dolist (slot slots)
        (when (listp slot)
          (destructuring-bind (slot-name &rest slot-options) slot
-           (declare (ignore slot-name))
+           ;; Analyze slot name and all options fully
+           (analyze-definition-form parser slot-name)
            (loop for (option value) on slot-options by #'cddr
-                 do (case option
-                      (:type 
-                       ;; Collect type specifier symbols
-                       (unless (cl-symbol-p value)
-                         (collect-non-cl-symbols value spec-symbols)))
-                      (:initform
-                       ;; Analyze initialization form
-                       (unless (quoted-form-p value)
-                         (collect-non-cl-symbols value spec-symbols)))
-                      (:allocation
-                       ;; Check for custom allocation types
-                       (unless (member value '(:instance :class))
-                         (push value spec-symbols)))
-                      (:initarg
-                       ;; Record any non-keyword initargs
-                       (unless (keywordp value)
-                         (push value spec-symbols))))))))
+                 do (analyze-definition-form parser option)
+                    (analyze-definition-form parser value)))))
 
      ;; 5. Implementation Elements
      (dolist (option options)
        (when (listp option)
          (case (car option)
            (:metaclass
-            ;; Record metaclass reference
-            (let ((metaclass (second option)))
-              (unless (cl-symbol-p metaclass)
-                (push metaclass spec-symbols))))
+            ;; Full analysis of metaclass spec 
+            (analyze-definition-form parser (second option)))
            
            (:default-initargs
-            ;; Analyze default initarg forms
+            ;; Full analysis of initarg forms
             (loop for (key value) on (cdr option) by #'cddr
-                  do (unless (quoted-form-p value)
-                       (collect-non-cl-symbols value spec-symbols))))
+                  do (analyze-definition-form parser key)
+                     (analyze-definition-form parser value)))
            
            (:documentation
             nil)  ; Skip documentation strings
            
            (t 
-            ;; Handle any other class options
+            ;; Full analysis of any other class options
             (dolist (element (cdr option))
-              (unless (quoted-form-p element)
-                (collect-non-cl-symbols element spec-symbols)))))))
+              (analyze-definition-form parser element))))))
 
      ;; 6. Symbol Collection/Association
      ;; Store unique non-CL spec symbols with class definition
@@ -1373,6 +847,7 @@
   Returns the type definition record."
  (destructuring-bind (def-op name lambda-list &rest body) form
    (declare (ignore def-op))
+   
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
@@ -1390,20 +865,12 @@
 
      ;; 3. Interface Elements
      ;; Type definitions don't generate interface functions
-     ;; but may be used in other type specifiers
 
      ;; 4. Specification Elements
      ;; 4a. Process type lambda list
-     (when lambda-list
-       (loop for param in lambda-list
-             do (typecase param
-                  (symbol 
-                   nil) ; Skip basic parameters
-                  (cons  ; Handle parameters with defaults
-                   (when (cddr param)  ; Has default value
-                     (let ((default (third param)))
-                       (unless (quoted-form-p default)
-                         (collect-non-cl-symbols default spec-symbols))))))))
+     (analyze-lambda-list parser lambda-list)
+     (dolist (param lambda-list)
+       (analyze-definition-form parser param))
 
      ;; 5. Implementation Elements
      ;; Process body forms and declarations
@@ -1411,40 +878,275 @@
          (parse-body body :documentation t)
        ;; Handle declarations
        (dolist (decl decls)
-         (when (and (listp decl) (eq (car decl) 'declare))
-           (dolist (spec (cdr decl))
-             (case (car spec)
-               ;; Handle type declarations specially
-               (type 
-                (unless (cl-symbol-p (second spec))
-                  (push (second spec) spec-symbols)))
-               ;; collect other declaration dependencies
-               (t (collect-non-cl-symbols (cdr spec) spec-symbols))))))
+         (analyze-definition-form parser decl))
        
-       ;; Analyze expansion form(s)
+       ;; Analyze all expansion forms
        (dolist (form forms)
-         (typecase form
-           (cons
-            (case (car form)
-              ;; Look specifically for type specifier forms
-              ((and or not satisfies)
-               (dolist (type-spec (cdr form))
-                 (unless (cl-symbol-p type-spec)
-                   (push type-spec spec-symbols))))
-              ;; Handle (integer 0 *) style forms
-              ((integer rational real float number)
-               nil) ; Skip standard type specifiers
-              ;; Regular form analysis
-              (t 
-               (unless (quoted-form-p form)
-                 (collect-non-cl-symbols form spec-symbols)))))
-           ;; Handle atomic type specifiers
-           (symbol
-            (unless (cl-symbol-p form)
-              (push form spec-symbols))))))
+         (analyze-definition-form parser form)))
      
      ;; 6. Symbol Collection/Association
      ;; Store unique non-CL spec symbols with type definition
+     (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
+       (when unique-symbols
+         (setf (definition.spec-symbols 
+                (get-definitions name))
+               unique-symbols))))))
+
+
+(defun analyze-define-condition (parser form)
+  "Handle define-condition forms, recording condition definition and analyzing:
+   - Condition name and its exportedness
+   - Superclass relationships
+   - Slot definitions including reader/writer/accessor functions
+   - Special condition options like :report
+   - Non-CL symbols in slot types and initforms"
+  (destructuring-bind (def-op name superclasses &rest slots-and-options) form
+    (declare (ignore def-op))
+    
+    ;; 1. Form Analysis Context
+    (let* ((pkg (current-package parser))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (spec-symbols nil))
+      
+      ;; 2. Primary Definition Record
+      (record-definition *current-tracker* name
+                        :CONDITION
+                        file
+                        :package pkg-name
+                        :exported-p (eq (nth-value 1 
+                                       (find-symbol (symbol-name name) pkg))
+                                      :external))
+      
+      ;; 3. Interface Elements 
+      (let ((interface-functions nil))
+        ;; Process slots for readers/writers/accessors
+        (dolist (slot slots-and-options)
+          (when (and (listp slot) (car slot))  ; Valid slot definition
+            (loop for (option value) on (cdr slot) by #'cddr
+                  when (member option '(:reader :writer :accessor))
+                  do (push value interface-functions))))
+        
+        ;; Record all interface function definitions
+        (dolist (func interface-functions)
+          (record-definition *current-tracker* func
+                           :FUNCTION
+                           file
+                           :package pkg-name
+                           :exported-p (eq (nth-value 1 
+                                         (find-symbol (symbol-name func) pkg))
+                                        :external))))
+      
+      ;; 4. Specification Elements
+      ;; 4a. Process superclasses
+      (dolist (super superclasses)
+        (analyze-definition-form parser super))
+      
+      ;; 4b. Process slots and analyze all components
+      (dolist (slot slots-and-options)
+        (when (and (listp slot) (car slot))  ; Valid slot definition
+          ;; Analyze slot name
+          (analyze-definition-form parser (car slot))
+          ;; Analyze all slot options
+          (loop for (option value) on (cdr slot) by #'cddr
+                do (analyze-definition-form parser option)
+                   (analyze-definition-form parser value))))
+      
+      ;; 5. Implementation Elements
+      (dolist (option slots-and-options)
+        (when (and (listp option) (keywordp (car option)))
+          (case (car option)
+            (:report
+             (analyze-definition-form parser (second option)))
+            (:default-initargs
+             (loop for (key value) on (cdr option) by #'cddr
+                   do (analyze-definition-form parser key)
+                      (analyze-definition-form parser value)))
+            (t 
+             ;; Analyze all parts of other options
+             (dolist (element (cdr option))
+               (analyze-definition-form parser element))))))
+      
+      ;; 6. Symbol Collection/Association
+      ;; Store unique non-CL spec symbols with condition definition
+      (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
+        (when unique-symbols
+          (setf (definition.spec-symbols 
+                 (get-definitions name))
+                unique-symbols))))))
+
+
+(defun analyze-define-method-combination (parser form)
+  "Handle define-method-combination forms. Records the definition and analyzes:
+   - In short form: option values and auxiliary parameters 
+   - In long form: lambda list, method group patterns and options,
+     method-group-specifiers, and body forms including:
+     - :arguments
+     - :generic-function
+     - Method group specs with ordering, predicates and descriptions"
+  (destructuring-bind (def-op name &rest args) form
+    (declare (ignore def-op))
+
+    ;; 1. Form Analysis Context
+    (let* ((pkg (current-package parser))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (spec-symbols nil))
+
+      ;; 2. Primary Definition Record
+      (record-definition *current-tracker* name
+                        :FUNCTION
+                        file
+                        :package pkg-name
+                        :exported-p (eq (nth-value 1 
+                                      (find-symbol (symbol-name name) pkg))
+                                     :external))
+
+      ;; 3. Interface Elements
+      ;; None needed - no interface functions generated
+
+      ;; 4. Specification Elements
+      ;; 4a. Process lambda list and body based on form type
+      (if (and (car args) (listp (car args)))
+          ;; Long form handling
+          (destructuring-bind (lambda-list &rest body) args
+            ;; Analyze lambda list completely
+            (analyze-lambda-list parser lambda-list)
+            (dolist (param lambda-list)
+              (analyze-definition-form parser param))
+
+            ;; Process body forms including method group specs
+            (multiple-value-bind (decls forms)
+                (parse-body body :documentation t)
+              ;; Handle declarations
+              (dolist (decl decls)
+                (analyze-definition-form parser decl))
+
+              ;; Process all body forms
+              (dolist (form forms)
+                (analyze-definition-form parser form)
+                (when (and (listp form) 
+                          (member (car form) '(:arguments :generic-function :documentation)))
+                    ;; Handle option forms 
+                    (dolist (part (cdr form))
+                      (analyze-definition-form parser part))))))
+
+          ;; Short form handling
+          (progn
+            ;; Process operator name if provided
+            (when (car args)
+              (analyze-definition-form parser (car args)))
+
+            ;; Process options and their values
+            (loop for (option value) on (cdr args) by #'cddr
+                  do (analyze-definition-form parser option)
+                     (analyze-definition-form parser value))))
+
+      ;; 5. Implementation Elements
+      ;; None needed - all processing handled above
+
+      ;; 6. Symbol Collection/Association
+      ;; Store unique non-CL spec symbols with method combination definition
+      (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
+        (when unique-symbols
+          (setf (definition.spec-symbols 
+                 (get-definitions name))
+                unique-symbols))))))
+
+
+(defun analyze-define-modify-macro (parser form)
+ "Handle define-modify-macro forms. Analyzes:
+  - Macro name and exportedness
+  - Lambda list parameters and their types
+  - Underlying function reference
+  - Documentation string if present"
+ (destructuring-bind (def-op name lambda-list function &optional documentation) form
+   (declare (ignore def-op documentation))
+   ;; 1. Form Analysis Context
+   (let* ((pkg (current-package parser))
+          (pkg-name (current-package-name parser))
+          (file (file parser))
+          (spec-symbols nil))
+
+     ;; 2. Primary Definition Record
+     (record-definition *current-tracker* name
+                       :MACRO
+                       file
+                       :package pkg-name
+                       :exported-p (eq (nth-value 1 
+                                      (find-symbol (symbol-name name) pkg))
+                                     :external))
+
+     ;; 3. Interface Elements
+     ;; Analyze underlying function
+     (analyze-definition-form parser function)
+
+     ;; 4. Specification Elements
+     ;; Process lambda list for parameters and types
+     (analyze-lambda-list parser lambda-list)
+     ;; Analyze all lambda list items
+     (dolist (item lambda-list)
+       (analyze-definition-form parser item))
+
+     ;; 5. Implementation Elements
+     ;; None - modify macros don't have implementation bodies
+     
+     ;; 6. Symbol Collection/Association
+     ;; Store unique non-CL spec symbols with macro definition
+     (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
+       (when unique-symbols
+         (setf (definition.spec-symbols 
+                (get-definitions name))
+               unique-symbols))))))
+
+
+(defun analyze-define-compiler-macro (parser form)
+ "Handle define-compiler-macro forms. Analyzes:
+  - Compiler macro name and exportedness
+  - Lambda list parameters and their types
+  - Body declarations and forms
+  - Helper functions defined in body"
+ (destructuring-bind (def-op name lambda-list &rest body) form
+   (declare (ignore def-op))
+   ;; 1. Form Analysis Context
+   (let* ((pkg (current-package parser))
+          (pkg-name (current-package-name parser))
+          (file (file parser))
+          (spec-symbols nil))
+
+     ;; 2. Primary Definition Record
+     (record-definition *current-tracker* name
+                       :MACRO
+                       file
+                       :package pkg-name
+                       :exported-p (eq (nth-value 1 
+                                      (find-symbol (symbol-name name) pkg))
+                                     :external))
+
+     ;; 3. Interface Elements
+     (record-helper-functions parser body)
+
+     ;; 4. Specification Elements
+     ;; Process lambda list for parameters and types
+     (analyze-lambda-list parser lambda-list)
+     (dolist (item lambda-list)
+       (analyze-definition-form parser item))
+
+     ;; 5. Implementation Elements
+     ;; Process body forms and declarations
+     (multiple-value-bind (decls forms)
+         (parse-body body :documentation t)
+       ;; Handle declarations
+       (dolist (decl decls)
+         (analyze-definition-form parser decl))
+       ;; Analyze body forms
+       (dolist (form forms)
+         (analyze-definition-form parser form))
+       ;; Record macro body symbols for expansion analysis
+       (record-macro-body-symbols *current-tracker* name spec-symbols))
+
+     ;; 6. Symbol Collection/Association
+     ;; Store unique non-CL spec symbols with compiler macro definition
      (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
        (when unique-symbols
          (setf (definition.spec-symbols 
@@ -1483,19 +1185,11 @@
      ;; Look for type declarations preceding the definition
      (let ((preceding-forms (preceding-forms-in-body form parser)))
        (dolist (prev-form preceding-forms)
-         (when (and (listp prev-form)
-                    (eq (car prev-form) 'declare))
-           (dolist (decl (cdr prev-form))
-             (when (and (listp decl)
-                       (eq (car decl) 'type)
-                       (eq (third decl) name))
-               (unless (cl-symbol-p (second decl))
-                 (push (second decl) spec-symbols)))))))
+         (analyze-definition-form parser prev-form)))
 
      ;; 5. Implementation Elements
      ;; Analyze expansion form for dependencies
-     (unless (quoted-form-p expansion-form)
-       (collect-non-cl-symbols expansion-form spec-symbols))
+     (analyze-definition-form parser expansion-form)
      ;; Record symbols used in expansion for macro processing
      (record-macro-body-symbols *current-tracker* name spec-symbols)
 
@@ -1508,14 +1202,132 @@
                unique-symbols))))))
 
 
-(defun analyze-defsetf (parser form)
- "Handle defsetf forms in both short and long forms. Analyzes:
-  - Access function name and exportedness
-  - Short form: update function reference
-  - Long form: lambda list, store vars, declarations, body
-  - Helper functions defined in body
-  Returns the setf definition record."
- (destructuring-bind (def-op name &rest args) form
+(defun analyze-setf-symbol-value (parser form)
+ "Handle (setf (symbol-value 'name) value-form) forms. Analyzes:
+  - Variable name and exportedness
+  - Value form for dependencies
+  - Any related type declarations
+  Returns the variable definition record."
+ (destructuring-bind (setf (symbol-value quoted-name) value-form) form
+   ;; 1. Form Analysis Context
+   (let* ((pkg (current-package parser))
+          (pkg-name (current-package-name parser))
+          (file (file parser))
+          (spec-symbols nil)
+          (name (second quoted-name)))  ; Extract symbol from 'name form
+
+     ;; 2. Primary Definition Record
+     (record-definition *current-tracker* name
+                       :VARIABLE
+                       file
+                       :package pkg-name
+                       :exported-p (eq (nth-value 1 
+                                      (find-symbol (symbol-name name) pkg))
+                                     :external))
+
+     ;; 3. Interface Elements
+     ;; None - variables don't have interface elements
+
+     ;; 4. Specification Elements
+     ;; Look for any type declarations preceding the setf
+     (let ((preceding-forms (preceding-forms-in-body form parser)))
+       (dolist (prev-form preceding-forms)
+         (analyze-definition-form parser prev-form)))
+
+     ;; 5. Implementation Elements
+     ;; Analyze full value form
+     (analyze-definition-form parser value-form)
+
+     ;; 6. Symbol Collection/Association
+     ;; Store unique non-CL spec symbols with variable definition
+     (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
+       (when unique-symbols
+         (setf (definition.spec-symbols 
+                (get-definitions name))
+               unique-symbols))))))
+
+
+(defun analyze-setf-symbol-function-fdefinition-macro-function (parser form)
+  "Handle (setf (symbol-function|fdefinition|macro-function 'name) function-form) definitions.
+   Form structure: (setf (accessor 'name) function-form)"
+  (let* ((accessor (caadr form))           ; symbol-function, fdefinition, or macro-function
+         (name (cadr (cadr (cadr form))))  ; Get symbol from ('accessor 'name)
+         (function-form (third form))      ; The function/lambda form
+         (package (current-package parser)))
+
+    ;; 1. Form Analysis Context
+    (let* ((pkg (current-package parser))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (spec-symbols nil))
+
+      ;; 2. Primary Definition Record - based on accessor type
+      (cond
+        ;; Handle symbol-function and fdefinition
+        ((member accessor '(symbol-function fdefinition))
+         (record-definition *current-tracker* name
+                          :FUNCTION
+                          file
+                          :package pkg-name
+                          :exported-p (eq (nth-value 1 
+                                        (find-symbol (symbol-name name) package))
+                                       :external)))
+        ;; Handle macro-function
+        ((eq accessor 'macro-function)
+         (record-definition *current-tracker* name
+                          :MACRO
+                          file
+                          :package pkg-name
+                          :exported-p (eq (nth-value 1 
+                                        (find-symbol (symbol-name name) package))
+                                       :external))))
+
+      ;; 3. Interface Elements
+      ;; None needed - these forms define the functions/macros directly
+
+      ;; 4. Specification Elements
+      ;; Look for any type declarations preceding the setf
+      (let ((preceding-forms (preceding-forms-in-body form parser)))
+        (dolist (prev-form preceding-forms)
+          (analyze-definition-form parser prev-form)))
+
+      ;; 5. Implementation Elements
+      ;; Analyze the function form completely
+      (analyze-definition-form parser function-form)
+      ;; For lambda forms, analyze their internals
+      (when (and (listp function-form)
+                (eq (car function-form) 'lambda))
+        ;; Analyze lambda list
+        (analyze-lambda-list parser (cadr function-form))
+        (dolist (item (cadr function-form))
+          (analyze-definition-form parser item))
+        ;; Analyze body forms
+        (multiple-value-bind (decls forms)
+            (parse-body (cddr function-form) :documentation t)
+          ;; Handle declarations
+          (dolist (decl decls)
+            (analyze-definition-form parser decl))
+          ;; Analyze remaining body forms
+          (dolist (form forms)
+            (analyze-definition-form parser form))))
+
+      ;; 6. Symbol Collection/Association
+      ;; Store unique non-CL spec symbols with the definition
+      (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
+        (when unique-symbols
+          (setf (definition.spec-symbols 
+                 (get-definitions name))
+                unique-symbols))))))
+
+
+#|
+(defun analyze-setf-expander (parser form)
+ "Handle define-setf-expander forms. Analyzes:
+  - Expander name and exportedness
+  - Lambda list parameters and their types
+  - Body declarations and forms 
+  - Sub-definitions in body"
+ (destructuring-bind (def-op name lambda-list &rest body) form
    (declare (ignore def-op))
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
@@ -1525,135 +1337,48 @@
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
-                       :SETF
+                       :FUNCTION  ; Setf expanders are functions
                        file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
                                      :external))
-
+     
      ;; 3. Interface Elements
-     (if (and (car args) (listp (car args)))
-         ;; Long form - collect helper functions from body
-         (let ((helper-functions nil))
-           (dolist (form (cdddr args))  ; Skip lambda-list and store-vars
-             (when (and (listp form)
-                       (member (car form) '(defun flet labels)))
-               (push (if (eq (car form) 'defun)
-                        (second form)
-                        (caar (cdr form)))
-                     helper-functions)))
-           ;; Record helper functions as internal
-           (dolist (func helper-functions)
-             (record-definition *current-tracker* func
-                              :FUNCTION
-                              file
-                              :package pkg-name
-                              :exported-p nil)))
-         ;; Short form - reference update function
-         (unless (cl-symbol-p (car args))
-           (push (car args) spec-symbols)))
+     (record-helper-functions parser body)
 
      ;; 4. Specification Elements
-     (if (and (car args) (listp (car args)))
-         ;; Long form
-         (destructuring-bind (lambda-list store-vars &rest body) args
-           ;; Process access function lambda list
-           (analyze-lambda-list parser lambda-list)
-           ;; Process store variables
-           (dolist (var store-vars)
-             (when (and (listp var) (> (length var) 1))
-               ;; Check for type declarations in store vars
-               (let ((type-spec (second var)))
-                 (unless (cl-symbol-p type-spec)
-                   (push type-spec spec-symbols)))))
-           ;; Collect type specs from lambda list
-           (dolist (item lambda-list)
-             (when (and (listp item) (> (length item) 1))
-               (let ((type-spec (second item)))
-                 (unless (or (quoted-form-p type-spec)
-                            (cl-symbol-p type-spec))
-                   (push type-spec spec-symbols))))))
-         ;; Short form - no additional specs needed
-         nil)
+     ;; Process lambda list for parameters and types
+     (analyze-lambda-list parser lambda-list)
+     ;; Collect non-CL symbols from lambda list type declarations
+     (dolist (item lambda-list)
+       (when (and (listp item) (> (length item) 1))
+         (let ((type-spec (second item)))
+           (unless (or (quoted-form-p type-spec)
+                      (cl-symbol-p type-spec))
+             (push type-spec spec-symbols)))))
 
      ;; 5. Implementation Elements
-     (when (and (car args) (listp (car args)))
-       ;; Process long form body
-       (let ((body (cdddr args)))
-         (multiple-value-bind (decls forms)
-             (parse-body body :documentation t)
-           ;; Handle declarations
-           (dolist (decl decls)
-             (when (and (listp decl) (eq (car decl) 'declare))
-               (dolist (spec (cdr decl))
-                 (when (and (listp spec) (eq (car spec) 'type))
-                   (unless (cl-symbol-p (second spec))
-                     (push (second spec) spec-symbols))))))
-           ;; Analyze body forms
-           (dolist (form forms)
-             (unless (quoted-form-p form)
-               (collect-non-cl-symbols form spec-symbols)))
-           ;; Record setf body symbols for expansion
-           (record-macro-body-symbols *current-tracker* name spec-symbols))))
+     ;; Process body forms and declarations
+     (multiple-value-bind (decls forms)
+         (parse-body body :documentation t)
+       ;; Handle declarations
+       (dolist (decl decls)
+         (when (and (listp decl) (eq (car decl) 'declare))
+           (dolist (spec (cdr decl))
+             (when (and (listp spec) (eq (car spec) 'type))
+               (unless (cl-symbol-p (second spec))
+                 (push (second spec) spec-symbols))))))
+       ;; Analyze remaining body forms
+       (dolist (form forms)
+         (unless (quoted-form-p form)
+           (collect-non-cl-symbols form spec-symbols))))
 
      ;; 6. Symbol Collection/Association
-     ;; Store unique non-CL spec symbols with setf definition
+     ;; Store unique non-CL spec symbols with expander definition
      (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
        (when unique-symbols
          (setf (definition.spec-symbols 
                 (get-definitions name))
                unique-symbols))))))
-
-
-(defun record-helper-functions (parser body)
- "Record helper functions defined within a body using defun/flet/labels.
-  PARSER - The file parser for context
-  BODY - List of body forms to scan for function definitions
-  Returns list of helper function names recorded."
- (let ((helper-functions nil)
-       (file (file parser))
-       (pkg-name (current-package-name parser))
-       (pkg (current-package parser)))
-   ;; Scan body for function definitions
-   (dolist (form body)
-     (when (and (listp form)
-                (member (car form) '(defun flet labels)))
-       (push (if (eq (car form) 'defun)
-                (second form)
-                (caar (cdr form)))
-             helper-functions)))
-   ;; Record each helper function
-   (dolist (func helper-functions)
-     (record-definition *current-tracker* func
-                      :FUNCTION
-                      file
-                      :package pkg-name
-                      :exported-p nil))
-   helper-functions))
-
-We can then simplify the Interface Elements section in our analyzers to:
-  ;; 3. Interface Elements
-(record-helper-functions parser body)
-Looking back at analyze-defmacro and analyze-defun from earlier, we were recording helper functions there as well.
-The pattern of collecting helper functions appears in:
-analyze-defsetf (just added)
-analyze-define-symbol-macro
-analyze-define-compiler-macro
-analyze-setf-symbol-function-fdefinition-macro-function
-Let me check analyze-defun-defmacro... yes, we were doing helper function collection there too.
-(let ((helper-functions nil))
-  (dolist (form body)
-    (when (and (listp form)
-               (member (car form) '(defun flet labels)))
-      (push (if (eq (car form) 'defun)
-               (second form)
-               (caar (cdr form)))
-            helper-functions)))
-  ;; Record helper functions as internal
-  (dolist (func helper-functions)
-    (record-definition *current-tracker* func
-                     :FUNCTION
-                     file
-                     :package pkg-name
-                     :exported-p nil)))
+|#

@@ -263,6 +263,8 @@
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
+  "Generate a JSON format dependency report.
+   Handles pathnames by converting them to project-relative paths before encoding."
   (let ((*print-pretty* t)
         (yason:*symbol-key-encoder* #'string-downcase)
         (yason:*symbol-encoder* #'string-downcase))
@@ -285,8 +287,12 @@
                               (yason:with-object ()
                                 (yason:encode-object-element "type" 
                                                           (string-downcase (symbol-name type)))
+                                ;; Convert pathname locations to strings before encoding
                                 (yason:encode-object-element "location" 
-                                                          (anomaly.location a))
+                                                          (let ((loc (anomaly.location a)))
+                                                            (if (pathnamep loc)
+                                                                (project-pathname loc)
+                                                                loc)))
                                 (yason:encode-object-element "description" 
                                                           (anomaly.description a))
                                 (when (anomaly.context a)

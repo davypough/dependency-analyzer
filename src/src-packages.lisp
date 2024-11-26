@@ -6,6 +6,8 @@
 (in-package #:cl-user)
 
 
+(in-package #:cl-user)
+
 (defpackage #:dependency-analyzer
   (:use #:cl #:alexandria)
   (:nicknames #:dep)

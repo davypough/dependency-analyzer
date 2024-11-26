@@ -5,6 +5,198 @@
   {
     "error":
     [
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-refs.lisp",
+        "description":"Function ARG has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-refs.lisp",
+        "description":"Function ARG has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-refs.lisp",
+        "description":"Function ARG has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-refs.lisp",
+        "description":"Function ARG has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-refs.lisp",
+        "description":"Function LOGGING has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-refs.lisp",
+        "description":"Function RADIUS has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function ENV has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function FORM has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function ENV has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function FORM has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DATA has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DATA has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DATA has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DATA has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function LOGGING has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DATA has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DATA has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DOCUMENTATION has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DATA has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function SHAPE has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function SHAPE has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function DOCUMENTATION has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function SHAPE has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function TYPE has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function AGE has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function PERSON. has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function CONC-NAME has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function TYPE has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function RADIUS has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function CL has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function USE has no definition",
+        "context":"Referenced in operator position"
+      },
+      {
+        "type":"undefined-reference",
+        "location":"/source/single-pkg-defs.lisp",
+        "description":"Function USER-MAIN-PACKAGE has no definition",
+        "context":"Referenced in operator position"
+      }
     ],
     "warning":
     [
@@ -14,6 +206,24 @@
     ]
   },
   "systems":{},
-  "files":{},
-  "packages":{}
+  "files":{
+    "/source/single-pkg-refs.lisp": {
+      "depends_on": [
+        {
+          "file": "/source/single-pkg-defs.lisp",
+          "dependencies": "References: *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+, CIRCLE-RADIUS, COMPUTE-AREA, CONDITION-NAME, DEFMACRO-NAME, DEFUN-NAME, FDEFINITION-FUNCTION-NAME, MACRO-FUNCTION-NAME, MAKE-CIRCLE, MAKE-PERSON, PERSON.AGE, PROCESS-DATA, SYMBOL-FUNCTION-NAME, SYMBOL-VALUE-VARIABLE"
+        }
+      ]
+    }
+  },
+  "packages":{
+    "USER-MAIN-PACKAGE": {
+      "uses": [
+        "CL"
+      ],
+      "exports": [
+        "USER-MAIN-PACKAGE"
+      ]
+    }
+  }
 }
