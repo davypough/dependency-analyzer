@@ -9,7 +9,7 @@
 
 (defstruct (definition (:conc-name definition.))
   "Data structure holding info about a lisp definition--eg, defun, defvar, or package"
-  (designator nil :type (or symbol string) :read-only t)
+  (name nil :type (or symbol string) :read-only t)
   (type nil :type (member :STRUCTURE :CLASS :VARIABLE :FUNCTION :MACRO :SYMBOL-MACRO
                           :GENERIC-FUNCTION :METHOD :CONDITION :PACKAGE :TYPE :SETF)
             :read-only t)
@@ -72,7 +72,7 @@
    (project-name
     :initarg :project-name
     :reader project.name
-    :documentation "Name of the ASDF project being analyzed")
+    :documentation "Name of the project being analyzed")
    (project-root
     :initarg :project-root
     :reader project-root

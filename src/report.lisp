@@ -48,13 +48,6 @@
  (format stream "~2%")
  (format stream "SYSTEM DETAILS~%")
  (format stream "~V,,,'-<~>~%" 30 "")
-#+ignore (maphash (lambda (sys-name deps)
-            (format stream "~&System: ~A~%" sys-name)
-            (when deps
-              (format stream "  Depends on:~%")
-              (dolist (dep deps)
-                (format stream "    ~A~%" dep))))
-          (slot-value tracker 'subsystems))
  (format stream "~2%")
  ;; 2. Architectural Overview
  (format stream "ARCHITECTURAL OVERVIEW~%")
@@ -62,13 +55,6 @@
  ;; System Overview
  (format stream "SYSTEM OVERVIEW~%")
  (format stream "~V,,,'-<~>~%" 30 "")
-#+ignore (maphash (lambda (sys-name deps)
-            (format stream "~&System: ~A~%" sys-name)
-            (when deps
-              (format stream "  Depends on:~%")
-              (dolist (dep deps)
-                (format stream "    ~A~%" dep))))
-          (slot-value tracker 'subsystems))
  (alexandria:when-let ((cycles (get-system-cycles tracker)))
    (format stream "~%System Dependency Cycles:~%")
    (format stream "The following systems have circular dependencies:~%")
@@ -190,29 +176,6 @@
  (format stream "~V,,,'-<~>~%" 30 "")
  ;; System Dependencies
  (format stream "System Dependencies:~%")
-#+ignore (let ((printed-systems (make-hash-table :test 'equal)))
-  (maphash (lambda (sys-name deps)
-             (unless (gethash sys-name printed-systems)
-               (format stream "~&System: ~A~%" sys-name)
-               (setf (gethash sys-name printed-systems) t)
-               ;; Direct dependencies
-               (when deps
-                 (format stream "  Direct Dependencies:~%")
-                 (dolist (dep deps)
-                   (format stream "    ~A~%" dep)
-                   (setf (gethash dep printed-systems) t)))
-               ;; Component packages
-               (let ((sys-packages nil))
-                 (maphash (lambda (pkg uses)
-                           (declare (ignore uses))
-                           (when (search sys-name pkg)
-                             (push pkg sys-packages)))
-                         (slot-value tracker 'package-uses))
-                 (when sys-packages
-                   (format stream "  Packages:~%")
-                   (dolist (pkg (sort sys-packages #'string<))
-                     (format stream "    ~A~%" pkg))))))
-           (slot-value tracker 'subsystems)))
  (format stream "~2%")
  ;; Package Dependencies
  (format stream "Package Dependencies:~%")

@@ -230,7 +230,7 @@
     ;; Build hash table of symbols defined in target file for quick lookup
     (let ((target-symbols (make-hash-table :test 'equal)))
       (dolist (def target-defs)
-        (setf (gethash (definition.designator def) target-symbols) t))
+        (setf (gethash (definition.name def) target-symbols) t))
       ;; Check all references in source file to see if they reference target symbols
       (maphash (lambda (key refs-list)
                  (dolist (ref refs-list)
@@ -246,7 +246,7 @@
                            &key package exported-p)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
-         (def (make-definition :designator symbol
+         (def (make-definition :name symbol
                              :type type
                              :file file
                              :package package

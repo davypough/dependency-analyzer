@@ -51,11 +51,11 @@
                (declare (ignore key))
                (push def defs))
              (slot-value *current-tracker* 'definitions))
-    (dolist (def (sort defs #'string< :key #'definition.designator))
-      (format t "~&Designator: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~%  Spec-Symbols: ~S~%~%"
-              (etypecase (definition.designator def)
-                (string (definition.designator def))
-                (symbol (symbol-name (definition.designator def))))
+    (dolist (def (sort defs #'string< :key #'definition.name))
+      (format t "~&Name: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~%  Spec-Symbols: ~S~%~%"
+              (etypecase (definition.name def)
+                (string (definition.name def))
+                (symbol (symbol-name (definition.name def))))
               (definition.type def)
               (project-pathname (definition.file def))
               (definition.package def)
