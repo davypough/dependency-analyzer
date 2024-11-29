@@ -1,6 +1,5 @@
 {
-  "project":"TEST-PROJECT",
-  "systems":{},
+  "project":"test-project",
   "anomalies":
   {
     "error":
@@ -205,7 +204,6 @@
     [
     ]
   },
-  "systems":{},
   "files":{
     "/source/single-pkg-refs.lisp": {
       "depends_on": [

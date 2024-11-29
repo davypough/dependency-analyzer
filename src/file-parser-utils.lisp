@@ -230,7 +230,7 @@
     ;; Build hash table of symbols defined in target file for quick lookup
     (let ((target-symbols (make-hash-table :test 'equal)))
       (dolist (def target-defs)
-        (setf (gethash (definition.symbol def) target-symbols) t))
+        (setf (gethash (definition.designator def) target-symbols) t))
       ;; Check all references in source file to see if they reference target symbols
       (maphash (lambda (key refs-list)
                  (dolist (ref refs-list)
@@ -246,7 +246,7 @@
                            &key package exported-p)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
-         (def (make-definition :symbol symbol
+         (def (make-definition :designator symbol
                              :type type
                              :file file
                              :package package
@@ -479,26 +479,6 @@
     (t nil)))
 
 
-(defmethod parse-component ((component t) parser)
-  "Parse a single ASDF system component based on its type."
-  (typecase component
-    (asdf:cl-source-file
-      (parse-source-file parser component))
-    (asdf:module
-      (mapc (lambda (c) (parse-component c parser))
-            (asdf:component-children component)))
-    (t
-      (warn "Skipping unknown component type: ~A" component))))
-
-
-(defmethod parse-source-file ((parser t) source-file)
-  "Parse a source file component using the file parser."
-  (let ((file (asdf:component-pathname source-file)))
-    (when (probe-file file)
-      (let ((file-parser (make-instance 'file-parser :file file)))
-        (parse-file file-parser)))))
-
-
 (defun record-helper-functions (parser body)
  "Record helper functions defined within a body using defun/flet/labels.
   PARSER - The file parser for context
@@ -625,3 +605,28 @@
  (and (consp form)
       (or (eq (car form) 'quote)
           (eq (car form) 'function))))
+
+
+(defun symbol-qualified-p (symbol parser)
+  "Return t if symbol appears to have been package-qualified in source.
+   This is inferred when symbol's package differs from parser's current package."
+  (and (symbol-package symbol)  ; Has a package
+       (not (eq (symbol-package symbol) 
+                (current-package parser)))))
+
+
+(defun determine-symbol-visibility (symbol parser)
+  "Determine how symbol is visible in current package context.
+   Returns :LOCAL, :INHERITED, or :IMPORTED."
+  (let ((sym-pkg (symbol-package symbol))
+        (cur-pkg (current-package parser)))
+    (cond 
+      ((null sym-pkg) :LOCAL)  ; Uninterned symbol
+      ((eq sym-pkg cur-pkg) :LOCAL)  ; In current package
+      (t (multiple-value-bind (sym status)
+             (find-symbol (symbol-name symbol) cur-pkg)
+           (declare (ignore sym))
+           (case status
+             (:inherited :INHERITED)
+             (:external :IMPORTED)
+             (otherwise :LOCAL)))))))

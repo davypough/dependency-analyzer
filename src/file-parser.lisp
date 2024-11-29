@@ -13,6 +13,10 @@
   "First pass parser that records definitions.
    Analyzes all forms recursively, maintaining package context during traversal."
   (with-slots (file parsing-files) parser
+    ;; Reset to CL-USER before processing each file
+    (setf (current-package parser) (find-package :common-lisp-user)
+          (current-package-name parser) "COMMON-LISP-USER"
+          *package* (find-package :common-lisp-user))
     (push file parsing-files)
     (with-open-file (stream file :direction :input)
       (loop for form = (read stream nil :eof)
@@ -26,6 +30,10 @@
    Processes in-package forms to maintain proper package context, 
    then analyzes all forms for references."
   (with-slots (file package) parser
+    ;; Reset to CL-USER before processing each file
+    (setf (current-package parser) (find-package :common-lisp-user)
+          (current-package-name parser) "COMMON-LISP-USER"
+          *package* (find-package :common-lisp-user))
     (with-open-file (stream file :direction :input)
       (let ((*package* package))
         (loop for form = (read stream nil :eof)
@@ -33,16 +41,6 @@
               do (if (and (consp form) (eq (car form) 'in-package))
                      (analyze-in-package parser form)
                      (analyze-reference-form parser form)))))))
-
-
-(defmethod analyze-in-package ((parser file-parser) form)
-  "Handle in-package forms by updating the current package context."
-  (let* ((name (normalize-package-name (second form)))
-         (package (or (find-package name)
-                     (make-package name))))
-    (setf (current-package parser) package
-          (current-package-name parser) (package-name package)
-          *package* package)))
 
 
 (defmethod analyze-definition-form ((parser file-parser) form)
@@ -95,7 +93,9 @@
   "Walk form recording references to user-defined symbols (not CL symbols).
    References are marked as :OPERATOR when in operator position, :VALUE otherwise.
    Creates reference records for symbols with definitions, linking to the definition.
-   Creates anomaly records for undefined non-CL symbols."
+   Creates anomaly records for:
+   - undefined non-CL symbols 
+   - implicit cross-package references without in-package"
   (labels ((walk (x op-position)
              (typecase x
                (cons 
@@ -110,23 +110,27 @@
                           (walk v nil))
                         x))
                (symbol
-                (when (and x (not (cl-symbol-p x)))  ; Skip nil and CL symbols
+                (when (and x  ; Skip nil
+                          (not (eq (symbol-package x) 
+                                 (find-package :common-lisp)))) ; Skip CL symbols
                   (let* ((pkg (or (symbol-package x) 
                                 (current-package parser)))
                          (pkg-name (package-name pkg))
-                         (visibility (cond
-                                     ((null (symbol-package x)) :LOCAL)
-                                     ((eq pkg (current-package parser)) :LOCAL)
-                                     (t (multiple-value-bind (sym status)
-                                          (find-symbol (symbol-name x) 
-                                                     (current-package parser))
-                                        (declare (ignore sym))
-                                        (case status
-                                          (:inherited :INHERITED)
-                                          (:external :IMPORTED)
-                                          (otherwise :LOCAL))))))
                          (key (make-tracking-key x pkg-name))
-                         (def (gethash key (slot-value *current-tracker* 'definitions))))
+                         (def (gethash key (slot-value *current-tracker* 'definitions)))
+                         (visibility (determine-symbol-visibility x parser)))
+
+                    ;; Check for unqualified cross-package reference while in CL-USER
+                    (when (and (eq (current-package parser) (find-package :common-lisp-user))
+                             (not (symbol-qualified-p x parser))
+                             (not (eq pkg (find-package :common-lisp-user))))
+                      (record-anomaly *current-tracker*
+                                    :missing-in-package
+                                    :WARNING
+                                    (file parser)
+                                    (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                                            x pkg-name)))
+
                     ;; Create reference linking to definition if it exists
                     (if def
                         (record-reference *current-tracker* x
@@ -147,6 +151,16 @@
                                              (if op-position "operator" "value")))))))
                (t nil))))
     (walk form nil)))
+
+
+(defmethod analyze-in-package ((parser file-parser) form)
+  "Handle in-package forms by updating the current package context."
+  (let* ((name (normalize-package-name (second form)))
+         (package (or (find-package name)
+                     (make-package name))))
+    (setf (current-package parser) package
+          (current-package-name parser) (package-name package)
+          *package* package)))
 
 
 (defun analyze-defpackage (parser form)

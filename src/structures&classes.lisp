@@ -3,24 +3,13 @@
 ;;; Base class and structure definitions for the dependency analyzer.
 ;;; Contains fundamental type definitions needed by other modules.
 
+
 (in-package #:dep)
-
-
-(defparameter *current-tracker* nil
-  "The currently active dependency tracker instance.")
-
-
-(defmacro prt (&rest forms)
-  "Print the names & values of given forms (ie,variables or accessors).
-   Can wrap around an expression, returning its value."
-  `(progn ,@(loop for form in forms
-              collect `(format t "~&  ~S => ~S~%" ',form ,form))
-          ,@(last `,forms)))
 
 
 (defstruct (definition (:conc-name definition.))
   "Data structure holding info about a lisp definition--eg, defun, defvar, or package"
-  (symbol nil :type (or symbol string) :read-only t)
+  (designator nil :type (or symbol string) :read-only t)
   (type nil :type (member :STRUCTURE :CLASS :VARIABLE :FUNCTION :MACRO :SYMBOL-MACRO
                           :GENERIC-FUNCTION :METHOD :CONDITION :PACKAGE :TYPE :SETF)
             :read-only t)
@@ -62,19 +51,12 @@
    (package-uses
     :initform (make-hash-table :test 'equal)
     :documentation "Maps packages to the packages they use")
-   (subsystems
-    :initform (make-hash-table :test 'equal) 
-    :documentation "Maps system names to their dependencies")
    (package-exports
     :initform (make-hash-table :test 'equal)
     :documentation "Maps packages to their exported symbols")
    (macro-bodies
     :initform (make-hash-table :test 'equal)
     :documentation "Maps macro names to symbols used in their bodies")
-   (project-cycles
-    :initform nil
-    :accessor project-cycles
-    :documentation "List of detected project dependency cycles")
    (file-cycles
     :initform nil
     :accessor file-cycles
@@ -97,7 +79,7 @@
     :documentation "Root directory of the project being analyzed")))
 
 
-(defclass project-parser ()
+#+ignore (defclass project-parser ()
   ((project 
     :initarg :project 
     :reader project

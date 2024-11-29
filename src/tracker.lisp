@@ -4,41 +4,8 @@
 ;;; Provides the main data structures and operations for recording and querying
 ;;; dependencies between files, symbols, and packages.
 
+
 (in-package #:dep)
-
-
-(defparameter *current-tracker* nil
-  "The currently active dependency tracker instance.")
-
-
-(defmacro with-dependency-tracker ((&optional (tracker-form '(make-instance 'dependency-tracker :project-name "test-project"))) &body body)
-  "Execute BODY with *CURRENT-TRACKER* bound to the result of TRACKER-FORM.
-   If TRACKER-FORM is not provided, creates a new tracker instance."
-  `(let ((tracker ,tracker-form))
-     (setf *current-tracker* tracker)
-     (let ((*current-tracker* tracker))
-       ,@body)))
-
-
-(defun ensure-tracker (&optional tracker)
-  "Return TRACKER if provided, otherwise return *CURRENT-TRACKER*.
-   Signals an error if no tracker is available."
-  (or tracker *current-tracker*
-      (error "No tracker is currently bound. Please use 'with-dependency-tracker' to bind one.")))
-
-
-(defun make-tracking-key (designator &optional package)
-  "Create a lookup key for a symbol or package name, optionally in a specific package context.
-   DESIGNATOR can be either a symbol or a string.
-   For symbols: Creates a key based on the symbol name and optional package
-   For strings: Uses the string directly as a name
-   Returns a string key that uniquely identifies the entity."
-  (let ((name (etypecase designator
-                (string designator)
-                (symbol (symbol-name designator)))))
-    (if package
-        (format nil "~A::~A" package name)
-        name)))
 
 
 (defmethod get-definitions (&optional tracker symbol)
@@ -119,35 +86,38 @@
             (hash-table-count (slot-value tracker 'file-map)))))
 
 
-(defmethod record-system-dependencies ((tracker dependency-tracker) system-name depends-on)
-  "Record ASDF system dependencies in the tracker's subsystems table.
-   SYSTEM-NAME - Name of the system (string or symbol)
-   DEPENDS-ON - List of dependencies from ASDF system definition
-                Can include direct names or feature expressions:
-                - Direct: \"system-name\" or :system-name
-                - Feature: (:feature :os-type :system-name)
-   Dependencies are normalized to strings for consistent tracking."
-  (flet ((normalize-dep (dep)
-           "Convert dependency spec to normalized string form, handling:
-            - String dependencies: \"system-name\" -> \"SYSTEM-NAME\"
-            - Symbol dependencies: :system-name -> \"SYSTEM-NAME\"
-            - Feature conditionals: (:feature :os :name) -> \"NAME\""
-           (typecase dep
-             (string (string-upcase dep))  
-             (symbol (string-upcase dep))
-             (cons 
-              (if (eq (first dep) :feature)
-                  ;; Feature conditional - extract system name
-                  (normalize-dep (third dep))
-                  ;; Other list form - take first element
-                  (normalize-dep (first dep))))
-             (t nil))))  ; Skip invalid specs
-    
-    ;; Convert system name to normalized string
-    (let ((sys-name (normalize-dep system-name)))
-      ;; Process and record each valid dependency
-      (setf (gethash sys-name (slot-value tracker 'subsystems))
-            (loop for dep in depends-on
-                  for normalized = (normalize-dep dep)
-                  when normalized 
-                  collect normalized)))))
+(defun analyze (source-dir)
+  "Analyze source files in a directory and its subdirectories in two passes:
+   1. Collect all definitions across all files
+   2. Analyze references to those definitions"
+  (let* ((source-pathname (pathname source-dir))
+         (parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
+                                                      (pathname-directory source-pathname)
+                                                      (butlast (pathname-directory source-pathname)))
+                                         :name nil
+                                         :type nil))
+         (parent-dir-name (car (last (pathname-directory source-pathname)))))
+    (unless (ignore-errors (truename source-pathname))
+      (error "~2%Error: The directory ~A does not exist.~%" source-dir))
+    ;; Collect all source files in source-dir & subdirectories
+    (let ((source-files (mapcan (lambda (ext)
+                                  (directory (make-pathname :defaults source-pathname
+                                                            :directory (append (pathname-directory source-pathname)
+                                                                               '(:wild-inferiors))
+                                                            :name :wild
+                                                            :type ext)))
+                                '("lisp" "lsp" "cl"))))
+      (unless source-files
+        (error "~2%There are no lisp source files in ~A." source-dir))
+      (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                               :project-name parent-dir-name
+                                               :project-root parent-pathname))
+        ;; First pass: collect all definitions
+        (dolist (file source-files)
+          (let ((file-parser (make-instance 'file-parser :file file)))
+            (parse-definitions-in-file file-parser)))
+        ;; Second pass: analyze references
+        (dolist (file source-files)
+          (let ((file-parser (make-instance 'file-parser :file file)))
+            (parse-references-in-file file-parser))))
+      *current-tracker*)))

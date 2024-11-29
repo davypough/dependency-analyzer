@@ -23,7 +23,7 @@
  (format stream "EXECUTIVE SUMMARY~%")
  (format stream "~V,,,'-<~>~%" 30 "")
  (format stream "Project Statistics:~%")
- (format stream "  Systems: ~A~%" (hash-table-count (slot-value tracker 'subsystems)))
+; (format stream "  Systems: ~A~%" (hash-table-count (slot-value tracker 'subsystems)))
  (format stream "  Files: ~A~%" (hash-table-count (slot-value tracker 'file-map)))
  (format stream "  Packages: ~A~%" (hash-table-count (slot-value tracker 'package-uses)))
  (format stream "  Definitions: ~A~%" (hash-table-count (slot-value tracker 'definitions)))
@@ -48,7 +48,7 @@
  (format stream "~2%")
  (format stream "SYSTEM DETAILS~%")
  (format stream "~V,,,'-<~>~%" 30 "")
- (maphash (lambda (sys-name deps)
+#+ignore (maphash (lambda (sys-name deps)
             (format stream "~&System: ~A~%" sys-name)
             (when deps
               (format stream "  Depends on:~%")
@@ -62,7 +62,7 @@
  ;; System Overview
  (format stream "SYSTEM OVERVIEW~%")
  (format stream "~V,,,'-<~>~%" 30 "")
- (maphash (lambda (sys-name deps)
+#+ignore (maphash (lambda (sys-name deps)
             (format stream "~&System: ~A~%" sys-name)
             (when deps
               (format stream "  Depends on:~%")
@@ -172,12 +172,6 @@
  (format stream "MAINTENANCE CONSIDERATIONS~%")
  (format stream "~V,,,'-<~>~%" 30 "")
  ;; Display any cycles detected
- (alexandria:when-let ((cycles (get-project-cycles tracker)))
-   (format stream "Project Dependencies with Cycles:~%")
-   (format stream "The following project dependencies form cycles.~%")
-   (format stream "While this may be intentional, consider if restructuring is possible:~%~%")
-   (dolist (cycle cycles)
-     (format stream "  ~A~%" cycle)))
  (alexandria:when-let ((cycles (get-file-cycles tracker)))
    (format stream "~%File Dependencies with Cycles:~%")
    (format stream "The following files have circular dependencies.~%")
@@ -196,7 +190,7 @@
  (format stream "~V,,,'-<~>~%" 30 "")
  ;; System Dependencies
  (format stream "System Dependencies:~%")
- (let ((printed-systems (make-hash-table :test 'equal)))
+#+ignore (let ((printed-systems (make-hash-table :test 'equal)))
   (maphash (lambda (sys-name deps)
              (unless (gethash sys-name printed-systems)
                (format stream "~&System: ~A~%" sys-name)
@@ -272,7 +266,7 @@
       (yason:with-object ()
         ;; Project name and systems
         (yason:encode-object-element "project" (project.name tracker))
-        (yason:with-object-element ("systems")
+        #+ignore (yason:with-object-element ("systems")
           (yason:encode (slot-value tracker 'subsystems)))
         ;; Anomalies
         (yason:with-object-element ("anomalies")
@@ -300,7 +294,7 @@
                                                             (anomaly.context a))))))
                           (anomalies tracker)))))))
         ;; System dependencies
-        (yason:with-object-element ("systems")
+        #+ignore (yason:with-object-element ("systems")
           (let ((systems (make-hash-table :test 'equal)))
             (maphash (lambda (sys-name deps)
                       (setf (gethash sys-name systems)
@@ -333,7 +327,7 @@
   (format stream "    label=\"System Dependencies\";~%")
   (format stream "    style=dashed;~%")
   (format stream "    node [style=filled,fillcolor=lightpink];~%")
-  (maphash (lambda (sys-name deps)
+  #+ignore (maphash (lambda (sys-name deps)
              (let ((sys-id (string-to-dot-id sys-name)))
                (format stream "    \"sys_~A\" [label=\"~A\"];~%" sys-id sys-name)
                (dolist (dep deps)
