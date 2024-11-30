@@ -24,6 +24,6 @@ digraph Dependencies {
     node [style=filled,fillcolor=lightblue];
     "single_pkg_defs_lisp" [label="/source/single-pkg-defs.lisp",fillcolor=pink];
     "single_pkg_refs_lisp" [label="/source/single-pkg-refs.lisp",fillcolor=pink];
-    "single_pkg_refs_lisp" -> "single_pkg_defs_lisp" [label="References: *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+, ..."];
+    "single_pkg_refs_lisp" -> "single_pkg_defs_lisp" [label="References: CIRCLE-RADIUS, MAKE-CIRCLE, MAKE-PERSON, ..."];
   }
 }

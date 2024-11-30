@@ -44,113 +44,116 @@
 
 
 (defmethod analyze-definition-form ((parser file-parser) form)
- "Analyze a form for definitions and process all subforms for nested definitions.
-  Maintains correct package context through all nested forms."
- (typecase form
-   (cons
-    (if (symbolp (car form))
-        (let ((operator (car form)))
-          (case operator
-            (in-package (analyze-in-package parser form))
-            (defpackage (analyze-defpackage parser form))
-            (defclass (analyze-defclass parser form))
-            (defstruct (analyze-defstruct parser form))
-            (deftype (analyze-deftype parser form))
-            ((defvar defparameter defconstant) (analyze-defvar-defparameter-defconstant parser form))
-            ((defun defmacro) (analyze-defun-defmacro parser form))
-            (defgeneric (analyze-defgeneric parser form))
-            (defmethod (analyze-defmethod parser form))
-            (defsetf (analyze-defsetf parser form))
-            (define-condition (analyze-define-condition parser form))
-            (define-method-combination (analyze-method-combination parser form))
-            (define-setf-expander (analyze-define-setf-expander parser form))
-            (define-modify-macro (analyze-define-modify-macro parser form))
-            (define-compiler-macro (analyze-define-compiler-macro parser form))
-            (define-symbol-macro (analyze-define-symbol-macro parser form))
-            (setf (when (and (cddr form)
-                             (listp (second form)))
-                    (case (caadr form)
-                      ((symbol-value)
-                         (analyze-setf-symbol-value parser form))
-                      ((symbol-function fdefinition macro-function)
-                         (analyze-setf-symbol-function-fdefinition-macro-function parser form)))))
-            (t (dolist (subform (cdr form))
-                 (analyze-definition-form parser subform)))))
-        (dolist (subform form)
-          (analyze-definition-form parser subform))))
-   ((and array (not string)) 
-    (dotimes (i (array-total-size form))
-      (analyze-definition-form parser (row-major-aref form i))))
-   (hash-table
-    (maphash (lambda (k v)
-               (analyze-definition-form parser k)
-               (analyze-definition-form parser v))
-             form))
-   (t nil)))
+  "Analyze form for definitions using walk-form with specialized handler.
+   Records definitions and processes nested definitions maintaining package context."
+  (labels ((handle-definition (form op-position context depth)
+            (declare (ignore depth op-position))
+            (when (and (consp form) (symbolp (car form)))
+              (case (car form)
+                ;; Package handling
+                (in-package (analyze-in-package parser form))
+                (defpackage (analyze-defpackage parser form))
+                
+                ;; Type definitions
+                (defclass (analyze-defclass parser form))
+                (defstruct (analyze-defstruct parser form))
+                (deftype (analyze-deftype parser form))
+                
+                ;; Variable definitions
+                ((defvar defparameter defconstant) 
+                 (analyze-defvar-defparameter-defconstant parser form))
+                
+                ;; Function definitions
+                ((defun defmacro) (analyze-defun-defmacro parser form))
+                (defgeneric (analyze-defgeneric parser form))
+                (defmethod (analyze-defmethod parser form))
+                (defsetf (analyze-defsetf parser form))
+                
+                ;; Condition and method definitions
+                (define-condition (analyze-define-condition parser form))
+                (define-method-combination (analyze-method-combination parser form))
+                (define-setf-expander (analyze-define-setf-expander parser form))
+                (define-modify-macro (analyze-define-modify-macro parser form))
+                (define-compiler-macro (analyze-define-compiler-macro parser form))
+                (define-symbol-macro (analyze-define-symbol-macro parser form))
+                
+                ;; Special setf forms
+                (setf (when (and (cddr form) (listp (second form)))
+                       (case (caadr form)
+                         (symbol-value 
+                          (analyze-setf-symbol-value parser form))
+                         ((symbol-function fdefinition macro-function)
+                          (analyze-setf-symbol-function-fdefinition-macro-function 
+                           parser form)))))))))
+    
+    ;; Walk the form with our definition handler
+    (let ((*package* (find-package :dep)))
+      (walk-form form #'handle-definition :log-stream *trace-output*))))
 
 
 (defmethod analyze-reference-form ((parser file-parser) form)
-  "Walk form recording references to user-defined symbols (not CL symbols).
-   References are marked as :OPERATOR when in operator position, :VALUE otherwise.
-   Creates reference records for symbols with definitions, linking to the definition.
-   Creates anomaly records for:
-   - undefined non-CL symbols 
-   - implicit cross-package references without in-package"
-  (labels ((walk (x op-position)
-             (typecase x
-               (cons 
-                (walk (car x) t)    ; Head is operator position
-                (walk (cdr x) nil)) ; Rest are value position  
-               (array
-                (dotimes (i (array-total-size x))
-                  (walk (row-major-aref x i) nil)))
-               (hash-table
-                (maphash (lambda (k v)
-                          (walk k nil)
-                          (walk v nil))
-                        x))
-               (symbol
-                (when (and x  ; Skip nil
-                          (not (eq (symbol-package x) 
-                                 (find-package :common-lisp)))) ; Skip CL symbols
-                  (let* ((pkg (or (symbol-package x) 
-                                (current-package parser)))
-                         (pkg-name (package-name pkg))
-                         (key (make-tracking-key x pkg-name))
-                         (def (gethash key (slot-value *current-tracker* 'definitions)))
-                         (visibility (determine-symbol-visibility x parser)))
-
-                    ;; Check for unqualified cross-package reference while in CL-USER
-                    (when (and (eq (current-package parser) (find-package :common-lisp-user))
-                             (not (symbol-qualified-p x parser))
-                             (not (eq pkg (find-package :common-lisp-user))))
-                      (record-anomaly *current-tracker*
-                                    :missing-in-package
-                                    :WARNING
-                                    (file parser)
-                                    (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                                            x pkg-name)))
-
-                    ;; Create reference linking to definition if it exists
-                    (if def
-                        (record-reference *current-tracker* x
-                                        (if op-position :OPERATOR :VALUE)
-                                        (file parser)
-                                        :package pkg-name 
-                                        :visibility visibility
-                                        :definition def)
-                        ;; Otherwise record as undefined reference anomaly
-                        (record-anomaly *current-tracker*
-                                      :undefined-reference
-                                      :ERROR 
-                                      (file parser)
-                                      (format nil "~A ~A has no definition" 
-                                            (if op-position "Function" "Symbol")
-                                            x)
-                                      (format nil "Referenced in ~A position"
-                                             (if op-position "operator" "value")))))))
-               (t nil))))
-    (walk form nil)))
+  "Analyze form recording references to previously defined symbols.
+   Uses walk-form with specialized handler for reference tracking while
+   maintaining lexical scope and slot type distinctions."
+  (let* ((ignore-symbols (extract-ignorable-symbols form))
+         (slot-type-syms nil)
+         (slot-fn-syms nil))
+    ;; Extract slot symbols if this is a struct/class definition
+    (when (and (listp form) (member (car form) '(defstruct defclass)))
+      (dolist (slot (if (eq (car form) 'defstruct)
+                       (cddr form)
+                       (fourth form)))
+        (multiple-value-bind (type-syms fn-syms)
+            (extract-spec-symbols-from-slot slot)
+          (setf slot-type-syms (append slot-type-syms type-syms)
+                slot-fn-syms (append slot-fn-syms fn-syms)))))
+    
+    (labels ((handle-reference (form op-position context depth)
+               (declare (ignore depth))
+               (typecase form
+                 (cons
+                  (when (symbolp (car form))
+                    (case (car form)
+                      (in-package (analyze-in-package parser form))
+                      (defmethod
+                       (destructuring-bind (def-op name &rest body) form
+                         (declare (ignore def-op))
+                         (unless (member name ignore-symbols)
+                           (record-symbol-reference name parser *current-tracker* :VALUE))
+                         (let ((remaining body))
+                           (loop while (and remaining (not (listp (car remaining))))
+                                 do (pop remaining))
+                           (when remaining
+                             (dolist (param (car remaining))
+                               (when (listp param)
+                                 (let ((specializer (second param)))
+                                   (when (and specializer 
+                                            (not (member specializer ignore-symbols))
+                                            (not (skip-reference-p specializer)))
+                                     (record-symbol-reference specializer parser *current-tracker* :VALUE)))))))))
+                      ((make-instance make-structure)
+                       (let ((class-name (second form)))
+                         (unless (or (member class-name ignore-symbols)
+                                   (skip-reference-p class-name))
+                           (record-symbol-reference class-name parser *current-tracker* :VALUE)))))))
+                 
+                 (symbol
+                  (when (and form 
+                            (not (skip-reference-p form))
+                            (not (member form ignore-symbols))
+                            (not (definition-name-p form context op-position)))
+                    ;; Handle slot references based on their type
+                    (cond
+                      ((member form slot-fn-syms)
+                       (record-symbol-reference form parser *current-tracker* :OPERATOR))
+                      ((member form slot-type-syms)
+                       (record-symbol-reference form parser *current-tracker* :VALUE))
+                      (t
+                       (record-symbol-reference form parser *current-tracker*
+                                              (if op-position :OPERATOR :VALUE)))))))))
+      
+      (let ((*package* (find-package :dep)))
+        (walk-form form #'handle-reference :log-stream *trace-output*)))))
 
 
 (defmethod analyze-in-package ((parser file-parser) form)

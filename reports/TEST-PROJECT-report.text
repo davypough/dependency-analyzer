@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2024-11-29T21:49:45.528146Z
+Generated: 2024-11-30T22:10:13.806305Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
@@ -10,8 +10,8 @@ Project Statistics:
   Files: 2
   Packages: 1
   Definitions: 25
-  References: 1659
-  Anomalies: 32
+  References: 1664
+  Anomalies: 26
 
 
 SYSTEM DETAILS
@@ -54,14 +54,6 @@ Error Level Findings:
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
       Context: Referenced in operator position
 
-    Function LOGGING has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
-      Context: Referenced in operator position
-
-    Function RADIUS has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
-      Context: Referenced in operator position
-
     Function ENV has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
@@ -86,17 +78,9 @@ Error Level Findings:
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function DATA has no definition
+    Symbol NUMBER has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Function DATA has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Function LOGGING has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
+      Context: Referenced in value position
 
     Function DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
@@ -106,9 +90,21 @@ Error Level Findings:
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function DOCUMENTATION has no definition
+    Symbol STRING has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in value position
+
+    Function DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
+
+    Function DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Symbol STRING has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in value position
 
     Function DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
@@ -122,15 +118,7 @@ Error Level Findings:
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function DOCUMENTATION has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
     Function SHAPE has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Function TYPE has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
@@ -142,23 +130,7 @@ Error Level Findings:
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function CONC-NAME has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Function TYPE has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
     Function RADIUS has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Function CL has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Function USE has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
@@ -166,6 +138,7 @@ Error Level Findings:
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
+Warning Level Findings:
 MAINTENANCE CONSIDERATIONS
 ------------------------------
 
@@ -182,8 +155,4 @@ USER-MAIN-PACKAGE uses CL  Exports:
 
 File Dependencies:
 /source/single-pkg-refs.lisp depends on /source/single-pkg-defs.lisp
-  references *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+
-             CIRCLE-RADIUS, COMPUTE-AREA, CONDITION-NAME, DEFMACRO-NAME
-             DEFUN-NAME, FDEFINITION-FUNCTION-NAME, MACRO-FUNCTION-NAME
-             MAKE-CIRCLE, MAKE-PERSON, PERSON.AGE, PROCESS-DATA
-             SYMBOL-FUNCTION-NAME, SYMBOL-VALUE-VARIABLE
+  references CIRCLE-RADIUS, MAKE-CIRCLE, MAKE-PERSON, PERSON.AGE

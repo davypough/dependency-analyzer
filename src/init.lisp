@@ -23,7 +23,9 @@
     #:get-file-cycles
     ;; Development
     #:prt
-    #:defs))
+    #:defs
+    #:refs
+    #:anoms))
 
 
 (in-package :dep)
@@ -61,6 +63,42 @@
               (definition.package def)
               (definition.exported-p def)
               (definition.spec-symbols def)))))
+
+
+(defun refs ()
+  "Pretty print all reference records from current tracker in symbol name order."
+  (let ((refs nil))
+    (maphash (lambda (key ref-list)
+               (declare (ignore key))
+               (dolist (ref ref-list)
+                 (push ref refs)))  
+             (slot-value *current-tracker* 'references))
+    (dolist (ref (sort refs #'string< :key #'reference.symbol))
+      (format t "~&Symbol: ~S~%  Type: ~A~%  File: ~A~%  Package: ~S~%  Visibility: ~A~%  Definition: ~S~%~%"
+              (reference.symbol ref)
+              (reference.type ref) 
+              (project-pathname (reference.file ref))
+              (reference.package ref)
+              (reference.visibility ref)
+              (when (reference.definition ref)
+                (definition.name (reference.definition ref)))))))
+
+
+(defun anoms ()
+  "Pretty print all anomaly records from current tracker in type order."
+  (let ((anomaly-list nil))
+    (maphash (lambda (type anomalies)
+               (declare (ignore type))
+               (dolist (anomaly anomalies)
+                 (push anomaly anomaly-list)))
+             (anomalies *current-tracker*))
+    (dolist (anomaly (sort anomaly-list #'string< :key #'anomaly.type))
+      (format t "~&Type: ~S~%  Severity: ~A~%  Location: ~A~%  Description: ~A~%  Context: ~S~%~%"
+              (anomaly.type anomaly)
+              (anomaly.severity anomaly)
+              (project-pathname (anomaly.location anomaly))
+              (anomaly.description anomaly)
+              (anomaly.context anomaly)))))
 
 
 (defgeneric show (object &rest rest)

@@ -630,3 +630,288 @@
              (:inherited :INHERITED)
              (:external :IMPORTED)
              (otherwise :LOCAL)))))))
+
+
+(defun extract-ignorable-symbols (form)
+  "Return list of symbols that should be ignored when tracking references.
+   This includes:
+   - Lambda list keywords
+   - Local bindings from lambda lists
+   - Structure/class slot names being defined
+   - Local variables from let/flet/labels forms
+   Returns list of symbols to ignore."
+  (let ((ignore-syms nil))
+    (labels ((handle-lambda-list (lambda-list)
+               ;; Add lambda keywords and bindings from lambda lists
+               (dolist (item lambda-list)
+                 (typecase item
+                   (symbol 
+                    (when (member item lambda-list-keywords)
+                      (push item ignore-syms))
+                    (push item ignore-syms))
+                   (cons  ; Only recurse into cons that are destructuring forms
+                    (unless (member (car item) '(:documentation :method-combination))
+                      (handle-lambda-list item))))))
+             
+             (handle-defstruct (form)
+               ;; Add slot names from defstruct forms
+               (when (and (>= (length form) 2)
+                         (listp (second form)))
+                 ;; Handle (defstruct (name options...) slots...)
+                 (dolist (slot (cddr form))
+                   (if (listp slot)
+                       (push (car slot) ignore-syms)
+                       (push slot ignore-syms))))
+               (when (and (>= (length form) 2)
+                         (symbolp (second form)))
+                 ;; Handle (defstruct name slots...)
+                 (dolist (slot (cddr form))
+                   (if (listp slot)
+                       (push (car slot) ignore-syms)
+                       (push slot ignore-syms)))))
+             
+             (handle-defclass (form)
+               ;; Add slot names from defclass forms
+               (when (>= (length form) 4)
+                 (dolist (slot (fourth form))
+                   (when (listp slot)
+                     (push (car slot) ignore-syms)))))
+             
+             (walk (form)
+               (when (listp form)
+                 (case (car form)
+                   ((lambda) 
+                    (when (>= (length form) 2)
+                      (handle-lambda-list (second form))))
+                   ((let let* flet labels)
+                    (when (>= (length form) 2)
+                      (dolist (binding (second form))
+                        (if (listp binding)
+                            (push (car binding) ignore-syms)
+                            (push binding ignore-syms)))))
+                   ((defstruct) (handle-defstruct form))
+                   ((defclass) (handle-defclass form))
+                   ((defun defmacro)
+                    (when (>= (length form) 3)
+                      (handle-lambda-list (third form))))
+                   ((defmethod)
+                    (let ((rest (cddr form)))
+                      ;; Skip over qualifiers to get to lambda list
+                      (loop while (and rest (atom (car rest)))
+                            do (pop rest))
+                      (when rest
+                        (handle-lambda-list (car rest)))))
+                   ((defgeneric)
+                    (when (>= (length form) 3)
+                      (handle-lambda-list (third form)))))
+                 ;; Recurse into all subforms
+                 (dolist (subform (cdr form))
+                   (walk subform)))))
+      
+      (walk form)
+      (remove-duplicates ignore-syms))))
+
+
+(defun skip-reference-p (symbol)
+  "Return T if symbol should be skipped during reference analysis.
+   Skips:
+   - NIL and keywords
+   - Common Lisp package symbols  
+   - Lambda list keywords"
+  (or (null symbol)
+      (keywordp symbol) 
+      (and (symbol-package symbol)
+           (eq (symbol-package symbol) 
+               (find-package :common-lisp)))
+      (member symbol lambda-list-keywords)))
+
+
+(defun definition-name-p (symbol context operator-position)
+  "Return T if symbol appears to be the name in a definition form.
+   These names should be ignored during reference analysis since they are being defined.
+   
+   SYMBOL - The symbol being checked
+   CONTEXT - The parent form containing the symbol
+   OPERATOR-POSITION - Whether symbol appears in function call position"
+  (and (not operator-position)  ; Not in operator position 
+       (consp context)          ; Inside a compound form
+       (symbolp (car context))  ; Has symbol operator
+       (let ((op-name (symbol-name (car context))))
+         ;; Check if it's a definition operator
+         (or (alexandria:starts-with-subseq "DEF" op-name)
+             (alexandria:starts-with-subseq "DEFINE-" op-name)))
+       ;; Symbol must be in name position (second element)
+       (eql symbol (cadr context))))
+
+
+(defun check-package-reference (symbol parser tracker)
+  "Check package visibility and cross-package references for a symbol.
+   Returns two values:
+   1. Package visibility (:LOCAL, :INHERITED, or :IMPORTED)
+   2. T if an anomaly was recorded, NIL otherwise
+   
+   SYMBOL - The symbol being checked
+   PARSER - The current file parser
+   TRACKER - The dependency tracker"
+  (let* ((sym-pkg (symbol-package symbol))
+         (cur-pkg (current-package parser))
+         (pkg-name (if sym-pkg 
+                      (package-name sym-pkg)
+                      (current-package-name parser)))
+         (visibility (determine-symbol-visibility symbol parser))
+         (anomaly-p nil))
+    ;; Check for unqualified cross-package reference while in CL-USER
+    (when (and (eq cur-pkg (find-package :common-lisp-user))
+               (not (symbol-qualified-p symbol parser))
+               (not (eq sym-pkg (find-package :common-lisp-user))))
+      (record-anomaly tracker
+                      :missing-in-package
+                      :WARNING
+                      (file parser)
+                      (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                              symbol pkg-name))
+      (setf anomaly-p t))
+    (values visibility anomaly-p)))
+
+
+(defun record-symbol-reference (symbol parser tracker ref-type)
+  "Record a symbol reference and any related anomalies.
+   Returns true if a reference was recorded.
+   
+   SYMBOL - The symbol being referenced
+   PARSER - The current file parser
+   TRACKER - The dependency tracker
+   REF-TYPE - Either :OPERATOR or :VALUE"
+  (multiple-value-bind (visibility anomaly-p)
+      (check-package-reference symbol parser tracker)
+    (let* ((pkg (or (symbol-package symbol)
+                    (current-package parser)))
+           (pkg-name (intern (package-name pkg) :keyword))
+           (key (make-tracking-key symbol (package-name pkg)))
+           (def (gethash key (slot-value tracker 'definitions))))
+      ;; Record reference if definition exists
+      (when def
+        ;; Pass as regular arguments rather than keyword args
+        (let ((ref (make-reference :symbol symbol
+                                 :type ref-type
+                                 :file (file parser)
+                                 :package pkg-name
+                                 :visibility visibility
+                                 :definition def)))
+          (push ref (gethash key (slot-value tracker 'references)))
+          t))
+      ;; Record undefined reference anomaly if no definition found
+      (when (not def)
+        (record-anomaly tracker
+                        :undefined-reference
+                        :ERROR
+                        (file parser)
+                        (format nil "~A ~A has no definition"
+                                (if (eq ref-type :OPERATOR) "Function" "Symbol")
+                                symbol)
+                        (format nil "Referenced in ~A position"
+                                (if (eq ref-type :OPERATOR) "operator" "value")))
+        nil))))
+
+
+(defun walk-form (form handler &key (log-stream *trace-output*) (log-depth t))
+  "Walk a form calling HANDLER on each subform with position and context info.
+   FORM - The form to analyze
+   HANDLER - Function taking (form op-position context depth)
+   LOG-STREAM - Where to send debug output (nil for no logging)
+   LOG-DEPTH - Whether to track and log nesting depth"
+  (labels ((walk (x op-position context depth)
+             ;; Log form being processed
+             (when log-stream
+               (let ((indent (if log-depth 
+                               (make-string (* depth 2) :initial-element #\Space)
+                               "")))
+                 (format log-stream "~&~AForm: ~S~%" indent x)
+                 (when context
+                   (format log-stream "~A Context: ~S~%" indent context))
+                 (format log-stream "~A In ~:[value~;operator~] position~%" 
+                         indent op-position)))
+             
+             ;; Process form with handler
+             (funcall handler x op-position context depth)
+             
+             ;; Recursively process subforms
+             (typecase x
+               (cons
+                (when log-stream
+                  (format log-stream "~A Processing list form~%" 
+                          (if log-depth
+                              (make-string (* depth 2) :initial-element #\Space)
+                              "")))
+                (walk (car x) t (cons (car x) (cdr x)) (1+ depth)) 
+                (walk (cdr x) nil x (1+ depth)))
+               
+               (array
+                (when log-stream
+                  (format log-stream "~A Processing array~%"
+                          (if log-depth
+                              (make-string (* depth 2) :initial-element #\Space)
+                              "")))
+                (dotimes (i (array-total-size x))
+                  (walk (row-major-aref x i) nil x (1+ depth))))
+               
+               (hash-table
+                (when log-stream
+                  (format log-stream "~A Processing hash table~%"
+                          (if log-depth
+                              (make-string (* depth 2) :initial-element #\Space)
+                              "")))
+                (maphash (lambda (k v)
+                          (walk k nil x (1+ depth))
+                          (walk v nil x (1+ depth)))
+                        x)))))
+    
+    ;; Start walking at top level
+    (let ((*print-circle* nil)     ; Prevent circular printing issues
+          (*print-length* 10)      ; Limit list output
+          (*print-level* 5))       ; Limit nesting output
+      (walk form nil nil 0))))
+
+
+(defun extract-spec-symbols-from-slot (slot-spec)
+  "Extract potential definition-reference symbols from a slot specification,
+   separating them by type/value vs method/function.
+   Returns (values type-value-symbols method-function-symbols).
+   Type/value symbols come from :type and initform.
+   Method/function symbols come from :reader, :writer, :accessor."
+  (let ((type-value-syms nil)
+        (method-fn-syms nil))
+    (when (listp slot-spec)
+      (multiple-value-bind (ref-type symbols)
+          (classify-slot-reference slot-spec)
+        (if (eq ref-type :METHOD-FUNCTION)
+            (setf method-fn-syms symbols)  
+            (setf type-value-syms symbols))))
+    (values type-value-syms method-fn-syms)))
+
+
+(defun classify-slot-reference (slot-spec)
+  "Classify a slot specification as :TYPE-VALUE or :METHOD-FUNCTION.
+   Returns (values type symbols) where:
+   type is :TYPE-VALUE or :METHOD-FUNCTION
+   symbols is list of referenced symbols.
+   
+   A slot is :METHOD-FUNCTION if it has :reader,:writer,:accessor options.
+   Otherwise it is :TYPE-VALUE for regular slots with just type/value refs."
+  (let ((symbols nil)
+        (ref-type :TYPE-VALUE))
+    (when (listp slot-spec)
+      (destructuring-bind (name &optional initform &rest slot-options) slot-spec
+        (declare (ignore name))
+        ;; Check initform for non-quoted symbols
+        (when (and initform (not (quoted-form-p initform)))
+          (collect-non-cl-symbols initform symbols))
+        ;; Process slot options
+        (loop for (option value) on slot-options by #'cddr
+              do (case option
+                   (:type (collect-non-cl-symbols value symbols))
+                   ((:reader :writer :accessor)
+                    (setf ref-type :METHOD-FUNCTION)
+                    (collect-non-cl-symbols value symbols))))))
+    (values ref-type (remove-duplicates symbols))))
+
