@@ -712,18 +712,19 @@
       (remove-duplicates ignore-syms))))
 
 
-(defun skip-reference-p (symbol)
-  "Return T if symbol should be skipped during reference analysis.
+(defun skip-item-p (item)
+  "Return T if item should be skipped during reference analysis.
    Skips:
    - NIL and keywords
-   - Common Lisp package symbols  
-   - Lambda list keywords"
-  (or (null symbol)
-      (keywordp symbol) 
-      (and (symbol-package symbol)
-           (eq (symbol-package symbol) 
-               (find-package :common-lisp)))
-      (member symbol lambda-list-keywords)))
+   - Common Lisp package symbols"
+  (or (null item)
+      (numberp item)
+      (stringp item)
+      (keywordp item) 
+      (and (symbolp item)
+           (symbol-package item)
+           (eq (symbol-package item) 
+               (find-package :common-lisp)))))
 
 
 (defun definition-name-p (symbol context operator-position)
@@ -782,6 +783,7 @@
    PARSER - The current file parser
    TRACKER - The dependency tracker
    REF-TYPE - Either :OPERATOR or :VALUE"
+  ;; First do quick check if symbol should be skipped
   (multiple-value-bind (visibility anomaly-p)
       (check-package-reference symbol parser tracker)
     (let* ((pkg (or (symbol-package symbol)
@@ -822,7 +824,8 @@
    LOG-DEPTH - Whether to track and log nesting depth"
   (labels ((walk (x op-position context depth)
              ;; Log form being processed
-             (when log-stream
+             (unless (skip-item-p x) 
+              (when log-stream
                (let ((indent (if log-depth 
                                (make-string (* depth 2) :initial-element #\Space)
                                "")))
@@ -864,7 +867,7 @@
                 (maphash (lambda (k v)
                           (walk k nil x (1+ depth))
                           (walk v nil x (1+ depth)))
-                        x)))))
+                        x))))))
     
     ;; Start walking at top level
     (let ((*print-circle* nil)     ; Prevent circular printing issues

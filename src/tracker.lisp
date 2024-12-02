@@ -86,7 +86,7 @@
             (hash-table-count (slot-value tracker 'file-map)))))
 
 
-(defun analyze (source-dir)
+#+ignore (defun analyze (source-dir)
   "Analyze source files in a directory and its subdirectories in two passes:
    1. Collect all definitions across all files
    2. Analyze references to those definitions"
@@ -121,3 +121,61 @@
           (let ((file-parser (make-instance 'file-parser :file file)))
             (parse-references-in-file file-parser))))
       *current-tracker*)))
+
+
+(defun analyze (source-dir)
+  "Analyze source files in a directory and its subdirectories in two passes:
+   1. Collect all definitions across all files
+   2. Analyze references to those definitions
+   Each pass logs its form traversal analysis to a separate log file."
+  (let* ((source-pathname (pathname source-dir))
+         (parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
+                                                      (pathname-directory source-pathname)
+                                                      (butlast (pathname-directory source-pathname)))
+                                       :name nil
+                                       :type nil))
+         (parent-dir-name (car (last (pathname-directory source-pathname))))
+         (log-dir (merge-pathnames "logs/" 
+                                 (asdf:system-source-directory :dependency-analyzer))))
+    
+    ;; Verify source directory exists
+    (unless (ignore-errors (truename source-pathname))
+      (error "~2%Error: The directory ~A does not exist.~%" source-dir))
+    
+    ;; Collect all source files
+    (let ((source-files (mapcan (lambda (ext)
+                                 (directory (make-pathname :defaults source-pathname
+                                                         :directory (append (pathname-directory source-pathname)
+                                                                          '(:wild-inferiors))
+                                                         :name :wild
+                                                         :type ext)))
+                               '("lisp" "lsp" "cl"))))
+      
+      (unless source-files
+        (error "~2%There are no lisp source files in ~A." source-dir))
+      (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
+      
+      (with-dependency-tracker ((make-instance 'dependency-tracker 
+                                             :project-name parent-dir-name
+                                             :project-root parent-pathname))
+        ;; First pass: collect all definitions
+        (format t "~%First Pass - Collecting Definitions...~%")
+        (with-open-file (log-stream (merge-pathnames "definition-analysis.log" log-dir)
+                                   :direction :output
+                                   :if-exists :supersede
+                                   :if-does-not-exist :create)
+          (dolist (file source-files)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-definitions-in-file file-parser log-stream))))
+        
+        ;; Second pass: analyze references
+        (format t "~%Second Pass - Analyzing References...~2%")
+        (with-open-file (log-stream (merge-pathnames "reference-analysis.log" log-dir)
+                                   :direction :output
+                                   :if-exists :supersede
+                                   :if-does-not-exist :create)
+          (dolist (file source-files)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-references-in-file file-parser log-stream))))
+        
+        *current-tracker*))))

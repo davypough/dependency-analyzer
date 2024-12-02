@@ -79,19 +79,6 @@
     :documentation "Root directory of the project being analyzed")))
 
 
-#+ignore (defclass project-parser ()
-  ((project 
-    :initarg :project 
-    :reader project
-    :documentation "The ASDF project being analyzed")
-   (parsing-projects
-    :initform nil
-    :accessor parsing-projects
-    :documentation "Stack of projects being parsed for cycle reporting"))
-  (:documentation
-   "Parser for analyzing an ASDF project and its components."))
-
-
 (defclass file-parser ()
   ((file 
     :initarg :file 

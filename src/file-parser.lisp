@@ -9,9 +9,10 @@
 (in-package #:dep)
 
 
-(defmethod parse-definitions-in-file ((parser file-parser))
+#+ignore (defmethod parse-definitions-in-file ((parser file-parser) log-stream)
   "First pass parser that records definitions.
-   Analyzes all forms recursively, maintaining package context during traversal."
+   Analyzes all forms recursively, maintaining package context during traversal.
+   Logs analysis progress to provided log-stream."
   (with-slots (file parsing-files) parser
     ;; Reset to CL-USER before processing each file
     (setf (current-package parser) (find-package :common-lisp-user)
@@ -21,11 +22,52 @@
     (with-open-file (stream file :direction :input)
       (loop for form = (read stream nil :eof)
             until (eq form :eof)
-            do (analyze-definition-form parser form)))
+          do (format t "~&Form: ~S~%" form)
+             (format t "Package info:~%")
+             (when (listp form)
+               (dolist (elem form)
+                 (when (symbolp elem)
+                   (format t "  ~S: ~A ~A~%" 
+                          elem
+                          (if (symbol-package elem)
+                              (package-name (symbol-package elem))
+                              "NO-PACKAGE")
+                          (if (keywordp elem)
+                              "(keyword)"
+                              "")))))
+             (if (and (consp form) (eq (car form) 'in-package))
+                 (analyze-in-package parser form)
+                 (analyze-reference-form parser form log-stream))
+             (terpri log-stream)))
     (pop parsing-files)))
 
 
-(defmethod parse-references-in-file ((parser file-parser))
+(defmethod parse-definitions-in-file ((parser file-parser) log-stream)
+  "First pass parser that records definitions. Analyzes all forms recursively,
+   maintaining package context during traversal. Logs analysis progress to provided log-stream."
+  (with-slots (file parsing-files) parser
+    ;; Initialize package context
+    (setf (current-package parser) (find-package :common-lisp-user)
+          (current-package-name parser) "COMMON-LISP-USER"
+          *package* (find-package :common-lisp-user))
+    (push file parsing-files)
+    (with-open-file (stream file :direction :input)
+      (loop for form = (read stream nil :eof)
+            until (eq form :eof)
+            do ;; Handle package-affecting forms first
+               (when (and (consp form)
+                          (member (car form) '(defpackage in-package use-package) :test #'eq))
+                 ;; Update parser's package tracking
+                 (analyze-in-package parser form)
+                 ;; Evaluate to affect *package* for subsequent reads
+                 (eval form))
+               ;; Analyze form in current package context
+               (analyze-reference-form parser form log-stream)
+               (terpri log-stream)))
+    (pop parsing-files)))
+
+
+(defmethod parse-references-in-file ((parser file-parser) log-stream)
   "Second pass parser that records references to previously recorded definitions.
    Processes in-package forms to maintain proper package context, 
    then analyzes all forms for references."
@@ -35,23 +77,23 @@
           (current-package-name parser) "COMMON-LISP-USER"
           *package* (find-package :common-lisp-user))
     (with-open-file (stream file :direction :input)
-      (let ((*package* package))
-        (loop for form = (read stream nil :eof)
-              until (eq form :eof)
-              do (if (and (consp form) (eq (car form) 'in-package))
-                     (analyze-in-package parser form)
-                     (analyze-reference-form parser form)))))))
+      (loop for form = (read stream nil :eof)
+            until (eq form :eof)
+            do (when (and (consp form) (eq (car form) 'in-package))
+                 (analyze-in-package parser form)
+                 (eval form))
+               (analyze-reference-form parser form log-stream))
+               (terpri log-stream))))
 
 
-(defmethod analyze-definition-form ((parser file-parser) form)
+(defmethod analyze-definition-form ((parser file-parser) form log-stream)
   "Analyze form for definitions using walk-form with specialized handler.
    Records definitions and processes nested definitions maintaining package context."
   (labels ((handle-definition (form op-position context depth)
-            (declare (ignore depth op-position))
+            (declare (ignore depth op-position context))
             (when (and (consp form) (symbolp (car form)))
               (case (car form)
                 ;; Package handling
-                (in-package (analyze-in-package parser form))
                 (defpackage (analyze-defpackage parser form))
                 
                 ;; Type definitions
@@ -88,14 +130,14 @@
     
     ;; Walk the form with our definition handler
     (let ((*package* (find-package :dep)))
-      (walk-form form #'handle-definition :log-stream *trace-output*))))
+      (walk-form form #'handle-definition :log-stream log-stream))))
 
 
-(defmethod analyze-reference-form ((parser file-parser) form)
+(defmethod analyze-reference-form ((parser file-parser) form log-stream)
   "Analyze form recording references to previously defined symbols.
    Uses walk-form with specialized handler for reference tracking while
    maintaining lexical scope and slot type distinctions."
-  (let* ((ignore-symbols (extract-ignorable-symbols form))
+  (let* ((ignore-symbols (extract-ignorable-symbols form))  ;local symbols
          (slot-type-syms nil)
          (slot-fn-syms nil))
     ;; Extract slot symbols if this is a struct/class definition
@@ -114,7 +156,7 @@
                  (cons
                   (when (symbolp (car form))
                     (case (car form)
-                      (in-package (analyze-in-package parser form))
+                      ;(in-package (analyze-in-package parser form))
                       (defmethod
                        (destructuring-bind (def-op name &rest body) form
                          (declare (ignore def-op))
@@ -128,18 +170,15 @@
                                (when (listp param)
                                  (let ((specializer (second param)))
                                    (when (and specializer 
-                                            (not (member specializer ignore-symbols))
-                                            (not (skip-reference-p specializer)))
+                                            (not (member specializer ignore-symbols)))
                                      (record-symbol-reference specializer parser *current-tracker* :VALUE)))))))))
                       ((make-instance make-structure)
                        (let ((class-name (second form)))
-                         (unless (or (member class-name ignore-symbols)
-                                   (skip-reference-p class-name))
+                         (unless (member class-name ignore-symbols)
                            (record-symbol-reference class-name parser *current-tracker* :VALUE)))))))
                  
                  (symbol
                   (when (and form 
-                            (not (skip-reference-p form))
                             (not (member form ignore-symbols))
                             (not (definition-name-p form context op-position)))
                     ;; Handle slot references based on their type
@@ -152,21 +191,21 @@
                        (record-symbol-reference form parser *current-tracker*
                                               (if op-position :OPERATOR :VALUE)))))))))
       
-      (let ((*package* (find-package :dep)))
-        (walk-form form #'handle-reference :log-stream *trace-output*)))))
+    (let ((*package* (find-package :dep)))
+      (walk-form form #'handle-reference :log-stream log-stream)))))
 
 
 (defmethod analyze-in-package ((parser file-parser) form)
   "Handle in-package forms by updating the current package context."
   (let* ((name (normalize-package-name (second form)))
          (package (or (find-package name)
-                     (make-package name))))
+                      (make-package name))))
     (setf (current-package parser) package
           (current-package-name parser) (package-name package)
           *package* package)))
 
 
-(defun analyze-defpackage (parser form)
+(defmethod analyze-defpackage ((parser file-parser) form)
   "Handle defpackage form, recording package definition and analyzing:
    - Package name and its dependencies
    - Package inheritance (:use)
@@ -365,7 +404,7 @@
                  unique-symbols)))))))
 
 
-(defun analyze-defvar-defparameter-defconstant (parser form)
+(defmethod analyze-defvar-defparameter-defconstant ((parser file-parser) form)
   "Handle defvar, defparameter, and defconstant forms. Analyzes:
    - Variable name and its exportedness
    - Initialization form for dependencies
@@ -410,7 +449,7 @@
                 unique-symbols))))))
 
 
-(defun analyze-defun-defmacro (parser form)
+(defmethod analyze-defun-defmacro ((parser file-parser) form)
   "Handle defun and defmacro forms. Analyzes:
    - Function/macro name and its exportedness
    - Lambda list parameters and their types/defaults
@@ -471,7 +510,7 @@
                 unique-symbols))))))
 
 
-(defun analyze-defgeneric (parser form)
+(defmethod analyze-defgeneric ((parser file-parser) form)
  "Handle defgeneric form. Analyzes:
   - Generic function name and exportedness
   - Lambda list parameters and declarations
@@ -618,7 +657,7 @@
                unique-symbols)))))))
 
 
-(defun analyze-defmethod (parser form)
+(defmethod analyze-defmethod ((parser file-parser) form)
  "Handle defmethod form. Analyzes:
   - Method name and exportedness
   - Method qualifiers (e.g. :before, :after)
@@ -694,7 +733,7 @@
                unique-symbols))))))
 
 
-(defun analyze-defsetf (parser form)
+(defmethod analyze-defsetf ((parser file-parser) form)
  "Handle defsetf forms in both short and long forms. Analyzes:
   - Access function name and exportedness
   - Short form: update function reference
@@ -761,7 +800,7 @@
                unique-symbols))))))
 
 
-(defun analyze-defclass (parser form)
+(defmethod analyze-defclass ((parser file-parser) form)
  "Handle defclass form. Analyzes:
   - Class name and exportedness
   - Superclasses and their references
@@ -854,7 +893,7 @@
                unique-symbols))))))
 
 
-(defun analyze-deftype (parser form)
+(defmethod analyze-deftype ((parser file-parser) form)
  "Handle deftype form. Analyzes:
   - Type name and exportedness
   - Type lambda list with defaults
@@ -910,7 +949,7 @@
                unique-symbols))))))
 
 
-(defun analyze-define-condition (parser form)
+(defmethod analyze-define-condition ((parser file-parser) form)
   "Handle define-condition forms, recording condition definition and analyzing:
    - Condition name and its exportedness
    - Superclass relationships
@@ -993,7 +1032,7 @@
                 unique-symbols))))))
 
 
-(defun analyze-define-method-combination (parser form)
+(defmethod analyze-define-method-combination ((parser file-parser) form)
   "Handle define-method-combination forms. Records the definition and analyzes:
    - In short form: option values and auxiliary parameters 
    - In long form: lambda list, method group patterns and options,
@@ -1071,7 +1110,7 @@
                 unique-symbols))))))
 
 
-(defun analyze-define-modify-macro (parser form)
+(defmethod analyze-define-modify-macro ((parser file-parser) form)
  "Handle define-modify-macro forms. Analyzes:
   - Macro name and exportedness
   - Lambda list parameters and their types
@@ -1117,7 +1156,7 @@
                unique-symbols))))))
 
 
-(defun analyze-define-compiler-macro (parser form)
+(defmethod analyze-define-compiler-macro ((parser file-parser) form)
  "Handle define-compiler-macro forms. Analyzes:
   - Compiler macro name and exportedness
   - Lambda list parameters and their types
@@ -1171,7 +1210,7 @@
                unique-symbols))))))
 
 
-(defun analyze-define-symbol-macro (parser form)
+(defmethod analyze-define-symbol-macro ((parser file-parser) form)
  "Handle define-symbol-macro form. Analyzes:
   - Symbol name and exportedness
   - Expansion form dependencies
@@ -1219,7 +1258,7 @@
                unique-symbols))))))
 
 
-(defun analyze-setf-symbol-value (parser form)
+(defmethod analyze-setf-symbol-value ((parser file-parser) form)
  "Handle (setf (symbol-value 'name) value-form) forms. Analyzes:
   - Variable name and exportedness
   - Value form for dependencies
@@ -1264,7 +1303,7 @@
                unique-symbols))))))
 
 
-(defun analyze-setf-symbol-function-fdefinition-macro-function (parser form)
+(defmethod analyze-setf-symbol-function-fdefinition-macro-function ((parser file-parser) form)
   "Handle (setf (symbol-function|fdefinition|macro-function 'name) function-form) definitions.
    Form structure: (setf (accessor 'name) function-form)"
   (let* ((accessor (caadr form))           ; symbol-function, fdefinition, or macro-function
@@ -1338,7 +1377,7 @@
 
 
 #|
-(defun analyze-setf-expander (parser form)
+(defun analyze-setf-expander ((parser file-parser) form)
  "Handle define-setf-expander forms. Analyzes:
   - Expander name and exportedness
   - Lambda list parameters and their types
