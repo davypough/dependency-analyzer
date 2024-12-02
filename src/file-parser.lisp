@@ -32,7 +32,7 @@
                  ;; Evaluate to affect *package* for subsequent reads
                  (eval form))
                ;; Analyze form in current package context
-               (analyze-reference-form parser form log-stream)
+               (analyze-definition-form parser form log-stream)
                (terpri log-stream)))
     (pop parsing-files)))
 
@@ -56,7 +56,7 @@
                (terpri log-stream))))
 
 
-(defmethod analyze-definition-form ((parser file-parser) form log-stream)
+(defmethod analyze-definition-form ((parser file-parser) form &optional log-stream)
   "Analyze form for definitions using walk-form with specialized handler.
    Records definitions and processes nested definitions maintaining package context."
   (labels ((handle-definition (form op-position context depth)

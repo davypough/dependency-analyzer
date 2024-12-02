@@ -1,3 +1,6 @@
+
+Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+
 Form: (DEFPACKAGE #:USER-MAIN-PACKAGE
         (:USE :CL))
  In value position
@@ -923,6 +926,9 @@ Form: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
        Context: (NIL NIL)
        In value position
        Processing list form
+
+
+Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
 
 Form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
  In value position

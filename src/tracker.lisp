@@ -128,6 +128,7 @@
                                    :if-exists :supersede
                                    :if-does-not-exist :create)
           (dolist (file source-files)
+            (format log-stream "~%Definitions Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-definitions-in-file file-parser log-stream))))
         
@@ -138,6 +139,7 @@
                                    :if-exists :supersede
                                    :if-does-not-exist :create)
           (dolist (file source-files)
+            (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-references-in-file file-parser log-stream))))
         
