@@ -1,17 +1,17 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2024-11-30T22:10:13.806305Z
+Generated: 2024-12-02T18:44:46.559323Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
-  Files: 2
-  Packages: 1
-  Definitions: 25
-  References: 1664
-  Anomalies: 26
+  Files: 0
+  Packages: 0
+  Definitions: 0
+  References: 0
+  Anomalies: 107
 
 
 SYSTEM DETAILS
@@ -25,12 +25,10 @@ SYSTEM OVERVIEW
 
 
 Package Hierarchy:
-└── CL
-    └── USER-MAIN-PACKAGE
+  No package dependencies found.
 
 File Hierarchy:
-└── single-pkg-refs.lisp
-    └── single-pkg-defs.lisp
+  No file dependencies found.
 
 
 ANOMALIES AND ANALYSIS
@@ -38,91 +36,167 @@ ANOMALIES AND ANALYSIS
 Error Level Findings:
 
   Definition Level:
-    Function ARG has no definition
+    Function MAKE-CIRCLE has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
       Context: Referenced in operator position
 
-    Function ARG has no definition
+    Function COMPUTE-AREA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
       Context: Referenced in operator position
 
-    Function ARG has no definition
+    Function *DEFVAR-VARIABLE* has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
       Context: Referenced in operator position
 
-    Function ARG has no definition
+    Function DEFUN-NAME has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
       Context: Referenced in operator position
 
-    Function ENV has no definition
+    Function *DEFVAR-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function DEFUN-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MY-FUNCTION has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function CONDITION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function FUNCTION-WITH-CONDITION has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MACRO-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function DEFMACRO-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MAKE-CIRCLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function COMPUTE-AREA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MAKE-PERSON has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function PERSON.AGE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MAKE-CIRCLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function CIRCLE-RADIUS has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function FDEFINITION-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function SYMBOL-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function DEFUN-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Symbol SYMBOL-VALUE-VARIABLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Symbol +DEFCONSTANT-VARIABLE+ has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Symbol *DEFPARAMETER-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Symbol *DEFVAR-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Function USER-MAIN-PACKAGE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function CONDITION-NAME has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function FORM has no definition
+    Function MACRO-FUNCTION-NAME has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function ENV has no definition
+    Function DEFMACRO-NAME has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function FORM has no definition
+    Function PROCESS-DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function DATA has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Function DATA has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Symbol NUMBER has no definition
+    Symbol PROCESS-DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in value position
 
-    Function DATA has no definition
+    Function PROCESS-DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function DATA has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Symbol STRING has no definition
+    Symbol PROCESS-DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in value position
 
-    Function DATA has no definition
+    Function PROCESS-DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function DATA has no definition
-      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
-
-    Symbol STRING has no definition
+    Symbol PROCESS-DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in value position
 
-    Function DATA has no definition
+    Function PROCESS-DATA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function SHAPE has no definition
+    Function CIRCLE-RADIUS has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function SHAPE has no definition
+    Function COMPUTE-AREA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function SHAPE has no definition
+    Symbol COMPUTE-AREA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
-      Context: Referenced in operator position
+      Context: Referenced in value position
 
-    Function AGE has no definition
+    Function COMPUTE-AREA has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
@@ -130,7 +204,255 @@ Error Level Findings:
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
-    Function RADIUS has no definition
+    Function PERSON has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function CIRCLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function FDEFINITION-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function SYMBOL-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function DEFUN-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function SYMBOL-VALUE-VARIABLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function +DEFCONSTANT-VARIABLE+ has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function *DEFPARAMETER-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function *DEFVAR-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function USER-MAIN-PACKAGE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function USER-MAIN-PACKAGE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function MAKE-CIRCLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function COMPUTE-AREA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function *DEFVAR-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function DEFUN-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function *DEFVAR-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function DEFUN-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MY-FUNCTION has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function CONDITION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function FUNCTION-WITH-CONDITION has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MACRO-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function DEFMACRO-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MAKE-CIRCLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function COMPUTE-AREA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MAKE-PERSON has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function PERSON.AGE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function MAKE-CIRCLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function CIRCLE-RADIUS has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function FDEFINITION-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function SYMBOL-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function DEFUN-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Symbol SYMBOL-VALUE-VARIABLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Symbol +DEFCONSTANT-VARIABLE+ has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Symbol *DEFPARAMETER-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Symbol *DEFVAR-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in value position
+
+    Function USER-MAIN-PACKAGE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+      Context: Referenced in operator position
+
+    Function CONDITION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function MACRO-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function DEFMACRO-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Symbol PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in value position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Symbol PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in value position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Symbol PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in value position
+
+    Function PROCESS-DATA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function CIRCLE-RADIUS has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function COMPUTE-AREA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Symbol COMPUTE-AREA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in value position
+
+    Function COMPUTE-AREA has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function PERSON. has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function PERSON has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function CIRCLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function FDEFINITION-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function SYMBOL-FUNCTION-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function DEFUN-NAME has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function SYMBOL-VALUE-VARIABLE has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function +DEFCONSTANT-VARIABLE+ has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function *DEFPARAMETER-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function *DEFVAR-VARIABLE* has no definition
+      Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+      Context: Referenced in operator position
+
+    Function USER-MAIN-PACKAGE has no definition
       Location: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
       Context: Referenced in operator position
 
@@ -149,10 +471,6 @@ System Dependencies:
 
 
 Package Dependencies:
-USER-MAIN-PACKAGE uses CL  Exports:
-    USER-MAIN-PACKAGE
 
 
 File Dependencies:
-/source/single-pkg-refs.lisp depends on /source/single-pkg-defs.lisp
-  references CIRCLE-RADIUS, MAKE-CIRCLE, MAKE-PERSON, PERSON.AGE

@@ -8,7 +8,7 @@
 (in-package #:dep)
 
 
-(defmethod get-definitions (&optional tracker symbol)
+(defun get-definitions (&optional tracker symbol)
   "Get all recorded definitions of a symbol or string.
    If only one arg provided, treat it as the symbol/string and use the current tracker."
   (when (and tracker (null symbol))
@@ -27,7 +27,7 @@
         (gethash (make-tracking-key symbol) (slot-value actual-tracker 'definitions)))))
 
 
-(defmethod get-references (&optional (tracker nil tracker-provided-p) symbol)
+(defun get-references (&optional (tracker nil tracker-provided-p) symbol)
   "Get all recorded references to a symbol."
   (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
          (key (if (symbol-package symbol)
@@ -36,13 +36,13 @@
     (gethash key (slot-value actual-tracker 'references))))
 
 
-(defmethod get-file-definitions (&optional (tracker nil tracker-provided-p) file)
+(defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
   "Get all definitions in a file."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
     (gethash file (slot-value actual-tracker 'file-map))))
 
 
-(defmethod package-depends-on-p (&optional (tracker nil tracker-provided-p) package1 package2)
+(defun package-depends-on-p (&optional (tracker nil tracker-provided-p) package1 package2)
   "Check if package1 depends on package2 (directly or indirectly)."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
     (labels ((check-deps (pkg visited)
@@ -84,43 +84,6 @@
             (project.name tracker)
             (hash-table-count (slot-value tracker 'definitions))
             (hash-table-count (slot-value tracker 'file-map)))))
-
-
-#+ignore (defun analyze (source-dir)
-  "Analyze source files in a directory and its subdirectories in two passes:
-   1. Collect all definitions across all files
-   2. Analyze references to those definitions"
-  (let* ((source-pathname (pathname source-dir))
-         (parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
-                                                      (pathname-directory source-pathname)
-                                                      (butlast (pathname-directory source-pathname)))
-                                         :name nil
-                                         :type nil))
-         (parent-dir-name (car (last (pathname-directory source-pathname)))))
-    (unless (ignore-errors (truename source-pathname))
-      (error "~2%Error: The directory ~A does not exist.~%" source-dir))
-    ;; Collect all source files in source-dir & subdirectories
-    (let ((source-files (mapcan (lambda (ext)
-                                  (directory (make-pathname :defaults source-pathname
-                                                            :directory (append (pathname-directory source-pathname)
-                                                                               '(:wild-inferiors))
-                                                            :name :wild
-                                                            :type ext)))
-                                '("lisp" "lsp" "cl"))))
-      (unless source-files
-        (error "~2%There are no lisp source files in ~A." source-dir))
-      (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                               :project-name parent-dir-name
-                                               :project-root parent-pathname))
-        ;; First pass: collect all definitions
-        (dolist (file source-files)
-          (let ((file-parser (make-instance 'file-parser :file file)))
-            (parse-definitions-in-file file-parser)))
-        ;; Second pass: analyze references
-        (dolist (file source-files)
-          (let ((file-parser (make-instance 'file-parser :file file)))
-            (parse-references-in-file file-parser))))
-      *current-tracker*)))
 
 
 (defun analyze (source-dir)

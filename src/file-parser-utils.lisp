@@ -242,8 +242,7 @@
     (sort refs #'string< :key #'symbol-name)))
 
 
-(defmethod record-definition ((tracker dependency-tracker) symbol type file 
-                           &key package exported-p)
+(defun record-definition (tracker symbol type file &key package exported-p)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
          (def (make-definition :name symbol
@@ -258,8 +257,7 @@
     def))
 
 
-(defmethod record-reference ((tracker dependency-tracker) symbol type file 
-                          &key package visibility definition)
+(defun record-reference (tracker symbol type file &key package visibility definition)
   "Record a symbol reference in the tracker.
    TYPE is call or reference
    VISIBILITY is inherited, imported, or local (defaults to local)"
@@ -275,14 +273,14 @@
     ref))
 
 
-(defmethod record-package-use ((tracker dependency-tracker) using-package used-package)
+(defun record-package-use (tracker using-package used-package)
   "Record that one package uses another package."
   (pushnew used-package 
            (gethash using-package (slot-value tracker 'package-uses))
            :test #'string=))
 
 
-(defmethod record-export ((tracker dependency-tracker) package-name symbol)
+(defun record-export (tracker package-name symbol)
   "Record a symbol as being exported from a package.
    Both package-name and symbol can be either strings or symbols."
   (let ((pkg (find-package (string package-name))))
@@ -295,22 +293,22 @@
                  :test #'eq)))))
 
 
-(defmethod record-macro-body-symbols ((tracker dependency-tracker) macro-name symbols)
+(defun record-macro-body-symbols (tracker macro-name symbols)
   "Record the non-CL symbols used in a macro's body."
   (setf (gethash (make-tracking-key macro-name) 
                  (slot-value tracker 'macro-bodies))
         symbols))
 
 
-(defmethod record-project-cycle ((tracker dependency-tracker) cycle-chain)
+(defun record-project-cycle (tracker cycle-chain)
   "Record a project dependency cycle."
   (pushnew cycle-chain (project-cycles tracker) :test #'string=))
 
-(defmethod record-file-cycle ((tracker dependency-tracker) cycle-chain)
+(defun record-file-cycle (tracker cycle-chain)
   "Record a file dependency cycle."
   (pushnew cycle-chain (file-cycles tracker) :test #'string=))
 
-(defmethod record-package-cycle ((tracker dependency-tracker) cycle-chain)
+(defun record-package-cycle (tracker cycle-chain)
   "Record a package dependency cycle."
   (pushnew cycle-chain (package-cycles tracker) :test #'string=))
 
