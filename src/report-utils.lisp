@@ -329,33 +329,42 @@
 
 
 (defun build-file-dependency-json (tracker)
- "Build JSON structure for file dependencies, showing forward dependencies and their references."
+ "Build JSON structure for file dependencies."
  (let ((result (make-hash-table :test 'equal))
        (is-dependency (make-hash-table :test 'equal)))
    
-   ;; First pass: identify which files are dependencies
+   ;; First pass unchanged
    (maphash (lambda (file definitions)
               (declare (ignore definitions))
               (dolist (dep (file-dependencies tracker file))
                 (setf (gethash dep is-dependency) t)))
             (slot-value tracker 'file-map))
    
-   ;; Second pass: only include non-dependency files as top-level entries
+   ;; Second pass with reference handling fix
    (maphash (lambda (file definitions)
               (declare (ignore definitions))
               (unless (gethash file is-dependency)
                 (let* ((file-str (project-pathname file))
                        (deps (file-dependencies tracker file)))
-                  (when deps  ; Only include files that have dependencies
+                  (when deps
                     (let ((deps-with-refs 
                            (mapcar (lambda (dep)
-                                   (alexandria:alist-hash-table
-                                    `(("file" . ,(project-pathname dep))
-                                      ;; Add "References: " prefix to maintain consistency
-                                      ("dependencies" . ,(format nil "References: ~{~A~^, ~}"
-                                                              (collect-file-references 
-                                                               tracker file dep))))
-                                    :test 'equal))
+                                   (let* ((refs (collect-file-references tracker file dep))
+                                          (operator-refs (mapcar #'reference.symbol
+                                                               (remove-if-not 
+                                                                (lambda (ref)
+                                                                  (eq (reference.type ref) :OPERATOR))
+                                                                refs)))
+                                          (value-refs (mapcar #'reference.symbol
+                                                            (remove-if-not
+                                                             (lambda (ref)
+                                                              (eq (reference.type ref) :VALUE))
+                                                             refs))))
+                                     (alexandria:alist-hash-table
+                                      `(("file" . ,(project-pathname dep))
+                                        ("function_calls" . ,(mapcar #'symbol-name operator-refs))
+                                        ("value_references" . ,(mapcar #'symbol-name value-refs)))
+                                      :test 'equal)))
                                  deps)))
                       (setf (gethash file-str result)
                             (alexandria:alist-hash-table

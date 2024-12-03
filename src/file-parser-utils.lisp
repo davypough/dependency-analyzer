@@ -31,83 +31,43 @@
 
 
 (defun extract-lambda-bindings (lambda-list &optional parser)
-  "Extract bindings from lambda list and optionally analyze initialization forms.
-   Handles:
-   - Regular function parameters
-   - Generic function parameters 
-   - Method specialized parameters ((var specializer))
-   - Complex lambda lists with destructuring
-   - &optional, &rest, &key parameters with defaults
-   - &aux bindings
-   
-   Returns just the binding symbols, stripping:
-   - Lambda list keywords
-   - Specializer forms
-   - Default value forms (which are analyzed if parser provided)"
+  "Extract bindings from lambda list, handling destructuring and specializers." 
   (let ((bindings nil)
         (state :required))
     (dolist (item lambda-list)
-      (case item
-        ((&optional &rest &key &aux)
-         (setf state item))
-        (&allow-other-keys
-         nil)
-        ((&whole &environment)
+      (case item  
+        ((&optional &rest &key &aux &whole &environment)
          (setf state item))
         (t (case state
              (:required 
-              (setf bindings 
-                    (append bindings
-                            (typecase item
-                              (symbol (list item))
-                              (cons
-                               (let ((var (if (and (listp (car item)) 
-                                                  (= (length (car item)) 2))
-                                            ;; Handle method specializers (var type)
-                                            (caar item)
-                                            (car item))))
-                                 ;; Handle initialization form if present
-                                 (when (and parser (cddr item))
-                                   (analyze-subform parser (third item)))
-                                 (extract-destructuring-bindings var)))))))
-             (&optional
-              (when (and parser (listp item) (cddr item))
-                (analyze-subform parser (third item)))
-              (setf bindings
-                    (append bindings
-                            (if (listp item)
-                                (extract-destructuring-bindings (car item))
-                                (list item)))))
-             (&rest
               (typecase item
-                (symbol 
-                 (unless (member item lambda-list-keywords)
-                   (push item bindings)))
-                (cons 
-                 (push (car item) bindings))))
+                (symbol (push item bindings))
+                (cons   ; Handle (var init) or ((var type))
+                  (if (and (listp (car item)) (= (length (car item)) 2))
+                      (push (caar item) bindings)  ; (var type) specializer
+                      (push (car item) bindings)))))
+             (&optional
+              (typecase item  
+                (symbol (push item bindings))
+                (cons (push (car item) bindings))))
+             (&rest
+              (when (symbolp item)
+                (push item bindings)))
              (&key
-              (when (and parser (listp item) (cddr item))
-                (analyze-subform parser (third item)))
-              (setf bindings
-                    (append bindings
-                            (cond ((symbolp item)
-                                   (list item))
-                                  ((listp item)
-                                   (if (listp (car item))
-                                       (extract-destructuring-bindings (cadar item))
-                                       (extract-destructuring-bindings (car item))))))))
+              (typecase item
+                (symbol (push item bindings))
+                (cons   ; Handle both ((kw var)) and (var) forms
+                  (let ((var (if (listp (car item))
+                                (if (listp (cadar item))
+                                    (caadar item)  ; (((:kw var)) init)
+                                    (cadar item))  ; ((:kw var) init) 
+                                (car item)))))     ; ((var) init)
+                    (push var bindings)))))
              (&aux
-              (when (and parser (listp item) (cdr item))
-                (analyze-subform parser (second item)))
-              (setf bindings
-                    (append bindings
-                            (if (listp item)
-                                (extract-destructuring-bindings (car item))
-                                (list item)))))
-             ((&whole &environment)
-              (push item bindings)
-              (setf state :required))))))
-    (remove-duplicates bindings)))
+              (typecase item
+                (symbol (push item bindings))
+                (cons (push (car item) bindings))))))))
+    (remove-duplicates bindings))
 
 
 (defun extract-destructuring-bindings (form)
@@ -223,8 +183,8 @@
 
 
 (defun collect-file-references (tracker source-file target-file)
-  "Collect all symbols in SOURCE-FILE that reference definitions in TARGET-FILE.
-   Returns a list of symbols that create the dependency relationship."
+  "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
+   Returns a list of reference objects."
   (let ((refs ())
         (target-defs (get-file-definitions tracker target-file)))
     ;; Build hash table of symbols defined in target file for quick lookup
@@ -233,13 +193,14 @@
         (setf (gethash (definition.name def) target-symbols) t))
       ;; Check all references in source file to see if they reference target symbols
       (maphash (lambda (key refs-list)
+                 (declare (ignore key))
                  (dolist (ref refs-list)
                    (when (and (equal (reference.file ref) source-file)
                             (gethash (reference.symbol ref) target-symbols))
-                     (pushnew (reference.symbol ref) refs :test #'equal))))
+                     (pushnew ref refs :test #'equal))))
                (slot-value tracker 'references)))
-    ;; Return sorted list of referenced symbols
-    (sort refs #'string< :key #'symbol-name)))
+    ;; Return sorted list of references
+    (sort refs #'string< :key (lambda (r) (symbol-name (reference.symbol r))))))
 
 
 (defun record-definition (tracker symbol type file &key package exported-p)
@@ -269,7 +230,10 @@
                             :package package
                             :visibility (or visibility :LOCAL)
                             :definition definition)))
-    (push ref (gethash key (slot-value tracker 'references)))
+    (pushnew ref (gethash key (slot-value tracker 'references))
+         :test (lambda (a b)
+                 (and (equal (reference.type a) (reference.type b))
+                      (equal (reference.file a) (reference.file b)))))
     ref))
 
 
@@ -351,7 +315,7 @@
       (do-external-symbols (sym used-pkg)
         (multiple-value-bind (s status)
             (find-symbol (symbol-name sym) package)
-          (when (and s (eq status :INHERITED))
+          (when (and s (eq status :INHERITED))   (prt sym)
             ;; Record basic reference with inherited visibility
             (record-reference *current-tracker* sym
                             :VALUE
@@ -681,17 +645,58 @@
                    ((lambda) 
                     (when (>= (length form) 2)
                       (handle-lambda-list (second form))))
-                   ((let let* flet labels)
-                    (when (>= (length form) 2)
-                      (dolist (binding (second form))
-                        (if (listp binding)
-                            (push (car binding) ignore-syms)
-                            (push binding ignore-syms)))))
+                   ((let let*)
+                      (when (>= (length form) 2)
+                        (dolist (binding (second form))
+                          (when (listp binding)
+                            (push (car binding) ignore-syms)))))
+                   ((flet labels)
+                      (when (>= (length form) 2)
+                        (dolist (fn-binding (second form))
+                          (when (listp fn-binding)
+                            (push (car fn-binding) ignore-syms)  ; function name
+                              (when (cddr fn-binding)
+                                (handle-lambda-list (second fn-binding))))))) ; params
                    ((defstruct) (handle-defstruct form))
                    ((defclass) (handle-defclass form))
                    ((defun defmacro)
                     (when (>= (length form) 3)
                       (handle-lambda-list (third form))))
+                   ((loop)
+                      (do* ((clauses (cdr form) (cdr clauses)))
+                           ((null clauses))
+                        (let ((clause (car clauses)))
+                          (when (symbolp clause)
+                            (case clause
+                              ((for as)
+                                 (loop with rest = (cdr clauses)
+                                       while (and rest 
+                                                  (not (member (car rest) 
+                                                               '(and for as finally initially
+                                                                     when unless while until))))
+                                       do (let ((var (car rest)))
+                                            (when var
+                                              (if (listp var)
+                                                (dolist (v (extract-destructuring-bindings var))
+                                                  (push v ignore-syms))
+                                                (push var ignore-syms)))
+                                            (setf rest (cdr rest)))
+                                       finally (setf clauses rest)))
+                              ((with)
+                                 (loop with rest = (cdr clauses)
+                                       while (and rest (not (eq (car rest) 'and)))
+                                       do (let ((binding (car rest)))
+                                            (if (listp binding)
+                                              (push (car binding) ignore-syms)
+                                              (push binding ignore-syms)))
+                                          (setf rest (cdr rest))
+                                       finally (setf clauses rest)))
+                              ((into)
+                                 (push (cadr clauses) ignore-syms)
+                                 (setf clauses (cdr clauses)))
+                              ((named)
+                                 (push (cadr clauses) ignore-syms)
+                                 (setf clauses (cdr clauses))))))))
                    ((defmethod)
                     (let ((rest (cddr form)))
                       ;; Skip over qualifiers to get to lambda list

@@ -80,9 +80,10 @@
 (defmethod print-object ((tracker dependency-tracker) stream)
   "Print a human-readable representation of the tracker."
   (print-unreadable-object (tracker stream :type t)
-    (format stream "~A: ~D definitions, ~D files"
+    (format stream "~A: ~D definitions, ~D references, ~D files"
             (project.name tracker)
             (hash-table-count (slot-value tracker 'definitions))
+            (hash-table-count (slot-value tracker 'references))
             (hash-table-count (slot-value tracker 'file-map)))))
 
 
@@ -100,11 +101,9 @@
          (parent-dir-name (car (last (pathname-directory source-pathname))))
          (log-dir (merge-pathnames "logs/" 
                                  (asdf:system-source-directory :dependency-analyzer))))
-    
     ;; Verify source directory exists
     (unless (ignore-errors (truename source-pathname))
       (error "~2%Error: The directory ~A does not exist.~%" source-dir))
-    
     ;; Collect all source files
     (let ((source-files (mapcan (lambda (ext)
                                  (directory (make-pathname :defaults source-pathname
@@ -113,11 +112,9 @@
                                                          :name :wild
                                                          :type ext)))
                                '("lisp" "lsp" "cl"))))
-      
       (unless source-files
         (error "~2%There are no lisp source files in ~A." source-dir))
       (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
-      
       (with-dependency-tracker ((make-instance 'dependency-tracker 
                                              :project-name parent-dir-name
                                              :project-root parent-pathname))
@@ -131,7 +128,6 @@
             (format log-stream "~%Definitions Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-definitions-in-file file-parser log-stream))))
-        
         ;; Second pass: analyze references
         (format t "~%Second Pass - Analyzing References...~2%")
         (with-open-file (log-stream (merge-pathnames "reference-analysis.log" log-dir)
@@ -142,5 +138,5 @@
             (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-references-in-file file-parser log-stream))))
-        
+        (in-package :dep)
         *current-tracker*))))

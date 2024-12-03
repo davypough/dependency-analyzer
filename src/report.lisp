@@ -194,29 +194,36 @@
  (format stream "~2%")
  ;; File Dependencies
  (format stream "File Dependencies:~%")
- (let ((deps-table (make-hash-table :test 'equal))
-       (depends-on-pos nil))
-  ;; First find position of "depends on" label
-  (let ((sample-line (format nil "X depends on Y")))
-    (setf depends-on-pos (search "depends on" sample-line)))
-  ;; Output dependencies with aligned references
-  (maphash (lambda (file definitions)
-             (declare (ignore definitions))
-             (let ((deps (file-dependencies tracker file)))
-               (when deps
-                 (dolist (dep deps)
-                   (let* ((dep-line (format nil "~A depends on ~A" 
-                                          (project-pathname file)
-                                          (project-pathname dep)))
-                          (refs (collect-file-references tracker file dep)))
-                     (format stream "~A" dep-line)
-                     (when refs
-                       (format stream "~%~A"
-                               (format-references-list refs 
-                                                     :depends-pos depends-on-pos
-                                                     :max-width *print-width*)))
-                     (format stream "~%"))))))
-           (slot-value tracker 'file-map))))
+ (maphash (lambda (file definitions)
+          (declare (ignore definitions))
+          (let ((deps (file-dependencies tracker file)))
+            (when deps
+              (dolist (dep deps)
+                (let* ((dep-line (format nil "~A depends on ~A" 
+                                       (project-pathname file)
+                                       (project-pathname dep)))
+                      (refs (collect-file-references tracker file dep))
+                      (operator-refs (remove-if-not (lambda (r) 
+                                                    (eq (reference.type r) :OPERATOR))
+                                                  refs))
+                      (value-refs (remove-if-not (lambda (r)
+                                                 (eq (reference.type r) :VALUE))
+                                               refs)))
+                  (format stream "~A~%" dep-line)
+                  (when operator-refs
+                    (format stream "  Called functions: ~{~A~^, ~}~%" 
+                            (sort (mapcar (lambda (r) 
+                                          (symbol-name (reference.symbol r)))
+                                        operator-refs)
+                                  #'string<)))
+                  (when value-refs  
+                    (format stream "  Referenced values: ~{~A~^, ~}~%"
+                            (sort (mapcar (lambda (r) 
+                                          (symbol-name (reference.symbol r)))
+                                        value-refs)
+                                  #'string<)))
+                  (format stream "~%"))))))
+        (slot-value tracker 'file-map)))
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
@@ -279,6 +286,8 @@
 
 
 (defmethod generate-report ((format (eql :dot)) tracker &key (stream *standard-output*))
+  "Generate a GraphViz DOT format dependency report.
+   Shows file dependencies with separate operator and value reference labels."
   (format stream "digraph Dependencies {~%")
   (format stream "  rankdir=LR;~%")
   (format stream "  compound=true;~%")
@@ -359,12 +368,23 @@
                    (let* ((dep-name (source-file-name dep))
                           (dep-id (string-to-dot-id dep-name))
                           (refs (collect-file-references tracker file dep))
-                          (label (format nil "References: ~A"
-                                       (if (> (length refs) 3)
-                                           (format nil "~{~A~^, ~}, ..." 
-                                                 (subseq (mapcar #'symbol-name refs) 0 3))
-                                           (format nil "~{~A~^, ~}" 
-                                                 (mapcar #'symbol-name refs))))))
+                          (operator-refs (remove-if-not 
+                                        (lambda (r) (eq (reference.type r) :OPERATOR))
+                                        refs))
+                          (value-refs (remove-if-not
+                                     (lambda (r) (eq (reference.type r) :VALUE))
+                                     refs))
+                          (label (with-output-to-string (s)
+                                 (when operator-refs
+                                   (format s "Called: ~{~A~^, ~}\\n"
+                                         (mapcar (lambda (r) 
+                                                 (symbol-name (reference.symbol r)))
+                                               operator-refs)))
+                                 (when value-refs
+                                   (format s "Referenced: ~{~A~^, ~}"
+                                         (mapcar (lambda (r)
+                                                 (symbol-name (reference.symbol r)))
+                                               value-refs))))))
                      (format stream "    \"~A\" -> \"~A\" [label=\"~A\"];~%"
                              file-id dep-id label)))))
              (slot-value tracker 'file-map)))

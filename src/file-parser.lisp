@@ -52,8 +52,8 @@
             do (when (and (consp form) (eq (car form) 'in-package))
                  (analyze-in-package parser form)
                  (eval form))
-               (analyze-reference-form parser form log-stream))
-               (terpri log-stream))))
+               (analyze-reference-form parser form log-stream)
+               (terpri log-stream)))))
 
 
 (defmethod analyze-definition-form ((parser file-parser) form &optional log-stream)
@@ -103,66 +103,58 @@
       (walk-form form #'handle-definition :log-stream log-stream))))
 
 
-(defmethod analyze-reference-form ((parser file-parser) form log-stream)
-  "Analyze form recording references to previously defined symbols.
-   Uses walk-form with specialized handler for reference tracking while
-   maintaining lexical scope and slot type distinctions."
-  (let* ((ignore-symbols (extract-ignorable-symbols form))  ;local symbols
-         (slot-type-syms nil)
-         (slot-fn-syms nil))
-    ;; Extract slot symbols if this is a struct/class definition
-    (when (and (listp form) (member (car form) '(defstruct defclass)))
-      (dolist (slot (if (eq (car form) 'defstruct)
-                       (cddr form)
-                       (fourth form)))
-        (multiple-value-bind (type-syms fn-syms)
-            (extract-spec-symbols-from-slot slot)
-          (setf slot-type-syms (append slot-type-syms type-syms)
-                slot-fn-syms (append slot-fn-syms fn-syms)))))
+(defmethod analyze-reference-form ((parser file-parser) form &optional log-stream)
+  "Analyze form recording references to definitions in different files.
+   Handles both symbol references and string references to packages."
+  (labels ((handle-reference (form op-position context depth)
+             (declare (ignore depth))
+             (typecase form
+               (symbol
+                (unless (or (null form)            ; Skip NIL
+                          (keywordp form)          ; Skip keywords
+                          (cl-symbol-p form))      ; Skip CL package symbols
+                  (let* ((sym-pkg (symbol-package form))
+                         (cur-pkg (current-package parser))
+                         (pkg-name (if sym-pkg 
+                                     (package-name sym-pkg)
+                                     (current-package-name parser))))
+                    ;; Check for unqualified cross-package reference from CL-USER
+                    (when (and (eq cur-pkg (find-package :common-lisp-user))
+                             (not (symbol-qualified-p form parser))
+                             (not (eq sym-pkg (find-package :common-lisp-user))))
+                      (record-anomaly *current-tracker*
+                                    :missing-in-package
+                                    :WARNING
+                                    (file parser)
+                                    (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                                            form pkg-name)))
+                    ;; If symbol matches a definition record in a different file, record the dependency
+                    (let* ((key (make-tracking-key form pkg-name))
+                           (def (gethash key (slot-value *current-tracker* 'definitions))))
+                      (when (and def (not (equal (definition.file def) (file parser))))
+                        (record-reference *current-tracker* form
+                                        (if op-position :OPERATOR :VALUE)
+                                        (file parser)
+                                        :package pkg-name
+                                        :visibility (determine-symbol-visibility form parser)
+                                        :definition def))))))
+               (string
+                ;; Check if this string matches a package definition
+                (let* ((norm-name (normalize-package-name form))
+                       (key (make-tracking-key norm-name))
+                       (def (gethash key (slot-value *current-tracker* 'definitions))))
+                  (when (and def 
+                           (eq (definition.type def) :PACKAGE)
+                           (not (equal (definition.file def) (file parser))))
+                    (record-reference *current-tracker* form
+                                    :VALUE
+                                    (file parser)
+                                    :package "KEYWORD"
+                                    :visibility :LOCAL
+                                    :definition def)))))))
     
-    (labels ((handle-reference (form op-position context depth)
-               (declare (ignore depth))
-               (typecase form
-                 (cons
-                  (when (symbolp (car form))
-                    (case (car form)
-                      ;(in-package (analyze-in-package parser form))
-                      (defmethod
-                       (destructuring-bind (def-op name &rest body) form
-                         (declare (ignore def-op))
-                         (unless (member name ignore-symbols)
-                           (record-symbol-reference name parser *current-tracker* :VALUE))
-                         (let ((remaining body))
-                           (loop while (and remaining (not (listp (car remaining))))
-                                 do (pop remaining))
-                           (when remaining
-                             (dolist (param (car remaining))
-                               (when (listp param)
-                                 (let ((specializer (second param)))
-                                   (when (and specializer 
-                                            (not (member specializer ignore-symbols)))
-                                     (record-symbol-reference specializer parser *current-tracker* :VALUE)))))))))
-                      ((make-instance make-structure)
-                       (let ((class-name (second form)))
-                         (unless (member class-name ignore-symbols)
-                           (record-symbol-reference class-name parser *current-tracker* :VALUE)))))))
-                 
-                 (symbol
-                  (when (and form 
-                            (not (member form ignore-symbols))
-                            (not (definition-name-p form context op-position)))
-                    ;; Handle slot references based on their type
-                    (cond
-                      ((member form slot-fn-syms)
-                       (record-symbol-reference form parser *current-tracker* :OPERATOR))
-                      ((member form slot-type-syms)
-                       (record-symbol-reference form parser *current-tracker* :VALUE))
-                      (t
-                       (record-symbol-reference form parser *current-tracker*
-                                              (if op-position :OPERATOR :VALUE)))))))))
-      
-    (let ((*package* (find-package :dep)))
-      (walk-form form #'handle-reference :log-stream log-stream)))))
+    ;; Walk the form looking for references
+    (walk-form form #'handle-reference :log-stream log-stream)))
 
 
 (defun analyze-in-package (parser form)
@@ -195,7 +187,7 @@
       (record-definition *current-tracker* pkg-name
                         :PACKAGE
                         file
-                        :package pkg-name  ; Changed from "KEYWORD"
+                        :package pkg-name  
                         :exported-p t)     ; Package names always accessible
       
       ;; 3. Interface Elements
@@ -214,12 +206,12 @@
           (push sym spec-symbols)))
 
       ;; 4. Specification Elements
-      ;; Process package use relationships
+      ;; Process package use relationships - simplified to just record dependency
       (dolist (option options)
         (when (and (listp option) (eq (car option) :use))
           (dolist (used-pkg (cdr option))
             (let ((used-name (normalize-package-name used-pkg)))
-              (process-package-use-option package used-name options parser)
+              (record-package-use *current-tracker* pkg-name used-name)
               (push used-name spec-symbols)))))
 
       ;; 5. Implementation Elements
@@ -254,6 +246,158 @@
 
 
 (defun analyze-defstruct (parser form)
+ (destructuring-bind (def-op name-and-options &rest slots) form
+   (declare (ignore def-op))
+   ;; 1. Form Analysis Context
+   (let* ((pkg (current-package parser))
+          (pkg-name (current-package-name parser))
+          (file (file parser))
+          (spec-symbols nil)
+          (forward-refs nil))  ; Track forward references to structs
+
+     ;; 2. Primary Definition Record
+     (let* ((struct-name (if (listp name-and-options)
+                            (car name-and-options)
+                            name-and-options))
+            (options (when (listp name-and-options) 
+                      (cdr name-and-options)))
+            (conc-name-prefix     ; Used for accessor generation
+             (let ((conc-option (find :conc-name options :key #'car)))
+               (cond ((null conc-option)
+                      (concatenate 'string (string struct-name) "-"))  ; Default
+                     ((or (null (cdr conc-option))    ; (:conc-name)
+                         (null (second conc-option)))  ; (:conc-name nil) 
+                      "")
+                     (t (string (second conc-option)))))))
+       
+       ;; Record main structure definition
+       (record-definition *current-tracker* struct-name
+                         :STRUCTURE
+                         file
+                         :package pkg-name
+                         :exported-p (eq (nth-value 1 
+                                       (find-symbol (symbol-name struct-name) pkg))
+                                      :external))
+
+       ;; 3. Interface Elements - unchanged
+       (let ((interface-functions nil))
+         ;; 3a. Constructor handling
+         (let ((constructor-options (remove-if-not 
+                                   (lambda (x) (eq (car x) :constructor))
+                                   options)))
+           (cond ((null constructor-options)  ; Default case
+                  (push (intern (concatenate 'string "MAKE-" (string struct-name)) pkg)
+                        interface-functions))
+                 (t  ; Handle explicit constructors
+                  (dolist (opt constructor-options)
+                    (when (and (cdr opt)  ; Has a name
+                             (not (null (second opt))))  ; Name not nil
+                      (push (second opt) interface-functions))))))
+
+         ;; 3b. Copier handling
+         (let ((copier-option (find :copier options :key #'car)))
+           (when (or (null copier-option)  ; Default case
+                    (and (cdr copier-option)  ; Explicit name given
+                         (not (null (second copier-option)))))
+             (push (if (and copier-option (second copier-option))
+                      (second copier-option)
+                      (intern (concatenate 'string "COPY-" (string struct-name)) pkg))
+                   interface-functions)))
+
+         ;; 3c. Predicate handling
+         (let ((predicate-option (find :predicate options :key #'car)))
+           (when (or (null predicate-option)  ; Default case
+                    (and (cdr predicate-option)  ; Explicit name given
+                         (not (null (second predicate-option)))))
+             (push (if (and predicate-option (second predicate-option))
+                      (second predicate-option)
+                      (intern (concatenate 'string (string struct-name) "-P") pkg))
+                   interface-functions)))
+
+         ;; Record all interface function definitions
+         (dolist (func interface-functions)
+           (record-definition *current-tracker* func
+                            :FUNCTION
+                            file
+                            :package pkg-name
+                            :exported-p (eq (nth-value 1 
+                                          (find-symbol (symbol-name func) pkg))
+                                         :external))))
+
+       ;; 4. Specification Elements 
+       ;; 4a. Process included structure if present
+       (let ((included (find :include options :key #'car)))
+         (when included
+           (push (second included) spec-symbols)  ; Record included structure name
+           ;; Check for forward reference to included structure
+           (let* ((included-name (second included))
+                  (included-key (make-tracking-key included-name pkg-name))
+                  (included-def (gethash included-key (slot-value *current-tracker* 'definitions))))
+             (unless included-def
+               (push (cons included-name 'include) forward-refs)))
+           ;; Process included slot overrides for spec symbols
+           (loop for override in (cddr included)
+                 when (listp override)
+                 do (dolist (sym (extract-spec-symbols-from-slot override))
+                      (push sym spec-symbols)))))
+
+       ;; 4b. Process slot definitions and types
+       (dolist (slot slots)
+         (let ((slot-spec (if (listp slot) slot (list slot))))
+           ;; Check for forward references in slot types
+           (when (listp slot-spec)
+             (let ((type-option (cdr (member :type slot-spec))))
+               (when type-option
+                 (let ((type-name (first type-option)))
+                   (when (and type-name 
+                            (symbolp type-name)
+                            (not (cl-symbol-p type-name)))
+                     ;; Check if type exists as structure definition
+                     (let* ((type-key (make-tracking-key type-name pkg-name))
+                            (type-def (gethash type-key (slot-value *current-tracker* 'definitions))))
+                       (when (and (not type-def)
+                                (not (find-class type-name nil)))  ; Not a CLOS class
+                         (push (cons type-name (car slot-spec)) forward-refs))))))))
+           ;; Collect spec symbols from slot definition
+           (dolist (sym (extract-spec-symbols-from-slot slot-spec))
+             (push sym spec-symbols))
+           ;; Generate and record accessor function
+           (let ((accessor (intern (concatenate 'string conc-name-prefix
+                                              (string (if (listp slot)
+                                                        (car slot)
+                                                        slot)))
+                                 pkg)))
+             (record-definition *current-tracker* accessor
+                              :FUNCTION
+                              file
+                              :package pkg-name
+                              :exported-p (eq (nth-value 1 
+                                            (find-symbol (string accessor) pkg))
+                                           :external)))))
+
+       ;; Record forward reference anomalies
+       (dolist (fref forward-refs)
+         (record-anomaly *current-tracker*
+                        :structure-forward-reference
+                        :WARNING
+                        file
+                        (format nil "Forward reference to structure ~A in ~A of structure ~A"
+                                (car fref) 
+                                (if (eq (cdr fref) 'include)
+                                    "include option"
+                                    (format nil "slot ~A" (cdr fref)))
+                                struct-name)))
+
+       ;; 6. Symbol Collection/Association 
+       ;; Store unique non-CL spec symbols with structure definition
+       (let ((unique-symbols (remove-duplicates (remove-if #'cl-symbol-p spec-symbols))))
+         (when unique-symbols
+           (setf (definition.spec-symbols 
+                  (get-definitions *current-tracker* struct-name))
+                 unique-symbols)))))))
+
+
+#+ignore (defun analyze-defstruct (parser form)
  (destructuring-bind (def-op name-and-options &rest slots) form
    (declare (ignore def-op))
    ;; 1. Form Analysis Context
