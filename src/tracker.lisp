@@ -86,52 +86,52 @@
          (parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
                                                       (pathname-directory source-pathname)
                                                       (butlast (pathname-directory source-pathname)))
-                                       :name nil
-                                       :type nil))
+                                         :name nil
+                                         :type nil))
          (parent-dir-name (car (last (pathname-directory source-pathname))))
-         (log-dir (merge-pathnames "logs/" 
-                                 (asdf:system-source-directory :dependency-analyzer))))
+         (logs-dir (merge-pathnames "logs/" (asdf:system-source-directory :dependency-analyzer))))
     ;; Verify source directory exists
     (unless (ignore-errors (truename source-pathname))
       (error "~2%Error: The directory ~A does not exist.~%" source-dir))
     ;; Collect all source files
-    (let ((source-files (mapcan (lambda (ext)
-                                 (directory (make-pathname :defaults source-pathname
-                                                         :directory (append (pathname-directory source-pathname)
-                                                                          '(:wild-inferiors))
-                                                         :name :wild
-                                                         :type ext)))
-                               '("lisp" "lsp" "cl"))))
+    (let ((source-files
+            (mapcan (lambda (ext)
+                      (directory (make-pathname :defaults source-pathname
+                                                :directory (append (pathname-directory source-pathname)
+                                                '(:wild-inferiors))
+                                                :name :wild
+                                                :type ext)))
+                    '("lisp" "lsp" "cl"))))
       (unless source-files
         (error "~2%There are no lisp source files in ~A." source-dir))
       (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
-      (with-dependency-tracker ((make-instance 'dependency-tracker 
-                                             :project-name parent-dir-name
-                                             :project-root parent-pathname))
-        ;; First pass: collect all definitions
+      (with-dependency-tracker ((make-instance 'dependency-tracker :project-name parent-dir-name
+                                               :project-root parent-pathname))
+        ;; First pass: analyze definitions
         (format t "~%First Pass - Collecting Definitions...~%")
-        (with-open-file (log-stream (merge-pathnames "definitions-trace.log" log-dir)
-                                   :direction :output
-                                   :if-exists :supersede
-                                   :if-does-not-exist :create)
+        (with-open-file (log-stream (merge-pathnames "definitions-trace.log" logs-dir) :direction :output
+                                   :if-exists :supersede :if-does-not-exist :create)
           (dolist (file source-files)
             (format log-stream "~%Definitions Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-definitions-in-file file-parser log-stream))))
-;        (with-open-file (log-stream (merge-pathnames "definitions.log" log-dir)
-;                                   :direction :output
-;                                   :if-exists :supersede
-;                                   :if-does-not-exist :create)
-          
         ;; Second pass: analyze references
         (format t "~%Second Pass - Analyzing References...~2%")
-        (with-open-file (log-stream (merge-pathnames "references-trace.log" log-dir)
-                                   :direction :output
-                                   :if-exists :supersede
-                                   :if-does-not-exist :create)
+        (with-open-file (log-stream (merge-pathnames "references-trace.log" logs-dir) :direction :output
+                                    :if-exists :supersede :if-does-not-exist :create)
           (dolist (file source-files)
             (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-references-in-file file-parser log-stream))))
+        ;; Log final definitions, references, anomalies
+        (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output
+                                   :if-exists :supersede :if-does-not-exist :create)
+          (print-tracker-slot *current-tracker* 'definitions log-stream))
+        (with-open-file (log-stream (merge-pathnames "references.log" logs-dir) :direction :output 
+                                    :if-exists :supersede :if-does-not-exist :create)
+          (print-tracker-slot *current-tracker* 'references log-stream))
+        (with-open-file (log-stream (merge-pathnames "anomalies.log" logs-dir) :direction :output
+                                    :if-exists :supersede :if-does-not-exist :create)
+          (print-tracker-slot *current-tracker* 'anomalies log-stream))
         (in-package :dep)
         *current-tracker*))))

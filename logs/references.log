@@ -1,0 +1,126 @@
+REFERENCES
+------------------------------
+
+REFERENCES TO SYMBOL: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: USER-MAIN-PACKAGE
+  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: *DEFPARAMETER-VARIABLE* IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: *DEFPARAMETER-VARIABLE*
+  Context: DEPENDENCY-ANALYZER::*DEFPARAMETER-VARIABLE*
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: *DEFVAR-VARIABLE* IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: *DEFVAR-VARIABLE*
+  Context: DEPENDENCY-ANALYZER::*DEFVAR-VARIABLE*
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: +DEFCONSTANT-VARIABLE+ IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: +DEFCONSTANT-VARIABLE+
+  Context: DEPENDENCY-ANALYZER::+DEFCONSTANT-VARIABLE+
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: CIRCLE-RADIUS IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: CIRCLE-RADIUS
+  Context: (DEPENDENCY-ANALYZER::CIRCLE-RADIUS
+            (DEPENDENCY-ANALYZER::MAKE-CIRCLE))
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: COMPUTE-AREA IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: COMPUTE-AREA
+  Context: (FUNCALL #'DEPENDENCY-ANALYZER::COMPUTE-AREA
+                    (DEPENDENCY-ANALYZER::MAKE-CIRCLE :RADIUS 1))
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: CONDITION-NAME IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: CONDITION-NAME
+  Context: (DEFUN DEPENDENCY-ANALYZER::FUNCTION-WITH-CONDITION ()
+             (ERROR 'DEPENDENCY-ANALYZER::CONDITION-NAME))
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: DEFMACRO-NAME IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: DEFMACRO-NAME
+  Context: (DEPENDENCY-ANALYZER::DEFMACRO-NAME)
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: DEFUN-NAME IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: DEFUN-NAME
+  Context: (DEPENDENCY-ANALYZER::DEFUN-NAME)
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: FDEFINITION-FUNCTION-NAME IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: FDEFINITION-FUNCTION-NAME
+  Context: (FUNCALL 'DEPENDENCY-ANALYZER::FDEFINITION-FUNCTION-NAME)
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: MACRO-FUNCTION-NAME IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: MACRO-FUNCTION-NAME
+  Context: (DEPENDENCY-ANALYZER::MACRO-FUNCTION-NAME)
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: PERSON.AGE IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: PERSON.AGE
+  Context: (DEPENDENCY-ANALYZER::PERSON.AGE (DEPENDENCY-ANALYZER::MAKE-PERSON))
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: PROCESS-DATA IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: PROCESS-DATA
+  Context: (DEPENDENCY-ANALYZER::PROCESS-DATA "test" :LOGGING)
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: SYMBOL-FUNCTION-NAME IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: SYMBOL-FUNCTION-NAME
+  Context: (FUNCALL 'DEPENDENCY-ANALYZER::SYMBOL-FUNCTION-NAME)
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+REFERENCES TO SYMBOL: SYMBOL-VALUE-VARIABLE IN PACKAGE: USER-MAIN-PACKAGE
+  #<REFERENCE Symbol: SYMBOL-VALUE-VARIABLE
+  Context: DEPENDENCY-ANALYZER::SYMBOL-VALUE-VARIABLE
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+

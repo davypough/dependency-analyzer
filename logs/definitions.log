@@ -1,0 +1,117 @@
+DEFINITIONS
+------------------------------
+
+#<DEFINITION Name: *DEFPARAMETER-VARIABLE*
+  Type: :VARIABLE
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: *DEFVAR-VARIABLE*
+  Type: :VARIABLE
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: +DEFCONSTANT-VARIABLE+
+  Type: :VARIABLE
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: CIRCLE
+  Type: :STRUCTURE
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: CIRCLE-RADIUS
+  Type: :FUNCTION
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: COMPUTE-AREA
+  Type: :METHOD
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: CONDITION-NAME
+  Type: :CONDITION
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: DEFMACRO-NAME
+  Type: :MACRO
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: DEFUN-NAME
+  Type: :FUNCTION
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: FDEFINITION-FUNCTION-NAME
+  Type: :FUNCTION
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: FUNCTION-WITH-CONDITION
+  Type: :FUNCTION
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: MACRO-FUNCTION-NAME
+  Type: :MACRO
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: MY-FUNCTION
+  Type: :FUNCTION
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: PERSON
+  Type: :STRUCTURE
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: PERSON.AGE
+  Type: :FUNCTION
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: PROCESS-DATA
+  Type: :METHOD
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: SYMBOL-FUNCTION-NAME
+  Type: :FUNCTION
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: SYMBOL-VALUE-VARIABLE
+  Type: :VARIABLE
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL>
+
+#<DEFINITION Name: "USER-MAIN-PACKAGE"
+  Type: :PACKAGE
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: T>
+
