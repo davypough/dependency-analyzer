@@ -218,7 +218,7 @@
     def))
 
 
-(defun record-reference (tracker symbol type file &key package visibility definition)
+(defun record-reference (tracker symbol type file &key package context visibility definition)
   "Record a symbol reference in the tracker.
    TYPE is call or reference
    VISIBILITY is inherited, imported, or local (defaults to local)"
@@ -228,6 +228,7 @@
                             :type type
                             :file file
                             :package package
+                            :context context
                             :visibility (or visibility :LOCAL)
                             :definition definition)))
     (pushnew ref (gethash key (slot-value tracker 'references))
@@ -294,43 +295,6 @@
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
     (gethash (make-tracking-key macro-name) 
              (slot-value actual-tracker 'macro-bodies))))
-
-
-(defun process-package-use-option (package used-pkg-name options parser)
-  "Process a :use package option, recording package dependencies and inherited symbols.
-   Handles all package name forms consistently using string normalization.
-   
-   PACKAGE - The package object being defined
-   USED-PKG-NAME - Name of package being used (string, already normalized)
-   OPTIONS - Full defpackage options list
-   PARSER - Current file parser for context"
-  (let* ((used-pkg (find-package used-pkg-name))
-         (using-pkg-name (normalize-package-name package)))
-    (when used-pkg
-      (use-package used-pkg package)
-      (record-package-use *current-tracker* 
-                         using-pkg-name
-                         used-pkg-name)
-      ;; Record references for all exported symbols from used package
-      (do-external-symbols (sym used-pkg)
-        (multiple-value-bind (s status)
-            (find-symbol (symbol-name sym) package)
-          (when (and s (eq status :INHERITED))   (prt sym)
-            ;; Record basic reference with inherited visibility
-            (record-reference *current-tracker* sym
-                            :VALUE
-                            (file parser)
-                            :package used-pkg-name
-                            :visibility :INHERITED)
-            ;; If it's a function, also record potential call reference
-            (when (and (fboundp sym) 
-                      (not (macro-function sym))
-                      (not (special-operator-p sym)))
-              (record-reference *current-tracker* sym
-                              :OPERATOR
-                              (file parser)
-                              :package used-pkg-name
-                              :visibility :INHERITED))))))))
 
 
 (defun process-package-import-option (package from-pkg-name pkg-name parser symbol)
@@ -594,127 +558,6 @@
              (otherwise :LOCAL)))))))
 
 
-(defun extract-ignorable-symbols (form)
-  "Return list of symbols that should be ignored when tracking references.
-   This includes:
-   - Lambda list keywords
-   - Local bindings from lambda lists
-   - Structure/class slot names being defined
-   - Local variables from let/flet/labels forms
-   Returns list of symbols to ignore."
-  (let ((ignore-syms nil))
-    (labels ((handle-lambda-list (lambda-list)
-               ;; Add lambda keywords and bindings from lambda lists
-               (dolist (item lambda-list)
-                 (typecase item
-                   (symbol 
-                    (when (member item lambda-list-keywords)
-                      (push item ignore-syms))
-                    (push item ignore-syms))
-                   (cons  ; Only recurse into cons that are destructuring forms
-                    (unless (member (car item) '(:documentation :method-combination))
-                      (handle-lambda-list item))))))
-             
-             (handle-defstruct (form)
-               ;; Add slot names from defstruct forms
-               (when (and (>= (length form) 2)
-                         (listp (second form)))
-                 ;; Handle (defstruct (name options...) slots...)
-                 (dolist (slot (cddr form))
-                   (if (listp slot)
-                       (push (car slot) ignore-syms)
-                       (push slot ignore-syms))))
-               (when (and (>= (length form) 2)
-                         (symbolp (second form)))
-                 ;; Handle (defstruct name slots...)
-                 (dolist (slot (cddr form))
-                   (if (listp slot)
-                       (push (car slot) ignore-syms)
-                       (push slot ignore-syms)))))
-             
-             (handle-defclass (form)
-               ;; Add slot names from defclass forms
-               (when (>= (length form) 4)
-                 (dolist (slot (fourth form))
-                   (when (listp slot)
-                     (push (car slot) ignore-syms)))))
-             
-             (walk (form)
-               (when (listp form)
-                 (case (car form)
-                   ((lambda) 
-                    (when (>= (length form) 2)
-                      (handle-lambda-list (second form))))
-                   ((let let*)
-                      (when (>= (length form) 2)
-                        (dolist (binding (second form))
-                          (when (listp binding)
-                            (push (car binding) ignore-syms)))))
-                   ((flet labels)
-                      (when (>= (length form) 2)
-                        (dolist (fn-binding (second form))
-                          (when (listp fn-binding)
-                            (push (car fn-binding) ignore-syms)  ; function name
-                              (when (cddr fn-binding)
-                                (handle-lambda-list (second fn-binding))))))) ; params
-                   ((defstruct) (handle-defstruct form))
-                   ((defclass) (handle-defclass form))
-                   ((defun defmacro)
-                    (when (>= (length form) 3)
-                      (handle-lambda-list (third form))))
-                   ((loop)
-                      (do* ((clauses (cdr form) (cdr clauses)))
-                           ((null clauses))
-                        (let ((clause (car clauses)))
-                          (when (symbolp clause)
-                            (case clause
-                              ((for as)
-                                 (loop with rest = (cdr clauses)
-                                       while (and rest 
-                                                  (not (member (car rest) 
-                                                               '(and for as finally initially
-                                                                     when unless while until))))
-                                       do (let ((var (car rest)))
-                                            (when var
-                                              (if (listp var)
-                                                (dolist (v (extract-destructuring-bindings var))
-                                                  (push v ignore-syms))
-                                                (push var ignore-syms)))
-                                            (setf rest (cdr rest)))
-                                       finally (setf clauses rest)))
-                              ((with)
-                                 (loop with rest = (cdr clauses)
-                                       while (and rest (not (eq (car rest) 'and)))
-                                       do (let ((binding (car rest)))
-                                            (if (listp binding)
-                                              (push (car binding) ignore-syms)
-                                              (push binding ignore-syms)))
-                                          (setf rest (cdr rest))
-                                       finally (setf clauses rest)))
-                              ((into)
-                                 (push (cadr clauses) ignore-syms)
-                                 (setf clauses (cdr clauses)))
-                              ((named)
-                                 (push (cadr clauses) ignore-syms)
-                                 (setf clauses (cdr clauses))))))))
-                   ((defmethod)
-                    (let ((rest (cddr form)))
-                      ;; Skip over qualifiers to get to lambda list
-                      (loop while (and rest (atom (car rest)))
-                            do (pop rest))
-                      (when rest
-                        (handle-lambda-list (car rest)))))
-                   ((defgeneric)
-                    (when (>= (length form) 3)
-                      (handle-lambda-list (third form)))))
-                 ;; Recurse into all subforms
-                 (dolist (subform (cdr form))
-                   (walk subform)))))
-      
-      (walk form)
-      (remove-duplicates ignore-syms))))
-
-
 (defun skip-item-p (item)
   "Return T if item should be skipped during reference analysis.
    Skips:
@@ -763,11 +606,17 @@
                       (package-name sym-pkg)
                       (current-package-name parser)))
          (visibility (determine-symbol-visibility symbol parser))
-         (anomaly-p nil))
+         (anomaly-p nil)
+         (package-ops '(defpackage in-package use-package make-package 
+                       rename-package delete-package)))
     ;; Check for unqualified cross-package reference while in CL-USER
+    ;; But ignore references in package setup forms
     (when (and (eq cur-pkg (find-package :common-lisp-user))
                (not (symbol-qualified-p symbol parser))
-               (not (eq sym-pkg (find-package :common-lisp-user))))
+               (not (eq sym-pkg (find-package :common-lisp-user)))
+               ;; Add check for non-package-related forms
+               (not (member symbol '(:use cl common-lisp)))  ; Allow standard package names
+               (not (member (car (car (bound-symbols parser))) package-ops))) ; Skip package ops
       (record-anomaly tracker
                       :missing-in-package
                       :WARNING
@@ -776,47 +625,6 @@
                               symbol pkg-name))
       (setf anomaly-p t))
     (values visibility anomaly-p)))
-
-
-(defun record-symbol-reference (symbol parser tracker ref-type)
-  "Record a symbol reference and any related anomalies.
-   Returns true if a reference was recorded.
-   
-   SYMBOL - The symbol being referenced
-   PARSER - The current file parser
-   TRACKER - The dependency tracker
-   REF-TYPE - Either :OPERATOR or :VALUE"
-  ;; First do quick check if symbol should be skipped
-  (multiple-value-bind (visibility anomaly-p)
-      (check-package-reference symbol parser tracker)
-    (let* ((pkg (or (symbol-package symbol)
-                    (current-package parser)))
-           (pkg-name (intern (package-name pkg) :keyword))
-           (key (make-tracking-key symbol (package-name pkg)))
-           (def (gethash key (slot-value tracker 'definitions))))
-      ;; Record reference if definition exists
-      (when def
-        ;; Pass as regular arguments rather than keyword args
-        (let ((ref (make-reference :symbol symbol
-                                 :type ref-type
-                                 :file (file parser)
-                                 :package pkg-name
-                                 :visibility visibility
-                                 :definition def)))
-          (push ref (gethash key (slot-value tracker 'references)))
-          t))
-      ;; Record undefined reference anomaly if no definition found
-      (when (not def)
-        (record-anomaly tracker
-                        :undefined-reference
-                        :ERROR
-                        (file parser)
-                        (format nil "~A ~A has no definition"
-                                (if (eq ref-type :OPERATOR) "Function" "Symbol")
-                                symbol)
-                        (format nil "Referenced in ~A position"
-                                (if (eq ref-type :OPERATOR) "operator" "value")))
-        nil))))
 
 
 (defun walk-form (form handler &key (log-stream *trace-output*) (log-depth t))

@@ -23,6 +23,7 @@
     #:get-file-cycles
     ;; Development
     #:prt
+    #:dep
     #:defs
     #:refs
     #:anoms))
@@ -46,6 +47,30 @@
           ,@(last `,forms)))
 
 
+(defun delete-fasl ()
+  "Delete FASL files for the dependency-analyzer system from the SBCL Windows cache directory."
+  (let ((cache-dir "C:\\Users\\user\\AppData\\Local\\cache\\common-lisp\\sbcl-2.4.9-win-x64\\D\\quicklisp\\local-projects\\dependency-analyzer\\src\\"))
+    (let ((fasl-files (directory (merge-pathnames "*.fasl" cache-dir))))
+      (dolist (file fasl-files)
+        (ignore-errors
+          (delete-file file))))))
+
+
+(defun flat ()
+  "Collects all the files for uploading to Claude."
+  (let ((in-dir1 "D:/quicklisp/local-projects/dependency-analyzer/")
+        (in-dir2 "D:/quicklisp/local-projects/test-project/")
+        (out-dir "D:/Users Data/Dave/Desktop/"))
+    (flatten-directories (list in-dir1 in-dir2) out-dir '("*.lisp" "*.asd"))))
+
+
+(defun dep ()
+  "Fresh reloads the dependency-analyzer system to continue testing."
+  (delete-fasl)
+  (ql:quickload :dependency-analyzer)
+  (analyze "d:/quicklisp/local-projects/test-project/source"))
+
+
 (defun defs ()
   "Pretty print all definition records from current tracker in symbol name order."
   (let ((defs nil))
@@ -54,15 +79,14 @@
                (push def defs))
              (slot-value *current-tracker* 'definitions))
     (dolist (def (sort defs #'string< :key #'definition.name))
-      (format t "~&Name: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~%  Spec-Symbols: ~S~%~%"
+      (format t "~%Name: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~%"
               (etypecase (definition.name def)
                 (string (definition.name def))
-                (symbol (symbol-name (definition.name def))))
+                (symbol (definition.name def)))
               (definition.type def)
               (project-pathname (definition.file def))
               (definition.package def)
-              (definition.exported-p def)
-              (definition.spec-symbols def)))))
+              (definition.exported-p def)))))
 
 
 (defun refs ()
@@ -74,14 +98,14 @@
                  (push ref refs)))  
              (slot-value *current-tracker* 'references))
     (dolist (ref (sort refs #'string< :key #'reference.symbol))
-      (format t "~&Symbol: ~S~%  Type: ~A~%  File: ~A~%  Package: ~S~%  Visibility: ~A~%  Definition: ~S~%~%"
+      (format t "~%Symbol: ~A~%  Context: ~S~%  Type: ~A~%  File: ~A~%  Package: ~S~%  Visibility: ~A~%  Definition: ~A~%~%"
               (reference.symbol ref)
+              (reference.context ref)
               (reference.type ref) 
               (project-pathname (reference.file ref))
               (reference.package ref)
               (reference.visibility ref)
-              (when (reference.definition ref)
-                (definition.name (reference.definition ref)))))))
+              (project-pathname (definition.file (reference.definition ref)))))))
 
 
 (defun anoms ()

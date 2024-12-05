@@ -15,13 +15,13 @@
             :read-only t)
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol) :read-only t)
-  (spec-symbols nil :type list)
   (exported-p nil :type boolean :read-only t))
 
 
 (defstruct (reference (:conc-name reference.))
   "Data structure holding info about a lisp reference to a definition"
   (symbol nil :type symbol :read-only t)
+  (context nil :read-only t)
   (type nil :type (member :OPERATOR :VALUE) :read-only t)
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol null) :read-only t)
