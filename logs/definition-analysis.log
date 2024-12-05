@@ -3,273 +3,289 @@ Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/s
 
 Form: (DEFPACKAGE #:USER-MAIN-PACKAGE
         (:USE :CL))
- In value position
+
  Processing list form
   Form: (#:USER-MAIN-PACKAGE (:USE :CL))
    Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
               (:USE :CL))
-   In value position
+  
    Processing list form
     Form: #:USER-MAIN-PACKAGE
      Context: (#:USER-MAIN-PACKAGE (:USE :CL))
-     In operator position
+    
     Form: ((:USE :CL))
      Context: (#:USER-MAIN-PACKAGE (:USE :CL))
-     In value position
+    
      Processing list form
       Form: (:USE :CL)
        Context: ((:USE :CL))
-       In operator position
+      
        Processing list form
         Form: (:CL)
          Context: (:USE :CL)
-         In value position
+        
          Processing list form
 
 Form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
- In value position
+
  Processing list form
   Form: (#:USER-MAIN-PACKAGE)
    Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-   In value position
+  
    Processing list form
     Form: #:USER-MAIN-PACKAGE
      Context: (#:USER-MAIN-PACKAGE)
-     In operator position
+    
 
 Form: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
    Context: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
      Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
-     In operator position
+    
     Form: (0)
      Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
-     In value position
+    
      Processing list form
 
 Form: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
    Context: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE*
      Context: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
-     In operator position
+    
     Form: (0)
      Context: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
-     In value position
+    
      Processing list form
 
 Form: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
    Context: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+
      Context: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
-     In operator position
+    
     Form: ("aeiou")
      Context: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
-     In value position
+    
      Processing list form
+       Processing array
+        Form: #\a
+         Context: "aeiou"
+        
+        Form: #\e
+         Context: "aeiou"
+        
+        Form: #\i
+         Context: "aeiou"
+        
+        Form: #\o
+         Context: "aeiou"
+        
+        Form: #\u
+         Context: "aeiou"
+        
 
 Form: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
- In value position
+
  Processing list form
   Form: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
    Context: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
-   In value position
+  
    Processing list form
     Form: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
      Context: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
-     In operator position
+    
      Processing list form
       Form: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
        Context: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
-       In value position
+      
        Processing list form
         Form: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
          Context: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
            Context: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
              Context: (USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
-             In operator position
+            
     Form: (0)
      Context: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
-     In value position
+    
      Processing list form
 
 Form: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
    Context: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::DEFUN-NAME
      Context: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
-     In operator position
+    
     Form: (NIL 0)
      Context: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
-     In value position
+    
      Processing list form
       Form: (0)
        Context: (NIL 0)
-       In value position
+      
        Processing list form
 
 Form: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
               (LAMBDA () 0))
- In value position
+
  Processing list form
   Form: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
          (LAMBDA () 0))
    Context: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
                     (LAMBDA () 0))
-   In value position
+  
    Processing list form
     Form: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
      Context: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
                (LAMBDA () 0))
-     In operator position
+    
      Processing list form
       Form: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
        Context: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
-       In value position
+      
        Processing list form
         Form: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
          Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
            Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
              Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
-             In operator position
+            
     Form: ((LAMBDA () 0))
      Context: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
                (LAMBDA () 0))
-     In value position
+    
      Processing list form
       Form: (LAMBDA () 0)
        Context: ((LAMBDA () 0))
-       In operator position
+      
        Processing list form
         Form: (NIL 0)
          Context: (LAMBDA () 0)
-         In value position
+        
          Processing list form
           Form: (0)
            Context: (NIL 0)
-           In value position
+          
            Processing list form
 
 Form: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
               (LAMBDA () 0))
- In value position
+
  Processing list form
   Form: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
          (LAMBDA () 0))
    Context: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
                     (LAMBDA () 0))
-   In value position
+  
    Processing list form
     Form: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
      Context: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
                (LAMBDA () 0))
-     In operator position
+    
      Processing list form
       Form: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
        Context: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
-       In value position
+      
        Processing list form
         Form: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
          Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
            Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
              Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
-             In operator position
+            
     Form: ((LAMBDA () 0))
      Context: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
                (LAMBDA () 0))
-     In value position
+    
      Processing list form
       Form: (LAMBDA () 0)
        Context: ((LAMBDA () 0))
-       In operator position
+      
        Processing list form
         Form: (NIL 0)
          Context: (LAMBDA () 0)
-         In value position
+        
          Processing list form
           Form: (0)
            Context: (NIL 0)
-           In value position
+          
            Processing list form
 
 Form: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
         (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::CIRCLE (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
    Context: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
               (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::CIRCLE
      Context: (USER-MAIN-PACKAGE::CIRCLE
                (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
-     In operator position
+    
     Form: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
      Context: (USER-MAIN-PACKAGE::CIRCLE
                (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
-     In value position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
        Context: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::RADIUS
          Context: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
-         In operator position
+        
         Form: (1 :TYPE NUMBER)
          Context: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
-         In value position
+        
          Processing list form
           Form: (:TYPE NUMBER)
            Context: (1 :TYPE NUMBER)
-           In value position
+          
            Processing list form
             Form: (NUMBER)
              Context: (:TYPE NUMBER)
-             In value position
+            
              Processing list form
 
 Form: (DEFSTRUCT
           (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
         (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
- In value position
+
  Processing list form
   Form: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
          (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
@@ -277,116 +293,255 @@ Form: (DEFSTRUCT
                 (USER-MAIN-PACKAGE::PERSON
                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
               (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
-   In value position
+  
    Processing list form
     Form: (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
      Context: ((USER-MAIN-PACKAGE::PERSON
                 (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
                (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
-     In operator position
+    
      Processing list form
       Form: USER-MAIN-PACKAGE::PERSON
        Context: (USER-MAIN-PACKAGE::PERSON
                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
-       In operator position
+      
       Form: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
        Context: (USER-MAIN-PACKAGE::PERSON
                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
-       In value position
+      
        Processing list form
         Form: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
          Context: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::PERSON.)
            Context: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::PERSON.
              Context: (USER-MAIN-PACKAGE::PERSON.)
-             In operator position
+            
     Form: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
      Context: ((USER-MAIN-PACKAGE::PERSON
                 (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
                (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
-     In value position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
        Context: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::AGE
          Context: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
-         In operator position
+        
         Form: (0 :TYPE FIXNUM)
          Context: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
-         In value position
+        
          Processing list form
           Form: (:TYPE FIXNUM)
            Context: (0 :TYPE FIXNUM)
-           In value position
+          
            Processing list form
             Form: (FIXNUM)
              Context: (:TYPE FIXNUM)
-             In value position
+            
              Processing list form
 
 Form: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
           (USER-MAIN-PACKAGE::SHAPE)
         (:DOCUMENTATION "Compute the area of different geometric shapes"))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
          (:DOCUMENTATION "Compute the area of different geometric shapes"))
    Context: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
                 (USER-MAIN-PACKAGE::SHAPE)
               (:DOCUMENTATION "Compute the area of different geometric shapes"))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::COMPUTE-AREA
      Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
                (:DOCUMENTATION
                 "Compute the area of different geometric shapes"))
-     In operator position
+    
     Form: ((USER-MAIN-PACKAGE::SHAPE)
            (:DOCUMENTATION "Compute the area of different geometric shapes"))
      Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
                (:DOCUMENTATION
                 "Compute the area of different geometric shapes"))
-     In value position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::SHAPE)
        Context: ((USER-MAIN-PACKAGE::SHAPE)
                  (:DOCUMENTATION
                   "Compute the area of different geometric shapes"))
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::SHAPE
          Context: (USER-MAIN-PACKAGE::SHAPE)
-         In operator position
+        
       Form: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
        Context: ((USER-MAIN-PACKAGE::SHAPE)
                  (:DOCUMENTATION
                   "Compute the area of different geometric shapes"))
-       In value position
+      
        Processing list form
         Form: (:DOCUMENTATION "Compute the area of different geometric shapes")
          Context: ((:DOCUMENTATION
                     "Compute the area of different geometric shapes"))
-         In operator position
+        
          Processing list form
           Form: ("Compute the area of different geometric shapes")
            Context: (:DOCUMENTATION
                      "Compute the area of different geometric shapes")
-           In value position
+          
            Processing list form
+             Processing array
+              Form: #\C
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\o
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\m
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\p
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\u
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\h
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\a
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\r
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\a
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\o
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\f
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\d
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\i
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\f
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\f
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\r
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\n
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\g
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\o
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\m
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\r
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\i
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\c
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\s
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\h
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\a
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\p
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\s
+               Context: "Compute the area of different geometric shapes"
+              
 
 Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                  ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
         (* PI
            (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
                  2)))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::COMPUTE-AREA
          ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
@@ -399,7 +554,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                  (EXPT
                   (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
                   2)))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::COMPUTE-AREA
      Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
@@ -408,7 +563,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                   (EXPT
                    (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
                    2)))
-     In operator position
+    
     Form: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
            (* PI
               (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
@@ -419,7 +574,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                   (EXPT
                    (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
                    2)))
-     In value position
+    
      Processing list form
       Form: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
        Context: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
@@ -428,22 +583,22 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                       USER-MAIN-PACKAGE::SHAPE)
                      2)))
-       In operator position
+      
        Processing list form
         Form: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
          Context: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
-         In operator position
+        
          Processing list form
           Form: USER-MAIN-PACKAGE::SHAPE
            Context: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
-           In operator position
+          
           Form: (USER-MAIN-PACKAGE::CIRCLE)
            Context: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::CIRCLE
              Context: (USER-MAIN-PACKAGE::CIRCLE)
-             In operator position
+            
       Form: ((* PI
                 (EXPT
                  (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
@@ -454,7 +609,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                       USER-MAIN-PACKAGE::SHAPE)
                      2)))
-       In value position
+      
        Processing list form
         Form: (* PI
                  (EXPT
@@ -465,7 +620,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                        (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                         USER-MAIN-PACKAGE::SHAPE)
                        2)))
-         In operator position
+        
          Processing list form
           Form: (PI
                  (EXPT
@@ -476,7 +631,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                         (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                          USER-MAIN-PACKAGE::SHAPE)
                         2))
-           In value position
+          
            Processing list form
             Form: ((EXPT
                     (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
@@ -486,7 +641,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                         (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                          USER-MAIN-PACKAGE::SHAPE)
                         2))
-             In value position
+            
              Processing list form
               Form: (EXPT
                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
@@ -496,7 +651,7 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                           (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                            USER-MAIN-PACKAGE::SHAPE)
                           2))
-               In operator position
+              
                Processing list form
                 Form: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
                         USER-MAIN-PACKAGE::SHAPE)
@@ -505,86 +660,186 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                            (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                             USER-MAIN-PACKAGE::SHAPE)
                            2)
-                 In value position
+                
                  Processing list form
                   Form: (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                          USER-MAIN-PACKAGE::SHAPE)
                    Context: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
                               USER-MAIN-PACKAGE::SHAPE)
                              2)
-                   In operator position
+                  
                    Processing list form
                     Form: USER-MAIN-PACKAGE::CIRCLE-RADIUS
                      Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                                USER-MAIN-PACKAGE::SHAPE)
-                     In operator position
+                    
                     Form: (USER-MAIN-PACKAGE::SHAPE)
                      Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                                USER-MAIN-PACKAGE::SHAPE)
-                     In value position
+                    
                      Processing list form
                       Form: USER-MAIN-PACKAGE::SHAPE
                        Context: (USER-MAIN-PACKAGE::SHAPE)
-                       In operator position
+                      
                   Form: (2)
                    Context: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
                               USER-MAIN-PACKAGE::SHAPE)
                              2)
-                   In value position
+                  
                    Processing list form
 
 Form: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
           (USER-MAIN-PACKAGE::DATA &KEY)
         (:DOCUMENTATION "Process data with various methods"))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
          (:DOCUMENTATION "Process data with various methods"))
    Context: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
                 (USER-MAIN-PACKAGE::DATA &KEY)
               (:DOCUMENTATION "Process data with various methods"))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
                (:DOCUMENTATION "Process data with various methods"))
-     In operator position
+    
     Form: ((USER-MAIN-PACKAGE::DATA &KEY)
            (:DOCUMENTATION "Process data with various methods"))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
                (:DOCUMENTATION "Process data with various methods"))
-     In value position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::DATA &KEY)
        Context: ((USER-MAIN-PACKAGE::DATA &KEY)
                  (:DOCUMENTATION "Process data with various methods"))
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::DATA
          Context: (USER-MAIN-PACKAGE::DATA &KEY)
-         In operator position
+        
         Form: (&KEY)
          Context: (USER-MAIN-PACKAGE::DATA &KEY)
-         In value position
+        
          Processing list form
       Form: ((:DOCUMENTATION "Process data with various methods"))
        Context: ((USER-MAIN-PACKAGE::DATA &KEY)
                  (:DOCUMENTATION "Process data with various methods"))
-       In value position
+      
        Processing list form
         Form: (:DOCUMENTATION "Process data with various methods")
          Context: ((:DOCUMENTATION "Process data with various methods"))
-         In operator position
+        
          Processing list form
           Form: ("Process data with various methods")
            Context: (:DOCUMENTATION "Process data with various methods")
-           In value position
+          
            Processing list form
+             Processing array
+              Form: #\P
+               Context: "Process data with various methods"
+              
+              Form: #\r
+               Context: "Process data with various methods"
+              
+              Form: #\o
+               Context: "Process data with various methods"
+              
+              Form: #\c
+               Context: "Process data with various methods"
+              
+              Form: #\e
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\d
+               Context: "Process data with various methods"
+              
+              Form: #\a
+               Context: "Process data with various methods"
+              
+              Form: #\t
+               Context: "Process data with various methods"
+              
+              Form: #\a
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\w
+               Context: "Process data with various methods"
+              
+              Form: #\i
+               Context: "Process data with various methods"
+              
+              Form: #\t
+               Context: "Process data with various methods"
+              
+              Form: #\h
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\v
+               Context: "Process data with various methods"
+              
+              Form: #\a
+               Context: "Process data with various methods"
+              
+              Form: #\r
+               Context: "Process data with various methods"
+              
+              Form: #\i
+               Context: "Process data with various methods"
+              
+              Form: #\o
+               Context: "Process data with various methods"
+              
+              Form: #\u
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\m
+               Context: "Process data with various methods"
+              
+              Form: #\e
+               Context: "Process data with various methods"
+              
+              Form: #\t
+               Context: "Process data with various methods"
+              
+              Form: #\h
+               Context: "Process data with various methods"
+              
+              Form: #\o
+               Context: "Process data with various methods"
+              
+              Form: #\d
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
 
 Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
                  ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
         (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA
          ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
@@ -592,61 +847,61 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
    Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
                        ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
               (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
-     In operator position
+    
     Form: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
-     In value position
+    
      Processing list form
       Form: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
        Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                  (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
-       In operator position
+      
        Processing list form
         Form: (USER-MAIN-PACKAGE::DATA STRING)
          Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
-         In operator position
+        
          Processing list form
           Form: USER-MAIN-PACKAGE::DATA
            Context: (USER-MAIN-PACKAGE::DATA STRING)
-           In operator position
+          
           Form: (STRING)
            Context: (USER-MAIN-PACKAGE::DATA STRING)
-           In value position
+          
            Processing list form
         Form: (&KEY)
          Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
-         In value position
+        
          Processing list form
       Form: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
        Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                  (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
-       In value position
+      
        Processing list form
         Form: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
          Context: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::DATA)
            Context: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::DATA
              Context: (USER-MAIN-PACKAGE::DATA)
-             In operator position
+            
 
 Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
                  ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
         (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
          ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
@@ -654,148 +909,170 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
    Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
                        ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
               (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
-     In operator position
+    
     Form: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
-     In value position
+    
      Processing list form
       Form: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
              (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
        Context: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                  (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
-       In value position
+      
        Processing list form
         Form: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
          Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                    (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::DATA STRING)
            Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
-           In operator position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::DATA
              Context: (USER-MAIN-PACKAGE::DATA STRING)
-             In operator position
+            
             Form: (STRING)
              Context: (USER-MAIN-PACKAGE::DATA STRING)
-             In value position
+            
              Processing list form
           Form: (&KEY)
            Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
-           In value position
+          
            Processing list form
         Form: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
          Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                    (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
-         In value position
+        
          Processing list form
           Form: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
            Context: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
-           In operator position
+          
            Processing list form
             Form: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
              Context: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
-             In value position
+            
              Processing list form
               Form: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                Context: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
-               In value position
+              
                Processing list form
+                 Processing array
+                  Form: #\L
+                   Context: "LOG: ~A"
+                  
+                  Form: #\O
+                   Context: "LOG: ~A"
+                  
+                  Form: #\G
+                   Context: "LOG: ~A"
+                  
+                  Form: #\:
+                   Context: "LOG: ~A"
+                  
+                  Form: #\ 
+                   Context: "LOG: ~A"
+                  
+                  Form: #\~
+                   Context: "LOG: ~A"
+                  
+                  Form: #\A
+                   Context: "LOG: ~A"
+                  
                 Form: (USER-MAIN-PACKAGE::DATA)
                  Context: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
-                 In value position
+                
                  Processing list form
                   Form: USER-MAIN-PACKAGE::DATA
                    Context: (USER-MAIN-PACKAGE::DATA)
-                   In operator position
+                  
 
 Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
                  ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
         (1+ USER-MAIN-PACKAGE::DATA))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA
          ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
    Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
                        ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
               (1+ USER-MAIN-PACKAGE::DATA))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                (1+ USER-MAIN-PACKAGE::DATA))
-     In operator position
+    
     Form: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                (1+ USER-MAIN-PACKAGE::DATA))
-     In value position
+    
      Processing list form
       Form: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
        Context: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                  (1+ USER-MAIN-PACKAGE::DATA))
-       In operator position
+      
        Processing list form
         Form: (USER-MAIN-PACKAGE::DATA NUMBER)
          Context: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
-         In operator position
+        
          Processing list form
           Form: USER-MAIN-PACKAGE::DATA
            Context: (USER-MAIN-PACKAGE::DATA NUMBER)
-           In operator position
+          
           Form: (NUMBER)
            Context: (USER-MAIN-PACKAGE::DATA NUMBER)
-           In value position
+          
            Processing list form
         Form: (&KEY)
          Context: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
-         In value position
+        
          Processing list form
       Form: ((1+ USER-MAIN-PACKAGE::DATA))
        Context: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                  (1+ USER-MAIN-PACKAGE::DATA))
-       In value position
+      
        Processing list form
         Form: (1+ USER-MAIN-PACKAGE::DATA)
          Context: ((1+ USER-MAIN-PACKAGE::DATA))
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::DATA)
            Context: (1+ USER-MAIN-PACKAGE::DATA)
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::DATA
              Context: (USER-MAIN-PACKAGE::DATA)
-             In operator position
+            
 
 Form: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
    Context: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::DEFMACRO-NAME
      Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
-     In operator position
+    
     Form: (NIL 0)
      Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
-     In value position
+    
      Processing list form
       Form: (0)
        Context: (NIL 0)
-       In value position
+      
        Processing list form
 
 Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
@@ -803,7 +1080,7 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                 USER-MAIN-PACKAGE::FORM
                 USER-MAIN-PACKAGE::ENV
                 0))
- In value position
+
  Processing list form
   Form: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
          (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
@@ -815,7 +1092,7 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                       USER-MAIN-PACKAGE::FORM
                       USER-MAIN-PACKAGE::ENV
                       0))
-   In value position
+  
    Processing list form
     Form: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
      Context: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
@@ -823,23 +1100,23 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                  USER-MAIN-PACKAGE::FORM
                  USER-MAIN-PACKAGE::ENV
                  0))
-     In operator position
+    
      Processing list form
       Form: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
        Context: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
-       In value position
+      
        Processing list form
         Form: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
          Context: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
-         In operator position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
            Context: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
              Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
-             In operator position
+            
     Form: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
              USER-MAIN-PACKAGE::FORM
              USER-MAIN-PACKAGE::ENV
@@ -849,7 +1126,7 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                  USER-MAIN-PACKAGE::FORM
                  USER-MAIN-PACKAGE::ENV
                  0))
-     In value position
+    
      Processing list form
       Form: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
               USER-MAIN-PACKAGE::FORM
@@ -859,7 +1136,7 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                    USER-MAIN-PACKAGE::FORM
                    USER-MAIN-PACKAGE::ENV
                    0))
-       In operator position
+      
        Processing list form
         Form: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
@@ -867,304 +1144,317 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                     USER-MAIN-PACKAGE::FORM
                     USER-MAIN-PACKAGE::ENV
                     0)
-         In value position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
            Context: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
-           In operator position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::FORM
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
-             In operator position
+            
             Form: (USER-MAIN-PACKAGE::ENV)
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
-             In value position
+            
              Processing list form
               Form: USER-MAIN-PACKAGE::ENV
                Context: (USER-MAIN-PACKAGE::ENV)
-               In operator position
+              
           Form: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
            Context: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::FORM
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
-             In operator position
+            
             Form: (USER-MAIN-PACKAGE::ENV 0)
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
-             In value position
+            
              Processing list form
               Form: USER-MAIN-PACKAGE::ENV
                Context: (USER-MAIN-PACKAGE::ENV 0)
-               In operator position
+              
               Form: (0)
                Context: (USER-MAIN-PACKAGE::ENV 0)
-               In value position
+              
                Processing list form
 
 Form: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
           NIL
           NIL)
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
    Context: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
                 NIL
                 NIL)
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::CONDITION-NAME
      Context: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
-     In operator position
+    
     Form: (NIL NIL)
      Context: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
-     In value position
+    
      Processing list form
       Form: (NIL)
        Context: (NIL NIL)
-       In value position
+      
        Processing list form
 
 
 Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
 
 Form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
- In value position
+
  Processing list form
   Form: (#:USER-MAIN-PACKAGE)
    Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-   In value position
+  
    Processing list form
     Form: #:USER-MAIN-PACKAGE
      Context: (#:USER-MAIN-PACKAGE)
-     In operator position
+    
 
 Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
- In value position
+
 
 Form: USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE*
- In value position
+
 
 Form: USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+
- In value position
+
 
 Form: USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
- In value position
+
 
 Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
- In value position
+
  Processing list form
   Form: USER-MAIN-PACKAGE::DEFUN-NAME
    Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
-   In operator position
+  
 
 Form: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
- In value position
+
  Processing list form
   Form: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
    Context: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
-   In value position
+  
    Processing list form
     Form: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
      Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
-     In operator position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
        Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
-       In value position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
          Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
-         In operator position
+        
 
 Form: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
- In value position
+
  Processing list form
   Form: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
    Context: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
-   In value position
+  
    Processing list form
     Form: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
      Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
-     In operator position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
        Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
-       In value position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
          Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
-         In operator position
+        
 
 Form: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
- In value position
+
  Processing list form
   Form: USER-MAIN-PACKAGE::CIRCLE-RADIUS
    Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
-   In operator position
+  
   Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
    Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
-   In value position
+  
    Processing list form
     Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
      Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
-     In operator position
+    
      Processing list form
       Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
        Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
-       In operator position
+      
 
 Form: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
- In value position
+
  Processing list form
   Form: USER-MAIN-PACKAGE::PERSON.AGE
    Context: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
-   In operator position
+  
   Form: ((USER-MAIN-PACKAGE::MAKE-PERSON))
    Context: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
-   In value position
+  
    Processing list form
     Form: (USER-MAIN-PACKAGE::MAKE-PERSON)
      Context: ((USER-MAIN-PACKAGE::MAKE-PERSON))
-     In operator position
+    
      Processing list form
       Form: USER-MAIN-PACKAGE::MAKE-PERSON
        Context: (USER-MAIN-PACKAGE::MAKE-PERSON)
-       In operator position
+      
 
 Form: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
- In value position
+
  Processing list form
   Form: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
          (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
    Context: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
                      (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
-   In value position
+  
    Processing list form
     Form: #'USER-MAIN-PACKAGE::COMPUTE-AREA
      Context: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
-     In operator position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::COMPUTE-AREA)
        Context: #'USER-MAIN-PACKAGE::COMPUTE-AREA
-       In value position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::COMPUTE-AREA
          Context: (USER-MAIN-PACKAGE::COMPUTE-AREA)
-         In operator position
+        
     Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
      Context: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
-     In value position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
        Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
          Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
-         In operator position
+        
         Form: (:RADIUS 1)
          Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
-         In value position
+        
          Processing list form
           Form: (1)
            Context: (:RADIUS 1)
-           In value position
+          
            Processing list form
 
 Form: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
- In value position
+
  Processing list form
   Form: USER-MAIN-PACKAGE::PROCESS-DATA
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
-   In operator position
+  
   Form: ("test" :LOGGING)
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
-   In value position
+  
    Processing list form
+     Processing array
+      Form: #\t
+       Context: "test"
+      
+      Form: #\e
+       Context: "test"
+      
+      Form: #\s
+       Context: "test"
+      
+      Form: #\t
+       Context: "test"
+      
     Form: (:LOGGING)
      Context: ("test" :LOGGING)
-     In value position
+    
      Processing list form
 
 Form: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
- In value position
+
  Processing list form
   Form: USER-MAIN-PACKAGE::PROCESS-DATA
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
-   In operator position
+  
   Form: (42)
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
-   In value position
+  
    Processing list form
 
 Form: (USER-MAIN-PACKAGE::DEFMACRO-NAME)
- In value position
+
  Processing list form
   Form: USER-MAIN-PACKAGE::DEFMACRO-NAME
    Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME)
-   In operator position
+  
 
 Form: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
- In value position
+
  Processing list form
   Form: USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
    Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
-   In operator position
+  
 
 Form: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
         (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
          (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
    Context: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
               (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION
      Context: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
                (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
-     In operator position
+    
     Form: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
      Context: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
                (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
-     In value position
+    
      Processing list form
       Form: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
        Context: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
-       In value position
+      
        Processing list form
         Form: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
          Context: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
-         In operator position
+        
          Processing list form
           Form: ('USER-MAIN-PACKAGE::CONDITION-NAME)
            Context: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
-           In value position
+          
            Processing list form
             Form: 'USER-MAIN-PACKAGE::CONDITION-NAME
              Context: ('USER-MAIN-PACKAGE::CONDITION-NAME)
-             In operator position
+            
              Processing list form
               Form: (USER-MAIN-PACKAGE::CONDITION-NAME)
                Context: 'USER-MAIN-PACKAGE::CONDITION-NAME
-               In value position
+              
                Processing list form
                 Form: USER-MAIN-PACKAGE::CONDITION-NAME
                  Context: (USER-MAIN-PACKAGE::CONDITION-NAME)
-                 In operator position
+                
 
 Form: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
         (USER-MAIN-PACKAGE::DEFUN-NAME)
         USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
         USER-MAIN-PACKAGE::ARG)
- In value position
+
  Processing list form
   Form: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
          (USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
@@ -1173,66 +1463,66 @@ Form: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
               (USER-MAIN-PACKAGE::DEFUN-NAME)
               USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
               USER-MAIN-PACKAGE::ARG)
-   In value position
+  
    Processing list form
     Form: USER-MAIN-PACKAGE::MY-FUNCTION
      Context: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
                (USER-MAIN-PACKAGE::DEFUN-NAME)
                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
-     In operator position
+    
     Form: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
      Context: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
                (USER-MAIN-PACKAGE::DEFUN-NAME)
                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
-     In value position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::ARG)
        Context: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::ARG
          Context: (USER-MAIN-PACKAGE::ARG)
-         In operator position
+        
       Form: ((USER-MAIN-PACKAGE::DEFUN-NAME)
              USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
        Context: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
-       In value position
+      
        Processing list form
         Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
          Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
                    USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
-         In operator position
+        
          Processing list form
           Form: USER-MAIN-PACKAGE::DEFUN-NAME
            Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
-           In operator position
+          
         Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
          Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
                    USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
-         In value position
+        
          Processing list form
           Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
            Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                      USER-MAIN-PACKAGE::ARG)
-           In operator position
+          
           Form: (USER-MAIN-PACKAGE::ARG)
            Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                      USER-MAIN-PACKAGE::ARG)
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::ARG
              Context: (USER-MAIN-PACKAGE::ARG)
-             In operator position
+            
 
 Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
         (USER-MAIN-PACKAGE::DEFUN-NAME)
         USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
         (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
         USER-MAIN-PACKAGE::ARG)
- In value position
+
  Processing list form
   Form: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
          USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
@@ -1244,7 +1534,7 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
               (USER-MAIN-PACKAGE::COMPUTE-AREA
                (USER-MAIN-PACKAGE::MAKE-CIRCLE))
               USER-MAIN-PACKAGE::ARG)
-   In value position
+  
    Processing list form
     Form: ((USER-MAIN-PACKAGE::ARG 0))
      Context: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
@@ -1252,18 +1542,18 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                (USER-MAIN-PACKAGE::COMPUTE-AREA
                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                USER-MAIN-PACKAGE::ARG)
-     In operator position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::ARG 0)
        Context: ((USER-MAIN-PACKAGE::ARG 0))
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::ARG
          Context: (USER-MAIN-PACKAGE::ARG 0)
-         In operator position
+        
         Form: (0)
          Context: (USER-MAIN-PACKAGE::ARG 0)
-         In value position
+        
          Processing list form
     Form: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
@@ -1273,7 +1563,7 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                (USER-MAIN-PACKAGE::COMPUTE-AREA
                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                USER-MAIN-PACKAGE::ARG)
-     In value position
+    
      Processing list form
       Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
        Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
@@ -1281,11 +1571,11 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                  (USER-MAIN-PACKAGE::COMPUTE-AREA
                   (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                  USER-MAIN-PACKAGE::ARG)
-       In operator position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::DEFUN-NAME
          Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
-         In operator position
+        
       Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
              (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
              USER-MAIN-PACKAGE::ARG)
@@ -1294,14 +1584,14 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                  (USER-MAIN-PACKAGE::COMPUTE-AREA
                   (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                  USER-MAIN-PACKAGE::ARG)
-       In value position
+      
        Processing list form
         Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
          Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                    (USER-MAIN-PACKAGE::COMPUTE-AREA
                     (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                    USER-MAIN-PACKAGE::ARG)
-         In operator position
+        
         Form: ((USER-MAIN-PACKAGE::COMPUTE-AREA
                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                USER-MAIN-PACKAGE::ARG)
@@ -1309,38 +1599,38 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                    (USER-MAIN-PACKAGE::COMPUTE-AREA
                     (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                    USER-MAIN-PACKAGE::ARG)
-         In value position
+        
          Processing list form
           Form: (USER-MAIN-PACKAGE::COMPUTE-AREA
                  (USER-MAIN-PACKAGE::MAKE-CIRCLE))
            Context: ((USER-MAIN-PACKAGE::COMPUTE-AREA
                       (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                      USER-MAIN-PACKAGE::ARG)
-           In operator position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::COMPUTE-AREA
              Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
                        (USER-MAIN-PACKAGE::MAKE-CIRCLE))
-             In operator position
+            
             Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
              Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
                        (USER-MAIN-PACKAGE::MAKE-CIRCLE))
-             In value position
+            
              Processing list form
               Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
                Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
-               In operator position
+              
                Processing list form
                 Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
                  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
-                 In operator position
+                
           Form: (USER-MAIN-PACKAGE::ARG)
            Context: ((USER-MAIN-PACKAGE::COMPUTE-AREA
                       (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                      USER-MAIN-PACKAGE::ARG)
-           In value position
+          
            Processing list form
             Form: USER-MAIN-PACKAGE::ARG
              Context: (USER-MAIN-PACKAGE::ARG)
-             In operator position
+            
 

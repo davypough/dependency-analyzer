@@ -340,7 +340,7 @@
                 (setf (gethash dep is-dependency) t)))
             (slot-value tracker 'file-map))
    
-   ;; Second pass with reference handling fix
+   ;; Second pass simplified to just list references
    (maphash (lambda (file definitions)
               (declare (ignore definitions))
               (unless (gethash file is-dependency)
@@ -349,21 +349,11 @@
                   (when deps
                     (let ((deps-with-refs 
                            (mapcar (lambda (dep)
-                                   (let* ((refs (collect-file-references tracker file dep))
-                                          (operator-refs (mapcar #'reference.symbol
-                                                               (remove-if-not 
-                                                                (lambda (ref)
-                                                                  (eq (reference.type ref) :OPERATOR))
-                                                                refs)))
-                                          (value-refs (mapcar #'reference.symbol
-                                                            (remove-if-not
-                                                             (lambda (ref)
-                                                              (eq (reference.type ref) :VALUE))
-                                                             refs))))
+                                   (let ((refs (collect-file-references tracker file dep)))
                                      (alexandria:alist-hash-table
                                       `(("file" . ,(project-pathname dep))
-                                        ("function_calls" . ,(mapcar #'symbol-name operator-refs))
-                                        ("value_references" . ,(mapcar #'symbol-name value-refs)))
+                                        ("references" . ,(mapcar #'symbol-name 
+                                                               (mapcar #'reference.symbol refs))))
                                       :test 'equal)))
                                  deps)))
                       (setf (gethash file-str result)

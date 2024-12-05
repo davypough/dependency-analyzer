@@ -3,1040 +3,1330 @@ Reference Analysis Trace for d:/quicklisp/local-projects/test-project/source/sin
 
 Form: (DEFPACKAGE #:USER-MAIN-PACKAGE
         (:USE :CL))
- In value position
+
  Processing list form
   Form: (#:USER-MAIN-PACKAGE (:USE :CL))
    Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
               (:USE :CL))
-   In value position
+  
    Processing list form
     Form: #:USER-MAIN-PACKAGE
      Context: (#:USER-MAIN-PACKAGE (:USE :CL))
-     In operator position
+    
     Form: ((:USE :CL))
      Context: (#:USER-MAIN-PACKAGE (:USE :CL))
-     In value position
+    
      Processing list form
       Form: (:USE :CL)
        Context: ((:USE :CL))
-       In operator position
+      
        Processing list form
         Form: (:CL)
          Context: (:USE :CL)
-         In value position
+        
          Processing list form
 
 Form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
- In value position
+
  Processing list form
   Form: (#:USER-MAIN-PACKAGE)
    Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-   In value position
+  
    Processing list form
     Form: #:USER-MAIN-PACKAGE
      Context: (#:USER-MAIN-PACKAGE)
-     In operator position
+    
 
 Form: (DEFVAR *DEFVAR-VARIABLE* 0)
- In value position
+
  Processing list form
   Form: (*DEFVAR-VARIABLE* 0)
    Context: (DEFVAR *DEFVAR-VARIABLE* 0)
-   In value position
+  
    Processing list form
     Form: *DEFVAR-VARIABLE*
      Context: (*DEFVAR-VARIABLE* 0)
-     In operator position
+    
     Form: (0)
      Context: (*DEFVAR-VARIABLE* 0)
-     In value position
+    
      Processing list form
 
 Form: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
- In value position
+
  Processing list form
   Form: (*DEFPARAMETER-VARIABLE* 0)
    Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-   In value position
+  
    Processing list form
     Form: *DEFPARAMETER-VARIABLE*
      Context: (*DEFPARAMETER-VARIABLE* 0)
-     In operator position
+    
     Form: (0)
      Context: (*DEFPARAMETER-VARIABLE* 0)
-     In value position
+    
      Processing list form
 
 Form: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
- In value position
+
  Processing list form
   Form: (+DEFCONSTANT-VARIABLE+ "aeiou")
    Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
-   In value position
+  
    Processing list form
     Form: +DEFCONSTANT-VARIABLE+
      Context: (+DEFCONSTANT-VARIABLE+ "aeiou")
-     In operator position
+    
     Form: ("aeiou")
      Context: (+DEFCONSTANT-VARIABLE+ "aeiou")
-     In value position
+    
      Processing list form
+       Processing array
+        Form: #\a
+         Context: "aeiou"
+        
+        Form: #\e
+         Context: "aeiou"
+        
+        Form: #\i
+         Context: "aeiou"
+        
+        Form: #\o
+         Context: "aeiou"
+        
+        Form: #\u
+         Context: "aeiou"
+        
 
 Form: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
- In value position
+
  Processing list form
   Form: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
    Context: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-   In value position
+  
    Processing list form
     Form: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
      Context: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-     In operator position
+    
      Processing list form
       Form: ('SYMBOL-VALUE-VARIABLE)
        Context: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
-       In value position
+      
        Processing list form
         Form: 'SYMBOL-VALUE-VARIABLE
          Context: ('SYMBOL-VALUE-VARIABLE)
-         In operator position
+        
          Processing list form
           Form: (SYMBOL-VALUE-VARIABLE)
            Context: 'SYMBOL-VALUE-VARIABLE
-           In value position
+          
            Processing list form
             Form: SYMBOL-VALUE-VARIABLE
              Context: (SYMBOL-VALUE-VARIABLE)
-             In operator position
+            
     Form: (0)
      Context: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-     In value position
+    
      Processing list form
 
 Form: (DEFUN DEFUN-NAME () 0)
- In value position
+
  Processing list form
   Form: (DEFUN-NAME NIL 0)
    Context: (DEFUN DEFUN-NAME () 0)
-   In value position
+  
    Processing list form
     Form: DEFUN-NAME
      Context: (DEFUN-NAME NIL 0)
-     In operator position
+    
     Form: (NIL 0)
      Context: (DEFUN-NAME NIL 0)
-     In value position
+    
      Processing list form
       Form: (0)
        Context: (NIL 0)
-       In value position
+      
        Processing list form
 
 Form: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
- In value position
+
  Processing list form
   Form: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
    Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-   In value position
+  
    Processing list form
     Form: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
      Context: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-     In operator position
+    
      Processing list form
       Form: ('SYMBOL-FUNCTION-NAME)
        Context: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
-       In value position
+      
        Processing list form
         Form: 'SYMBOL-FUNCTION-NAME
          Context: ('SYMBOL-FUNCTION-NAME)
-         In operator position
+        
          Processing list form
           Form: (SYMBOL-FUNCTION-NAME)
            Context: 'SYMBOL-FUNCTION-NAME
-           In value position
+          
            Processing list form
             Form: SYMBOL-FUNCTION-NAME
              Context: (SYMBOL-FUNCTION-NAME)
-             In operator position
+            
     Form: ((LAMBDA () 0))
      Context: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-     In value position
+    
      Processing list form
       Form: (LAMBDA () 0)
        Context: ((LAMBDA () 0))
-       In operator position
+      
        Processing list form
         Form: (NIL 0)
          Context: (LAMBDA () 0)
-         In value position
+        
          Processing list form
           Form: (0)
            Context: (NIL 0)
-           In value position
+          
            Processing list form
 
 Form: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
- In value position
+
  Processing list form
   Form: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
    Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-   In value position
+  
    Processing list form
     Form: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
      Context: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-     In operator position
+    
      Processing list form
       Form: ('FDEFINITION-FUNCTION-NAME)
        Context: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
-       In value position
+      
        Processing list form
         Form: 'FDEFINITION-FUNCTION-NAME
          Context: ('FDEFINITION-FUNCTION-NAME)
-         In operator position
+        
          Processing list form
           Form: (FDEFINITION-FUNCTION-NAME)
            Context: 'FDEFINITION-FUNCTION-NAME
-           In value position
+          
            Processing list form
             Form: FDEFINITION-FUNCTION-NAME
              Context: (FDEFINITION-FUNCTION-NAME)
-             In operator position
+            
     Form: ((LAMBDA () 0))
      Context: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-     In value position
+    
      Processing list form
       Form: (LAMBDA () 0)
        Context: ((LAMBDA () 0))
-       In operator position
+      
        Processing list form
         Form: (NIL 0)
          Context: (LAMBDA () 0)
-         In value position
+        
          Processing list form
           Form: (0)
            Context: (NIL 0)
-           In value position
+          
            Processing list form
 
 Form: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
- In value position
+
  Processing list form
   Form: (CIRCLE (RADIUS 1 :TYPE NUMBER))
    Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-   In value position
+  
    Processing list form
     Form: CIRCLE
      Context: (CIRCLE (RADIUS 1 :TYPE NUMBER))
-     In operator position
+    
     Form: ((RADIUS 1 :TYPE NUMBER))
      Context: (CIRCLE (RADIUS 1 :TYPE NUMBER))
-     In value position
+    
      Processing list form
       Form: (RADIUS 1 :TYPE NUMBER)
        Context: ((RADIUS 1 :TYPE NUMBER))
-       In operator position
+      
        Processing list form
         Form: RADIUS
          Context: (RADIUS 1 :TYPE NUMBER)
-         In operator position
+        
         Form: (1 :TYPE NUMBER)
          Context: (RADIUS 1 :TYPE NUMBER)
-         In value position
+        
          Processing list form
           Form: (:TYPE NUMBER)
            Context: (1 :TYPE NUMBER)
-           In value position
+          
            Processing list form
             Form: (NUMBER)
              Context: (:TYPE NUMBER)
-             In value position
+            
              Processing list form
 
 Form: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
- In value position
+
  Processing list form
   Form: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
    Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-   In value position
+  
    Processing list form
     Form: (PERSON (:CONC-NAME PERSON.))
      Context: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-     In operator position
+    
      Processing list form
       Form: PERSON
        Context: (PERSON (:CONC-NAME PERSON.))
-       In operator position
+      
       Form: ((:CONC-NAME PERSON.))
        Context: (PERSON (:CONC-NAME PERSON.))
-       In value position
+      
        Processing list form
         Form: (:CONC-NAME PERSON.)
          Context: ((:CONC-NAME PERSON.))
-         In operator position
+        
          Processing list form
           Form: (PERSON.)
            Context: (:CONC-NAME PERSON.)
-           In value position
+          
            Processing list form
             Form: PERSON.
              Context: (PERSON.)
-             In operator position
+            
     Form: ((AGE 0 :TYPE FIXNUM))
      Context: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-     In value position
+    
      Processing list form
       Form: (AGE 0 :TYPE FIXNUM)
        Context: ((AGE 0 :TYPE FIXNUM))
-       In operator position
+      
        Processing list form
         Form: AGE
          Context: (AGE 0 :TYPE FIXNUM)
-         In operator position
+        
         Form: (0 :TYPE FIXNUM)
          Context: (AGE 0 :TYPE FIXNUM)
-         In value position
+        
          Processing list form
           Form: (:TYPE FIXNUM)
            Context: (0 :TYPE FIXNUM)
-           In value position
+          
            Processing list form
             Form: (FIXNUM)
              Context: (:TYPE FIXNUM)
-             In value position
+            
              Processing list form
 
 Form: (DEFGENERIC COMPUTE-AREA
           (SHAPE)
         (:DOCUMENTATION "Compute the area of different geometric shapes"))
- In value position
+
  Processing list form
   Form: (COMPUTE-AREA (SHAPE)
          (:DOCUMENTATION "Compute the area of different geometric shapes"))
    Context: (DEFGENERIC COMPUTE-AREA
                 (SHAPE)
               (:DOCUMENTATION "Compute the area of different geometric shapes"))
-   In value position
+  
    Processing list form
     Form: COMPUTE-AREA
      Context: (COMPUTE-AREA (SHAPE)
                (:DOCUMENTATION
                 "Compute the area of different geometric shapes"))
-     In operator position
+    
     Form: ((SHAPE)
            (:DOCUMENTATION "Compute the area of different geometric shapes"))
      Context: (COMPUTE-AREA (SHAPE)
                (:DOCUMENTATION
                 "Compute the area of different geometric shapes"))
-     In value position
+    
      Processing list form
       Form: (SHAPE)
        Context: ((SHAPE)
                  (:DOCUMENTATION
                   "Compute the area of different geometric shapes"))
-       In operator position
+      
        Processing list form
         Form: SHAPE
          Context: (SHAPE)
-         In operator position
+        
       Form: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
        Context: ((SHAPE)
                  (:DOCUMENTATION
                   "Compute the area of different geometric shapes"))
-       In value position
+      
        Processing list form
         Form: (:DOCUMENTATION "Compute the area of different geometric shapes")
          Context: ((:DOCUMENTATION
                     "Compute the area of different geometric shapes"))
-         In operator position
+        
          Processing list form
           Form: ("Compute the area of different geometric shapes")
            Context: (:DOCUMENTATION
                      "Compute the area of different geometric shapes")
-           In value position
+          
            Processing list form
+             Processing array
+              Form: #\C
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\o
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\m
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\p
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\u
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\h
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\a
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\r
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\a
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\o
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\f
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\d
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\i
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\f
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\f
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\r
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\n
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\g
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\o
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\m
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\t
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\r
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\i
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\c
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\ 
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\s
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\h
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\a
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\p
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\e
+               Context: "Compute the area of different geometric shapes"
+              
+              Form: #\s
+               Context: "Compute the area of different geometric shapes"
+              
 
 Form: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
         (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
- In value position
+
  Processing list form
   Form: (COMPUTE-AREA ((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
    Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
               (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-   In value position
+  
    Processing list form
     Form: COMPUTE-AREA
      Context: (COMPUTE-AREA ((SHAPE CIRCLE))
                (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-     In operator position
+    
     Form: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
      Context: (COMPUTE-AREA ((SHAPE CIRCLE))
                (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-     In value position
+    
      Processing list form
       Form: ((SHAPE CIRCLE))
        Context: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-       In operator position
+      
        Processing list form
         Form: (SHAPE CIRCLE)
          Context: ((SHAPE CIRCLE))
-         In operator position
+        
          Processing list form
           Form: SHAPE
            Context: (SHAPE CIRCLE)
-           In operator position
+          
           Form: (CIRCLE)
            Context: (SHAPE CIRCLE)
-           In value position
+          
            Processing list form
             Form: CIRCLE
              Context: (CIRCLE)
-             In operator position
+            
       Form: ((* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
        Context: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-       In value position
+      
        Processing list form
         Form: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
          Context: ((* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-         In operator position
+        
          Processing list form
           Form: (PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
            Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-           In value position
+          
            Processing list form
             Form: ((EXPT (CIRCLE-RADIUS SHAPE) 2))
              Context: (PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-             In value position
+            
              Processing list form
               Form: (EXPT (CIRCLE-RADIUS SHAPE) 2)
                Context: ((EXPT (CIRCLE-RADIUS SHAPE) 2))
-               In operator position
+              
                Processing list form
                 Form: ((CIRCLE-RADIUS SHAPE) 2)
                  Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
-                 In value position
+                
                  Processing list form
                   Form: (CIRCLE-RADIUS SHAPE)
                    Context: ((CIRCLE-RADIUS SHAPE) 2)
-                   In operator position
+                  
                    Processing list form
                     Form: CIRCLE-RADIUS
                      Context: (CIRCLE-RADIUS SHAPE)
-                     In operator position
+                    
                     Form: (SHAPE)
                      Context: (CIRCLE-RADIUS SHAPE)
-                     In value position
+                    
                      Processing list form
                       Form: SHAPE
                        Context: (SHAPE)
-                       In operator position
+                      
                   Form: (2)
                    Context: ((CIRCLE-RADIUS SHAPE) 2)
-                   In value position
+                  
                    Processing list form
 
 Form: (DEFGENERIC PROCESS-DATA
           (DATA &KEY)
         (:DOCUMENTATION "Process data with various methods"))
- In value position
+
  Processing list form
   Form: (PROCESS-DATA (DATA &KEY)
          (:DOCUMENTATION "Process data with various methods"))
    Context: (DEFGENERIC PROCESS-DATA
                 (DATA &KEY)
               (:DOCUMENTATION "Process data with various methods"))
-   In value position
+  
    Processing list form
     Form: PROCESS-DATA
      Context: (PROCESS-DATA (DATA &KEY)
                (:DOCUMENTATION "Process data with various methods"))
-     In operator position
+    
     Form: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
      Context: (PROCESS-DATA (DATA &KEY)
                (:DOCUMENTATION "Process data with various methods"))
-     In value position
+    
      Processing list form
       Form: (DATA &KEY)
        Context: ((DATA &KEY)
                  (:DOCUMENTATION "Process data with various methods"))
-       In operator position
+      
        Processing list form
         Form: DATA
          Context: (DATA &KEY)
-         In operator position
+        
         Form: (&KEY)
          Context: (DATA &KEY)
-         In value position
+        
          Processing list form
       Form: ((:DOCUMENTATION "Process data with various methods"))
        Context: ((DATA &KEY)
                  (:DOCUMENTATION "Process data with various methods"))
-       In value position
+      
        Processing list form
         Form: (:DOCUMENTATION "Process data with various methods")
          Context: ((:DOCUMENTATION "Process data with various methods"))
-         In operator position
+        
          Processing list form
           Form: ("Process data with various methods")
            Context: (:DOCUMENTATION "Process data with various methods")
-           In value position
+          
            Processing list form
+             Processing array
+              Form: #\P
+               Context: "Process data with various methods"
+              
+              Form: #\r
+               Context: "Process data with various methods"
+              
+              Form: #\o
+               Context: "Process data with various methods"
+              
+              Form: #\c
+               Context: "Process data with various methods"
+              
+              Form: #\e
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\d
+               Context: "Process data with various methods"
+              
+              Form: #\a
+               Context: "Process data with various methods"
+              
+              Form: #\t
+               Context: "Process data with various methods"
+              
+              Form: #\a
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\w
+               Context: "Process data with various methods"
+              
+              Form: #\i
+               Context: "Process data with various methods"
+              
+              Form: #\t
+               Context: "Process data with various methods"
+              
+              Form: #\h
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\v
+               Context: "Process data with various methods"
+              
+              Form: #\a
+               Context: "Process data with various methods"
+              
+              Form: #\r
+               Context: "Process data with various methods"
+              
+              Form: #\i
+               Context: "Process data with various methods"
+              
+              Form: #\o
+               Context: "Process data with various methods"
+              
+              Form: #\u
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
+              Form: #\ 
+               Context: "Process data with various methods"
+              
+              Form: #\m
+               Context: "Process data with various methods"
+              
+              Form: #\e
+               Context: "Process data with various methods"
+              
+              Form: #\t
+               Context: "Process data with various methods"
+              
+              Form: #\h
+               Context: "Process data with various methods"
+              
+              Form: #\o
+               Context: "Process data with various methods"
+              
+              Form: #\d
+               Context: "Process data with various methods"
+              
+              Form: #\s
+               Context: "Process data with various methods"
+              
 
 Form: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
- In value position
+
  Processing list form
   Form: (PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
    Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-   In value position
+  
    Processing list form
     Form: PROCESS-DATA
      Context: (PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-     In operator position
+    
     Form: (((DATA STRING) &KEY) (STRING-UPCASE DATA))
      Context: (PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-     In value position
+    
      Processing list form
       Form: ((DATA STRING) &KEY)
        Context: (((DATA STRING) &KEY) (STRING-UPCASE DATA))
-       In operator position
+      
        Processing list form
         Form: (DATA STRING)
          Context: ((DATA STRING) &KEY)
-         In operator position
+        
          Processing list form
           Form: DATA
            Context: (DATA STRING)
-           In operator position
+          
           Form: (STRING)
            Context: (DATA STRING)
-           In value position
+          
            Processing list form
         Form: (&KEY)
          Context: ((DATA STRING) &KEY)
-         In value position
+        
          Processing list form
       Form: ((STRING-UPCASE DATA))
        Context: (((DATA STRING) &KEY) (STRING-UPCASE DATA))
-       In value position
+      
        Processing list form
         Form: (STRING-UPCASE DATA)
          Context: ((STRING-UPCASE DATA))
-         In operator position
+        
          Processing list form
           Form: (DATA)
            Context: (STRING-UPCASE DATA)
-           In value position
+          
            Processing list form
             Form: DATA
              Context: (DATA)
-             In operator position
+            
 
 Form: (DEFMETHOD PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
         (FORMAT NIL "LOG: ~A" DATA))
- In value position
+
  Processing list form
   Form: (PROCESS-DATA :LOGGING ((DATA STRING) &KEY) (FORMAT NIL "LOG: ~A" DATA))
    Context: (DEFMETHOD PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
               (FORMAT NIL "LOG: ~A" DATA))
-   In value position
+  
    Processing list form
     Form: PROCESS-DATA
      Context: (PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
                (FORMAT NIL "LOG: ~A" DATA))
-     In operator position
+    
     Form: (:LOGGING ((DATA STRING) &KEY) (FORMAT NIL "LOG: ~A" DATA))
      Context: (PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
                (FORMAT NIL "LOG: ~A" DATA))
-     In value position
+    
      Processing list form
       Form: (((DATA STRING) &KEY) (FORMAT NIL "LOG: ~A" DATA))
        Context: (:LOGGING ((DATA STRING) &KEY) (FORMAT NIL "LOG: ~A" DATA))
-       In value position
+      
        Processing list form
         Form: ((DATA STRING) &KEY)
          Context: (((DATA STRING) &KEY) (FORMAT NIL "LOG: ~A" DATA))
-         In operator position
+        
          Processing list form
           Form: (DATA STRING)
            Context: ((DATA STRING) &KEY)
-           In operator position
+          
            Processing list form
             Form: DATA
              Context: (DATA STRING)
-             In operator position
+            
             Form: (STRING)
              Context: (DATA STRING)
-             In value position
+            
              Processing list form
           Form: (&KEY)
            Context: ((DATA STRING) &KEY)
-           In value position
+          
            Processing list form
         Form: ((FORMAT NIL "LOG: ~A" DATA))
          Context: (((DATA STRING) &KEY) (FORMAT NIL "LOG: ~A" DATA))
-         In value position
+        
          Processing list form
           Form: (FORMAT NIL "LOG: ~A" DATA)
            Context: ((FORMAT NIL "LOG: ~A" DATA))
-           In operator position
+          
            Processing list form
             Form: (NIL "LOG: ~A" DATA)
              Context: (FORMAT NIL "LOG: ~A" DATA)
-             In value position
+            
              Processing list form
               Form: ("LOG: ~A" DATA)
                Context: (NIL "LOG: ~A" DATA)
-               In value position
+              
                Processing list form
+                 Processing array
+                  Form: #\L
+                   Context: "LOG: ~A"
+                  
+                  Form: #\O
+                   Context: "LOG: ~A"
+                  
+                  Form: #\G
+                   Context: "LOG: ~A"
+                  
+                  Form: #\:
+                   Context: "LOG: ~A"
+                  
+                  Form: #\ 
+                   Context: "LOG: ~A"
+                  
+                  Form: #\~
+                   Context: "LOG: ~A"
+                  
+                  Form: #\A
+                   Context: "LOG: ~A"
+                  
                 Form: (DATA)
                  Context: ("LOG: ~A" DATA)
-                 In value position
+                
                  Processing list form
                   Form: DATA
                    Context: (DATA)
-                   In operator position
+                  
 
 Form: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
- In value position
+
  Processing list form
   Form: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
    Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-   In value position
+  
    Processing list form
     Form: PROCESS-DATA
      Context: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-     In operator position
+    
     Form: (((DATA NUMBER) &KEY) (1+ DATA))
      Context: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-     In value position
+    
      Processing list form
       Form: ((DATA NUMBER) &KEY)
        Context: (((DATA NUMBER) &KEY) (1+ DATA))
-       In operator position
+      
        Processing list form
         Form: (DATA NUMBER)
          Context: ((DATA NUMBER) &KEY)
-         In operator position
+        
          Processing list form
           Form: DATA
            Context: (DATA NUMBER)
-           In operator position
+          
           Form: (NUMBER)
            Context: (DATA NUMBER)
-           In value position
+          
            Processing list form
         Form: (&KEY)
          Context: ((DATA NUMBER) &KEY)
-         In value position
+        
          Processing list form
       Form: ((1+ DATA))
        Context: (((DATA NUMBER) &KEY) (1+ DATA))
-       In value position
+      
        Processing list form
         Form: (1+ DATA)
          Context: ((1+ DATA))
-         In operator position
+        
          Processing list form
           Form: (DATA)
            Context: (1+ DATA)
-           In value position
+          
            Processing list form
             Form: DATA
              Context: (DATA)
-             In operator position
+            
 
 Form: (DEFMACRO DEFMACRO-NAME () 0)
- In value position
+
  Processing list form
   Form: (DEFMACRO-NAME NIL 0)
    Context: (DEFMACRO DEFMACRO-NAME () 0)
-   In value position
+  
    Processing list form
     Form: DEFMACRO-NAME
      Context: (DEFMACRO-NAME NIL 0)
-     In operator position
+    
     Form: (NIL 0)
      Context: (DEFMACRO-NAME NIL 0)
-     In value position
+    
      Processing list form
       Form: (0)
        Context: (NIL 0)
-       In value position
+      
        Processing list form
 
 Form: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
               (LAMBDA (FORM ENV) FORM ENV 0))
- In value position
+
  Processing list form
   Form: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME) (LAMBDA (FORM ENV) FORM ENV 0))
    Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                     (LAMBDA (FORM ENV) FORM ENV 0))
-   In value position
+  
    Processing list form
     Form: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
      Context: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                (LAMBDA (FORM ENV) FORM ENV 0))
-     In operator position
+    
      Processing list form
       Form: ('MACRO-FUNCTION-NAME)
        Context: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-       In value position
+      
        Processing list form
         Form: 'MACRO-FUNCTION-NAME
          Context: ('MACRO-FUNCTION-NAME)
-         In operator position
+        
          Processing list form
           Form: (MACRO-FUNCTION-NAME)
            Context: 'MACRO-FUNCTION-NAME
-           In value position
+          
            Processing list form
             Form: MACRO-FUNCTION-NAME
              Context: (MACRO-FUNCTION-NAME)
-             In operator position
+            
     Form: ((LAMBDA (FORM ENV) FORM ENV 0))
      Context: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                (LAMBDA (FORM ENV) FORM ENV 0))
-     In value position
+    
      Processing list form
       Form: (LAMBDA (FORM ENV) FORM ENV 0)
        Context: ((LAMBDA (FORM ENV) FORM ENV 0))
-       In operator position
+      
        Processing list form
         Form: ((FORM ENV) FORM ENV 0)
          Context: (LAMBDA (FORM ENV) FORM ENV 0)
-         In value position
+        
          Processing list form
           Form: (FORM ENV)
            Context: ((FORM ENV) FORM ENV 0)
-           In operator position
+          
            Processing list form
             Form: FORM
              Context: (FORM ENV)
-             In operator position
+            
             Form: (ENV)
              Context: (FORM ENV)
-             In value position
+            
              Processing list form
               Form: ENV
                Context: (ENV)
-               In operator position
+              
           Form: (FORM ENV 0)
            Context: ((FORM ENV) FORM ENV 0)
-           In value position
+          
            Processing list form
             Form: FORM
              Context: (FORM ENV 0)
-             In operator position
+            
             Form: (ENV 0)
              Context: (FORM ENV 0)
-             In value position
+            
              Processing list form
               Form: ENV
                Context: (ENV 0)
-               In operator position
+              
               Form: (0)
                Context: (ENV 0)
-               In value position
+              
                Processing list form
 
 Form: (DEFINE-CONDITION CONDITION-NAME
           NIL
           NIL)
- In value position
+
  Processing list form
   Form: (CONDITION-NAME NIL NIL)
    Context: (DEFINE-CONDITION CONDITION-NAME
                 NIL
                 NIL)
-   In value position
+  
    Processing list form
     Form: CONDITION-NAME
      Context: (CONDITION-NAME NIL NIL)
-     In operator position
+    
     Form: (NIL NIL)
      Context: (CONDITION-NAME NIL NIL)
-     In value position
+    
      Processing list form
       Form: (NIL)
        Context: (NIL NIL)
-       In value position
+      
        Processing list form
 
 
 Reference Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
 
 Form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
- In value position
+
  Processing list form
   Form: (#:USER-MAIN-PACKAGE)
    Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-   In value position
+  
    Processing list form
     Form: #:USER-MAIN-PACKAGE
      Context: (#:USER-MAIN-PACKAGE)
-     In operator position
+    
 
 Form: *DEFVAR-VARIABLE*
- In value position
+
 
 Form: *DEFPARAMETER-VARIABLE*
- In value position
+
 
 Form: +DEFCONSTANT-VARIABLE+
- In value position
+
 
 Form: SYMBOL-VALUE-VARIABLE
- In value position
+
 
 Form: (DEFUN-NAME)
- In value position
+
  Processing list form
   Form: DEFUN-NAME
    Context: (DEFUN-NAME)
-   In operator position
+  
 
 Form: (FUNCALL 'SYMBOL-FUNCTION-NAME)
- In value position
+
  Processing list form
   Form: ('SYMBOL-FUNCTION-NAME)
    Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-   In value position
+  
    Processing list form
     Form: 'SYMBOL-FUNCTION-NAME
      Context: ('SYMBOL-FUNCTION-NAME)
-     In operator position
+    
      Processing list form
       Form: (SYMBOL-FUNCTION-NAME)
        Context: 'SYMBOL-FUNCTION-NAME
-       In value position
+      
        Processing list form
         Form: SYMBOL-FUNCTION-NAME
          Context: (SYMBOL-FUNCTION-NAME)
-         In operator position
+        
 
 Form: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
- In value position
+
  Processing list form
   Form: ('FDEFINITION-FUNCTION-NAME)
    Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-   In value position
+  
    Processing list form
     Form: 'FDEFINITION-FUNCTION-NAME
      Context: ('FDEFINITION-FUNCTION-NAME)
-     In operator position
+    
      Processing list form
       Form: (FDEFINITION-FUNCTION-NAME)
        Context: 'FDEFINITION-FUNCTION-NAME
-       In value position
+      
        Processing list form
         Form: FDEFINITION-FUNCTION-NAME
          Context: (FDEFINITION-FUNCTION-NAME)
-         In operator position
+        
 
 Form: (CIRCLE-RADIUS (MAKE-CIRCLE))
- In value position
+
  Processing list form
   Form: CIRCLE-RADIUS
    Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
-   In operator position
+  
   Form: ((MAKE-CIRCLE))
    Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
-   In value position
+  
    Processing list form
     Form: (MAKE-CIRCLE)
      Context: ((MAKE-CIRCLE))
-     In operator position
+    
      Processing list form
       Form: MAKE-CIRCLE
        Context: (MAKE-CIRCLE)
-       In operator position
+      
 
 Form: (PERSON.AGE (MAKE-PERSON))
- In value position
+
  Processing list form
   Form: PERSON.AGE
    Context: (PERSON.AGE (MAKE-PERSON))
-   In operator position
+  
   Form: ((MAKE-PERSON))
    Context: (PERSON.AGE (MAKE-PERSON))
-   In value position
+  
    Processing list form
     Form: (MAKE-PERSON)
      Context: ((MAKE-PERSON))
-     In operator position
+    
      Processing list form
       Form: MAKE-PERSON
        Context: (MAKE-PERSON)
-       In operator position
+      
 
 Form: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
- In value position
+
  Processing list form
   Form: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
    Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-   In value position
+  
    Processing list form
     Form: #'COMPUTE-AREA
      Context: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-     In operator position
+    
      Processing list form
       Form: (COMPUTE-AREA)
        Context: #'COMPUTE-AREA
-       In value position
+      
        Processing list form
         Form: COMPUTE-AREA
          Context: (COMPUTE-AREA)
-         In operator position
+        
     Form: ((MAKE-CIRCLE :RADIUS 1))
      Context: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-     In value position
+    
      Processing list form
       Form: (MAKE-CIRCLE :RADIUS 1)
        Context: ((MAKE-CIRCLE :RADIUS 1))
-       In operator position
+      
        Processing list form
         Form: MAKE-CIRCLE
          Context: (MAKE-CIRCLE :RADIUS 1)
-         In operator position
+        
         Form: (:RADIUS 1)
          Context: (MAKE-CIRCLE :RADIUS 1)
-         In value position
+        
          Processing list form
           Form: (1)
            Context: (:RADIUS 1)
-           In value position
+          
            Processing list form
 
 Form: (PROCESS-DATA "test" :LOGGING)
- In value position
+
  Processing list form
   Form: PROCESS-DATA
    Context: (PROCESS-DATA "test" :LOGGING)
-   In operator position
+  
   Form: ("test" :LOGGING)
    Context: (PROCESS-DATA "test" :LOGGING)
-   In value position
+  
    Processing list form
+     Processing array
+      Form: #\t
+       Context: "test"
+      
+      Form: #\e
+       Context: "test"
+      
+      Form: #\s
+       Context: "test"
+      
+      Form: #\t
+       Context: "test"
+      
     Form: (:LOGGING)
      Context: ("test" :LOGGING)
-     In value position
+    
      Processing list form
 
 Form: (PROCESS-DATA 42)
- In value position
+
  Processing list form
   Form: PROCESS-DATA
    Context: (PROCESS-DATA 42)
-   In operator position
+  
   Form: (42)
    Context: (PROCESS-DATA 42)
-   In value position
+  
    Processing list form
 
 Form: (DEFMACRO-NAME)
- In value position
+
  Processing list form
   Form: DEFMACRO-NAME
    Context: (DEFMACRO-NAME)
-   In operator position
+  
 
 Form: (MACRO-FUNCTION-NAME)
- In value position
+
  Processing list form
   Form: MACRO-FUNCTION-NAME
    Context: (MACRO-FUNCTION-NAME)
-   In operator position
+  
 
 Form: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
- In value position
+
  Processing list form
   Form: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
    Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-   In value position
+  
    Processing list form
     Form: FUNCTION-WITH-CONDITION
      Context: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
-     In operator position
+    
     Form: (NIL (ERROR 'CONDITION-NAME))
      Context: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
-     In value position
+    
      Processing list form
       Form: ((ERROR 'CONDITION-NAME))
        Context: (NIL (ERROR 'CONDITION-NAME))
-       In value position
+      
        Processing list form
         Form: (ERROR 'CONDITION-NAME)
          Context: ((ERROR 'CONDITION-NAME))
-         In operator position
+        
          Processing list form
           Form: ('CONDITION-NAME)
            Context: (ERROR 'CONDITION-NAME)
-           In value position
+          
            Processing list form
             Form: 'CONDITION-NAME
              Context: ('CONDITION-NAME)
-             In operator position
+            
              Processing list form
               Form: (CONDITION-NAME)
                Context: 'CONDITION-NAME
-               In value position
+              
                Processing list form
                 Form: CONDITION-NAME
                  Context: (CONDITION-NAME)
-                 In operator position
+                
 
 Form: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
- In value position
+
  Processing list form
   Form: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
    Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-   In value position
+  
    Processing list form
     Form: MY-FUNCTION
      Context: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-     In operator position
+    
     Form: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
      Context: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-     In value position
+    
      Processing list form
       Form: (ARG)
        Context: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-       In operator position
+      
        Processing list form
         Form: ARG
          Context: (ARG)
-         In operator position
+        
       Form: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
        Context: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-       In value position
+      
        Processing list form
         Form: (DEFUN-NAME)
          Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-         In operator position
+        
          Processing list form
           Form: DEFUN-NAME
            Context: (DEFUN-NAME)
-           In operator position
+          
         Form: (*DEFVAR-VARIABLE* ARG)
          Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-         In value position
+        
          Processing list form
           Form: *DEFVAR-VARIABLE*
            Context: (*DEFVAR-VARIABLE* ARG)
-           In operator position
+          
           Form: (ARG)
            Context: (*DEFVAR-VARIABLE* ARG)
-           In value position
+          
            Processing list form
             Form: ARG
              Context: (ARG)
-             In operator position
+            
 
 Form: (LET ((ARG 0))
         (DEFUN-NAME)
         *DEFVAR-VARIABLE*
         (COMPUTE-AREA (MAKE-CIRCLE))
         ARG)
- In value position
+
  Processing list form
   Form: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE))
          ARG)
@@ -1045,72 +1335,72 @@ Form: (LET ((ARG 0))
               *DEFVAR-VARIABLE*
               (COMPUTE-AREA (MAKE-CIRCLE))
               ARG)
-   In value position
+  
    Processing list form
     Form: ((ARG 0))
      Context: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
                (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
-     In operator position
+    
      Processing list form
       Form: (ARG 0)
        Context: ((ARG 0))
-       In operator position
+      
        Processing list form
         Form: ARG
          Context: (ARG 0)
-         In operator position
+        
         Form: (0)
          Context: (ARG 0)
-         In value position
+        
          Processing list form
     Form: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
      Context: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
                (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
-     In value position
+    
      Processing list form
       Form: (DEFUN-NAME)
        Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE))
                  ARG)
-       In operator position
+      
        Processing list form
         Form: DEFUN-NAME
          Context: (DEFUN-NAME)
-         In operator position
+        
       Form: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
        Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE))
                  ARG)
-       In value position
+      
        Processing list form
         Form: *DEFVAR-VARIABLE*
          Context: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
-         In operator position
+        
         Form: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
          Context: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
-         In value position
+        
          Processing list form
           Form: (COMPUTE-AREA (MAKE-CIRCLE))
            Context: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
-           In operator position
+          
            Processing list form
             Form: COMPUTE-AREA
              Context: (COMPUTE-AREA (MAKE-CIRCLE))
-             In operator position
+            
             Form: ((MAKE-CIRCLE))
              Context: (COMPUTE-AREA (MAKE-CIRCLE))
-             In value position
+            
              Processing list form
               Form: (MAKE-CIRCLE)
                Context: ((MAKE-CIRCLE))
-               In operator position
+              
                Processing list form
                 Form: MAKE-CIRCLE
                  Context: (MAKE-CIRCLE)
-                 In operator position
+                
           Form: (ARG)
            Context: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
-           In value position
+          
            Processing list form
             Form: ARG
              Context: (ARG)
-             In operator position
+            
 

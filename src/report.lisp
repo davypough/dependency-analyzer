@@ -193,37 +193,27 @@
          (slot-value tracker 'package-uses))
  (format stream "~2%")
  ;; File Dependencies
- (format stream "File Dependencies:~%")
- (maphash (lambda (file definitions)
-          (declare (ignore definitions))
-          (let ((deps (file-dependencies tracker file)))
-            (when deps
-              (dolist (dep deps)
-                (let* ((dep-line (format nil "~A depends on ~A" 
-                                       (project-pathname file)
-                                       (project-pathname dep)))
-                      (refs (collect-file-references tracker file dep))
-                      (operator-refs (remove-if-not (lambda (r) 
-                                                    (eq (reference.type r) :OPERATOR))
-                                                  refs))
-                      (value-refs (remove-if-not (lambda (r)
-                                                 (eq (reference.type r) :VALUE))
-                                               refs)))
-                  (format stream "~A~%" dep-line)
-                  (when operator-refs
-                    (format stream "  Called functions: ~{~A~^, ~}~%" 
-                            (sort (mapcar (lambda (r) 
-                                          (symbol-name (reference.symbol r)))
-                                        operator-refs)
-                                  #'string<)))
-                  (when value-refs  
-                    (format stream "  Referenced values: ~{~A~^, ~}~%"
-                            (sort (mapcar (lambda (r) 
-                                          (symbol-name (reference.symbol r)))
-                                        value-refs)
-                                  #'string<)))
-                  (format stream "~%"))))))
-        (slot-value tracker 'file-map)))
+        (format stream "File Dependencies:~%")
+        (maphash (lambda (file definitions)
+                 (declare (ignore definitions))
+                 (let ((deps (file-dependencies tracker file)))
+                   (when deps
+                     (dolist (dep deps)
+                       (let* ((dep-line (format nil "~A depends on ~A" 
+                                              (project-pathname file)
+                                              (project-pathname dep)))
+                             (refs (collect-file-references tracker file dep)))
+                         (format stream "~A~%" dep-line)
+                         (when refs
+                           (format stream "  Referenced symbols: ~{~A~^, ~}~%"
+                                   (sort (remove-duplicates 
+                                        (mapcar (lambda (r) 
+                                                (symbol-name (reference.symbol r)))
+                                              refs)
+                                        :test #'string=)
+                                         #'string<)))
+                         (format stream "~%"))))))
+               (slot-value tracker 'file-map)))
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
@@ -287,7 +277,7 @@
 
 (defmethod generate-report ((format (eql :dot)) tracker &key (stream *standard-output*))
   "Generate a GraphViz DOT format dependency report.
-   Shows file dependencies with separate operator and value reference labels."
+   Shows file dependencies with reference labels."
   (format stream "digraph Dependencies {~%")
   (format stream "  rankdir=LR;~%")
   (format stream "  compound=true;~%")
@@ -299,15 +289,6 @@
   (format stream "    label=\"System Dependencies\";~%")
   (format stream "    style=dashed;~%")
   (format stream "    node [style=filled,fillcolor=lightpink];~%")
-  #+ignore (maphash (lambda (sys-name deps)
-             (let ((sys-id (string-to-dot-id sys-name)))
-               (format stream "    \"sys_~A\" [label=\"~A\"];~%" sys-id sys-name)
-               (dolist (dep deps)
-                 (let ((dep-id (string-to-dot-id dep)))
-                   (format stream "    \"sys_~A\" [label=\"~A\"];~%" dep-id dep)
-                   (format stream "    \"sys_~A\" -> \"sys_~A\";~%"
-                           sys-id dep-id)))))
-           (slot-value tracker 'subsystems))
   (format stream "  }~%~%")
   
   ;; Create package subgraph
@@ -368,28 +349,18 @@
                    (let* ((dep-name (source-file-name dep))
                           (dep-id (string-to-dot-id dep-name))
                           (refs (collect-file-references tracker file dep))
-                          (operator-refs (remove-if-not 
-                                        (lambda (r) (eq (reference.type r) :OPERATOR))
-                                        refs))
-                          (value-refs (remove-if-not
-                                     (lambda (r) (eq (reference.type r) :VALUE))
-                                     refs))
-                          (label (with-output-to-string (s)
-                                 (when operator-refs
-                                   (format s "Called: ~{~A~^, ~}\\n"
-                                         (mapcar (lambda (r) 
-                                                 (symbol-name (reference.symbol r)))
-                                               operator-refs)))
-                                 (when value-refs
-                                   (format s "Referenced: ~{~A~^, ~}"
-                                         (mapcar (lambda (r)
-                                                 (symbol-name (reference.symbol r)))
-                                               value-refs))))))
-                     (format stream "    \"~A\" -> \"~A\" [label=\"~A\"];~%"
+                          (label (when refs
+                                 (format nil "References: ~{~A~^, ~}"
+                                       (sort (remove-duplicates
+                                             (mapcar (lambda (r)
+                                                     (symbol-name (reference.symbol r)))
+                                                   refs)
+                                             :test #'string=)
+                                             #'string<)))))
+                     (format stream "    \"~A\" -> \"~A\"~@[ [label=\"~A\"]~];~%"
                              file-id dep-id label)))))
              (slot-value tracker 'file-map)))
-  (format stream "  }~%")
-  (format stream "}~%"))
+  (format stream "  }~%"))
 
 
 (defun report (&optional filename)

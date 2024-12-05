@@ -22,7 +22,6 @@
   "Data structure holding info about a lisp reference to a definition"
   (symbol nil :type symbol :read-only t)
   (context nil :read-only t)
-  (type nil :type (member :OPERATOR :VALUE) :read-only t)
   (file nil :type (or string pathname) :read-only t)
   (package nil :type (or string symbol null) :read-only t)
   (visibility nil :type (member :LOCAL :INHERITED :IMPORTED) :read-only t)
@@ -120,3 +119,12 @@
    :documentation "Association list of symbol-macro expansions"))
  (:documentation
   "Parser for analyzing a single Lisp source file."))
+
+
+(defclass dots-object () ())  ;special object that will always print as ...
+
+
+(defmethod print-object ((obj dots-object) stream)
+  "Prints ... without quotes, used in limit-form-size"
+  (write-string "..." stream))
+

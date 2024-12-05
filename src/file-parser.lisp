@@ -59,8 +59,7 @@
 (defmethod analyze-definition-form ((parser file-parser) form &optional log-stream)
   "Analyze form for definitions using walk-form with specialized handler.
    Records definitions and processes nested definitions maintaining package context."
-  (labels ((handle-definition (form op-position context depth)
-            (declare (ignore depth op-position context))
+  (labels ((handle-definition (form context depth)
             (when (and (consp form) (symbolp (car form)))
               (case (car form)
                 ;; Package handling
@@ -106,57 +105,60 @@
 (defmethod analyze-reference-form ((parser file-parser) form &optional log-stream)
   "Analyze form recording references to definitions in different files.
    Handles both symbol references and string references to packages."
-  (labels ((handle-reference (form op-position context depth)
-             (declare (ignore depth))
-             (typecase form
-               (symbol
-                (unless (or (null form)            ; Skip NIL
-                          (keywordp form)          ; Skip keywords
-                          (cl-symbol-p form))      ; Skip CL package symbols
-                  (let* ((sym-pkg (symbol-package form))
-                         (cur-pkg (current-package parser))
-                         (pkg-name (if sym-pkg 
-                                     (package-name sym-pkg)
-                                     (current-package-name parser))))
-                    ;; Check for unqualified cross-package reference from CL-USER
-                    (when (and (eq cur-pkg (find-package :common-lisp-user))
-                             (not (symbol-qualified-p form parser))
-                             (not (eq sym-pkg (find-package :common-lisp-user))))
-                      (record-anomaly *current-tracker*
-                                    :missing-in-package
-                                    :WARNING
-                                    (file parser)
-                                    (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                                            form pkg-name)))
-                    ;; If symbol matches a definition record in a different file, record the dependency
-                    (let* ((key (make-tracking-key form pkg-name))
-                           (def (gethash key (slot-value *current-tracker* 'definitions))))
-                      (when (and def (not (equal (definition.file def) (file parser))))
-                        (record-reference *current-tracker* form
-                                        (if op-position :OPERATOR :VALUE)
+  (let ((contexts (make-hash-table :test 'equal))) ; Cache contexts by package
+    (labels ((get-limited-context (pkg-name)
+               (or (gethash pkg-name contexts)
+                   (setf (gethash pkg-name contexts)
+                         (limit-form-size form pkg-name))))
+             (handle-reference (sym context _depth) ; Unique variable names
+               (typecase sym
+                 (symbol
+                  (unless (or (null sym)            ; Skip NIL
+                              (keywordp sym)          ; Skip keywords
+                              (cl-symbol-p sym))      ; Skip CL package symbols
+                    (let* ((sym-pkg (symbol-package sym))
+                           (cur-pkg (current-package parser))
+                           (pkg-name (if sym-pkg
+                                          (package-name sym-pkg)
+                                          (current-package-name parser))))
+                      ;; Check for unqualified cross-package reference from CL-USER
+                      (when (and (eq cur-pkg (find-package :common-lisp-user))
+                                 (not (symbol-qualified-p sym parser))
+                                 (not (eq sym-pkg (find-package :common-lisp-user))))
+                        (record-anomaly *current-tracker*
+                                        :missing-in-package
+                                        :WARNING
                                         (file parser)
-                                        :package pkg-name
-                                        :context context
-                                        :visibility (determine-symbol-visibility form parser)
-                                        :definition def))))))
-               (string
-                ;; Check if this string matches a package definition
-                (let* ((norm-name (normalize-package-name form))
-                       (key (make-tracking-key norm-name))
-                       (def (gethash key (slot-value *current-tracker* 'definitions))))
-                  (when (and def 
-                           (eq (definition.type def) :PACKAGE)
-                           (not (equal (definition.file def) (file parser))))
-                    (record-reference *current-tracker* form
-                                    :VALUE
-                                    (file parser)
-                                    :package "KEYWORD"
-                                    :context context
-                                    :visibility :LOCAL
-                                    :definition def)))))))
-    
-    ;; Walk the form looking for references
-    (walk-form form #'handle-reference :log-stream log-stream)))
+                                        (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                                                sym pkg-name)))
+                      ;; If symbol matches a definition record in a different file, record the dependency
+                      (let* ((key (make-tracking-key sym pkg-name))
+                             (def (gethash key (slot-value *current-tracker* 'definitions))))
+                        (when (and def (not (equal (definition.file def) (file parser))))
+                          (record-reference *current-tracker* sym
+                                            (file parser)
+                                            :package pkg-name
+                                            :context (get-limited-context pkg-name)
+                                            :visibility (determine-symbol-visibility sym parser)
+                                            :definition def))))))
+                 (string
+                  ;; Check if this string matches a package definition
+                  (let* ((norm-name (normalize-package-name sym))
+                         (key (make-tracking-key norm-name))
+                         (def (gethash key (slot-value *current-tracker* 'definitions))))
+                    (when (and def
+                               (eq (definition.type def) :PACKAGE)
+                               (not (equal (definition.file def) (file parser))))
+                      (record-reference *current-tracker* sym
+                                        (file parser)
+                                        :package "KEYWORD"
+                                        :context (get-limited-context "KEYWORD")
+                                        :visibility :LOCAL
+                                        :definition def)))))))
+      
+      ;; Walk the form looking for references
+      (walk-form form #'handle-reference :log-stream log-stream))))
+
 
 
 (defun analyze-in-package (parser form)

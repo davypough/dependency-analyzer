@@ -51,7 +51,7 @@
   "Delete FASL files for the dependency-analyzer system from the SBCL Windows cache directory."
   (let ((cache-dir "C:\\Users\\user\\AppData\\Local\\cache\\common-lisp\\sbcl-2.4.9-win-x64\\D\\quicklisp\\local-projects\\dependency-analyzer\\src\\"))
     (let ((fasl-files (directory (merge-pathnames "*.fasl" cache-dir))))
-      (dolist (file fasl-files)
+      (dolist (file fasl-files t)
         (ignore-errors
           (delete-file file))))))
 

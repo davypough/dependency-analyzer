@@ -61,13 +61,13 @@
                                 (if (listp (cadar item))
                                     (caadar item)  ; (((:kw var)) init)
                                     (cadar item))  ; ((:kw var) init) 
-                                (car item)))))     ; ((var) init)
+                                (car item))))     ; ((var) init)
                     (push var bindings)))))
              (&aux
               (typecase item
                 (symbol (push item bindings))
                 (cons (push (car item) bindings))))))))
-    (remove-duplicates bindings))
+    (remove-duplicates bindings)))
 
 
 (defun extract-destructuring-bindings (form)
@@ -218,14 +218,12 @@
     def))
 
 
-(defun record-reference (tracker symbol type file &key package context visibility definition)
+(defun record-reference (tracker symbol file &key package context visibility definition)
   "Record a symbol reference in the tracker.
-   TYPE is call or reference
    VISIBILITY is inherited, imported, or local (defaults to local)"
   (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
                                         (package-name (symbol-package symbol)))))
          (ref (make-reference :symbol symbol
-                            :type type
                             :file file
                             :package package
                             :context context
@@ -233,8 +231,9 @@
                             :definition definition)))
     (pushnew ref (gethash key (slot-value tracker 'references))
          :test (lambda (a b)
-                 (and (equal (reference.type a) (reference.type b))
-                      (equal (reference.file a) (reference.file b)))))
+                 (and (equal (reference.symbol a) (reference.symbol b))
+                      (equal (reference.file a) (reference.file b))
+                      (equal (reference.package a) (reference.package b)))))
     ref))
 
 
@@ -488,23 +487,6 @@
                (analyze-definition-form parser (second item))))))))))
 
 
-(defun extract-spec-symbols-from-slot (slot-spec)
- "Extract potential definition-reference symbols from a slot specification.
-  Only collects symbols that could be user-defined, ignoring CL symbols."
- (let ((symbols nil))
-   (when (listp slot-spec)
-     (destructuring-bind (name &optional initform &rest slot-options) slot-spec
-       (declare (ignore name))
-       ;; Check initform for non-quoted symbols
-       (when (and initform (not (quoted-form-p initform)))
-         (collect-non-cl-symbols initform symbols))
-       ;; Process slot options
-       (loop for (option value) on slot-options by #'cddr
-             do (case option
-                  (:type (collect-non-cl-symbols value symbols))))))
-   symbols))
-
-
 (defun cl-symbol-p (symbol)
  "Return true if symbol is from the common-lisp package."
  (and (symbolp symbol)
@@ -573,15 +555,13 @@
                (find-package :common-lisp)))))
 
 
-(defun definition-name-p (symbol context operator-position)
+(defun definition-name-p (symbol context)  
   "Return T if symbol appears to be the name in a definition form.
    These names should be ignored during reference analysis since they are being defined.
    
    SYMBOL - The symbol being checked
-   CONTEXT - The parent form containing the symbol
-   OPERATOR-POSITION - Whether symbol appears in function call position"
-  (and (not operator-position)  ; Not in operator position 
-       (consp context)          ; Inside a compound form
+   CONTEXT - The parent form containing the symbol"
+  (and (consp context)          ; Inside a compound form
        (symbolp (car context))  ; Has symbol operator
        (let ((op-name (symbol-name (car context))))
          ;; Check if it's a definition operator
@@ -628,12 +608,12 @@
 
 
 (defun walk-form (form handler &key (log-stream *trace-output*) (log-depth t))
-  "Walk a form calling HANDLER on each subform with position and context info.
+  "Walk a form calling HANDLER on each subform with context and depth info.
    FORM - The form to analyze
-   HANDLER - Function taking (form op-position context depth)
+   HANDLER - Function taking (form context depth)
    LOG-STREAM - Where to send debug output (nil for no logging)
    LOG-DEPTH - Whether to track and log nesting depth"
-  (labels ((walk (x op-position context depth)
+  (labels ((walk (x context depth)
              ;; Log form being processed
              (unless (skip-item-p x) 
               (when log-stream
@@ -643,11 +623,10 @@
                  (format log-stream "~&~AForm: ~S~%" indent x)
                  (when context
                    (format log-stream "~A Context: ~S~%" indent context))
-                 (format log-stream "~A In ~:[value~;operator~] position~%" 
-                         indent op-position)))
+                 (format log-stream "~A~%" indent))))
              
              ;; Process form with handler
-             (funcall handler x op-position context depth)
+             (funcall handler x context depth)
              
              ;; Recursively process subforms
              (typecase x
@@ -657,8 +636,8 @@
                           (if log-depth
                               (make-string (* depth 2) :initial-element #\Space)
                               "")))
-                (walk (car x) t (cons (car x) (cdr x)) (1+ depth)) 
-                (walk (cdr x) nil x (1+ depth)))
+                (walk (car x) (cons (car x) (cdr x)) (1+ depth)) 
+                (walk (cdr x) x (1+ depth)))
                
                (array
                 (when log-stream
@@ -667,7 +646,7 @@
                               (make-string (* depth 2) :initial-element #\Space)
                               "")))
                 (dotimes (i (array-total-size x))
-                  (walk (row-major-aref x i) nil x (1+ depth))))
+                  (walk (row-major-aref x i) x (1+ depth))))
                
                (hash-table
                 (when log-stream
@@ -676,32 +655,15 @@
                               (make-string (* depth 2) :initial-element #\Space)
                               "")))
                 (maphash (lambda (k v)
-                          (walk k nil x (1+ depth))
-                          (walk v nil x (1+ depth)))
-                        x))))))
+                          (walk k x (1+ depth))
+                          (walk v x (1+ depth)))
+                        x)))))
     
     ;; Start walking at top level
     (let ((*print-circle* nil)     ; Prevent circular printing issues
           (*print-length* 10)      ; Limit list output
           (*print-level* 5))       ; Limit nesting output
-      (walk form nil nil 0))))
-
-
-(defun extract-spec-symbols-from-slot (slot-spec)
-  "Extract potential definition-reference symbols from a slot specification,
-   separating them by type/value vs method/function.
-   Returns (values type-value-symbols method-function-symbols).
-   Type/value symbols come from :type and initform.
-   Method/function symbols come from :reader, :writer, :accessor."
-  (let ((type-value-syms nil)
-        (method-fn-syms nil))
-    (when (listp slot-spec)
-      (multiple-value-bind (ref-type symbols)
-          (classify-slot-reference slot-spec)
-        (if (eq ref-type :METHOD-FUNCTION)
-            (setf method-fn-syms symbols)  
-            (setf type-value-syms symbols))))
-    (values type-value-syms method-fn-syms)))
+      (walk form nil 0))))
 
 
 (defun classify-slot-reference (slot-spec)
@@ -729,3 +691,45 @@
                     (collect-non-cl-symbols value symbols))))))
     (values ref-type (remove-duplicates symbols))))
 
+
+(defun limit-form-size (form pkg-name &key (max-depth 8) (max-elements 20))
+  "Limit the size of a form for use as reference context.
+   Returns form if within limits, otherwise returns truncated version.
+   Strips package prefixes that match pkg-name exactly."
+  (let ((element-count 0))
+    (labels ((clean-symbol (sym)
+               (let* ((actual-sym (if (and (listp sym) 
+                                         (eq (car sym) 'quote))
+                                    (cadr sym)
+                                    sym))
+                      (pkg (and (symbolp actual-sym)
+                               (symbol-package actual-sym)))
+                      (sym-pkg-name (and pkg (package-name pkg))))
+                 (cond ((not (symbolp actual-sym)) actual-sym)
+                       ((null pkg) actual-sym)  ; Uninterned stays uninterned
+                       ((string= sym-pkg-name pkg-name) ; Exact package match
+                        (intern (symbol-name actual-sym) (find-package :dep)))
+                       (t actual-sym))))  ; Keep other package prefixes
+             (truncate-form (f depth)
+               (when (> (incf element-count) max-elements)
+                 (return-from limit-form-size 
+                   (typecase f 
+                     (cons (if (member (car f) '(quote function))
+                              (list (car f) (clean-symbol (cadr f)))
+                              (list (clean-symbol (car f)) (make-instance 'dots-object))))  ; '|...|)))
+                     (symbol (clean-symbol f))
+                     (t f))))
+               (typecase f
+                 (cons
+                  (cond ((>= depth max-depth)
+                         (if (member (car f) '(quote function))
+                             (list (car f) (clean-symbol (cadr f)))
+                             (list (clean-symbol (car f)) (make-instance 'dots-object))))  ;'|...|)))
+                        ((member (car f) '(quote function))
+                         (list (car f) (clean-symbol (cadr f))))
+                        (t (let ((car (truncate-form (car f) (1+ depth)))
+                               (cdr (truncate-form (cdr f) (1+ depth))))
+                             (cons car cdr)))))
+                 (symbol (clean-symbol f))
+                 (t f))))
+      (truncate-form form 0))))
