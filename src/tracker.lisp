@@ -77,16 +77,6 @@
     (setf (package-cycles actual-tracker) nil)))
 
 
-(defmethod print-object ((tracker dependency-tracker) stream)
-  "Print a human-readable representation of the tracker."
-  (print-unreadable-object (tracker stream :type t)
-    (format stream "~A: ~D definitions, ~D references, ~D files"
-            (project.name tracker)
-            (hash-table-count (slot-value tracker 'definitions))
-            (hash-table-count (slot-value tracker 'references))
-            (hash-table-count (slot-value tracker 'file-map)))))
-
-
 (defun analyze (source-dir)
   "Analyze source files in a directory and its subdirectories in two passes:
    1. Collect all definitions across all files
@@ -120,7 +110,7 @@
                                              :project-root parent-pathname))
         ;; First pass: collect all definitions
         (format t "~%First Pass - Collecting Definitions...~%")
-        (with-open-file (log-stream (merge-pathnames "definition-analysis.log" log-dir)
+        (with-open-file (log-stream (merge-pathnames "definitions-trace.log" log-dir)
                                    :direction :output
                                    :if-exists :supersede
                                    :if-does-not-exist :create)
@@ -128,9 +118,14 @@
             (format log-stream "~%Definitions Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-definitions-in-file file-parser log-stream))))
+;        (with-open-file (log-stream (merge-pathnames "definitions.log" log-dir)
+;                                   :direction :output
+;                                   :if-exists :supersede
+;                                   :if-does-not-exist :create)
+          
         ;; Second pass: analyze references
         (format t "~%Second Pass - Analyzing References...~2%")
-        (with-open-file (log-stream (merge-pathnames "reference-analysis.log" log-dir)
+        (with-open-file (log-stream (merge-pathnames "references-trace.log" log-dir)
                                    :direction :output
                                    :if-exists :supersede
                                    :if-does-not-exist :create)

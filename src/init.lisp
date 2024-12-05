@@ -23,6 +23,7 @@
     #:get-file-cycles
     ;; Development
     #:prt
+    #:delete-fasl
     #:dep
     #:defs
     #:refs
@@ -80,9 +81,7 @@
              (slot-value *current-tracker* 'definitions))
     (dolist (def (sort defs #'string< :key #'definition.name))
       (format t "~%Name: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~%"
-              (etypecase (definition.name def)
-                (string (definition.name def))
-                (symbol (definition.name def)))
+              (definition.name def)
               (definition.type def)
               (project-pathname (definition.file def))
               (definition.package def)

@@ -11,7 +11,7 @@
   :serial t
   :components ((:module "src"
                  :components ((:file "init")
-                              (:file "structures&classes")
+                              (:file "classes")
                               (:file "tracker-utils")
                               (:file "tracker")
                               (:file "file-parser-utils")

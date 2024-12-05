@@ -30,47 +30,7 @@
       (error "Invalid package designator: ~S" designator))))
 
 
-(defun extract-lambda-bindings (lambda-list &optional parser)
-  "Extract bindings from lambda list, handling destructuring and specializers." 
-  (let ((bindings nil)
-        (state :required))
-    (dolist (item lambda-list)
-      (case item  
-        ((&optional &rest &key &aux &whole &environment)
-         (setf state item))
-        (t (case state
-             (:required 
-              (typecase item
-                (symbol (push item bindings))
-                (cons   ; Handle (var init) or ((var type))
-                  (if (and (listp (car item)) (= (length (car item)) 2))
-                      (push (caar item) bindings)  ; (var type) specializer
-                      (push (car item) bindings)))))
-             (&optional
-              (typecase item  
-                (symbol (push item bindings))
-                (cons (push (car item) bindings))))
-             (&rest
-              (when (symbolp item)
-                (push item bindings)))
-             (&key
-              (typecase item
-                (symbol (push item bindings))
-                (cons   ; Handle both ((kw var)) and (var) forms
-                  (let ((var (if (listp (car item))
-                                (if (listp (cadar item))
-                                    (caadar item)  ; (((:kw var)) init)
-                                    (cadar item))  ; ((:kw var) init) 
-                                (car item))))     ; ((var) init)
-                    (push var bindings)))))
-             (&aux
-              (typecase item
-                (symbol (push item bindings))
-                (cons (push (car item) bindings))))))))
-    (remove-duplicates bindings)))
-
-
-(defun extract-destructuring-bindings (form)
+#+ignore (defun extract-destructuring-bindings (form)
   "Extract all bindings from a destructuring form, handling nested structures.
    Handles:
    - Regular symbols
@@ -117,71 +77,6 @@
     (t nil)))
 
 
-(defun process-declarations (declarations parser)
-  "Process declarations, returning list of:
-   - special variables that should be treated as references
-   - ignored symbols that should not be treated as undefined references
-   - type declarations for documentation"
-  (let ((specials nil)
-        (ignores nil)
-        (types nil))
-    (dolist (decl declarations)
-      (when (listp decl)
-        (case (car decl)
-          ((special)
-           ;; Special vars are added to specials list and analyzed as references
-           (dolist (var (cdr decl))
-             (pushnew var specials)
-             (analyze-subform parser var)))
-          
-          ((ignore ignored)
-           ;; Ignored vars should not trigger undefined warnings
-           (dolist (var (cdr decl))
-             (pushnew var ignores)))
-          
-          ((type ftype)
-           ;; Process type declarations
-           (dolist (var (cddr decl))
-             (push (cons var (second decl)) types)))
-          
-          ((optimize)
-           ;; Optimize declarations don't affect dependency analysis
-           nil)
-          
-          (otherwise
-           ;; Handle (type var) shorthand declarations
-           (when (and (symbolp (car decl))
-                     (find-symbol (symbol-name (car decl)) 
-                                (find-package :common-lisp)))
-             (dolist (var (cdr decl))
-               (push (cons var (car decl)) types)))))))
-    (values specials ignores types)))
-
-
-(defun analyze-body-with-declarations (parser body)
- "Analyze body forms handling declarations and doc strings."
- (let ((forms body)
-       (declarations nil))
-   ;; Skip documentation string if present  
-   (when (and (stringp (car forms)) (cdr forms))
-     (pop forms))
-  
-   ;; Collect declarations
-   (loop while (and (consp (car forms))
-                   (eq (caar forms) 'declare))
-         do (push (pop forms) declarations))
-   ;; Process declarations
-   (when declarations
-     (multiple-value-bind (specials ignores types)
-         (process-declarations (mapcan #'cdr (nreverse declarations)) 
-                             parser)
-       (declare (ignore specials ignores types))))
-   ;; Analyze remaining body forms directly
-   (mapc (lambda (form)
-           (analyze-subform parser form))
-         forms)))
-
-
 (defun collect-file-references (tracker source-file target-file)
   "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
    Returns a list of reference objects."
@@ -206,11 +101,8 @@
 (defun record-definition (tracker symbol type file &key package exported-p)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
-         (def (make-definition :name symbol
-                             :type type
-                             :file file
-                             :package package
-                             :exported-p exported-p)))
+         (def (make-instance 'definition :name symbol :type type :file file
+                                         :package package :exported-p exported-p)))
     (setf (gethash key (slot-value tracker 'definitions)) def)
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p
@@ -219,22 +111,26 @@
 
 
 (defun record-reference (tracker symbol file &key package context visibility definition)
-  "Record a symbol reference in the tracker.
-   VISIBILITY is inherited, imported, or local (defaults to local)"
-  (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
-                                        (package-name (symbol-package symbol)))))
-         (ref (make-reference :symbol symbol
-                            :file file
-                            :package package
-                            :context context
-                            :visibility (or visibility :LOCAL)
-                            :definition definition)))
-    (pushnew ref (gethash key (slot-value tracker 'references))
-         :test (lambda (a b)
-                 (and (equal (reference.symbol a) (reference.symbol b))
-                      (equal (reference.file a) (reference.file b))
-                      (equal (reference.package a) (reference.package b)))))
-    ref))
+ "Record a symbol reference in the tracker.
+  VISIBILITY is inherited, imported, or local (defaults to local)"
+ (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
+                                       (package-name (symbol-package symbol)))))
+        (ref (make-instance 'reference :symbol symbol :file file :package package :context context 
+                                     :visibility (or visibility :LOCAL) :definition definition)))
+   (pushnew ref (gethash key (slot-value tracker 'references))
+        :test (lambda (a b)
+                (and (equal (reference.symbol a) (reference.symbol b))
+                     (equal (reference.file a) (reference.file b))
+                     (equal (reference.package a) (reference.package b)))))
+   ref))
+
+
+(defun record-anomaly (tracker type severity location description &optional context)
+ "Record a new anomaly in the dependency tracker"
+ (let ((anomaly (make-instance 'anomaly :type type :severity severity :location location 
+                                       :description description :context context)))
+   (push anomaly (gethash type (anomalies tracker)))
+   anomaly))
 
 
 (defun record-package-use (tracker using-package used-package)

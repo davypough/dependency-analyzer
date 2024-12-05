@@ -36,14 +36,3 @@
     (if package
         (format nil "~A::~A" package name)
         name)))
-
-
-(defun record-anomaly (tracker type severity location description &optional context)
-  "Record a new anomaly in the dependency tracker"
-  (let ((anomaly (make-anomaly :type type
-                              :severity severity 
-                              :location location
-                              :description description
-                              :context context)))
-    (push anomaly (gethash type (anomalies tracker)))
-    anomaly))
