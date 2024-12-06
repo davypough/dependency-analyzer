@@ -98,11 +98,11 @@
     (sort refs #'string< :key (lambda (r) (symbol-name (reference.symbol r))))))
 
 
-(defun record-definition (tracker symbol type file &key package exported-p)
+(defun record-definition (tracker symbol type file &key package exported-p context)
   "Record a symbol definition in the tracker."
   (let* ((key (make-tracking-key symbol package))
          (def (make-instance 'definition :name symbol :type type :file file
-                                         :package package :exported-p exported-p)))
+                             :package package :exported-p exported-p :context context)))
     (setf (gethash key (slot-value tracker 'definitions)) def)
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p
@@ -313,17 +313,18 @@
    (dolist (form body)
      (when (and (listp form)
                 (member (car form) '(defun flet labels)))
-       (push (if (eq (car form) 'defun)
-                (second form)
-                (caar (cdr form)))
-             helper-functions)))
-   ;; Record each helper function
-   (dolist (func helper-functions)
-     (record-definition *current-tracker* func
-                      :FUNCTION
-                      file
-                      :package pkg-name
-                      :exported-p nil))
+       (let ((func-name (if (eq (car form) 'defun)
+                         (second form)
+                         (caar (cdr form))))
+             (context (limit-form-size form pkg-name)))
+         (push func-name helper-functions)
+         ;; Record each helper function with its context
+         (record-definition *current-tracker* func-name
+                          :FUNCTION
+                          file
+                          :package pkg-name
+                          :exported-p nil
+                          :context context))))
    helper-functions))
 
 
@@ -591,28 +592,29 @@
 (defun limit-form-size (form pkg-name &key (max-depth 8) (max-elements 20))
   "Limit the size of a form for use as reference context.
    Returns form if within limits, otherwise returns truncated version.
-   Strips package prefixes that match pkg-name exactly."
+   Strips package prefixes only when they match pkg-name."
   (let ((element-count 0))
     (labels ((clean-symbol (sym)
                (let* ((actual-sym (if (and (listp sym) 
-                                         (eq (car sym) 'quote))
-                                    (cadr sym)
-                                    sym))
+                                          (eq (car sym) 'quote))
+                                     (cadr sym)
+                                     sym))
                       (pkg (and (symbolp actual-sym)
                                (symbol-package actual-sym)))
                       (sym-pkg-name (and pkg (package-name pkg))))
                  (cond ((not (symbolp actual-sym)) actual-sym)
                        ((null pkg) actual-sym)  ; Uninterned stays uninterned
-                       ((string= sym-pkg-name pkg-name) ; Exact package match
-                        (intern (symbol-name actual-sym) (find-package :dep)))
-                       (t actual-sym))))  ; Keep other package prefixes
+                       ((string= sym-pkg-name pkg-name) ; Package matches, strip qualifier 
+                        (intern (symbol-name actual-sym) 
+                               (find-package pkg-name)))
+                       (t actual-sym))))  ; Keep qualifier if different package
              (truncate-form (f depth)
                (when (> (incf element-count) max-elements)
-                 (return-from limit-form-size 
+                 (return-from truncate-form
                    (typecase f 
                      (cons (if (member (car f) '(quote function))
-                              (list (car f) (clean-symbol (cadr f)))
-                              (list (clean-symbol (car f)) (make-instance 'dots-object))))  ; '|...|)))
+                             (list (car f) (clean-symbol (cadr f)))
+                             (list (clean-symbol (car f)) (make-instance 'dots-object))))
                      (symbol (clean-symbol f))
                      (t f))))
                (typecase f
@@ -620,7 +622,7 @@
                   (cond ((>= depth max-depth)
                          (if (member (car f) '(quote function))
                              (list (car f) (clean-symbol (cadr f)))
-                             (list (clean-symbol (car f)) (make-instance 'dots-object))))  ;'|...|)))
+                             (list (clean-symbol (car f)) (make-instance 'dots-object))))
                         ((member (car f) '(quote function))
                          (list (car f) (clean-symbol (cadr f))))
                         (t (let ((car (truncate-form (car f) (1+ depth)))

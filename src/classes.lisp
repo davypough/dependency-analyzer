@@ -9,6 +9,7 @@
 
 (defclass definition ()
   ((name :initarg :name :reader definition.name :type (or symbol string))
+   (context :initarg :context :reader definition.context)
    (type :initarg :type :reader definition.type
          :type (member :STRUCTURE :CLASS :VARIABLE :FUNCTION :MACRO
                        :SYMBOL-MACRO :GENERIC-FUNCTION :METHOD :CONDITION
@@ -19,16 +20,16 @@
    (exported-p :initarg :exported-p :reader definition.exported-p
                :type boolean))
   (:default-initargs :name nil :type nil :file nil :package nil
-                     :exported-p nil)
+                     :exported-p nil :context nil)
   (:documentation "Data structure holding info about a lisp definition;
                    eg, defun, defvar, or package"))
 
 
 (defmethod print-object ((def definition) stream)  
   (print-unreadable-object (def stream :type t)
-    (format stream "Name: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A"
-            (definition.name def) (definition.type def) (project-pathname (definition.file def))
-            (definition.package def) (definition.exported-p def))))
+    (format stream "Name: ~S~%  Context: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A"
+            (definition.name def) (definition.context def) (definition.type def)
+            (project-pathname (definition.file def)) (definition.package def) (definition.exported-p def))))
 
 
 (defclass reference ()

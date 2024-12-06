@@ -184,14 +184,16 @@
     (let* ((pkg-name (normalize-package-name name))
            (file (file parser))
            (package (or (find-package pkg-name)
-                       (make-package pkg-name))))
+                       (make-package pkg-name)))
+           (context (limit-form-size form pkg-name)))
 
       ;; 2. Primary Definition Record - using package's own name
       (record-definition *current-tracker* pkg-name
                         :PACKAGE
                         file
                         :package pkg-name  
-                        :exported-p t)     ; Package names always accessible
+                        :exported-p t     ; Package names always accessible
+                        :context context)
       
       ;; 3. Interface Elements
       (let ((exported-syms nil))
@@ -239,99 +241,103 @@
 
 
 (defun analyze-defstruct (parser form)
-  "Handle defstruct form. Analyzes:
-   - Structure name and exportedness
-   - Interface functions (constructor, copier, predicate)
-   - Include option for inheritance
-   - Slot definitions and their types
-   - Forward references in slot types"
-  (destructuring-bind (def-op name-and-options &rest slots) form
-    (declare (ignore def-op))
-    ;; Primary analysis context
-    (let* ((pkg (current-package parser))
-           (pkg-name (current-package-name parser))
-           (file (file parser))
-           (forward-refs nil))  ; Track forward references
+ "Handle defstruct form. Analyzes:
+  - Structure name and exportedness
+  - Interface functions (constructor, copier, predicate)
+  - Include option for inheritance
+  - Slot definitions and their types
+  - Forward references in slot types"
+ (destructuring-bind (def-op name-and-options &rest slots) form
+   (declare (ignore def-op))
+   ;; Primary analysis context
+   (let* ((pkg (current-package parser))
+          (pkg-name (current-package-name parser))
+          (file (file parser))
+          (forward-refs nil)  ; Track forward references
+          (context (limit-form-size form pkg-name)))
 
-      ;; Process structure name and options
-      (let* ((struct-name (if (listp name-and-options)
-                             (car name-and-options)
-                             name-and-options))
-             (options (when (listp name-and-options) 
-                       (cdr name-and-options)))
-             (conc-name-prefix     ; Used for accessor generation
-              (let ((conc-option (find :conc-name options :key #'car)))
-                (cond ((null conc-option)
-                       (concatenate 'string (string struct-name) "-"))  ; Default
-                      ((or (null (cdr conc-option))    ; (:conc-name)
-                          (null (second conc-option)))  ; (:conc-name nil) 
-                       "")
-                      (t (string (second conc-option)))))))
-        
-        ;; Record main structure definition
-        (record-definition *current-tracker* struct-name
-                          :STRUCTURE
-                          file
-                          :package pkg-name
-                          :exported-p (eq (nth-value 1 
-                                        (find-symbol (symbol-name struct-name) pkg))
-                                       :external))
+     ;; Process structure name and options
+     (let* ((struct-name (if (listp name-and-options)
+                            (car name-and-options)
+                            name-and-options))
+            (options (when (listp name-and-options) 
+                      (cdr name-and-options)))
+            (conc-name-prefix     ; Used for accessor generation
+             (let ((conc-option (find :conc-name options :key #'car)))
+               (cond ((null conc-option)
+                      (concatenate 'string (string struct-name) "-"))  ; Default
+                     ((or (null (cdr conc-option))    ; (:conc-name)
+                         (null (second conc-option)))  ; (:conc-name nil) 
+                      "")
+                     (t (string (second conc-option)))))))
+       
+       ;; Record main structure definition
+       (record-definition *current-tracker* struct-name
+                         :STRUCTURE
+                         file
+                         :package pkg-name
+                         :exported-p (eq (nth-value 1 
+                                       (find-symbol (symbol-name struct-name) pkg))
+                                      :external)
+                         :context context)
 
-        ;; Check for included structure inheritance
-        (let ((included (find :include options :key #'car)))
-          (when included
-            (let* ((included-name (second included))
-                   (included-key (make-tracking-key included-name pkg-name))
-                   (included-def (gethash included-key 
-                                        (slot-value *current-tracker* 'definitions))))
-              (unless included-def
-                (push (cons included-name 'include) forward-refs)))))
+       ;; Check for included structure inheritance
+       (let ((included (find :include options :key #'car)))
+         (when included
+           (let* ((included-name (second included))
+                  (included-key (make-tracking-key included-name pkg-name))
+                  (included-def (gethash included-key 
+                                       (slot-value *current-tracker* 'definitions))))
+             (unless included-def
+               (push (cons included-name 'include) forward-refs)))))
 
-        ;; Process each slot definition
-        (dolist (slot slots)
-          (let ((slot-spec (if (listp slot) slot (list slot))))
-            ;; Check for slot type specifications
-            (when (listp slot-spec)
-              (let ((type-option (cdr (member :type slot-spec))))
-                (when type-option
-                  (let ((type-name (first type-option)))
-                    (when (and type-name 
-                             (symbolp type-name)
-                             (not (cl-symbol-p type-name)))
-                      (let* ((type-key (make-tracking-key type-name pkg-name))
-                             (type-def (gethash type-key 
-                                              (slot-value *current-tracker* 'definitions))))
-                        (when (and (not type-def)
-                                 (not (find-class type-name nil)))
-                          (push (cons type-name (car slot-spec)) 
-                                forward-refs))))))))
-            
-            ;; Generate and record accessor function
-            (let ((accessor (intern (concatenate 'string conc-name-prefix
+       ;; Process each slot definition
+       (dolist (slot slots)
+         (let ((slot-spec (if (listp slot) slot (list slot))))
+           ;; Check for slot type specifications
+           (when (listp slot-spec)
+             (let ((type-option (cdr (member :type slot-spec))))
+               (when type-option
+                 (let ((type-name (first type-option)))
+                   (when (and type-name 
+                            (symbolp type-name)
+                            (not (cl-symbol-p type-name)))
+                     (let* ((type-key (make-tracking-key type-name pkg-name))
+                            (type-def (gethash type-key 
+                                             (slot-value *current-tracker* 'definitions))))
+                       (when (and (not type-def)
+                                (not (find-class type-name nil)))
+                         (push (cons type-name (car slot-spec)) 
+                               forward-refs))))))))
+           
+           ;; Generate and record accessor function 
+           (let* ((accessor (intern (concatenate 'string conc-name-prefix
                                                (string (if (listp slot-spec)
                                                          (car slot-spec)
                                                          slot-spec)))
-                                  pkg)))
-              (record-definition *current-tracker* accessor
-                               :FUNCTION
-                               file
-                               :package pkg-name
-                               :exported-p (eq (nth-value 1 
-                                             (find-symbol (string accessor) pkg))
-                                            :external)))))
+                                  pkg))
+                  (accessor-context (limit-form-size form pkg-name)))
+             (record-definition *current-tracker* accessor
+                              :FUNCTION
+                              file
+                              :package pkg-name
+                              :exported-p (eq (nth-value 1 
+                                            (find-symbol (string accessor) pkg))
+                                           :external)
+                              :context accessor-context))))
 
-        ;; Record any forward reference anomalies
-        (dolist (fref forward-refs)
-          (record-anomaly *current-tracker*
-                         :structure-forward-reference
-                         :WARNING
-                         file
-                         (format nil "Forward reference to structure ~A in ~A of structure ~A"
-                                 (car fref) 
-                                 (if (eq (cdr fref) 'include)
-                                     "include option"
-                                     (format nil "slot ~A" (cdr fref)))
-                                 struct-name)))))))
+       ;; Record any forward reference anomalies
+       (dolist (fref forward-refs)
+         (record-anomaly *current-tracker*
+                        :structure-forward-reference
+                        :WARNING
+                        file
+                        (format nil "Forward reference to structure ~A in ~A of structure ~A"
+                                (car fref) 
+                                (if (eq (cdr fref) 'include)
+                                    "include option"
+                                    (format nil "slot ~A" (cdr fref)))
+                                struct-name)))))))
 
 
 (defun analyze-defvar-defparameter-defconstant (parser form)
@@ -345,7 +351,8 @@
     ;; 1. Form Analysis Context
     (let* ((pkg (current-package parser))
            (pkg-name (current-package-name parser))
-           (file (file parser)))
+           (file (file parser))
+           (context (limit-form-size form pkg-name)))
       
       ;; 2. Primary Definition Record
       (record-definition *current-tracker* name
@@ -354,7 +361,8 @@
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
                                        (find-symbol (symbol-name name) pkg))
-                                      :external))
+                                      :external)
+                        :context context)
       
       ;; 3. Interface Elements 
       ;; None for variables
@@ -381,7 +389,8 @@
     ;; 1. Form Analysis Context
     (let* ((pkg (current-package parser))
            (pkg-name (current-package-name parser))
-           (file (file parser)))
+           (file (file parser))
+           (context (limit-form-size form pkg-name)))
       
       ;; 2. Primary Definition Record
       (record-definition *current-tracker* name
@@ -392,7 +401,8 @@
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
                                        (find-symbol (symbol-name name) pkg))
-                                      :external))
+                                      :external)
+                        :context context)
       
       ;; 3. Interface Elements
       ;; For macros, record any helper functions defined in the body
@@ -435,7 +445,8 @@
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
-          (file (file parser)))
+          (file (file parser))
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record  
      (record-definition *current-tracker* name
@@ -444,24 +455,24 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
-     ;; Collect method names from :method options
-     (let ((method-functions nil))
-       (dolist (option options)
-         (when (and (listp option) 
-                    (eq (car option) :method))
-           (push name method-functions)))
-       ;; Record all method definitions
-       (dolist (func method-functions)
-         (record-definition *current-tracker* func
+     ;; Collect method names from :method options 
+     (dolist (option options)
+       (when (and (listp option) 
+                  (eq (car option) :method))
+         (push name method-functions)
+         ;; Record method definition with full defgeneric form context
+         (record-definition *current-tracker* name
                           :METHOD
                           file
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
-                                         (find-symbol (symbol-name func) pkg))
-                                        :external))))
+                                         (find-symbol (symbol-name name) pkg))
+                                        :external)
+                          :context context)))
 
      ;; 4. Specification Elements
      ;; 4a. Process lambda list for parameters and types
@@ -537,13 +548,6 @@
                   (unless (quoted-form-p form)
                     (analyze-definition-form parser form))))))
 
-           (:declare
-            ;; Process declarations
-            (dolist (decl (cdr option))
-              (when (and (listp decl)
-                        (eq (car decl) 'type))
-                (analyze-definition-form parser (second decl)))))
-
            (t 
             ;; Handle any other options
             (dolist (element (cdr option))
@@ -566,7 +570,8 @@
           (file (file parser))
           (qualifiers nil)
           (lambda-list nil)
-          (method-body nil))
+          (method-body nil)
+          (context (limit-form-size form pkg-name)))
      
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -575,13 +580,15 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
      
      ;; 3. Interface Elements
      ;; Collect qualifiers until we hit lambda list
      (loop for rest on body
            while (and rest (not (listp (car rest))))
-           do (let ((qual (pop rest)))
+           do (let* ((qual (pop rest))
+                     (qual-context (limit-form-size qual pkg-name)))
                 (push qual qualifiers)
                 ;; Analyze qualifier fully
                 (analyze-definition-form parser qual))
@@ -630,7 +637,8 @@
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
-          (file (file parser)))
+          (file (file parser))
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -639,12 +647,14 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
      (if (and (car args) (listp (car args)))
        ;; Long form - collect helper functions from body
-       (record-helper-functions parser (cdddr args))
+       (let ((helper-context (limit-form-size (cdddr args) pkg-name)))
+         (record-helper-functions parser (cdddr args)))
        ;; Short form - analyze update function
        (when (car args)
          (analyze-definition-form parser (car args))))
@@ -685,7 +695,8 @@
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
-          (file (file parser)))
+          (file (file parser))
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -694,7 +705,8 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
      (let ((interface-functions nil))
@@ -705,17 +717,17 @@
              (declare (ignore slot-name))
              (loop for (option value) on slot-options by #'cddr
                    when (member option '(:reader :writer :accessor))
-                   do (push value interface-functions)))))
-       
-       ;; Record all interface function definitions
-       (dolist (func interface-functions)
-         (record-definition *current-tracker* func
-                          :FUNCTION
-                          file
-                          :package pkg-name
-                          :exported-p (eq (nth-value 1 
-                                        (find-symbol (symbol-name func) pkg))
-                                       :external))))
+                   do (let ((func-context (limit-form-size slot pkg-name)))
+                        (push value interface-functions)
+                        ;; Record interface function with its context
+                        (record-definition *current-tracker* value
+                                        :FUNCTION
+                                        file
+                                        :package pkg-name
+                                        :exported-p (eq (nth-value 1 
+                                                      (find-symbol (symbol-name value) pkg))
+                                                     :external)
+                                        :context func-context))))))
 
      ;; 4. Specification Elements
      ;; 4a. Process superclasses - full analysis
@@ -752,7 +764,7 @@
            (t 
             ;; Full analysis of any other class options
             (dolist (element (cdr option))
-              (analyze-definition-form parser element)))))))))
+              (analyze-definition-form parser element))))))))))
 
 
 (defun analyze-deftype (parser form)
@@ -769,7 +781,8 @@
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
-          (file (file parser)))
+          (file (file parser))
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -778,7 +791,8 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
      ;; Type definitions don't generate interface functions
@@ -815,7 +829,8 @@
     ;; 1. Form Analysis Context
     (let* ((pkg (current-package parser))
            (pkg-name (current-package-name parser))
-           (file (file parser)))
+           (file (file parser))
+           (context (limit-form-size form pkg-name)))
       
       ;; 2. Primary Definition Record
       (record-definition *current-tracker* name
@@ -824,7 +839,8 @@
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
                                        (find-symbol (symbol-name name) pkg))
-                                      :external))
+                                      :external)
+                        :context context)
       
       ;; 3. Interface Elements 
       (let ((interface-functions nil))
@@ -833,17 +849,16 @@
           (when (and (listp slot) (car slot))  ; Valid slot definition
             (loop for (option value) on (cdr slot) by #'cddr
                   when (member option '(:reader :writer :accessor))
-                  do (push value interface-functions))))
-        
-        ;; Record all interface function definitions
-        (dolist (func interface-functions)
-          (record-definition *current-tracker* func
-                           :FUNCTION
-                           file
-                           :package pkg-name
-                           :exported-p (eq (nth-value 1 
-                                         (find-symbol (symbol-name func) pkg))
-                                        :external))))
+                  do (let ((func-context (limit-form-size slot pkg-name)))
+                       (push value interface-functions)
+                       (record-definition *current-tracker* value
+                                        :FUNCTION
+                                        file
+                                        :package pkg-name
+                                        :exported-p (eq (nth-value 1 
+                                                      (find-symbol (symbol-name value) pkg))
+                                                     :external)
+                                        :context func-context)))))
       
       ;; 4. Specification Elements
       ;; 4a. Process superclasses
@@ -873,7 +888,7 @@
             (t 
              ;; Analyze all parts of other options
              (dolist (element (cdr option))
-               (analyze-definition-form parser element)))))))))
+               (analyze-definition-form parser element))))))))))
 
 
 (defun analyze-define-method-combination (parser form)
@@ -890,7 +905,8 @@
     ;; 1. Form Analysis Context
     (let* ((pkg (current-package parser))
            (pkg-name (current-package-name parser))
-           (file (file parser)))
+           (file (file parser))
+           (context (limit-form-size form pkg-name)))
 
       ;; 2. Primary Definition Record
       (record-definition *current-tracker* name
@@ -899,7 +915,8 @@
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                        :context context)
 
       ;; 3. Interface Elements
       ;; None needed - no interface functions generated
@@ -923,12 +940,13 @@
 
               ;; Process all body forms
               (dolist (form forms)
-                (analyze-definition-form parser form)
-                (when (and (listp form) 
-                          (member (car form) '(:arguments :generic-function :documentation)))
-                    ;; Handle option forms 
-                    (dolist (part (cdr form))
-                      (analyze-definition-form parser part))))))
+                (let ((form-context (limit-form-size form pkg-name)))
+                  (analyze-definition-form parser form)
+                  (when (and (listp form) 
+                            (member (car form) '(:arguments :generic-function :documentation)))
+                      ;; Handle option forms 
+                      (dolist (part (cdr form))
+                        (analyze-definition-form parser part)))))))
 
           ;; Short form handling
           (progn
@@ -953,7 +971,8 @@
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
-          (file (file parser)))
+          (file (file parser))
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -962,7 +981,8 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
      ;; Analyze underlying function
@@ -991,7 +1011,8 @@
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
-          (file (file parser)))
+          (file (file parser))
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -1000,7 +1021,8 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
      (record-helper-functions parser body)
@@ -1036,7 +1058,8 @@
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
-          (file (file parser)))
+          (file (file parser))
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -1045,7 +1068,8 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
      ;; Symbol macros don't generate interface functions
@@ -1075,7 +1099,8 @@
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
           (file (file parser))
-          (name (second quoted-name)))  ; Extract symbol from 'name form
+          (name (second quoted-name))  ; Extract symbol from 'name form
+          (context (limit-form-size form pkg-name)))
 
      ;; 2. Primary Definition Record
      (record-definition *current-tracker* name
@@ -1084,7 +1109,8 @@
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
-                                     :external))
+                                     :external)
+                       :context context)
 
      ;; 3. Interface Elements
      ;; None - variables don't have interface elements
@@ -1106,7 +1132,8 @@
   (let* ((accessor (caadr form))           ; symbol-function, fdefinition, or macro-function
          (name (cadr (cadr (cadr form))))  ; Get symbol from ('accessor 'name)
          (function-form (third form))      ; The function/lambda form
-         (package (current-package parser)))
+         (package (current-package parser))
+         (context (limit-form-size form (current-package-name parser))))
 
     ;; 1. Form Analysis Context
     (let* ((pkg (current-package parser))
@@ -1123,7 +1150,8 @@
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
                                         (find-symbol (symbol-name name) package))
-                                       :external)))
+                                       :external)
+                          :context context))
         ;; Handle macro-function
         ((eq accessor 'macro-function)
          (record-definition *current-tracker* name
@@ -1132,7 +1160,8 @@
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
                                         (find-symbol (symbol-name name) package))
-                                       :external))))
+                                       :external)
+                          :context context)))
 
       ;; 3. Interface Elements
       ;; None needed - these forms define the functions/macros directly
@@ -1176,7 +1205,8 @@
     ;; 1. Form Analysis Context
     (let* ((pkg (current-package parser))
            (pkg-name (current-package-name parser))
-           (file (file parser)))
+           (file (file parser))
+           (context (limit-form-size form pkg-name)))
 
       ;; 2. Primary Definition Record
       (record-definition *current-tracker* name
@@ -1185,7 +1215,8 @@
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
                                        (find-symbol (symbol-name name) pkg))
-                                      :external))
+                                      :external)
+                        :context context)
 
       ;; 3. Interface Elements
       ;; Record helper functions like in defmacro

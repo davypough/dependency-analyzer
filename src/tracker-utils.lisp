@@ -45,7 +45,7 @@
    STREAM is where to write the output"
   (let ((table (slot-value tracker slot-name)))
     ;; Print slot header
-    (format stream "~&~A~%" (string-upcase slot-name))
+    (format stream "~&~A.LOG~%" (string-upcase slot-name))
     (format stream "~V,,,'-<~>~2%" 30)
     (case slot-name
       (definitions 
