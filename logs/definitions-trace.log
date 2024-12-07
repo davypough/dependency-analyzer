@@ -1,292 +1,904 @@
 
 Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
 
-Form: (DEFPACKAGE #:USER-MAIN-PACKAGE
-        (:USE :CL))
 
- Processing list form
-  Form: (#:USER-MAIN-PACKAGE (:USE :CL))
-   Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
-              (:USE :CL))
-  
-   Processing list form
-    Form: #:USER-MAIN-PACKAGE
-     Context: (#:USER-MAIN-PACKAGE (:USE :CL))
-    
-    Form: ((:USE :CL))
-     Context: (#:USER-MAIN-PACKAGE (:USE :CL))
-    
-     Processing list form
-      Form: (:USE :CL)
-       Context: ((:USE :CL))
-      
-       Processing list form
-        Form: (:CL)
-         Context: (:USE :CL)
-        
-         Processing list form
 
-Form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-
- Processing list form
-  Form: (#:USER-MAIN-PACKAGE)
-   Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  
-   Processing list form
-    Form: #:USER-MAIN-PACKAGE
-     Context: (#:USER-MAIN-PACKAGE)
-    
-
+WALK-FORM handling:
+  Form: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFVAR
+  Context: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Context: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
    Context: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+  Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Parent: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Depth: 2
     Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
      Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+     Parent: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
     
+WALK-FORM handling:
+  Form: (0)
+  Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Parent: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Depth: 2
     Form: (0)
      Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+     Parent: (DEFVAR USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
     
      Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Depth: 3
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* 0)
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFPARAMETER
+  Context: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Context: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
    Context: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE*
+  Context: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Parent: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Depth: 2
     Form: USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE*
      Context: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+     Parent: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
     
+WALK-FORM handling:
+  Form: (0)
+  Context: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Parent: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Depth: 2
     Form: (0)
      Context: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+     Parent: (DEFPARAMETER USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
     
      Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Depth: 3
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE* 0)
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFCONSTANT
+  Context: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Context: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
    Context: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+
+  Context: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 2
     Form: USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+
      Context: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+     Parent: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
     
+WALK-FORM handling:
+  Form: ("aeiou")
+  Context: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 2
     Form: ("aeiou")
      Context: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+     Parent: (DEFCONSTANT USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
     
      Processing list form
+WALK-FORM handling:
+  Form: "aeiou"
+  Context: ("aeiou")
+  Parent: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 3
        Processing array
+WALK-FORM handling:
+  Form: #\a
+  Context: "aeiou"
+  Parent: ("aeiou")
+  Depth: 4
         Form: #\a
          Context: "aeiou"
+         Parent: ("aeiou")
         
+WALK-FORM handling:
+  Form: #\e
+  Context: "aeiou"
+  Parent: ("aeiou")
+  Depth: 4
         Form: #\e
          Context: "aeiou"
+         Parent: ("aeiou")
         
+WALK-FORM handling:
+  Form: #\i
+  Context: "aeiou"
+  Parent: ("aeiou")
+  Depth: 4
         Form: #\i
          Context: "aeiou"
+         Parent: ("aeiou")
         
+WALK-FORM handling:
+  Form: #\o
+  Context: "aeiou"
+  Parent: ("aeiou")
+  Depth: 4
         Form: #\o
          Context: "aeiou"
+         Parent: ("aeiou")
         
+WALK-FORM handling:
+  Form: #\u
+  Context: "aeiou"
+  Parent: ("aeiou")
+  Depth: 4
         Form: #\u
          Context: "aeiou"
+         Parent: ("aeiou")
         
+WALK-FORM handling:
+  Form: NIL
+  Context: ("aeiou")
+  Parent: (USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
 
  Processing list form
+WALK-FORM handling:
+  Form: SETF
+  Context: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Context: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Parent: NIL
+  Depth: 1
   Form: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
    Context: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
   
    Processing list form
+WALK-FORM handling:
+  Form: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Context: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Parent: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 2
     Form: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
      Context: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+     Parent: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
     
      Processing list form
+WALK-FORM handling:
+  Form: SYMBOL-VALUE
+  Context: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Parent: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
+WALK-FORM handling:
+  Form: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Context: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Parent: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
       Form: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
        Context: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+       Parent: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
       
        Processing list form
+WALK-FORM handling:
+  Form: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+  Context: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Parent: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Depth: 4
         Form: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
          Context: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+         Parent: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
         
          Processing list form
+WALK-FORM handling:
+  Form: QUOTE
+  Context: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+  Parent: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Context: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+  Parent: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
            Context: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+           Parent: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+  Context: (USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Parent: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+  Depth: 6
             Form: USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
              Context: (USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+             Parent: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Parent: 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ('USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Parent: (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE)
+  Depth: 4
+WALK-FORM handling:
+  Form: (0)
+  Context: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Parent: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 2
     Form: (0)
      Context: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+     Parent: (SETF (SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
     
      Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: ((SYMBOL-VALUE 'USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFUN
+  Context: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
+  Context: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
    Context: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DEFUN-NAME
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
+  Parent: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
+  Depth: 2
     Form: USER-MAIN-PACKAGE::DEFUN-NAME
      Context: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
+     Parent: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
     
+WALK-FORM handling:
+  Form: (NIL 0)
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
+  Parent: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
+  Depth: 2
     Form: (NIL 0)
      Context: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
+     Parent: (DEFUN USER-MAIN-PACKAGE::DEFUN-NAME () 0)
     
      Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL 0)
+  Parent: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
+  Depth: 3
+WALK-FORM handling:
+  Form: (0)
+  Context: (NIL 0)
+  Parent: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
+  Depth: 3
       Form: (0)
        Context: (NIL 0)
+       Parent: (USER-MAIN-PACKAGE::DEFUN-NAME NIL 0)
       
        Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                (LAMBDA () 0))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
               (LAMBDA () 0))
 
  Processing list form
+WALK-FORM handling:
+  Form: SETF
+  Context: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                   (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+         (LAMBDA () 0))
+  Context: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                   (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
   Form: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
          (LAMBDA () 0))
    Context: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
                     (LAMBDA () 0))
   
    Processing list form
+WALK-FORM handling:
+  Form: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Context: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+            (LAMBDA () 0))
+  Parent: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                  (LAMBDA () 0))
+  Depth: 2
     Form: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
      Context: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
                (LAMBDA () 0))
+     Parent: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                     (LAMBDA () 0))
     
      Processing list form
+WALK-FORM handling:
+  Form: SYMBOL-FUNCTION
+  Context: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
+WALK-FORM handling:
+  Form: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Context: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
       Form: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
        Context: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+       Parent: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                (LAMBDA () 0))
       
        Processing list form
+WALK-FORM handling:
+  Form: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 4
         Form: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
          Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+         Parent: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
         
          Processing list form
+WALK-FORM handling:
+  Form: QUOTE
+  Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
            Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+           Parent: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Depth: 6
             Form: USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
              Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+             Parent: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 4
+WALK-FORM handling:
+  Form: ((LAMBDA () 0))
+  Context: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+            (LAMBDA () 0))
+  Parent: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                  (LAMBDA () 0))
+  Depth: 2
     Form: ((LAMBDA () 0))
      Context: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
                (LAMBDA () 0))
+     Parent: (SETF (SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                     (LAMBDA () 0))
     
      Processing list form
+WALK-FORM handling:
+  Form: (LAMBDA () 0)
+  Context: ((LAMBDA () 0))
+  Parent: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
       Form: (LAMBDA () 0)
        Context: ((LAMBDA () 0))
+       Parent: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+                (LAMBDA () 0))
       
        Processing list form
+WALK-FORM handling:
+  Form: LAMBDA
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
+WALK-FORM handling:
+  Form: (NIL 0)
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
         Form: (NIL 0)
          Context: (LAMBDA () 0)
+         Parent: ((LAMBDA () 0))
         
          Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
+WALK-FORM handling:
+  Form: (0)
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
           Form: (0)
            Context: (NIL 0)
+           Parent: (LAMBDA () 0)
           
            Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((LAMBDA () 0))
+  Parent: ((SYMBOL-FUNCTION 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                (LAMBDA () 0))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
               (LAMBDA () 0))
 
  Processing list form
+WALK-FORM handling:
+  Form: SETF
+  Context: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                   (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+         (LAMBDA () 0))
+  Context: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                   (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
   Form: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
          (LAMBDA () 0))
    Context: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
                     (LAMBDA () 0))
   
    Processing list form
+WALK-FORM handling:
+  Form: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Context: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+            (LAMBDA () 0))
+  Parent: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                  (LAMBDA () 0))
+  Depth: 2
     Form: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
      Context: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
                (LAMBDA () 0))
+     Parent: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                     (LAMBDA () 0))
     
      Processing list form
+WALK-FORM handling:
+  Form: FDEFINITION
+  Context: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
+WALK-FORM handling:
+  Form: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Context: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
       Form: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
        Context: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+       Parent: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                (LAMBDA () 0))
       
        Processing list form
+WALK-FORM handling:
+  Form: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 4
         Form: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
          Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+         Parent: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
         
          Processing list form
+WALK-FORM handling:
+  Form: QUOTE
+  Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
            Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+           Parent: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Depth: 6
             Form: USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
              Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+             Parent: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 4
+WALK-FORM handling:
+  Form: ((LAMBDA () 0))
+  Context: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+            (LAMBDA () 0))
+  Parent: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                  (LAMBDA () 0))
+  Depth: 2
     Form: ((LAMBDA () 0))
      Context: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
                (LAMBDA () 0))
+     Parent: (SETF (FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                     (LAMBDA () 0))
     
      Processing list form
+WALK-FORM handling:
+  Form: (LAMBDA () 0)
+  Context: ((LAMBDA () 0))
+  Parent: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
       Form: (LAMBDA () 0)
        Context: ((LAMBDA () 0))
+       Parent: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+                (LAMBDA () 0))
       
        Processing list form
+WALK-FORM handling:
+  Form: LAMBDA
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
+WALK-FORM handling:
+  Form: (NIL 0)
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
         Form: (NIL 0)
          Context: (LAMBDA () 0)
+         Parent: ((LAMBDA () 0))
         
          Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
+WALK-FORM handling:
+  Form: (0)
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
           Form: (0)
            Context: (NIL 0)
+           Parent: (LAMBDA () 0)
           
            Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((LAMBDA () 0))
+  Parent: ((FDEFINITION 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+           (LAMBDA () 0))
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
+          (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
         (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFSTRUCT
+  Context: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
+             (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::CIRCLE (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Context: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
+             (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::CIRCLE (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
    Context: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
               (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::CIRCLE
+  Context: (USER-MAIN-PACKAGE::CIRCLE
+            (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Parent: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
+            (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::CIRCLE
      Context: (USER-MAIN-PACKAGE::CIRCLE
                (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+     Parent: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
+               (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
     
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Context: (USER-MAIN-PACKAGE::CIRCLE
+            (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Parent: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
+            (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
      Context: (USER-MAIN-PACKAGE::CIRCLE
                (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+     Parent: (DEFSTRUCT USER-MAIN-PACKAGE::CIRCLE
+               (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
+  Context: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Parent: (USER-MAIN-PACKAGE::CIRCLE (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
        Context: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+       Parent: (USER-MAIN-PACKAGE::CIRCLE
+                (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::RADIUS
+  Context: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
+  Parent: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Depth: 4
         Form: USER-MAIN-PACKAGE::RADIUS
          Context: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
+         Parent: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
         
+WALK-FORM handling:
+  Form: (1 :TYPE NUMBER)
+  Context: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
+  Parent: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Depth: 4
         Form: (1 :TYPE NUMBER)
          Context: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
+         Parent: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
         
          Processing list form
+WALK-FORM handling:
+  Form: 1
+  Context: (1 :TYPE NUMBER)
+  Parent: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
+  Depth: 5
+WALK-FORM handling:
+  Form: (:TYPE NUMBER)
+  Context: (1 :TYPE NUMBER)
+  Parent: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
+  Depth: 5
           Form: (:TYPE NUMBER)
            Context: (1 :TYPE NUMBER)
+           Parent: (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER)
           
            Processing list form
+WALK-FORM handling:
+  Form: :TYPE
+  Context: (:TYPE NUMBER)
+  Parent: (1 :TYPE NUMBER)
+  Depth: 6
+WALK-FORM handling:
+  Form: (NUMBER)
+  Context: (:TYPE NUMBER)
+  Parent: (1 :TYPE NUMBER)
+  Depth: 6
             Form: (NUMBER)
              Context: (:TYPE NUMBER)
+             Parent: (1 :TYPE NUMBER)
             
              Processing list form
+WALK-FORM handling:
+  Form: NUMBER
+  Context: (NUMBER)
+  Parent: (:TYPE NUMBER)
+  Depth: 7
+WALK-FORM handling:
+  Form: NIL
+  Context: (NUMBER)
+  Parent: (:TYPE NUMBER)
+  Depth: 7
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Parent: (USER-MAIN-PACKAGE::CIRCLE (USER-MAIN-PACKAGE::RADIUS 1 :TYPE NUMBER))
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (DEFSTRUCT
+            (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+          (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFSTRUCT
           (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
         (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFSTRUCT
+  Context: (DEFSTRUCT
+               (USER-MAIN-PACKAGE::PERSON
+                (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+             (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+         (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Context: (DEFSTRUCT
+               (USER-MAIN-PACKAGE::PERSON
+                (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+             (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Parent: NIL
+  Depth: 1
   Form: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
          (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
    Context: (DEFSTRUCT
@@ -295,63 +907,222 @@ Form: (DEFSTRUCT
               (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
   
    Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Context: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+            (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT
+              (USER-MAIN-PACKAGE::PERSON
+               (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+            (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 2
     Form: (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
      Context: ((USER-MAIN-PACKAGE::PERSON
                 (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
                (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+     Parent: (DEFSTRUCT
+                 (USER-MAIN-PACKAGE::PERSON
+                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+               (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
     
      Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PERSON
+  Context: (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Parent: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+           (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 3
       Form: USER-MAIN-PACKAGE::PERSON
        Context: (USER-MAIN-PACKAGE::PERSON
                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+       Parent: ((USER-MAIN-PACKAGE::PERSON
+                 (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+                (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
       
+WALK-FORM handling:
+  Form: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Context: (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Parent: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+           (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 3
       Form: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
        Context: (USER-MAIN-PACKAGE::PERSON
                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+       Parent: ((USER-MAIN-PACKAGE::PERSON
+                 (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+                (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
       
        Processing list form
+WALK-FORM handling:
+  Form: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
+  Context: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Parent: (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Depth: 4
         Form: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
          Context: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+         Parent: (USER-MAIN-PACKAGE::PERSON
+                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
         
          Processing list form
+WALK-FORM handling:
+  Form: :CONC-NAME
+  Context: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
+  Parent: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PERSON.)
+  Context: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
+  Parent: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::PERSON.)
            Context: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
+           Parent: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PERSON.
+  Context: (USER-MAIN-PACKAGE::PERSON.)
+  Parent: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::PERSON.
              Context: (USER-MAIN-PACKAGE::PERSON.)
+             Parent: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::PERSON.)
+  Parent: (:CONC-NAME USER-MAIN-PACKAGE::PERSON.)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Parent: (USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+  Depth: 4
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Context: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+            (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT
+              (USER-MAIN-PACKAGE::PERSON
+               (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+            (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
      Context: ((USER-MAIN-PACKAGE::PERSON
                 (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
                (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+     Parent: (DEFSTRUCT
+                 (USER-MAIN-PACKAGE::PERSON
+                  (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+               (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
+  Context: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Parent: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+           (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
        Context: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+       Parent: ((USER-MAIN-PACKAGE::PERSON
+                 (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+                (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::AGE
+  Context: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
+  Parent: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 4
         Form: USER-MAIN-PACKAGE::AGE
          Context: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
+         Parent: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
         
+WALK-FORM handling:
+  Form: (0 :TYPE FIXNUM)
+  Context: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
+  Parent: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 4
         Form: (0 :TYPE FIXNUM)
          Context: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
+         Parent: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
         
          Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0 :TYPE FIXNUM)
+  Parent: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
+  Depth: 5
+WALK-FORM handling:
+  Form: (:TYPE FIXNUM)
+  Context: (0 :TYPE FIXNUM)
+  Parent: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
+  Depth: 5
           Form: (:TYPE FIXNUM)
            Context: (0 :TYPE FIXNUM)
+           Parent: (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM)
           
            Processing list form
+WALK-FORM handling:
+  Form: :TYPE
+  Context: (:TYPE FIXNUM)
+  Parent: (0 :TYPE FIXNUM)
+  Depth: 6
+WALK-FORM handling:
+  Form: (FIXNUM)
+  Context: (:TYPE FIXNUM)
+  Parent: (0 :TYPE FIXNUM)
+  Depth: 6
             Form: (FIXNUM)
              Context: (:TYPE FIXNUM)
+             Parent: (0 :TYPE FIXNUM)
             
              Processing list form
+WALK-FORM handling:
+  Form: FIXNUM
+  Context: (FIXNUM)
+  Parent: (:TYPE FIXNUM)
+  Depth: 7
+WALK-FORM handling:
+  Form: NIL
+  Context: (FIXNUM)
+  Parent: (:TYPE FIXNUM)
+  Depth: 7
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Parent: ((USER-MAIN-PACKAGE::PERSON (:CONC-NAME USER-MAIN-PACKAGE::PERSON.))
+           (USER-MAIN-PACKAGE::AGE 0 :TYPE FIXNUM))
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
+            (USER-MAIN-PACKAGE::SHAPE)
+          (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
           (USER-MAIN-PACKAGE::SHAPE)
         (:DOCUMENTATION "Compute the area of different geometric shapes"))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFGENERIC
+  Context: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
+               (USER-MAIN-PACKAGE::SHAPE)
+             (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
+         (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Context: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
+               (USER-MAIN-PACKAGE::SHAPE)
+             (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
          (:DOCUMENTATION "Compute the area of different geometric shapes"))
    Context: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
@@ -359,183 +1130,565 @@ Form: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
               (:DOCUMENTATION "Compute the area of different geometric shapes"))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::COMPUTE-AREA
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
+              (USER-MAIN-PACKAGE::SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::COMPUTE-AREA
      Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
                (:DOCUMENTATION
                 "Compute the area of different geometric shapes"))
+     Parent: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
+                 (USER-MAIN-PACKAGE::SHAPE)
+               (:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
     
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::SHAPE)
+         (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
+              (USER-MAIN-PACKAGE::SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::SHAPE)
            (:DOCUMENTATION "Compute the area of different geometric shapes"))
      Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
                (:DOCUMENTATION
                 "Compute the area of different geometric shapes"))
+     Parent: (DEFGENERIC USER-MAIN-PACKAGE::COMPUTE-AREA
+                 (USER-MAIN-PACKAGE::SHAPE)
+               (:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::SHAPE)
+  Context: ((USER-MAIN-PACKAGE::SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::SHAPE)
        Context: ((USER-MAIN-PACKAGE::SHAPE)
                  (:DOCUMENTATION
                   "Compute the area of different geometric shapes"))
+       Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
+                (:DOCUMENTATION
+                 "Compute the area of different geometric shapes"))
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::SHAPE
+  Context: (USER-MAIN-PACKAGE::SHAPE)
+  Parent: ((USER-MAIN-PACKAGE::SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
         Form: USER-MAIN-PACKAGE::SHAPE
          Context: (USER-MAIN-PACKAGE::SHAPE)
+         Parent: ((USER-MAIN-PACKAGE::SHAPE)
+                  (:DOCUMENTATION
+                   "Compute the area of different geometric shapes"))
         
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::SHAPE)
+  Parent: ((USER-MAIN-PACKAGE::SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
+WALK-FORM handling:
+  Form: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Context: ((USER-MAIN-PACKAGE::SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 3
       Form: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
        Context: ((USER-MAIN-PACKAGE::SHAPE)
                  (:DOCUMENTATION
                   "Compute the area of different geometric shapes"))
+       Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::SHAPE)
+                (:DOCUMENTATION
+                 "Compute the area of different geometric shapes"))
       
        Processing list form
+WALK-FORM handling:
+  Form: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Context: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: ((USER-MAIN-PACKAGE::SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
         Form: (:DOCUMENTATION "Compute the area of different geometric shapes")
          Context: ((:DOCUMENTATION
                     "Compute the area of different geometric shapes"))
+         Parent: ((USER-MAIN-PACKAGE::SHAPE)
+                  (:DOCUMENTATION
+                   "Compute the area of different geometric shapes"))
         
          Processing list form
+WALK-FORM handling:
+  Form: :DOCUMENTATION
+  Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Parent: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 5
+WALK-FORM handling:
+  Form: ("Compute the area of different geometric shapes")
+  Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Parent: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 5
           Form: ("Compute the area of different geometric shapes")
            Context: (:DOCUMENTATION
                      "Compute the area of different geometric shapes")
+           Parent: ((:DOCUMENTATION
+                     "Compute the area of different geometric shapes"))
           
            Processing list form
+WALK-FORM handling:
+  Form: "Compute the area of different geometric shapes"
+  Context: ("Compute the area of different geometric shapes")
+  Parent: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Depth: 6
              Processing array
+WALK-FORM handling:
+  Form: #\C
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\C
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\o
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\o
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\m
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\m
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\p
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\p
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\u
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\u
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\t
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\t
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\ 
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\t
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\t
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\h
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\h
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\ 
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\a
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\a
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\r
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\r
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\a
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\a
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\ 
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\o
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\o
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\f
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\f
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\ 
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\d
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\d
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\i
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\i
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\f
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\f
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\f
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\f
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\r
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\r
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\n
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\n
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\t
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\t
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\ 
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\g
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\g
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\o
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\o
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\m
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\m
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\t
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\t
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\r
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\r
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\i
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\i
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\c
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\c
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\ 
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\s
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\s
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\h
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\h
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\a
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\a
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\p
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\p
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\e
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: #\s
+  Context: "Compute the area of different geometric shapes"
+  Parent: ("Compute the area of different geometric shapes")
+  Depth: 7
               Form: #\s
                Context: "Compute the area of different geometric shapes"
+               Parent: ("Compute the area of different geometric shapes")
               
+WALK-FORM handling:
+  Form: NIL
+  Context: ("Compute the area of different geometric shapes")
+  Parent: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: ((USER-MAIN-PACKAGE::SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
+                   ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+          (* PI
+             (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                   2)))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                  ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
         (* PI
@@ -543,6 +1696,30 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                  2)))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFMETHOD
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
+                      ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+             (* PI
+                (EXPT
+                 (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                 2)))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::COMPUTE-AREA
+         ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+         (* PI
+            (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                  2)))
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
+                      ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+             (* PI
+                (EXPT
+                 (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                 2)))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::COMPUTE-AREA
          ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
          (* PI
@@ -556,6 +1733,19 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                   2)))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::COMPUTE-AREA
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
+            ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+            (* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
+                     ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+            (* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::COMPUTE-AREA
      Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
                ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
@@ -563,7 +1753,29 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                   (EXPT
                    (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
                    2)))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
+                        ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+               (* PI
+                  (EXPT
+                   (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                   2)))
     
+WALK-FORM handling:
+  Form: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+         (* PI
+            (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                  2)))
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
+            ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+            (* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
+                     ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+            (* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Depth: 2
     Form: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
            (* PI
               (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
@@ -574,8 +1786,26 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                   (EXPT
                    (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
                    2)))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
+                        ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+               (* PI
+                  (EXPT
+                   (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                   2)))
     
      Processing list form
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+  Context: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+            (* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA
+           ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+           (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 3
       Form: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
        Context: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
                  (* PI
@@ -583,22 +1813,87 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                       USER-MAIN-PACKAGE::SHAPE)
                      2)))
+       Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA
+                ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+                (* PI
+                   (EXPT
+                    (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
       
        Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
+  Context: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+  Parent: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+           (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 4
         Form: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
          Context: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+         Parent: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+                  (* PI
+                     (EXPT
+                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                       USER-MAIN-PACKAGE::SHAPE)
+                      2)))
         
          Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::SHAPE
+  Context: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
+  Parent: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+  Depth: 5
           Form: USER-MAIN-PACKAGE::SHAPE
            Context: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
+           Parent: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
           
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::CIRCLE)
+  Context: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
+  Parent: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::CIRCLE)
            Context: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
+           Parent: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::CIRCLE
+  Context: (USER-MAIN-PACKAGE::CIRCLE)
+  Parent: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::CIRCLE
              Context: (USER-MAIN-PACKAGE::CIRCLE)
+             Parent: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::CIRCLE)
+  Parent: (USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+  Parent: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+           (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 4
+WALK-FORM handling:
+  Form: ((* PI
+            (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                  2)))
+  Context: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+            (* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA
+           ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+           (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 3
       Form: ((* PI
                 (EXPT
                  (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
@@ -609,8 +1904,25 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                       USER-MAIN-PACKAGE::SHAPE)
                      2)))
+       Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA
+                ((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+                (* PI
+                   (EXPT
+                    (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
       
        Processing list form
+WALK-FORM handling:
+  Form: (* PI
+           (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2))
+  Context: ((* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Parent: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+           (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 4
         Form: (* PI
                  (EXPT
                   (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
@@ -620,8 +1932,33 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                        (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                         USER-MAIN-PACKAGE::SHAPE)
                        2)))
+         Parent: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+                  (* PI
+                     (EXPT
+                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                       USER-MAIN-PACKAGE::SHAPE)
+                      2)))
         
          Processing list form
+WALK-FORM handling:
+  Form: *
+  Context: (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2))
+  Parent: ((* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 5
+WALK-FORM handling:
+  Form: (PI
+         (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2))
+  Context: (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2))
+  Parent: ((* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 5
           Form: (PI
                  (EXPT
                   (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
@@ -631,8 +1968,31 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                         (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                          USER-MAIN-PACKAGE::SHAPE)
                         2))
+           Parent: ((* PI
+                       (EXPT
+                        (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                         USER-MAIN-PACKAGE::SHAPE)
+                        2)))
           
            Processing list form
+WALK-FORM handling:
+  Form: PI
+  Context: (PI
+            (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                  2))
+  Parent: (* PI
+             (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                   2))
+  Depth: 6
+WALK-FORM handling:
+  Form: ((EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2))
+  Context: (PI
+            (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                  2))
+  Parent: (* PI
+             (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                   2))
+  Depth: 6
             Form: ((EXPT
                     (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
                     2))
@@ -641,8 +2001,20 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                         (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                          USER-MAIN-PACKAGE::SHAPE)
                         2))
+             Parent: (* PI
+                        (EXPT
+                         (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                          USER-MAIN-PACKAGE::SHAPE)
+                         2))
             
              Processing list form
+WALK-FORM handling:
+  Form: (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Context: ((EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                  2))
+  Parent: (PI
+           (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2))
+  Depth: 7
               Form: (EXPT
                      (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                       USER-MAIN-PACKAGE::SHAPE)
@@ -651,8 +2023,23 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                           (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                            USER-MAIN-PACKAGE::SHAPE)
                           2))
+               Parent: (PI
+                        (EXPT
+                         (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                          USER-MAIN-PACKAGE::SHAPE)
+                         2))
               
                Processing list form
+WALK-FORM handling:
+  Form: EXPT
+  Context: (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Parent: ((EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2))
+  Depth: 8
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Context: (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Parent: ((EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2))
+  Depth: 8
                 Form: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
                         USER-MAIN-PACKAGE::SHAPE)
                        2)
@@ -660,39 +2047,138 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::COMPUTE-AREA
                            (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                             USER-MAIN-PACKAGE::SHAPE)
                            2)
+                 Parent: ((EXPT
+                           (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                            USER-MAIN-PACKAGE::SHAPE)
+                           2))
                 
                  Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+  Context: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Parent: (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Depth: 9
                   Form: (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                          USER-MAIN-PACKAGE::SHAPE)
                    Context: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
                               USER-MAIN-PACKAGE::SHAPE)
                              2)
+                   Parent: (EXPT
+                            (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                             USER-MAIN-PACKAGE::SHAPE)
+                            2)
                   
                    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::CIRCLE-RADIUS
+  Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+  Parent: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Depth: 10
                     Form: USER-MAIN-PACKAGE::CIRCLE-RADIUS
                      Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                                USER-MAIN-PACKAGE::SHAPE)
+                     Parent: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                               USER-MAIN-PACKAGE::SHAPE)
+                              2)
                     
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::SHAPE)
+  Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+  Parent: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Depth: 10
                     Form: (USER-MAIN-PACKAGE::SHAPE)
                      Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS
                                USER-MAIN-PACKAGE::SHAPE)
+                     Parent: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                               USER-MAIN-PACKAGE::SHAPE)
+                              2)
                     
                      Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::SHAPE
+  Context: (USER-MAIN-PACKAGE::SHAPE)
+  Parent: (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+  Depth: 11
                       Form: USER-MAIN-PACKAGE::SHAPE
                        Context: (USER-MAIN-PACKAGE::SHAPE)
+                       Parent: (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                                USER-MAIN-PACKAGE::SHAPE)
                       
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::SHAPE)
+  Parent: (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+  Depth: 11
+WALK-FORM handling:
+  Form: (2)
+  Context: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Parent: (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Depth: 9
                   Form: (2)
                    Context: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS
                               USER-MAIN-PACKAGE::SHAPE)
                              2)
+                   Parent: (EXPT
+                            (USER-MAIN-PACKAGE::CIRCLE-RADIUS
+                             USER-MAIN-PACKAGE::SHAPE)
+                            2)
                   
                    Processing list form
+WALK-FORM handling:
+  Form: 2
+  Context: (2)
+  Parent: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Depth: 10
+WALK-FORM handling:
+  Form: NIL
+  Context: (2)
+  Parent: ((USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)
+  Depth: 10
+WALK-FORM handling:
+  Form: NIL
+  Context: ((EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                  2))
+  Parent: (PI
+           (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2))
+  Depth: 7
+WALK-FORM handling:
+  Form: NIL
+  Context: ((* PI
+               (EXPT
+                (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE) 2)))
+  Parent: (((USER-MAIN-PACKAGE::SHAPE USER-MAIN-PACKAGE::CIRCLE))
+           (* PI
+              (EXPT (USER-MAIN-PACKAGE::CIRCLE-RADIUS USER-MAIN-PACKAGE::SHAPE)
+                    2)))
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
+            (USER-MAIN-PACKAGE::DATA &KEY)
+          (:DOCUMENTATION "Process data with various methods"))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
           (USER-MAIN-PACKAGE::DATA &KEY)
         (:DOCUMENTATION "Process data with various methods"))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFGENERIC
+  Context: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
+               (USER-MAIN-PACKAGE::DATA &KEY)
+             (:DOCUMENTATION "Process data with various methods"))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
+         (:DOCUMENTATION "Process data with various methods"))
+  Context: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
+               (USER-MAIN-PACKAGE::DATA &KEY)
+             (:DOCUMENTATION "Process data with various methods"))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
          (:DOCUMENTATION "Process data with various methods"))
    Context: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
@@ -700,147 +2186,470 @@ Form: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
               (:DOCUMENTATION "Process data with various methods"))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PROCESS-DATA
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Parent: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
+              (USER-MAIN-PACKAGE::DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
                (:DOCUMENTATION "Process data with various methods"))
+     Parent: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
+                 (USER-MAIN-PACKAGE::DATA &KEY)
+               (:DOCUMENTATION "Process data with various methods"))
     
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::DATA &KEY)
+         (:DOCUMENTATION "Process data with various methods"))
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Parent: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
+              (USER-MAIN-PACKAGE::DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::DATA &KEY)
            (:DOCUMENTATION "Process data with various methods"))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
                (:DOCUMENTATION "Process data with various methods"))
+     Parent: (DEFGENERIC USER-MAIN-PACKAGE::PROCESS-DATA
+                 (USER-MAIN-PACKAGE::DATA &KEY)
+               (:DOCUMENTATION "Process data with various methods"))
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DATA &KEY)
+  Context: ((USER-MAIN-PACKAGE::DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::DATA &KEY)
        Context: ((USER-MAIN-PACKAGE::DATA &KEY)
                  (:DOCUMENTATION "Process data with various methods"))
+       Parent: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
+                (:DOCUMENTATION "Process data with various methods"))
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DATA
+  Context: (USER-MAIN-PACKAGE::DATA &KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
         Form: USER-MAIN-PACKAGE::DATA
          Context: (USER-MAIN-PACKAGE::DATA &KEY)
+         Parent: ((USER-MAIN-PACKAGE::DATA &KEY)
+                  (:DOCUMENTATION "Process data with various methods"))
         
+WALK-FORM handling:
+  Form: (&KEY)
+  Context: (USER-MAIN-PACKAGE::DATA &KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
         Form: (&KEY)
          Context: (USER-MAIN-PACKAGE::DATA &KEY)
+         Parent: ((USER-MAIN-PACKAGE::DATA &KEY)
+                  (:DOCUMENTATION "Process data with various methods"))
         
          Processing list form
+WALK-FORM handling:
+  Form: &KEY
+  Context: (&KEY)
+  Parent: (USER-MAIN-PACKAGE::DATA &KEY)
+  Depth: 5
+WALK-FORM handling:
+  Form: NIL
+  Context: (&KEY)
+  Parent: (USER-MAIN-PACKAGE::DATA &KEY)
+  Depth: 5
+WALK-FORM handling:
+  Form: ((:DOCUMENTATION "Process data with various methods"))
+  Context: ((USER-MAIN-PACKAGE::DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 3
       Form: ((:DOCUMENTATION "Process data with various methods"))
        Context: ((USER-MAIN-PACKAGE::DATA &KEY)
                  (:DOCUMENTATION "Process data with various methods"))
+       Parent: (USER-MAIN-PACKAGE::PROCESS-DATA (USER-MAIN-PACKAGE::DATA &KEY)
+                (:DOCUMENTATION "Process data with various methods"))
       
        Processing list form
+WALK-FORM handling:
+  Form: (:DOCUMENTATION "Process data with various methods")
+  Context: ((:DOCUMENTATION "Process data with various methods"))
+  Parent: ((USER-MAIN-PACKAGE::DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
         Form: (:DOCUMENTATION "Process data with various methods")
          Context: ((:DOCUMENTATION "Process data with various methods"))
+         Parent: ((USER-MAIN-PACKAGE::DATA &KEY)
+                  (:DOCUMENTATION "Process data with various methods"))
         
          Processing list form
+WALK-FORM handling:
+  Form: :DOCUMENTATION
+  Context: (:DOCUMENTATION "Process data with various methods")
+  Parent: ((:DOCUMENTATION "Process data with various methods"))
+  Depth: 5
+WALK-FORM handling:
+  Form: ("Process data with various methods")
+  Context: (:DOCUMENTATION "Process data with various methods")
+  Parent: ((:DOCUMENTATION "Process data with various methods"))
+  Depth: 5
           Form: ("Process data with various methods")
            Context: (:DOCUMENTATION "Process data with various methods")
+           Parent: ((:DOCUMENTATION "Process data with various methods"))
           
            Processing list form
+WALK-FORM handling:
+  Form: "Process data with various methods"
+  Context: ("Process data with various methods")
+  Parent: (:DOCUMENTATION "Process data with various methods")
+  Depth: 6
              Processing array
+WALK-FORM handling:
+  Form: #\P
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\P
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\r
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\r
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\o
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\o
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\c
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\c
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\e
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\s
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\s
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\s
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\s
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\ 
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\d
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\d
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\a
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\a
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\t
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\t
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\a
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\a
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\ 
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\w
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\w
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\i
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\i
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\t
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\t
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\h
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\h
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\ 
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\v
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\v
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\a
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\a
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\r
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\r
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\i
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\i
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\o
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\o
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\u
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\u
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\s
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\s
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\ 
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\ 
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\m
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\m
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\e
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\e
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\t
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\t
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\h
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\h
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\o
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\o
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\d
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\d
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: #\s
+  Context: "Process data with various methods"
+  Parent: ("Process data with various methods")
+  Depth: 7
               Form: #\s
                Context: "Process data with various methods"
+               Parent: ("Process data with various methods")
               
+WALK-FORM handling:
+  Form: NIL
+  Context: ("Process data with various methods")
+  Parent: (:DOCUMENTATION "Process data with various methods")
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((:DOCUMENTATION "Process data with various methods"))
+  Parent: ((USER-MAIN-PACKAGE::DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                   ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+          (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
                  ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
         (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFMETHOD
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                      ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+             (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PROCESS-DATA
+         ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+         (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                      ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+             (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA
          ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
          (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
@@ -849,60 +2658,214 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
               (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PROCESS-DATA
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA
+            ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                     ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                        ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+               (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
     
+WALK-FORM handling:
+  Form: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+         (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA
+            ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                     ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 2
     Form: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                        ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+               (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
     
      Processing list form
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+           ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 3
       Form: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
        Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                  (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+       Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
       
        Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DATA STRING)
+  Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: (USER-MAIN-PACKAGE::DATA STRING)
          Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+         Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                  (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DATA
+  Context: (USER-MAIN-PACKAGE::DATA STRING)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 5
           Form: USER-MAIN-PACKAGE::DATA
            Context: (USER-MAIN-PACKAGE::DATA STRING)
+           Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
           
+WALK-FORM handling:
+  Form: (STRING)
+  Context: (USER-MAIN-PACKAGE::DATA STRING)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 5
           Form: (STRING)
            Context: (USER-MAIN-PACKAGE::DATA STRING)
+           Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
           
            Processing list form
+WALK-FORM handling:
+  Form: STRING
+  Context: (STRING)
+  Parent: (USER-MAIN-PACKAGE::DATA STRING)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: (STRING)
+  Parent: (USER-MAIN-PACKAGE::DATA STRING)
+  Depth: 6
+WALK-FORM handling:
+  Form: (&KEY)
+  Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: (&KEY)
          Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+         Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                  (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: &KEY
+  Context: (&KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 5
+WALK-FORM handling:
+  Form: NIL
+  Context: (&KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 5
+WALK-FORM handling:
+  Form: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+           ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 3
       Form: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
        Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                  (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+       Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
       
        Processing list form
+WALK-FORM handling:
+  Form: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
+  Context: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
          Context: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+         Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                  (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: STRING-UPCASE
+  Context: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
+  Parent: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DATA)
+  Context: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
+  Parent: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::DATA)
            Context: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
+           Parent: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DATA
+  Context: (USER-MAIN-PACKAGE::DATA)
+  Parent: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::DATA
              Context: (USER-MAIN-PACKAGE::DATA)
+             Parent: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::DATA)
+  Parent: (STRING-UPCASE USER-MAIN-PACKAGE::DATA)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (STRING-UPCASE USER-MAIN-PACKAGE::DATA))
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                   ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+          (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
                  ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
         (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFMETHOD
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                      ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+             (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+         ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+         (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                      ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+             (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
          ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
          (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
@@ -911,96 +2874,329 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
               (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PROCESS-DATA
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+            ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                     ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                        ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+               (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
     
+WALK-FORM handling:
+  Form: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+         (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+            ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                     ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 2
     Form: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                        ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+               (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
     
      Processing list form
+WALK-FORM handling:
+  Form: :LOGGING
+  Context: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+           ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 3
+WALK-FORM handling:
+  Form: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+         (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Context: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+           ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 3
       Form: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
              (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
        Context: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                  (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+       Parent: (USER-MAIN-PACKAGE::PROCESS-DATA :LOGGING
+                ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
       
        Processing list form
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
          Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                    (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+         Parent: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                  (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DATA STRING)
+  Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::DATA STRING)
            Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                    (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DATA
+  Context: (USER-MAIN-PACKAGE::DATA STRING)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::DATA
              Context: (USER-MAIN-PACKAGE::DATA STRING)
+             Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
             
+WALK-FORM handling:
+  Form: (STRING)
+  Context: (USER-MAIN-PACKAGE::DATA STRING)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 6
             Form: (STRING)
              Context: (USER-MAIN-PACKAGE::DATA STRING)
+             Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
             
              Processing list form
+WALK-FORM handling:
+  Form: STRING
+  Context: (STRING)
+  Parent: (USER-MAIN-PACKAGE::DATA STRING)
+  Depth: 7
+WALK-FORM handling:
+  Form: NIL
+  Context: (STRING)
+  Parent: (USER-MAIN-PACKAGE::DATA STRING)
+  Depth: 7
+WALK-FORM handling:
+  Form: (&KEY)
+  Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 5
           Form: (&KEY)
            Context: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                    (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
           
            Processing list form
+WALK-FORM handling:
+  Form: &KEY
+  Context: (&KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: (&KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+  Depth: 6
+WALK-FORM handling:
+  Form: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
          Context: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
                    (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+         Parent: (:LOGGING ((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                  (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Context: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 5
           Form: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
            Context: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+           Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+                    (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
           
            Processing list form
+WALK-FORM handling:
+  Form: FORMAT
+  Context: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Parent: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 6
+WALK-FORM handling:
+  Form: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Context: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Parent: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 6
             Form: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
              Context: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+             Parent: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
             
              Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Parent: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 7
+WALK-FORM handling:
+  Form: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Context: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Parent: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 7
               Form: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                Context: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+               Parent: (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
               
                Processing list form
+WALK-FORM handling:
+  Form: "LOG: ~A"
+  Context: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Parent: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 8
                  Processing array
+WALK-FORM handling:
+  Form: #\L
+  Context: "LOG: ~A"
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: #\L
                    Context: "LOG: ~A"
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: #\O
+  Context: "LOG: ~A"
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: #\O
                    Context: "LOG: ~A"
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: #\G
+  Context: "LOG: ~A"
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: #\G
                    Context: "LOG: ~A"
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: #\:
+  Context: "LOG: ~A"
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: #\:
                    Context: "LOG: ~A"
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: #\ 
+  Context: "LOG: ~A"
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: #\ 
                    Context: "LOG: ~A"
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: #\~
+  Context: "LOG: ~A"
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: #\~
                    Context: "LOG: ~A"
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: #\A
+  Context: "LOG: ~A"
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: #\A
                    Context: "LOG: ~A"
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DATA)
+  Context: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Parent: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 8
                 Form: (USER-MAIN-PACKAGE::DATA)
                  Context: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+                 Parent: (NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA)
                 
                  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DATA
+  Context: (USER-MAIN-PACKAGE::DATA)
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
                   Form: USER-MAIN-PACKAGE::DATA
                    Context: (USER-MAIN-PACKAGE::DATA)
+                   Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
                   
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::DATA)
+  Parent: ("LOG: ~A" USER-MAIN-PACKAGE::DATA)
+  Depth: 9
+WALK-FORM handling:
+  Form: NIL
+  Context: ((FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Parent: (((USER-MAIN-PACKAGE::DATA STRING) &KEY)
+           (FORMAT NIL "LOG: ~A" USER-MAIN-PACKAGE::DATA))
+  Depth: 5
 
+WALK-FORM handling:
+  Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                   ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+          (1+ USER-MAIN-PACKAGE::DATA))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
                  ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
         (1+ USER-MAIN-PACKAGE::DATA))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFMETHOD
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                      ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+             (1+ USER-MAIN-PACKAGE::DATA))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PROCESS-DATA
+         ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                      ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+             (1+ USER-MAIN-PACKAGE::DATA))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::PROCESS-DATA
          ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
    Context: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
@@ -1008,73 +3204,254 @@ Form: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
               (1+ USER-MAIN-PACKAGE::DATA))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PROCESS-DATA
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA
+            ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+            (1+ USER-MAIN-PACKAGE::DATA))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                     ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+            (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::PROCESS-DATA
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                (1+ USER-MAIN-PACKAGE::DATA))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                        ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+               (1+ USER-MAIN-PACKAGE::DATA))
     
+WALK-FORM handling:
+  Form: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA
+            ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+            (1+ USER-MAIN-PACKAGE::DATA))
+  Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                     ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+            (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 2
     Form: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
      Context: (USER-MAIN-PACKAGE::PROCESS-DATA
                ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                (1+ USER-MAIN-PACKAGE::DATA))
+     Parent: (DEFMETHOD USER-MAIN-PACKAGE::PROCESS-DATA
+                        ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+               (1+ USER-MAIN-PACKAGE::DATA))
     
      Processing list form
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+  Context: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+            (1+ USER-MAIN-PACKAGE::DATA))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+           ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 3
       Form: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
        Context: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                  (1+ USER-MAIN-PACKAGE::DATA))
+       Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+                ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+                (1+ USER-MAIN-PACKAGE::DATA))
       
        Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DATA NUMBER)
+  Context: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+  Parent: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: (USER-MAIN-PACKAGE::DATA NUMBER)
          Context: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+         Parent: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+                  (1+ USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DATA
+  Context: (USER-MAIN-PACKAGE::DATA NUMBER)
+  Parent: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+  Depth: 5
           Form: USER-MAIN-PACKAGE::DATA
            Context: (USER-MAIN-PACKAGE::DATA NUMBER)
+           Parent: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
           
+WALK-FORM handling:
+  Form: (NUMBER)
+  Context: (USER-MAIN-PACKAGE::DATA NUMBER)
+  Parent: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+  Depth: 5
           Form: (NUMBER)
            Context: (USER-MAIN-PACKAGE::DATA NUMBER)
+           Parent: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
           
            Processing list form
+WALK-FORM handling:
+  Form: NUMBER
+  Context: (NUMBER)
+  Parent: (USER-MAIN-PACKAGE::DATA NUMBER)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: (NUMBER)
+  Parent: (USER-MAIN-PACKAGE::DATA NUMBER)
+  Depth: 6
+WALK-FORM handling:
+  Form: (&KEY)
+  Context: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+  Parent: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: (&KEY)
          Context: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+         Parent: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+                  (1+ USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: &KEY
+  Context: (&KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+  Depth: 5
+WALK-FORM handling:
+  Form: NIL
+  Context: (&KEY)
+  Parent: ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+  Depth: 5
+WALK-FORM handling:
+  Form: ((1+ USER-MAIN-PACKAGE::DATA))
+  Context: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+            (1+ USER-MAIN-PACKAGE::DATA))
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+           ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 3
       Form: ((1+ USER-MAIN-PACKAGE::DATA))
        Context: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
                  (1+ USER-MAIN-PACKAGE::DATA))
+       Parent: (USER-MAIN-PACKAGE::PROCESS-DATA
+                ((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+                (1+ USER-MAIN-PACKAGE::DATA))
       
        Processing list form
+WALK-FORM handling:
+  Form: (1+ USER-MAIN-PACKAGE::DATA)
+  Context: ((1+ USER-MAIN-PACKAGE::DATA))
+  Parent: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 4
         Form: (1+ USER-MAIN-PACKAGE::DATA)
          Context: ((1+ USER-MAIN-PACKAGE::DATA))
+         Parent: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY)
+                  (1+ USER-MAIN-PACKAGE::DATA))
         
          Processing list form
+WALK-FORM handling:
+  Form: 1+
+  Context: (1+ USER-MAIN-PACKAGE::DATA)
+  Parent: ((1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DATA)
+  Context: (1+ USER-MAIN-PACKAGE::DATA)
+  Parent: ((1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::DATA)
            Context: (1+ USER-MAIN-PACKAGE::DATA)
+           Parent: ((1+ USER-MAIN-PACKAGE::DATA))
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DATA
+  Context: (USER-MAIN-PACKAGE::DATA)
+  Parent: (1+ USER-MAIN-PACKAGE::DATA)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::DATA
              Context: (USER-MAIN-PACKAGE::DATA)
+             Parent: (1+ USER-MAIN-PACKAGE::DATA)
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::DATA)
+  Parent: (1+ USER-MAIN-PACKAGE::DATA)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((1+ USER-MAIN-PACKAGE::DATA))
+  Parent: (((USER-MAIN-PACKAGE::DATA NUMBER) &KEY) (1+ USER-MAIN-PACKAGE::DATA))
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFMACRO
+  Context: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
+  Context: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
    Context: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DEFMACRO-NAME
+  Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
+  Parent: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
+  Depth: 2
     Form: USER-MAIN-PACKAGE::DEFMACRO-NAME
      Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
+     Parent: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
     
+WALK-FORM handling:
+  Form: (NIL 0)
+  Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
+  Parent: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
+  Depth: 2
     Form: (NIL 0)
      Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
+     Parent: (DEFMACRO USER-MAIN-PACKAGE::DEFMACRO-NAME () 0)
     
      Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL 0)
+  Parent: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
+  Depth: 3
+WALK-FORM handling:
+  Form: (0)
+  Context: (NIL 0)
+  Parent: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
+  Depth: 3
       Form: (0)
        Context: (NIL 0)
+       Parent: (USER-MAIN-PACKAGE::DEFMACRO-NAME NIL 0)
       
        Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                  USER-MAIN-PACKAGE::FORM
+                  USER-MAIN-PACKAGE::ENV
+                  0))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
               (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                 USER-MAIN-PACKAGE::FORM
@@ -1082,6 +3459,28 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                 0))
 
  Processing list form
+WALK-FORM handling:
+  Form: SETF
+  Context: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                   (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                     USER-MAIN-PACKAGE::FORM
+                     USER-MAIN-PACKAGE::ENV
+                     0))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+         (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+           USER-MAIN-PACKAGE::FORM
+           USER-MAIN-PACKAGE::ENV
+           0))
+  Context: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                   (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                     USER-MAIN-PACKAGE::FORM
+                     USER-MAIN-PACKAGE::ENV
+                     0))
+  Parent: NIL
+  Depth: 1
   Form: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
          (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
            USER-MAIN-PACKAGE::FORM
@@ -1094,29 +3493,119 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                       0))
   
    Processing list form
+WALK-FORM handling:
+  Form: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Context: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+            (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+              USER-MAIN-PACKAGE::FORM
+              USER-MAIN-PACKAGE::ENV
+              0))
+  Parent: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                  (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                    USER-MAIN-PACKAGE::FORM
+                    USER-MAIN-PACKAGE::ENV
+                    0))
+  Depth: 2
     Form: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
      Context: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                  USER-MAIN-PACKAGE::FORM
                  USER-MAIN-PACKAGE::ENV
                  0))
+     Parent: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                     (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                       USER-MAIN-PACKAGE::FORM
+                       USER-MAIN-PACKAGE::ENV
+                       0))
     
      Processing list form
+WALK-FORM handling:
+  Form: MACRO-FUNCTION
+  Context: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+           (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0))
+  Depth: 3
+WALK-FORM handling:
+  Form: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Context: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+           (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0))
+  Depth: 3
       Form: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
        Context: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+       Parent: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                  USER-MAIN-PACKAGE::FORM
+                  USER-MAIN-PACKAGE::ENV
+                  0))
       
        Processing list form
+WALK-FORM handling:
+  Form: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+  Context: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Depth: 4
         Form: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
          Context: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+         Parent: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
         
          Processing list form
+WALK-FORM handling:
+  Form: QUOTE
+  Context: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Context: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
            Context: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+           Parent: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+  Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+  Depth: 6
             Form: USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
              Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+             Parent: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ('USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Depth: 4
+WALK-FORM handling:
+  Form: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+           USER-MAIN-PACKAGE::FORM
+           USER-MAIN-PACKAGE::ENV
+           0))
+  Context: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+            (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+              USER-MAIN-PACKAGE::FORM
+              USER-MAIN-PACKAGE::ENV
+              0))
+  Parent: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                  (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                    USER-MAIN-PACKAGE::FORM
+                    USER-MAIN-PACKAGE::ENV
+                    0))
+  Depth: 2
     Form: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
              USER-MAIN-PACKAGE::FORM
              USER-MAIN-PACKAGE::ENV
@@ -1126,8 +3615,28 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                  USER-MAIN-PACKAGE::FORM
                  USER-MAIN-PACKAGE::ENV
                  0))
+     Parent: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                     (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                       USER-MAIN-PACKAGE::FORM
+                       USER-MAIN-PACKAGE::ENV
+                       0))
     
      Processing list form
+WALK-FORM handling:
+  Form: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+          USER-MAIN-PACKAGE::FORM
+          USER-MAIN-PACKAGE::ENV
+          0)
+  Context: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+              USER-MAIN-PACKAGE::FORM
+              USER-MAIN-PACKAGE::ENV
+              0))
+  Parent: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+           (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0))
+  Depth: 3
       Form: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
               USER-MAIN-PACKAGE::FORM
               USER-MAIN-PACKAGE::ENV
@@ -1136,326 +3645,1074 @@ Form: (SETF (MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
                    USER-MAIN-PACKAGE::FORM
                    USER-MAIN-PACKAGE::ENV
                    0))
+       Parent: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+                (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                  USER-MAIN-PACKAGE::FORM
+                  USER-MAIN-PACKAGE::ENV
+                  0))
       
        Processing list form
+WALK-FORM handling:
+  Form: LAMBDA
+  Context: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0)
+  Parent: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0))
+  Depth: 4
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+         USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Context: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0)
+  Parent: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0))
+  Depth: 4
         Form: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
          Context: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                     USER-MAIN-PACKAGE::FORM
                     USER-MAIN-PACKAGE::ENV
                     0)
+         Parent: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                    USER-MAIN-PACKAGE::FORM
+                    USER-MAIN-PACKAGE::ENV
+                    0))
         
          Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+  Context: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+            USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Parent: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+            USER-MAIN-PACKAGE::FORM
+            USER-MAIN-PACKAGE::ENV
+            0)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
            Context: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+           Parent: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                     USER-MAIN-PACKAGE::FORM
+                     USER-MAIN-PACKAGE::ENV
+                     0)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::FORM
+  Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+  Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+           USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::FORM
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
             
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::ENV)
+  Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+  Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+           USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Depth: 6
             Form: (USER-MAIN-PACKAGE::ENV)
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
             
              Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::ENV
+  Context: (USER-MAIN-PACKAGE::ENV)
+  Parent: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+  Depth: 7
               Form: USER-MAIN-PACKAGE::ENV
                Context: (USER-MAIN-PACKAGE::ENV)
+               Parent: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
               
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::ENV)
+  Parent: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+  Depth: 7
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Context: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+            USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Parent: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+            USER-MAIN-PACKAGE::FORM
+            USER-MAIN-PACKAGE::ENV
+            0)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
            Context: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+           Parent: (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                     USER-MAIN-PACKAGE::FORM
+                     USER-MAIN-PACKAGE::ENV
+                     0)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::FORM
+  Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+           USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::FORM
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+             Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
             
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::ENV 0)
+  Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+           USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Depth: 6
             Form: (USER-MAIN-PACKAGE::ENV 0)
              Context: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+             Parent: ((USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+                      USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
             
              Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::ENV
+  Context: (USER-MAIN-PACKAGE::ENV 0)
+  Parent: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Depth: 7
               Form: USER-MAIN-PACKAGE::ENV
                Context: (USER-MAIN-PACKAGE::ENV 0)
+               Parent: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
               
+WALK-FORM handling:
+  Form: (0)
+  Context: (USER-MAIN-PACKAGE::ENV 0)
+  Parent: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
+  Depth: 7
               Form: (0)
                Context: (USER-MAIN-PACKAGE::ENV 0)
+               Parent: (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV 0)
               
                Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::ENV 0)
+  Depth: 8
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::ENV 0)
+  Depth: 8
+WALK-FORM handling:
+  Form: NIL
+  Context: ((LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+              USER-MAIN-PACKAGE::FORM
+              USER-MAIN-PACKAGE::ENV
+              0))
+  Parent: ((MACRO-FUNCTION 'USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+           (LAMBDA (USER-MAIN-PACKAGE::FORM USER-MAIN-PACKAGE::ENV)
+             USER-MAIN-PACKAGE::FORM
+             USER-MAIN-PACKAGE::ENV
+             0))
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
+            NIL
+            NIL)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
           NIL
           NIL)
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFINE-CONDITION
+  Context: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
+               NIL
+               NIL)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
+  Context: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
+               NIL
+               NIL)
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
    Context: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
                 NIL
                 NIL)
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::CONDITION-NAME
+  Context: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
+  Parent: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
+              NIL
+              NIL)
+  Depth: 2
     Form: USER-MAIN-PACKAGE::CONDITION-NAME
      Context: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
+     Parent: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
+                 NIL
+                 NIL)
     
+WALK-FORM handling:
+  Form: (NIL NIL)
+  Context: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
+  Parent: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
+              NIL
+              NIL)
+  Depth: 2
     Form: (NIL NIL)
      Context: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
+     Parent: (DEFINE-CONDITION USER-MAIN-PACKAGE::CONDITION-NAME
+                 NIL
+                 NIL)
     
      Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL NIL)
+  Parent: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
+  Depth: 3
+WALK-FORM handling:
+  Form: (NIL)
+  Context: (NIL NIL)
+  Parent: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
+  Depth: 3
       Form: (NIL)
        Context: (NIL NIL)
+       Parent: (USER-MAIN-PACKAGE::CONDITION-NAME NIL NIL)
       
        Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL)
+  Parent: (NIL NIL)
+  Depth: 4
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL)
+  Parent: (NIL NIL)
+  Depth: 4
 
 
 Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
 
-Form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
 
- Processing list form
-  Form: (#:USER-MAIN-PACKAGE)
-   Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  
-   Processing list form
-    Form: #:USER-MAIN-PACKAGE
-     Context: (#:USER-MAIN-PACKAGE)
-    
-
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
 
 
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE*
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: USER-MAIN-PACKAGE::*DEFPARAMETER-VARIABLE*
 
 
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: USER-MAIN-PACKAGE::+DEFCONSTANT-VARIABLE+
 
 
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: USER-MAIN-PACKAGE::SYMBOL-VALUE-VARIABLE
 
 
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
 
  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DEFUN-NAME
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Parent: NIL
+  Depth: 1
   Form: USER-MAIN-PACKAGE::DEFUN-NAME
    Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
   
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Parent: NIL
+  Depth: 1
 
+WALK-FORM handling:
+  Form: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
 
  Processing list form
+WALK-FORM handling:
+  Form: FUNCALL
+  Context: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Context: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
   Form: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
    Context: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
   
    Processing list form
+WALK-FORM handling:
+  Form: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 2
     Form: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
      Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+     Parent: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
     
      Processing list form
+WALK-FORM handling:
+  Form: QUOTE
+  Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 3
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
        Context: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+       Parent: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Depth: 4
         Form: USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
          Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+         Parent: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
         
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME
+  Depth: 4
+WALK-FORM handling:
+  Form: NIL
+  Context: ('USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Parent: (FUNCALL 'USER-MAIN-PACKAGE::SYMBOL-FUNCTION-NAME)
+  Depth: 2
 
+WALK-FORM handling:
+  Form: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
 
  Processing list form
+WALK-FORM handling:
+  Form: FUNCALL
+  Context: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Context: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
   Form: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
    Context: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
   
    Processing list form
+WALK-FORM handling:
+  Form: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 2
     Form: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
      Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+     Parent: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
     
      Processing list form
+WALK-FORM handling:
+  Form: QUOTE
+  Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 3
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Parent: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
        Context: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+       Parent: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Depth: 4
         Form: USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
          Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+         Parent: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
         
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME
+  Depth: 4
+WALK-FORM handling:
+  Form: NIL
+  Context: ('USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Parent: (FUNCALL 'USER-MAIN-PACKAGE::FDEFINITION-FUNCTION-NAME)
+  Depth: 2
 
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
 
  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::CIRCLE-RADIUS
+  Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: NIL
+  Depth: 1
   Form: USER-MAIN-PACKAGE::CIRCLE-RADIUS
    Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
   
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: NIL
+  Depth: 1
   Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
    Context: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
   
    Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+  Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 2
     Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
      Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+     Parent: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
     
      Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
+  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 3
       Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
        Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+       Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
       
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 3
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: (USER-MAIN-PACKAGE::CIRCLE-RADIUS (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 2
 
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
 
  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PERSON.AGE
+  Context: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
+  Parent: NIL
+  Depth: 1
   Form: USER-MAIN-PACKAGE::PERSON.AGE
    Context: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
   
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::MAKE-PERSON))
+  Context: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
+  Parent: NIL
+  Depth: 1
   Form: ((USER-MAIN-PACKAGE::MAKE-PERSON))
    Context: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
   
    Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::MAKE-PERSON)
+  Context: ((USER-MAIN-PACKAGE::MAKE-PERSON))
+  Parent: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
+  Depth: 2
     Form: (USER-MAIN-PACKAGE::MAKE-PERSON)
      Context: ((USER-MAIN-PACKAGE::MAKE-PERSON))
+     Parent: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
     
      Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::MAKE-PERSON
+  Context: (USER-MAIN-PACKAGE::MAKE-PERSON)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-PERSON))
+  Depth: 3
       Form: USER-MAIN-PACKAGE::MAKE-PERSON
        Context: (USER-MAIN-PACKAGE::MAKE-PERSON)
+       Parent: ((USER-MAIN-PACKAGE::MAKE-PERSON))
       
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::MAKE-PERSON)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-PERSON))
+  Depth: 3
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::MAKE-PERSON))
+  Parent: (USER-MAIN-PACKAGE::PERSON.AGE (USER-MAIN-PACKAGE::MAKE-PERSON))
+  Depth: 2
 
+WALK-FORM handling:
+  Form: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
+                 (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
 
  Processing list form
+WALK-FORM handling:
+  Form: FUNCALL
+  Context: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
+                    (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+         (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Context: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
+                    (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Parent: NIL
+  Depth: 1
   Form: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
          (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
    Context: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
                      (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
   
    Processing list form
+WALK-FORM handling:
+  Form: #'USER-MAIN-PACKAGE::COMPUTE-AREA
+  Context: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+            (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Parent: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
+                   (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 2
     Form: #'USER-MAIN-PACKAGE::COMPUTE-AREA
      Context: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+     Parent: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
+                      (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
     
      Processing list form
+WALK-FORM handling:
+  Form: FUNCTION
+  Context: #'USER-MAIN-PACKAGE::COMPUTE-AREA
+  Parent: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+           (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::COMPUTE-AREA)
+  Context: #'USER-MAIN-PACKAGE::COMPUTE-AREA
+  Parent: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+           (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::COMPUTE-AREA)
        Context: #'USER-MAIN-PACKAGE::COMPUTE-AREA
+       Parent: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::COMPUTE-AREA
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA)
+  Parent: #'USER-MAIN-PACKAGE::COMPUTE-AREA
+  Depth: 4
         Form: USER-MAIN-PACKAGE::COMPUTE-AREA
          Context: (USER-MAIN-PACKAGE::COMPUTE-AREA)
+         Parent: #'USER-MAIN-PACKAGE::COMPUTE-AREA
         
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA)
+  Parent: #'USER-MAIN-PACKAGE::COMPUTE-AREA
+  Depth: 4
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Context: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+            (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Parent: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
+                   (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
      Context: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+     Parent: (FUNCALL #'USER-MAIN-PACKAGE::COMPUTE-AREA
+                      (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
+  Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Parent: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+           (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
        Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+       Parent: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+                (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
+  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 4
         Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
          Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
+         Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
         
+WALK-FORM handling:
+  Form: (:RADIUS 1)
+  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 4
         Form: (:RADIUS 1)
          Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
+         Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
         
          Processing list form
+WALK-FORM handling:
+  Form: :RADIUS
+  Context: (:RADIUS 1)
+  Parent: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
+  Depth: 5
+WALK-FORM handling:
+  Form: (1)
+  Context: (:RADIUS 1)
+  Parent: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
+  Depth: 5
           Form: (1)
            Context: (:RADIUS 1)
+           Parent: (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1)
           
            Processing list form
+WALK-FORM handling:
+  Form: 1
+  Context: (1)
+  Parent: (:RADIUS 1)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: (1)
+  Parent: (:RADIUS 1)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Parent: (#'USER-MAIN-PACKAGE::COMPUTE-AREA
+           (USER-MAIN-PACKAGE::MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
 
  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PROCESS-DATA
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
+  Parent: NIL
+  Depth: 1
   Form: USER-MAIN-PACKAGE::PROCESS-DATA
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
   
+WALK-FORM handling:
+  Form: ("test" :LOGGING)
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
+  Parent: NIL
+  Depth: 1
   Form: ("test" :LOGGING)
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
   
    Processing list form
+WALK-FORM handling:
+  Form: "test"
+  Context: ("test" :LOGGING)
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
+  Depth: 2
      Processing array
+WALK-FORM handling:
+  Form: #\t
+  Context: "test"
+  Parent: ("test" :LOGGING)
+  Depth: 3
       Form: #\t
        Context: "test"
+       Parent: ("test" :LOGGING)
       
+WALK-FORM handling:
+  Form: #\e
+  Context: "test"
+  Parent: ("test" :LOGGING)
+  Depth: 3
       Form: #\e
        Context: "test"
+       Parent: ("test" :LOGGING)
       
+WALK-FORM handling:
+  Form: #\s
+  Context: "test"
+  Parent: ("test" :LOGGING)
+  Depth: 3
       Form: #\s
        Context: "test"
+       Parent: ("test" :LOGGING)
       
+WALK-FORM handling:
+  Form: #\t
+  Context: "test"
+  Parent: ("test" :LOGGING)
+  Depth: 3
       Form: #\t
        Context: "test"
+       Parent: ("test" :LOGGING)
       
+WALK-FORM handling:
+  Form: (:LOGGING)
+  Context: ("test" :LOGGING)
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
+  Depth: 2
     Form: (:LOGGING)
      Context: ("test" :LOGGING)
+     Parent: (USER-MAIN-PACKAGE::PROCESS-DATA "test" :LOGGING)
     
      Processing list form
+WALK-FORM handling:
+  Form: :LOGGING
+  Context: (:LOGGING)
+  Parent: ("test" :LOGGING)
+  Depth: 3
+WALK-FORM handling:
+  Form: NIL
+  Context: (:LOGGING)
+  Parent: ("test" :LOGGING)
+  Depth: 3
 
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
 
  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::PROCESS-DATA
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
+  Parent: NIL
+  Depth: 1
   Form: USER-MAIN-PACKAGE::PROCESS-DATA
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
   
+WALK-FORM handling:
+  Form: (42)
+  Context: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
+  Parent: NIL
+  Depth: 1
   Form: (42)
    Context: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
   
    Processing list form
+WALK-FORM handling:
+  Form: 42
+  Context: (42)
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
+  Depth: 2
+WALK-FORM handling:
+  Form: NIL
+  Context: (42)
+  Parent: (USER-MAIN-PACKAGE::PROCESS-DATA 42)
+  Depth: 2
 
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DEFMACRO-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (USER-MAIN-PACKAGE::DEFMACRO-NAME)
 
  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DEFMACRO-NAME
+  Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME)
+  Parent: NIL
+  Depth: 1
   Form: USER-MAIN-PACKAGE::DEFMACRO-NAME
    Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME)
   
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::DEFMACRO-NAME)
+  Parent: NIL
+  Depth: 1
 
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
 
  Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
+  Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
   Form: USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME
    Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
   
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::MACRO-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
 
+WALK-FORM handling:
+  Form: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
+          (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
         (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFUN
+  Context: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
+             (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
+         (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Context: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
+             (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
          (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
    Context: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
               (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION
+  Context: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
+            (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
+            (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 2
     Form: USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION
      Context: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
                (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+     Parent: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
+               (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
     
+WALK-FORM handling:
+  Form: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Context: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
+            (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
+            (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 2
     Form: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
      Context: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
                (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+     Parent: (DEFUN USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION ()
+               (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
     
      Processing list form
+WALK-FORM handling:
+  Form: NIL
+  Context: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
+           (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 3
+WALK-FORM handling:
+  Form: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Context: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
+           (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 3
       Form: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
        Context: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+       Parent: (USER-MAIN-PACKAGE::FUNCTION-WITH-CONDITION NIL
+                (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
       
        Processing list form
+WALK-FORM handling:
+  Form: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
+  Context: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 4
         Form: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
          Context: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+         Parent: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
         
          Processing list form
+WALK-FORM handling:
+  Form: ERROR
+  Context: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
+  Parent: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 5
+WALK-FORM handling:
+  Form: ('USER-MAIN-PACKAGE::CONDITION-NAME)
+  Context: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
+  Parent: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 5
           Form: ('USER-MAIN-PACKAGE::CONDITION-NAME)
            Context: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
+           Parent: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
           
            Processing list form
+WALK-FORM handling:
+  Form: 'USER-MAIN-PACKAGE::CONDITION-NAME
+  Context: ('USER-MAIN-PACKAGE::CONDITION-NAME)
+  Parent: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
+  Depth: 6
             Form: 'USER-MAIN-PACKAGE::CONDITION-NAME
              Context: ('USER-MAIN-PACKAGE::CONDITION-NAME)
+             Parent: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
             
              Processing list form
+WALK-FORM handling:
+  Form: QUOTE
+  Context: 'USER-MAIN-PACKAGE::CONDITION-NAME
+  Parent: ('USER-MAIN-PACKAGE::CONDITION-NAME)
+  Depth: 7
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::CONDITION-NAME)
+  Context: 'USER-MAIN-PACKAGE::CONDITION-NAME
+  Parent: ('USER-MAIN-PACKAGE::CONDITION-NAME)
+  Depth: 7
               Form: (USER-MAIN-PACKAGE::CONDITION-NAME)
                Context: 'USER-MAIN-PACKAGE::CONDITION-NAME
+               Parent: ('USER-MAIN-PACKAGE::CONDITION-NAME)
               
                Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::CONDITION-NAME
+  Context: (USER-MAIN-PACKAGE::CONDITION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::CONDITION-NAME
+  Depth: 8
                 Form: USER-MAIN-PACKAGE::CONDITION-NAME
                  Context: (USER-MAIN-PACKAGE::CONDITION-NAME)
+                 Parent: 'USER-MAIN-PACKAGE::CONDITION-NAME
                 
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::CONDITION-NAME)
+  Parent: 'USER-MAIN-PACKAGE::CONDITION-NAME
+  Depth: 8
+WALK-FORM handling:
+  Form: NIL
+  Context: ('USER-MAIN-PACKAGE::CONDITION-NAME)
+  Parent: (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME)
+  Depth: 6
+WALK-FORM handling:
+  Form: NIL
+  Context: ((ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Parent: (NIL (ERROR 'USER-MAIN-PACKAGE::CONDITION-NAME))
+  Depth: 4
 
+WALK-FORM handling:
+  Form: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+          (USER-MAIN-PACKAGE::DEFUN-NAME)
+          USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+          USER-MAIN-PACKAGE::ARG)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
         (USER-MAIN-PACKAGE::DEFUN-NAME)
         USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
         USER-MAIN-PACKAGE::ARG)
 
  Processing list form
+WALK-FORM handling:
+  Form: DEFUN
+  Context: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+             (USER-MAIN-PACKAGE::DEFUN-NAME)
+             USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+             USER-MAIN-PACKAGE::ARG)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+         (USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+         USER-MAIN-PACKAGE::ARG)
+  Context: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+             (USER-MAIN-PACKAGE::DEFUN-NAME)
+             USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+             USER-MAIN-PACKAGE::ARG)
+  Parent: NIL
+  Depth: 1
   Form: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
          (USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
          USER-MAIN-PACKAGE::ARG)
@@ -1465,58 +4722,193 @@ Form: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
               USER-MAIN-PACKAGE::ARG)
   
    Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::MY-FUNCTION
+  Context: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+            (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+            (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            USER-MAIN-PACKAGE::ARG)
+  Depth: 2
     Form: USER-MAIN-PACKAGE::MY-FUNCTION
      Context: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
                (USER-MAIN-PACKAGE::DEFUN-NAME)
                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+     Parent: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+               (USER-MAIN-PACKAGE::DEFUN-NAME)
+               USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+               USER-MAIN-PACKAGE::ARG)
     
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+         USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Context: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+            (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+            (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            USER-MAIN-PACKAGE::ARG)
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
      Context: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
                (USER-MAIN-PACKAGE::DEFUN-NAME)
                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+     Parent: (DEFUN USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+               (USER-MAIN-PACKAGE::DEFUN-NAME)
+               USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+               USER-MAIN-PACKAGE::ARG)
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::ARG)
+  Context: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+           (USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::ARG)
        Context: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+       Parent: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+                (USER-MAIN-PACKAGE::DEFUN-NAME)
+                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::ARG
+  Context: (USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Depth: 4
         Form: USER-MAIN-PACKAGE::ARG
          Context: (USER-MAIN-PACKAGE::ARG)
+         Parent: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
         
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Depth: 4
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+         USER-MAIN-PACKAGE::ARG)
+  Context: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+           (USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 3
       Form: ((USER-MAIN-PACKAGE::DEFUN-NAME)
              USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
        Context: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+       Parent: (USER-MAIN-PACKAGE::MY-FUNCTION (USER-MAIN-PACKAGE::ARG)
+                (USER-MAIN-PACKAGE::DEFUN-NAME)
+                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
       
        Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Depth: 4
         Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
          Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
                    USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+         Parent: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
         
          Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DEFUN-NAME
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 5
           Form: USER-MAIN-PACKAGE::DEFUN-NAME
            Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+           Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+                    USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
           
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 5
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Depth: 4
         Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
          Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
                    USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+         Parent: ((USER-MAIN-PACKAGE::ARG) (USER-MAIN-PACKAGE::DEFUN-NAME)
+                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
         
          Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+  Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 5
           Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
            Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                      USER-MAIN-PACKAGE::ARG)
+           Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+                    USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
           
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::ARG)
+  Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::ARG)
            Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                      USER-MAIN-PACKAGE::ARG)
+           Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+                    USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::ARG
+  Context: (USER-MAIN-PACKAGE::ARG)
+  Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::ARG
              Context: (USER-MAIN-PACKAGE::ARG)
+             Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                      USER-MAIN-PACKAGE::ARG)
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::ARG)
+  Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE* USER-MAIN-PACKAGE::ARG)
+  Depth: 6
 
+WALK-FORM handling:
+  Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
+          (USER-MAIN-PACKAGE::DEFUN-NAME)
+          USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+          (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+          USER-MAIN-PACKAGE::ARG)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
         (USER-MAIN-PACKAGE::DEFUN-NAME)
         USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
@@ -1524,6 +4916,27 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
         USER-MAIN-PACKAGE::ARG)
 
  Processing list form
+WALK-FORM handling:
+  Form: LET
+  Context: (LET ((USER-MAIN-PACKAGE::ARG 0))
+             (USER-MAIN-PACKAGE::DEFUN-NAME)
+             USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+             (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+             USER-MAIN-PACKAGE::ARG)
+  Parent: NIL
+  Depth: 1
+WALK-FORM handling:
+  Form: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+         USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+         (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+         USER-MAIN-PACKAGE::ARG)
+  Context: (LET ((USER-MAIN-PACKAGE::ARG 0))
+             (USER-MAIN-PACKAGE::DEFUN-NAME)
+             USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+             (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+             USER-MAIN-PACKAGE::ARG)
+  Parent: NIL
+  Depth: 1
   Form: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
          USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
          (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
@@ -1536,25 +4949,100 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
               USER-MAIN-PACKAGE::ARG)
   
    Processing list form
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::ARG 0))
+  Context: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: (LET ((USER-MAIN-PACKAGE::ARG 0))
+            (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::ARG 0))
      Context: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                (USER-MAIN-PACKAGE::COMPUTE-AREA
                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                USER-MAIN-PACKAGE::ARG)
+     Parent: (LET ((USER-MAIN-PACKAGE::ARG 0))
+               (USER-MAIN-PACKAGE::DEFUN-NAME)
+               USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+               (USER-MAIN-PACKAGE::COMPUTE-AREA
+                (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+               USER-MAIN-PACKAGE::ARG)
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::ARG 0)
+  Context: ((USER-MAIN-PACKAGE::ARG 0))
+  Parent: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::ARG 0)
        Context: ((USER-MAIN-PACKAGE::ARG 0))
+       Parent: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                (USER-MAIN-PACKAGE::COMPUTE-AREA
+                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                USER-MAIN-PACKAGE::ARG)
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::ARG
+  Context: (USER-MAIN-PACKAGE::ARG 0)
+  Parent: ((USER-MAIN-PACKAGE::ARG 0))
+  Depth: 4
         Form: USER-MAIN-PACKAGE::ARG
          Context: (USER-MAIN-PACKAGE::ARG 0)
+         Parent: ((USER-MAIN-PACKAGE::ARG 0))
         
+WALK-FORM handling:
+  Form: (0)
+  Context: (USER-MAIN-PACKAGE::ARG 0)
+  Parent: ((USER-MAIN-PACKAGE::ARG 0))
+  Depth: 4
         Form: (0)
          Context: (USER-MAIN-PACKAGE::ARG 0)
+         Parent: ((USER-MAIN-PACKAGE::ARG 0))
         
          Processing list form
+WALK-FORM handling:
+  Form: 0
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::ARG 0)
+  Depth: 5
+WALK-FORM handling:
+  Form: NIL
+  Context: (0)
+  Parent: (USER-MAIN-PACKAGE::ARG 0)
+  Depth: 5
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::ARG 0))
+  Parent: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 3
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+         (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+         USER-MAIN-PACKAGE::ARG)
+  Context: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: (LET ((USER-MAIN-PACKAGE::ARG 0))
+            (USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Depth: 2
     Form: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
            USER-MAIN-PACKAGE::ARG)
@@ -1563,19 +5051,73 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                (USER-MAIN-PACKAGE::COMPUTE-AREA
                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                USER-MAIN-PACKAGE::ARG)
+     Parent: (LET ((USER-MAIN-PACKAGE::ARG 0))
+               (USER-MAIN-PACKAGE::DEFUN-NAME)
+               USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+               (USER-MAIN-PACKAGE::COMPUTE-AREA
+                (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+               USER-MAIN-PACKAGE::ARG)
     
      Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::DEFUN-NAME)
        Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                  (USER-MAIN-PACKAGE::COMPUTE-AREA
                   (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                  USER-MAIN-PACKAGE::ARG)
+       Parent: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                (USER-MAIN-PACKAGE::COMPUTE-AREA
+                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                USER-MAIN-PACKAGE::ARG)
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::DEFUN-NAME
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 4
         Form: USER-MAIN-PACKAGE::DEFUN-NAME
          Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+         Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                  (USER-MAIN-PACKAGE::COMPUTE-AREA
+                   (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                  USER-MAIN-PACKAGE::ARG)
         
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::DEFUN-NAME)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 4
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+         (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+         USER-MAIN-PACKAGE::ARG)
+  Context: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+            USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+           USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 3
       Form: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
              (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
              USER-MAIN-PACKAGE::ARG)
@@ -1584,14 +5126,43 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                  (USER-MAIN-PACKAGE::COMPUTE-AREA
                   (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                  USER-MAIN-PACKAGE::ARG)
+       Parent: (((USER-MAIN-PACKAGE::ARG 0)) (USER-MAIN-PACKAGE::DEFUN-NAME)
+                USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                (USER-MAIN-PACKAGE::COMPUTE-AREA
+                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                USER-MAIN-PACKAGE::ARG)
       
        Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+  Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 4
         Form: USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
          Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
                    (USER-MAIN-PACKAGE::COMPUTE-AREA
                     (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                    USER-MAIN-PACKAGE::ARG)
+         Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                  (USER-MAIN-PACKAGE::COMPUTE-AREA
+                   (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                  USER-MAIN-PACKAGE::ARG)
         
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+         USER-MAIN-PACKAGE::ARG)
+  Context: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+            (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME) USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 4
         Form: ((USER-MAIN-PACKAGE::COMPUTE-AREA
                 (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                USER-MAIN-PACKAGE::ARG)
@@ -1599,38 +5170,123 @@ Form: (LET ((USER-MAIN-PACKAGE::ARG 0))
                    (USER-MAIN-PACKAGE::COMPUTE-AREA
                     (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                    USER-MAIN-PACKAGE::ARG)
+         Parent: ((USER-MAIN-PACKAGE::DEFUN-NAME)
+                  USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                  (USER-MAIN-PACKAGE::COMPUTE-AREA
+                   (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                  USER-MAIN-PACKAGE::ARG)
         
          Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Context: ((USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::COMPUTE-AREA
                  (USER-MAIN-PACKAGE::MAKE-CIRCLE))
            Context: ((USER-MAIN-PACKAGE::COMPUTE-AREA
                       (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                      USER-MAIN-PACKAGE::ARG)
+           Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                    (USER-MAIN-PACKAGE::COMPUTE-AREA
+                     (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                    USER-MAIN-PACKAGE::ARG)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::COMPUTE-AREA
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: ((USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::COMPUTE-AREA
              Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
                        (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+             Parent: ((USER-MAIN-PACKAGE::COMPUTE-AREA
+                       (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                      USER-MAIN-PACKAGE::ARG)
             
+WALK-FORM handling:
+  Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Context: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: ((USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 6
             Form: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
              Context: (USER-MAIN-PACKAGE::COMPUTE-AREA
                        (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+             Parent: ((USER-MAIN-PACKAGE::COMPUTE-AREA
+                       (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                      USER-MAIN-PACKAGE::ARG)
             
              Processing list form
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+  Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 7
               Form: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
                Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+               Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA
+                        (USER-MAIN-PACKAGE::MAKE-CIRCLE))
               
                Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
+  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 8
                 Form: USER-MAIN-PACKAGE::MAKE-CIRCLE
                  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+                 Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
                 
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::MAKE-CIRCLE)
+  Parent: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 8
+WALK-FORM handling:
+  Form: NIL
+  Context: ((USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Parent: (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+  Depth: 7
+WALK-FORM handling:
+  Form: (USER-MAIN-PACKAGE::ARG)
+  Context: ((USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+            USER-MAIN-PACKAGE::ARG)
+  Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+           (USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 5
           Form: (USER-MAIN-PACKAGE::ARG)
            Context: ((USER-MAIN-PACKAGE::COMPUTE-AREA
                       (USER-MAIN-PACKAGE::MAKE-CIRCLE))
                      USER-MAIN-PACKAGE::ARG)
+           Parent: (USER-MAIN-PACKAGE::*DEFVAR-VARIABLE*
+                    (USER-MAIN-PACKAGE::COMPUTE-AREA
+                     (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                    USER-MAIN-PACKAGE::ARG)
           
            Processing list form
+WALK-FORM handling:
+  Form: USER-MAIN-PACKAGE::ARG
+  Context: (USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 6
             Form: USER-MAIN-PACKAGE::ARG
              Context: (USER-MAIN-PACKAGE::ARG)
+             Parent: ((USER-MAIN-PACKAGE::COMPUTE-AREA
+                       (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+                      USER-MAIN-PACKAGE::ARG)
             
+WALK-FORM handling:
+  Form: NIL
+  Context: (USER-MAIN-PACKAGE::ARG)
+  Parent: ((USER-MAIN-PACKAGE::COMPUTE-AREA (USER-MAIN-PACKAGE::MAKE-CIRCLE))
+           USER-MAIN-PACKAGE::ARG)
+  Depth: 6
 

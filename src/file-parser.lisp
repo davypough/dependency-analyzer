@@ -21,65 +21,65 @@
     (with-open-file (stream file :direction :input)
       (loop for form = (read stream nil :eof)
             until (eq form :eof)
-            do ;; Handle package-affecting forms first
-               (when (and (consp form)
-                          (member (car form)
-                                  '(defpackage in-package use-package make-package
-                                    rename-package delete-package)
-                                  :test #'eq))
-                 ;; Update parser's package tracking
-                 (analyze-in-package parser form)
-                 ;; Evaluate to affect *package* for subsequent reads
-                 (eval form))
-               ;; Analyze form in current package context
-               (analyze-definition-form parser form log-stream)
+            do (cond
+                 ;; Handle defpackage - eval and analyze
+                 ((and (consp form) (eq (car form) 'defpackage))
+                  (eval form)
+                  (analyze-definition-form parser form log-stream))
+                 
+                 ;; Handle in-package - eval and update context  
+                 ((and (consp form) (eq (car form) 'in-package))
+                  (eval form)
+                  (analyze-in-package parser form))
+                 
+                 ;; Handle other package forms - just eval
+                 ((and (consp form)
+                      (member (car form) '(use-package make-package rename-package delete-package)))
+                  (eval form))
+                 
+                 ;; All other forms
+                 (t (analyze-definition-form parser form log-stream)))
                (terpri log-stream)))
     (pop parsing-files)))
 
 
 (defun parse-references-in-file (parser log-stream)
-  "Second pass parser that records references to previously recorded definitions.
-   Processes in-package forms to maintain proper package context, 
-   then analyzes all forms for references."
-  (with-slots (file package) parser
-    ;; Reset to CL-USER before processing each file
-    (setf (current-package parser) (find-package :common-lisp-user)
-          (current-package-name parser) "COMMON-LISP-USER"
-          *package* (find-package :common-lisp-user))
-    (with-open-file (stream file :direction :input)
-      (loop for form = (read stream nil :eof)
-            until (eq form :eof)
-            do (when (and (consp form) (eq (car form) 'in-package))
-                 (analyze-in-package parser form)
-                 (eval form))
-               (analyze-reference-form parser form log-stream)
-               (terpri log-stream)))))
+ "Second pass parser that records references to previously recorded definitions.
+  Processes in-package forms to maintain proper package context, 
+  then analyzes all forms for references."
+ (with-slots (file package) parser
+   ;; Reset to CL-USER before processing each file
+   (setf (current-package parser) (find-package :common-lisp-user)
+         (current-package-name parser) "COMMON-LISP-USER"
+         *package* (find-package :common-lisp-user))
+   (with-open-file (stream file :direction :input)
+     (loop for form = (read stream nil :eof)
+           until (eq form :eof)
+           do (when (and (consp form) (eq (car form) 'in-package))
+                (eval form)
+                (analyze-in-package parser form))
+              (analyze-reference-form parser form log-stream)
+              (terpri log-stream)))))
 
 
 (defmethod analyze-definition-form ((parser file-parser) form &optional log-stream)
   "Analyze form for definitions using walk-form with specialized handler.
    Records definitions and processes nested definitions maintaining package context."
-  (labels ((handle-definition (form context depth)
+  (labels ((handle-definition (sym context parent-context depth)
             (when (and (consp form) (symbolp (car form)))
               (case (car form)
-                ;; Package handling
                 (defpackage (analyze-defpackage parser form))
-                
                 ;; Type definitions
                 (defclass (analyze-defclass parser form))
                 (defstruct (analyze-defstruct parser form))
                 (deftype (analyze-deftype parser form))
-                
                 ;; Variable definitions
-                ((defvar defparameter defconstant) 
-                 (analyze-defvar-defparameter-defconstant parser form))
-                
-                ;; Function definitions
+                ((defvar defparameter defconstant) (analyze-defvar-defparameter-defconstant parser form))
+                ;; Function definitions 
                 ((defun defmacro) (analyze-defun-defmacro parser form))
                 (defgeneric (analyze-defgeneric parser form))
                 (defmethod (analyze-defmethod parser form))
                 (defsetf (analyze-defsetf parser form))
-                
                 ;; Condition and method definitions
                 (define-condition (analyze-define-condition parser form))
                 (define-method-combination (analyze-method-combination parser form))
@@ -87,19 +87,19 @@
                 (define-modify-macro (analyze-define-modify-macro parser form))
                 (define-compiler-macro (analyze-define-compiler-macro parser form))
                 (define-symbol-macro (analyze-define-symbol-macro parser form))
-                
                 ;; Special setf forms
                 (setf (when (and (cddr form) (listp (second form)))
                        (case (caadr form)
                          (symbol-value 
                           (analyze-setf-symbol-value parser form))
                          ((symbol-function fdefinition macro-function)
-                          (analyze-setf-symbol-function-fdefinition-macro-function 
-                           parser form)))))))))
+                          (analyze-setf-symbol-function-fdefinition-macro-function parser form)))))))))
     
-    ;; Walk the form with our definition handler
-    (let ((*package* (find-package :dep)))
-      (walk-form form #'handle-definition :log-stream log-stream))))
+    ;; Only walk non-defpackage forms
+    (if (and (consp form) (eq (car form) 'defpackage))
+        (handle-definition form nil nil 0)  ; Process defpackage directly
+        (let ((*package* (find-package :dep)))
+          (walk-form form #'handle-definition :log-stream log-stream)))))
 
 
 (defmethod analyze-reference-form ((parser file-parser) form &optional log-stream)
@@ -110,7 +110,7 @@
                (or (gethash pkg-name contexts)
                    (setf (gethash pkg-name contexts)
                          (limit-form-size form pkg-name))))
-             (handle-reference (sym context _depth) ; Unique variable names
+             (handle-reference (sym context parent-context depth)
                (typecase sym
                  (symbol
                   (unless (or (null sym)            ; Skip NIL
@@ -122,25 +122,19 @@
                                           (package-name sym-pkg)
                                           (current-package-name parser))))
                       ;; Check for unqualified cross-package reference from CL-USER
-                      (when (and (eq cur-pkg (find-package :common-lisp-user))
-                                 (not (symbol-qualified-p sym parser))
-                                 (not (eq sym-pkg (find-package :common-lisp-user))))
-                        (record-anomaly *current-tracker*
-                                        :missing-in-package
-                                        :WARNING
-                                        (file parser)
-                                        (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                                                sym pkg-name)))
-                      ;; If symbol matches a definition record in a different file, record the dependency
-                      (let* ((key (make-tracking-key sym pkg-name))
-                             (def (gethash key (slot-value *current-tracker* 'definitions))))
-                        (when (and def (not (equal (definition.file def) (file parser))))
-                          (record-reference *current-tracker* sym
+                      (multiple-value-bind (visibility anomaly-p)
+                          (check-package-reference sym parser *current-tracker* context parent-context depth)
+                        (declare (ignore anomaly-p))
+                        ;; If symbol matches a definition record in a different file, record the dependency
+                        (let* ((key (make-tracking-key sym pkg-name))
+                               (def (gethash key (slot-value *current-tracker* 'definitions))))
+                          (when (and def (not (equal (definition.file def) (file parser))))
+                            (record-reference *current-tracker* sym
                                             (file parser)
                                             :package pkg-name
                                             :context (get-limited-context pkg-name)
-                                            :visibility (determine-symbol-visibility sym parser)
-                                            :definition def))))))
+                                            :visibility visibility
+                                            :definition def)))))))
                  (string
                   ;; Check if this string matches a package definition
                   (let* ((norm-name (normalize-package-name sym))
@@ -162,13 +156,19 @@
 
 
 (defun analyze-in-package (parser form)
-  "Handle in-package forms by updating the current package context."
+  "Handle in-package forms by updating the current package context.
+   Signals an error if referenced package doesn't exist."
   (let* ((name (normalize-package-name (second form)))
-         (package (or (find-package name)
-                      (make-package name))))
-    (setf (current-package parser) package
-          (current-package-name parser) (package-name package)
-          *package* package)))
+         (package (find-package name)))
+    (if package
+        (setf (current-package parser) package
+              (current-package-name parser) (package-name package))
+        (error "~&Cannot accurately analyze dependencies:~%~
+                File: ~A~%~
+                Form: ~S~%~
+                References undefined package: ~A~%~%~
+                Please ensure all package definitions compile successfully before analysis."
+               (project-pathname (file parser)) form name))))
 
 
 (defun analyze-defpackage (parser form)
@@ -183,17 +183,26 @@
     ;; 1. Form Analysis Context
     (let* ((pkg-name (normalize-package-name name))
            (file (file parser))
+           ;; Extract standard package options
+           (use-list (cdr (assoc :use options)))
+           (nicknames (cdr (assoc :nicknames options)))
+           ;; Create package with standard options 
            (package (or (find-package pkg-name)
-                       (make-package pkg-name)))
+                       (make-package pkg-name 
+                                   :use (mapcar #'normalize-package-name use-list)
+                                   :nicknames (mapcar #'normalize-package-name nicknames))))
            (context (limit-form-size form pkg-name)))
 
-      ;; 2. Primary Definition Record - using package's own name
+      ;; Record definition before any analysis starts
       (record-definition *current-tracker* pkg-name
                         :PACKAGE
                         file
                         :package pkg-name  
-                        :exported-p t     ; Package names always accessible
+                        :exported-p t     
                         :context context)
+
+      ;; 2. Primary Definition Record
+      ;; (Moved to section 1 above)
       
       ;; 3. Interface Elements
       (let ((exported-syms nil))

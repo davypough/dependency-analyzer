@@ -30,52 +30,6 @@
       (error "Invalid package designator: ~S" designator))))
 
 
-#+ignore (defun extract-destructuring-bindings (form)
-  "Extract all bindings from a destructuring form, handling nested structures.
-   Handles:
-   - Regular symbols
-   - Cons cells and lists
-   - Dotted lists
-   - Lambda-list keywords
-   - Method parameter specializers ((var type))
-   
-   Returns only the binding symbols, stripping:
-   - Lambda list keywords
-   - Method specializers"
-  (typecase form
-    (symbol 
-     (unless (member form lambda-list-keywords)
-       (list form)))
-    (cons
-     (case (car form)
-       (&optional (extract-destructuring-bindings (cdr form)))
-       (&rest (extract-destructuring-bindings (cdr form)))
-       (&key (extract-destructuring-bindings (cdr form)))
-       (&aux (extract-destructuring-bindings (cdr form)))
-       (otherwise
-        (if (consp (car form))
-            ;; Handle both nested destructuring and method specializers
-            (if (and (listp (car form)) 
-                    (= (length (car form)) 2))
-                ;; Method specializer case - just take the variable
-                (cons (first (car form))
-                      (extract-destructuring-bindings (cdr form)))
-                ;; Regular nested destructuring
-                (append (extract-destructuring-bindings (car form))
-                       (extract-destructuring-bindings (cdr form))))
-            ;; Handle dotted list case and regular cons
-            (let ((bindings (if (symbolp (car form))
-                               (list (car form))
-                               (extract-destructuring-bindings (car form)))))
-              (when (cdr form)
-                (if (symbolp (cdr form))
-                    (push (cdr form) bindings)
-                    (setf bindings 
-                          (append bindings 
-                                  (extract-destructuring-bindings (cdr form))))))
-              bindings)))))
-    (t nil)))
-
 
 (defun collect-file-references (tracker source-file target-file)
   "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
@@ -468,15 +422,11 @@
        (eql symbol (cadr context))))
 
 
-(defun check-package-reference (symbol parser tracker)
+(defun check-package-reference (symbol parser tracker context parent-context depth)
   "Check package visibility and cross-package references for a symbol.
    Returns two values:
    1. Package visibility (:LOCAL, :INHERITED, or :IMPORTED)
-   2. T if an anomaly was recorded, NIL otherwise
-   
-   SYMBOL - The symbol being checked
-   PARSER - The current file parser
-   TRACKER - The dependency tracker"
+   2. T if an anomaly was recorded, NIL otherwise"
   (let* ((sym-pkg (symbol-package symbol))
          (cur-pkg (current-package parser))
          (pkg-name (if sym-pkg 
@@ -487,43 +437,56 @@
          (package-ops '(defpackage in-package use-package make-package 
                        rename-package delete-package)))
     ;; Check for unqualified cross-package reference while in CL-USER
-    ;; But ignore references in package setup forms
-    (when (and (eq cur-pkg (find-package :common-lisp-user))
-               (not (symbol-qualified-p symbol parser))
-               (not (eq sym-pkg (find-package :common-lisp-user)))
-               ;; Add check for non-package-related forms
-               (not (member symbol '(:use cl common-lisp)))  ; Allow standard package names
-               (not (member (car (car (bound-symbols parser))) package-ops))) ; Skip package ops
-      (record-anomaly tracker
-                      :missing-in-package
-                      :WARNING
-                      (file parser)
-                      (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                              symbol pkg-name))
-      (setf anomaly-p t))
+    (when (eq cur-pkg (find-package :common-lisp-user))
+      (when (and (not (symbol-qualified-p symbol parser))
+                 (not (eq sym-pkg (find-package :common-lisp-user)))
+                 (not (member symbol '(:use cl common-lisp)))
+                 ;; Check if containing form is a package op
+                 (not (or (and (consp context) (member (car context) package-ops))
+                         (and (consp parent-context) (member (car parent-context) package-ops))))
+                 ;; Check if this is a package name being defined
+                 (not (or (and (consp context)
+                              (eq (car context) 'defpackage)
+                              (eq symbol (cadr context)))
+                         (and (consp parent-context)
+                              (eq (car parent-context) 'defpackage)
+                              (eq symbol (cadr parent-context))))))
+        
+        (record-anomaly tracker
+                        :missing-in-package
+                        :WARNING
+                        (file parser)
+                        (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                                symbol pkg-name))
+        (setf anomaly-p t)))
     (values visibility anomaly-p)))
 
 
 (defun walk-form (form handler &key (log-stream *trace-output*) (log-depth t))
   "Walk a form calling HANDLER on each subform with context and depth info.
    FORM - The form to analyze
-   HANDLER - Function taking (form context depth)
+   HANDLER - Function taking (form context parent-context depth)
    LOG-STREAM - Where to send debug output (nil for no logging)
    LOG-DEPTH - Whether to track and log nesting depth"
-  (labels ((walk (x context depth)
+  (labels ((walk (x context parent-context depth)
              ;; Log form being processed
+             (format log-stream "~&WALK-FORM handling:~%  Form: ~S~%  Context: ~S~%  Parent: ~S~%  Depth: ~D~%" 
+                     x context parent-context depth)
+
              (unless (skip-item-p x) 
-              (when log-stream
-               (let ((indent (if log-depth 
-                               (make-string (* depth 2) :initial-element #\Space)
-                               "")))
-                 (format log-stream "~&~AForm: ~S~%" indent x)
-                 (when context
-                   (format log-stream "~A Context: ~S~%" indent context))
-                 (format log-stream "~A~%" indent))))
+               (when log-stream
+                 (let ((indent (if log-depth 
+                                (make-string (* depth 2) :initial-element #\Space)
+                                "")))
+                   (format log-stream "~&~AForm: ~S~%" indent x)
+                   (when context
+                     (format log-stream "~A Context: ~S~%" indent context))
+                   (when parent-context  
+                     (format log-stream "~A Parent: ~S~%" indent parent-context))
+                   (format log-stream "~A~%" indent))))
              
-             ;; Process form with handler
-             (funcall handler x context depth)
+             ;; Process form with handler - now passing parent context
+             (funcall handler x context parent-context depth)
              
              ;; Recursively process subforms
              (typecase x
@@ -533,8 +496,8 @@
                           (if log-depth
                               (make-string (* depth 2) :initial-element #\Space)
                               "")))
-                (walk (car x) (cons (car x) (cdr x)) (1+ depth)) 
-                (walk (cdr x) x (1+ depth)))
+                (walk (car x) x context (1+ depth)) 
+                (walk (cdr x) x context (1+ depth)))
                
                (array
                 (when log-stream
@@ -543,7 +506,7 @@
                               (make-string (* depth 2) :initial-element #\Space)
                               "")))
                 (dotimes (i (array-total-size x))
-                  (walk (row-major-aref x i) x (1+ depth))))
+                  (walk (row-major-aref x i) x context (1+ depth))))
                
                (hash-table
                 (when log-stream
@@ -552,15 +515,15 @@
                               (make-string (* depth 2) :initial-element #\Space)
                               "")))
                 (maphash (lambda (k v)
-                          (walk k x (1+ depth))
-                          (walk v x (1+ depth)))
+                          (walk k x context (1+ depth))
+                          (walk v x context (1+ depth)))
                         x)))))
     
     ;; Start walking at top level
     (let ((*print-circle* nil)     ; Prevent circular printing issues
           (*print-length* 10)      ; Limit list output
           (*print-level* 5))       ; Limit nesting output
-      (walk form nil 0))))
+      (walk form nil nil 0))))
 
 
 (defun classify-slot-reference (slot-spec)

@@ -151,25 +151,8 @@
    (parsing-packages
     :initform nil
     :accessor parsing-packages
-    :documentation "Stack of packages being parsed for cycle detection")
-   (bound-symbols
-    :initform nil
-    :accessor bound-symbols
-    :documentation "Stack of symbols bound by enclosing lambda forms")
-  (block-names
-   :initform nil
-   :accessor block-names
-   :documentation "Stack of currently bound block names")
-  (go-tags
-   :initform nil
-   :accessor go-tags
-   :documentation "Stack of currently bound go tags")
-  (symbol-macro-bindings
-   :initform nil
-   :accessor symbol-macro-bindings
-   :documentation "Association list of symbol-macro expansions"))
- (:documentation
-  "Parser for analyzing a single Lisp source file."))
+    :documentation "Stack of packages being parsed for cycle detection"))
+  (:documentation "Parser for analyzing a single Lisp source file."))
 
 
 (defclass dots-object () ())  ;special object that will always print as ...

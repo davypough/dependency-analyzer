@@ -1,10 +1,3 @@
 ANOMALIES.LOG
 ------------------------------
 
-MISSING-IN-PACKAGE ANOMALIES
-  #<ANOMALY Type: :MISSING-IN-PACKAGE
-  Severity: WARNING
-  Location: /source/single-pkg-defs.lisp
-  Description: Unqualified reference to USER-MAIN-PACKAGE from package COMMON-LISP-USER without in-package declaration
-  Context: NIL>
-
