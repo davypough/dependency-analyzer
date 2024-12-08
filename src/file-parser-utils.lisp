@@ -10,7 +10,25 @@
 ;;; Name and Symbol Utils
 
 
-(defun normalize-package-name (designator)
+(defun normalize-designator (designator)
+  "Convert a package or symbol designator to a normalized string form.
+   Handles package objects, symbols (interned or uninterned), and strings uniformly.
+   Returns uppercase string representation.
+   Examples:
+     'my-package  -> \"MY-PACKAGE\"  
+     #:my-package -> \"MY-PACKAGE\"
+     \"MY-PACKAGE\" -> \"MY-PACKAGE\"
+     #<PACKAGE MY-PACKAGE> -> \"MY-PACKAGE\"
+     'my-symbol -> \"MY-SYMBOL\"
+     #:my-symbol -> \"MY-SYMBOL\""
+  (typecase designator
+    (package  (package-name designator))
+    (string (string-upcase designator))
+    (symbol (string-upcase (symbol-name designator))) ; Works for both interned and uninterned
+    (t (error "Invalid designator for normalization: ~S" designator))))
+
+
+#+ignore (defun normalize-package-name (designator)
   "Convert a package designator to a normalized string form.
    Handles package objects, symbols (interned or uninterned), and strings uniformly.
    Examples:
@@ -30,7 +48,6 @@
       (error "Invalid package designator: ~S" designator))))
 
 
-
 (defun collect-file-references (tracker source-file target-file)
   "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
    Returns a list of reference objects."
@@ -39,7 +56,7 @@
     ;; Build hash table of symbols defined in target file for quick lookup
     (let ((target-symbols (make-hash-table :test 'equal)))
       (dolist (def target-defs)
-        (setf (gethash (definition.name def) target-symbols) t))
+        (push def (gethash (definition.name def) target-symbols)))
       ;; Check all references in source file to see if they reference target symbols
       (maphash (lambda (key refs-list)
                  (declare (ignore key))
@@ -53,11 +70,12 @@
 
 
 (defun record-definition (tracker symbol type file &key package exported-p context)
-  "Record a symbol definition in the tracker."
+  "Record a symbol definition in the tracker. Adds new definition to list of 
+   existing definitions for the symbol."  
   (let* ((key (make-tracking-key symbol package))
          (def (make-instance 'definition :name symbol :type type :file file
                              :package package :exported-p exported-p :context context)))
-    (setf (gethash key (slot-value tracker 'definitions)) def)
+    (push def (gethash key (slot-value tracker 'definitions)))
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p
       (record-export tracker package symbol))
@@ -114,21 +132,9 @@
         symbols))
 
 
-(defun record-project-cycle (tracker cycle-chain)
-  "Record a project dependency cycle."
-  (pushnew cycle-chain (project-cycles tracker) :test #'string=))
-
-(defun record-file-cycle (tracker cycle-chain)
-  "Record a file dependency cycle."
-  (pushnew cycle-chain (file-cycles tracker) :test #'string=))
-
 (defun record-package-cycle (tracker cycle-chain)
   "Record a package dependency cycle."
   (pushnew cycle-chain (package-cycles tracker) :test #'string=))
-
-(defmethod get-project-cycles (&optional tracker)
-  "Get all recorded project dependency cycles."
-  (project-cycles (ensure-tracker tracker)))
 
 (defmethod get-file-cycles (&optional tracker)
   "Get all recorded file dependency cycles."
@@ -156,13 +162,12 @@
    PARSER - Current file parser for context
    SYMBOL - Symbol to import (can be string, symbol, or uninterned symbol)"
   (let* ((from-pkg (find-package from-pkg-name))
-         (sym-name (normalize-symbol-name symbol))
+         (sym-name (normalize-designator symbol))
          (from-sym (and from-pkg (find-symbol sym-name from-pkg))))
     (when (and from-pkg from-sym)
       (import from-sym package)
       (record-package-use *current-tracker* pkg-name from-pkg-name)
       (record-reference *current-tracker* from-sym
-                       :VALUE
                        (file parser)
                        :package from-pkg-name
                        :visibility :IMPORTED))))
@@ -177,7 +182,7 @@
    SYMBOL - Symbol to export (can be string, symbol, or uninterned symbol)
    
    Returns the exported symbol if successful."
-  (let* ((sym-name (normalize-symbol-name symbol))
+  (let* ((sym-name (normalize-designator symbol))
          (exported-sym (and sym-name 
                            (intern sym-name package))))
     (when exported-sym
@@ -237,12 +242,11 @@
        (when (gethash (make-tracking-key form pkg-name) 
                      (slot-value *current-tracker* 'definitions))
          (record-reference *current-tracker* form
-                         :VALUE
                          current-file
                          :package pkg-name
                          :visibility visibility))))
-    (cons
-     (analyze-form parser form))
+    ;(cons
+    ; (analyze-form parser form))
     (array
      (dotimes (i (array-total-size form))
        (analyze-subform parser (row-major-aref form i))))
@@ -261,8 +265,8 @@
   Returns list of helper function names recorded."
  (let ((helper-functions nil)
        (file (file parser))
-       (pkg-name (current-package-name parser))
-       (pkg (current-package parser)))
+       (pkg-name (current-package-name parser)))
+       ;(pkg (current-package parser)))
    ;; Scan body for function definitions
    (dolist (form body)
      (when (and (listp form)
@@ -331,6 +335,7 @@
                (let ((key-item (if (listp (car item))
                                   (cadar item)
                                   (car item))))
+                 (declare (ignore key-item))
                  (when (and (listp item) (cddr item))
                    (analyze-definition-form parser (third item)))))) ; Default value
             (&aux
@@ -427,6 +432,7 @@
    Returns two values:
    1. Package visibility (:LOCAL, :INHERITED, or :IMPORTED)
    2. T if an anomaly was recorded, NIL otherwise"
+  (declare (ignore depth))
   (let* ((sym-pkg (symbol-package symbol))
          (cur-pkg (current-package parser))
          (pkg-name (if sym-pkg 

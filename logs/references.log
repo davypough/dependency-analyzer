@@ -2,28 +2,28 @@ REFERENCES.LOG
 ------------------------------
 
 #<REFERENCE Symbol: USER-MAIN-PACKAGE
-  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Context: (#:USER-MAIN-PACKAGE)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: *DEFPARAMETER-VARIABLE*
-  Context: *DEFPARAMETER-VARIABLE*
+  Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: *DEFVAR-VARIABLE*
-  Context: *DEFVAR-VARIABLE*
+  Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: +DEFCONSTANT-VARIABLE+
-  Context: +DEFCONSTANT-VARIABLE+
+  Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
@@ -37,14 +37,14 @@ REFERENCES.LOG
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: COMPUTE-AREA
-  Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Context: (COMPUTE-AREA)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: CONDITION-NAME
-  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+  Context: (CONDITION-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
@@ -65,7 +65,7 @@ REFERENCES.LOG
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: FDEFINITION-FUNCTION-NAME
-  Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+  Context: (FDEFINITION-FUNCTION-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
@@ -93,14 +93,14 @@ REFERENCES.LOG
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: SYMBOL-FUNCTION-NAME
-  Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
+  Context: (SYMBOL-FUNCTION-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
   Definition: /source/single-pkg-defs.lisp>
 
 #<REFERENCE Symbol: SYMBOL-VALUE-VARIABLE
-  Context: SYMBOL-VALUE-VARIABLE
+  Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL

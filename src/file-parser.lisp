@@ -66,6 +66,7 @@
   "Analyze form for definitions using walk-form with specialized handler.
    Records definitions and processes nested definitions maintaining package context."
   (labels ((handle-definition (sym context parent-context depth)
+            (declare (ignorable sym context parent-context depth))
             (when (and (consp form) (symbolp (car form)))
               (case (car form)
                 (defpackage (analyze-defpackage parser form))
@@ -82,7 +83,7 @@
                 (defsetf (analyze-defsetf parser form))
                 ;; Condition and method definitions
                 (define-condition (analyze-define-condition parser form))
-                (define-method-combination (analyze-method-combination parser form))
+                (define-method-combination (analyze-define-method-combination parser form))
                 (define-setf-expander (analyze-define-setf-expander parser form))
                 (define-modify-macro (analyze-define-modify-macro parser form))
                 (define-compiler-macro (analyze-define-compiler-macro parser form))
@@ -105,60 +106,55 @@
 (defmethod analyze-reference-form ((parser file-parser) form &optional log-stream)
   "Analyze form recording references to definitions in different files.
    Handles both symbol references and string references to packages."
-  (let ((contexts (make-hash-table :test 'equal))) ; Cache contexts by package
-    (labels ((get-limited-context (pkg-name)
-               (or (gethash pkg-name contexts)
-                   (setf (gethash pkg-name contexts)
-                         (limit-form-size form pkg-name))))
-             (handle-reference (sym context parent-context depth)
-               (typecase sym
-                 (symbol
-                  (unless (or (null sym)            ; Skip NIL
-                              (keywordp sym)          ; Skip keywords
-                              (cl-symbol-p sym))      ; Skip CL package symbols
-                    (let* ((sym-pkg (symbol-package sym))
-                           (cur-pkg (current-package parser))
-                           (pkg-name (if sym-pkg
-                                          (package-name sym-pkg)
-                                          (current-package-name parser))))
-                      ;; Check for unqualified cross-package reference from CL-USER
-                      (multiple-value-bind (visibility anomaly-p)
-                          (check-package-reference sym parser *current-tracker* context parent-context depth)
-                        (declare (ignore anomaly-p))
-                        ;; If symbol matches a definition record in a different file, record the dependency
-                        (let* ((key (make-tracking-key sym pkg-name))
-                               (def (gethash key (slot-value *current-tracker* 'definitions))))
-                          (when (and def (not (equal (definition.file def) (file parser))))
-                            (record-reference *current-tracker* sym
-                                            (file parser)
-                                            :package pkg-name
-                                            :context (get-limited-context pkg-name)
-                                            :visibility visibility
-                                            :definition def)))))))
-                 (string
-                  ;; Check if this string matches a package definition
-                  (let* ((norm-name (normalize-package-name sym))
-                         (key (make-tracking-key norm-name))
-                         (def (gethash key (slot-value *current-tracker* 'definitions))))
-                    (when (and def
-                               (eq (definition.type def) :PACKAGE)
-                               (not (equal (definition.file def) (file parser))))
-                      (record-reference *current-tracker* sym
-                                        (file parser)
-                                        :package "KEYWORD"
-                                        :context (get-limited-context "KEYWORD")
-                                        :visibility :LOCAL
-                                        :definition def)))))))
-      
-      ;; Walk the form looking for references
-      (walk-form form #'handle-reference :log-stream log-stream))))
-
+  (labels ((handle-reference (subform context parent-context depth)
+             (typecase subform
+               (symbol
+                (unless (or (null subform)            ; Skip NIL
+                            (keywordp subform)          ; Skip keywords
+                            (cl-symbol-p subform))      ; Skip CL package symbols
+                  (let* ((sym-pkg (symbol-package subform))
+                         (pkg-name (if sym-pkg
+                                        (package-name sym-pkg)
+                                        (current-package-name parser))))
+                    ;; Check for unqualified cross-package reference from CL-USER
+                    (multiple-value-bind (visibility anomaly-p)
+                        (check-package-reference subform parser *current-tracker* context parent-context depth)
+                      (declare (ignore anomaly-p))
+                      ;; If symbol matches any definition record in a different file, record the dependency
+                      (let* ((key (make-tracking-key subform pkg-name))
+                             (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                        (when defs
+                          (dolist (def defs)
+                            (unless (equal (definition.file def) (file parser))
+                              (record-reference *current-tracker* subform
+                                              (file parser)
+                                              :package pkg-name
+                                              :context (limit-form-size context pkg-name)
+                                              :visibility visibility
+                                              :definition def)))))))))
+               (string
+                ;; Check if this string matches a package definition
+                (let* ((norm-name (normalize-designator subform))
+                       (key (make-tracking-key norm-name))
+                       (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                  (dolist (def defs)
+                    (when (and (eq (definition.type def) :PACKAGE)
+                             (not (equal (definition.file def) (file parser))))
+                      (record-reference *current-tracker* subform
+                                      (file parser)
+                                      :package "KEYWORD"
+                                      :context (limit-form-size context "KEYWORD")
+                                      :visibility :LOCAL
+                                      :definition def))))))))
+    
+    ;; Walk the form looking for references
+    (walk-form form #'handle-reference :log-stream log-stream)))
 
 
 (defun analyze-in-package (parser form)
   "Handle in-package forms by updating the current package context.
    Signals an error if referenced package doesn't exist."
-  (let* ((name (normalize-package-name (second form)))
+  (let* ((name (normalize-designator (second form)))
          (package (find-package name)))
     (if package
         (setf (current-package parser) package
@@ -181,7 +177,7 @@
   (destructuring-bind (def-op name &rest options) form
     (declare (ignore def-op)) 
     ;; 1. Form Analysis Context
-    (let* ((pkg-name (normalize-package-name name))
+    (let* ((pkg-name (normalize-designator name))
            (file (file parser))
            ;; Extract standard package options
            (use-list (cdr (assoc :use options)))
@@ -189,8 +185,8 @@
            ;; Create package with standard options 
            (package (or (find-package pkg-name)
                        (make-package pkg-name 
-                                   :use (mapcar #'normalize-package-name use-list)
-                                   :nicknames (mapcar #'normalize-package-name nicknames))))
+                                   :use (mapcar #'normalize-designator use-list)
+                                   :nicknames (mapcar #'normalize-designator nicknames))))
            (context (limit-form-size form pkg-name)))
 
       ;; Record definition before any analysis starts
@@ -224,7 +220,7 @@
       (dolist (option options)
         (when (and (listp option) (eq (car option) :use))
           (dolist (used-pkg (cdr option))
-            (let ((used-name (normalize-package-name used-pkg)))
+            (let ((used-name (normalize-designator used-pkg)))
               (record-package-use *current-tracker* pkg-name used-name)))))
 
       ;; 5. Implementation Elements
@@ -233,7 +229,7 @@
         (when (listp option)
           (case (car option)
             (:import-from
-             (let ((from-pkg (normalize-package-name (second option))))
+             (let ((from-pkg (normalize-designator (second option))))
                (dolist (sym (cddr option))
                  (process-package-import-option 
                   package from-pkg pkg-name parser sym))))
@@ -321,9 +317,9 @@
            
            ;; Generate and record accessor function 
            (let* ((accessor (intern (concatenate 'string conc-name-prefix
-                                               (string (if (listp slot-spec)
-                                                         (car slot-spec)
-                                                         slot-spec)))
+                                               (string ;(if (listp slot-spec)
+                                                         (car slot-spec)))
+                                                       ;  slot-spec)))
                                   pkg))
                   (accessor-context (limit-form-size form pkg-name)))
              (record-definition *current-tracker* accessor
@@ -472,7 +468,7 @@
      (dolist (option options)
        (when (and (listp option) 
                   (eq (car option) :method))
-         (push name method-functions)
+         ;(push name method-functions)
          ;; Record method definition with full defgeneric form context
          (record-definition *current-tracker* name
                           :METHOD
@@ -492,8 +488,8 @@
      (dolist (option options)
        (when (and (listp option) 
                   (eq (car option) :method-combination))
-         (let ((combination-name (second option))
-               (combination-args (cddr option)))
+         (let (;(combination-name (second option)))
+                (combination-args (cddr option)))
            ;; Process combination arguments
            (dolist (arg combination-args)
              (unless (quoted-form-p arg)
@@ -596,8 +592,8 @@
      ;; Collect qualifiers until we hit lambda list
      (loop for rest on body
            while (and rest (not (listp (car rest))))
-           do (let* ((qual (pop rest))
-                     (qual-context (limit-form-size qual pkg-name)))
+           do (let* ((qual (pop rest)))
+                     ;(qual-context (limit-form-size qual pkg-name)))
                 (push qual qualifiers)
                 ;; Analyze qualifier fully
                 (analyze-definition-form parser qual))
@@ -662,8 +658,8 @@
      ;; 3. Interface Elements
      (if (and (car args) (listp (car args)))
        ;; Long form - collect helper functions from body
-       (let ((helper-context (limit-form-size (cdddr args) pkg-name)))
-         (record-helper-functions parser (cdddr args)))
+       ;(let ((helper-context (limit-form-size (cdddr args) pkg-name)))
+         (record-helper-functions parser (cdddr args))
        ;; Short form - analyze update function
        (when (car args)
          (analyze-definition-form parser (car args))))
@@ -949,13 +945,13 @@
 
               ;; Process all body forms
               (dolist (form forms)
-                (let ((form-context (limit-form-size form pkg-name)))
+                ;(let ((form-context (limit-form-size form pkg-name)))
                   (analyze-definition-form parser form)
                   (when (and (listp form) 
                             (member (car form) '(:arguments :generic-function :documentation)))
                       ;; Handle option forms 
                       (dolist (part (cdr form))
-                        (analyze-definition-form parser part)))))))
+                        (analyze-definition-form parser part))))))
 
           ;; Short form handling
           (progn
@@ -1103,7 +1099,8 @@
   - Value form for dependencies
   - Any related type declarations
   Returns the variable definition record."
- (destructuring-bind (setf (symbol-value quoted-name) value-form) form
+ (destructuring-bind (_1 (_2 quoted-name) value-form) form
+   (declare (ignore _1 _2))
    ;; 1. Form Analysis Context
    (let* ((pkg (current-package parser))
           (pkg-name (current-package-name parser))
@@ -1145,7 +1142,7 @@
          (context (limit-form-size form (current-package-name parser))))
 
     ;; 1. Form Analysis Context
-    (let* ((pkg (current-package parser))
+    (let* (;(pkg (current-package parser))
            (pkg-name (current-package-name parser))
            (file (file parser)))
 

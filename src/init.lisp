@@ -105,60 +105,9 @@
 (defun dep ()
   "Fresh reloads the dependency-analyzer system to continue testing."
   (delete-fasl)
-  (ql:quickload :dependency-analyzer)
-  (analyze "d:/quicklisp/local-projects/test-project/source"))
-
-
-(defun defs ()
-  "Pretty print all definition records from current tracker in symbol name order."
-  (let ((defs nil))
-    (maphash (lambda (key def)
-               (declare (ignore key))
-               (push def defs))
-             (slot-value *current-tracker* 'definitions))
-    (dolist (def (sort defs #'string< :key #'definition.name))
-      (format t "~%Name: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~%"
-              (definition.name def)
-              (definition.type def)
-              (project-pathname (definition.file def))
-              (definition.package def)
-              (definition.exported-p def)))))
-
-
-(defun refs ()
-  "Pretty print all reference records from current tracker in symbol name order."
-  (let ((refs nil))
-    (maphash (lambda (key ref-list)
-               (declare (ignore key))
-               (dolist (ref ref-list)
-                 (push ref refs)))  
-             (slot-value *current-tracker* 'references))
-    (dolist (ref (sort refs #'string< :key #'reference.symbol))
-      (format t "~%Symbol: ~A~%  Context: ~S~%  Type: ~A~%  File: ~A~%  Package: ~S~%  Visibility: ~A~%  Definition: ~A~%~%"
-              (reference.symbol ref)
-              (reference.context ref)
-              (reference.type ref) 
-              (project-pathname (reference.file ref))
-              (reference.package ref)
-              (reference.visibility ref)
-              (project-pathname (definition.file (reference.definition ref)))))))
-
-
-(defun anoms ()
-  "Pretty print all anomaly records from current tracker in type order."
-  (let ((anomaly-list nil))
-    (maphash (lambda (type anomalies)
-               (declare (ignore type))
-               (dolist (anomaly anomalies)
-                 (push anomaly anomaly-list)))
-             (anomalies *current-tracker*))
-    (dolist (anomaly (sort anomaly-list #'string< :key #'anomaly.type))
-      (format t "~&Type: ~S~%  Severity: ~A~%  Location: ~A~%  Description: ~A~%  Context: ~S~%~%"
-              (anomaly.type anomaly)
-              (anomaly.severity anomaly)
-              (project-pathname (anomaly.location anomaly))
-              (anomaly.description anomaly)
-              (anomaly.context anomaly)))))
+  (ql:quickload :dependency-analyzer :verbose t)
+  (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
+           "d:/quicklisp/local-projects/test-project/source"))
 
 
 (defgeneric show (object &rest rest)
@@ -200,3 +149,4 @@
   (declare (ignore rest))
   (format t "~&~S~%" object)
   t)
+

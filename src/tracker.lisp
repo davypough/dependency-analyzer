@@ -9,7 +9,7 @@
 
 
 (defun get-definitions (&optional tracker symbol)
-  "Get all recorded definitions of a symbol or string.
+  "Get all recorded definitions of a symbol or string.  
    If only one arg provided, treat it as the symbol/string and use the current tracker."
   (when (and tracker (null symbol))
     ;; If only one arg provided, it's the symbol/string
@@ -24,7 +24,9 @@
          (key (make-tracking-key symbol pkg-name)))
     (or (gethash key (slot-value actual-tracker 'definitions))
         ;; Try without package context as fallback
-        (gethash (make-tracking-key symbol) (slot-value actual-tracker 'definitions)))))
+        (gethash (make-tracking-key symbol) (slot-value actual-tracker 'definitions))
+        ;; Return nil if no definitions found
+        nil)))
 
 
 (defun get-references (&optional (tracker nil tracker-provided-p) symbol)
@@ -72,7 +74,6 @@
 (defmethod clear-tracker :after (&optional (tracker nil tracker-provided-p))
   "Clear all recorded information including cycles from the tracker."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (setf (project-cycles actual-tracker) nil)
     (setf (file-cycles actual-tracker) nil)
     (setf (package-cycles actual-tracker) nil)))
 
@@ -183,7 +184,7 @@
                          (if (stringp (second form))
                              (second form)
                              (second form)))))
-             (package-name (normalize-package-name raw-name)))
+             (package-name (normalize-designator raw-name)))
         (format log-stream "~&Creating base package: ~A~%" package-name)
         (handler-case
             (eval `(make-package ,package-name :use nil))

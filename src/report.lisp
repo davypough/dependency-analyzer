@@ -14,14 +14,14 @@
 
 (defmethod generate-report ((format (eql :text)) tracker &key (stream *standard-output*))
  ;; Top Banner
- (format stream "~&~V,,,'-<~>" 70 "")
+ (format stream "~&~V,,,'-<~A~>" 70 "")
  (format stream "~&Dependency Analysis Report~%")
  (format stream "Project: ~A~%" (project.name tracker))
  (format stream "Generated: ~A~%" (local-time:now))
- (format stream "~V,,,'-<~>~2%" 70 "")
+ (format stream "~V,,,'-<~A~>~2%" 70 "")
  ;; 1. Executive Summary
  (format stream "EXECUTIVE SUMMARY~%")
- (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "~V,,,'-<~A~>~%" 30 "")
  (format stream "Project Statistics:~%")
 ; (format stream "  Systems: ~A~%" (hash-table-count (slot-value tracker 'subsystems)))
  (format stream "  Files: ~A~%" (hash-table-count (slot-value tracker 'file-map)))
@@ -47,14 +47,14 @@
    (format stream "  Anomalies: ~A~%" (+ error-count warning-count info-count)))
  (format stream "~2%")
  (format stream "SYSTEM DETAILS~%")
- (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "~V,,,'-<~A~>~%" 30 "")
  (format stream "~2%")
  ;; 2. Architectural Overview
  (format stream "ARCHITECTURAL OVERVIEW~%")
- (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "~V,,,'-<~A~>~%" 30 "")
  ;; System Overview
  (format stream "SYSTEM OVERVIEW~%")
- (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "~V,,,'-<~A~>~%" 30 "")
  (alexandria:when-let ((cycles (get-system-cycles tracker)))
    (format stream "~%System Dependency Cycles:~%")
    (format stream "The following systems have circular dependencies:~%")
@@ -68,8 +68,8 @@
        (print-ascii-tree stream roots)
        (format stream "  No package dependencies found.~%"))
    (when cycles
-     (format stream "~%Note: Package relationships contain cyclical dependencies.~%"
-             "     This may be intentional but could affect maintainability.~%")))
+     (format stream "~%Note: Package relationships contain cyclical dependencies.~%
+                  This may be intentional but could affect maintainability.~%")))
  (format stream "~%File Hierarchy:~%")
  (let ((file-roots (build-file-dependency-tree tracker)))
    (if file-roots
@@ -78,7 +78,7 @@
  (format stream "~2%")
  ;; 3. Anomalies and Analysis
  (format stream "ANOMALIES AND ANALYSIS~%")
- (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "~V,,,'-<~A~>~%" 30 "")
  (flet ((print-anomaly (a indent)
         (format stream "~A~A~%" indent (anomaly.description a))
         (format stream "~A  Location: ~A~%" indent (anomaly.location a))
@@ -156,7 +156,7 @@
               (print-anomaly a "    "))))))))
  ;; 4. Maintenance Considerations
  (format stream "MAINTENANCE CONSIDERATIONS~%")
- (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "~V,,,'-<~A~>~%" 30 "")
  ;; Display any cycles detected
  (alexandria:when-let ((cycles (get-file-cycles tracker)))
    (format stream "~%File Dependencies with Cycles:~%")
@@ -173,7 +173,7 @@
  (format stream "~2%")
  ;; 5. Detailed References
  (format stream "DETAILED REFERENCES~%")
- (format stream "~V,,,'-<~>~%" 30 "")
+ (format stream "~V,,,'-<~A~>~%" 30 "")
  ;; System Dependencies
  (format stream "System Dependencies:~%")
  (format stream "~2%")

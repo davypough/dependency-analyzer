@@ -51,9 +51,10 @@
       (definitions
        ;; Sort and print definitions directly
        (let ((defs nil))
-         (maphash (lambda (key def)
+         (maphash (lambda (key def-list)
                     (declare (ignore key))
-                    (push def defs))
+                    (dolist (def def-list)
+                      (push def defs)))
                   table)
          (dolist (def (sort defs #'string< :key #'definition.name))
            (format stream "~A~2%" def))))
@@ -67,12 +68,6 @@
                   table)
          (dolist (key (sort keys #'string<))
            (let ((refs (gethash key table)))
-             ;; Sort references by the symbol name for consistency
-             (setf refs (sort refs
-                              (lambda (a b)
-                                (string< (symbol-name (reference.symbol a))
-                                         (symbol-name (reference.symbol b))))))
-
              (cond
                ((null refs)
                 ;; No references, do nothing.

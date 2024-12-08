@@ -29,7 +29,7 @@
   (with-output-to-string (s)
     (let* ((prefix (format nil "~vA" depends-pos ""))
            (ref-strings (mapcar #'symbol-name (sort refs #'string< :key #'symbol-name)))
-           (available-width (- max-width depends-pos))
+           ;(available-width (- max-width depends-pos))
            (first-line t))
       ;; Handle empty reference list
       (when (null refs)
@@ -199,7 +199,7 @@
 
 (defun ensure-directory-exists (pathname)
   "Ensure the directory component of pathname exists. Returns pathname if successful."
-  (let* ((namestring (namestring pathname))
+  (let* (;(namestring (namestring pathname))
          (dir (directory-namestring pathname))
          (normalized-dir (if (uiop:os-windows-p)
                            (uiop:native-namestring dir)
@@ -278,6 +278,7 @@
              (slot-value tracker 'package-uses))
     
     (maphash (lambda (pkg used-pkgs)
+               (declare (ignore pkg))
                (when (member "COMMON-LISP" used-pkgs :test #'string=)
                  (unless (gethash "COMMON-LISP" nodes)
                    (setf (gethash "COMMON-LISP" nodes)
@@ -303,6 +304,7 @@
              (slot-value tracker 'package-uses))
     
     (maphash (lambda (pkg node)
+               (declare (ignore pkg))
                (when (null (getf node :parents))
                  (push node roots)))
              nodes)
@@ -312,6 +314,7 @@
 
 (defun print-ascii-tree (stream roots &optional (prefix "") (last-child-p nil))
   "Print an ASCII representation of a dependency tree."
+  (declare (ignore last-child-p))
   (dolist (node (butlast roots))
     (format stream "~&~A├── ~A~%" prefix (getf node :name))
     (print-ascii-tree stream 
@@ -334,15 +337,15 @@
        (is-dependency (make-hash-table :test 'equal)))
    
    ;; First pass unchanged
-   (maphash (lambda (file definitions)
-              (declare (ignore definitions))
+   (maphash (lambda (file def-list)
+              (declare (ignore def-list))
               (dolist (dep (file-dependencies tracker file))
                 (setf (gethash dep is-dependency) t)))
             (slot-value tracker 'file-map))
    
    ;; Second pass simplified to just list references
-   (maphash (lambda (file definitions)
-              (declare (ignore definitions))
+   (maphash (lambda (file def-list)
+              (declare (ignore def-list)) 
               (unless (gethash file is-dependency)
                 (let* ((file-str (project-pathname file))
                        (deps (file-dependencies tracker file)))
