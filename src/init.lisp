@@ -129,7 +129,7 @@
     (setf alist 
       (sort (copy-list alist) #'string< :key (ecase sort-by (key #'car) (val #'cdr))))
     (loop for (key . val) in alist
-      do (format t "~&~A ->~10T ~A~%" key val)))
+      do (format t "~%~A ->~%~A~2%" key val)))  ;"~%~A ->~%~10T ~A~2%"
   t)
 
 

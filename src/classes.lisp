@@ -11,9 +11,8 @@
   ((name :initarg :name :reader definition.name :type (or symbol string))
    (context :initarg :context :reader definition.context)
    (type :initarg :type :reader definition.type
-         :type (member :STRUCTURE :CLASS :VARIABLE :FUNCTION :MACRO
-                       :SYMBOL-MACRO :GENERIC-FUNCTION :METHOD :CONDITION
-                       :PACKAGE :TYPE :SETF))
+         :type (member :STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
+                       :SYMBOL-MACRO :TYPE :PACKAGE))
    (file :initarg :file :reader definition.file :type (or string pathname))
    (package :initarg :package :reader definition.package
             :type (or string symbol))
