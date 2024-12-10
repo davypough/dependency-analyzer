@@ -152,13 +152,6 @@
            (format nil "~A ~A (~A)" name qual-str spec-str)))))
 
 
-(defun pathname-to-string (pathname)
-  "Convert a pathname to a string representation."
-  (if pathname
-      (namestring pathname)
-      nil))
-
-
 (defun simplify-path (pathname)
   "Convert a pathname to a simplified string representation."
   (if pathname
@@ -186,37 +179,6 @@
                  (write-char #\_ s))
                 (otherwise
                  (write-char char s)))))))
-
-
-(defun abbreviate-path (path)
-  "Create an abbreviated version of a path string."
-  (let ((path-str (simplify-path path)))
-    (if (> (length path-str) 50)
-        (concatenate 'string "..." 
-                    (subseq path-str (max 0 (- (length path-str) 47))))
-        path-str)))
-
-
-(defun ensure-directory-exists (pathname)
-  "Ensure the directory component of pathname exists. Returns pathname if successful."
-  (let* (;(namestring (namestring pathname))
-         (dir (directory-namestring pathname))
-         (normalized-dir (if (uiop:os-windows-p)
-                           (uiop:native-namestring dir)
-                           dir)))
-    (format *error-output* "~&Attempting to access directory: ~A~%" normalized-dir)
-    (ensure-directories-exist normalized-dir)
-    pathname))
-
-
-(defun verify-writable (pathname)
-  "Verify the specified path is writable. Returns pathname if writable."
-  (with-open-file (test pathname
-                   :direction :output
-                   :if-exists :append
-                   :if-does-not-exist :create)
-    (write-char #\Space test)
-    pathname))
 
 
 (defun build-file-dependency-tree (tracker)

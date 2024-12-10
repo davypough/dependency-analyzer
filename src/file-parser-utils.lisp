@@ -28,26 +28,6 @@
     (t (error "Invalid designator for normalization: ~S" designator))))
 
 
-#+ignore (defun normalize-package-name (designator)
-  "Convert a package designator to a normalized string form.
-   Handles package objects, symbols (interned or uninterned), and strings uniformly.
-   Examples:
-     'my-package  -> \"MY-PACKAGE\"
-     #:my-package -> \"MY-PACKAGE\"
-     \"MY-PACKAGE\" -> \"MY-PACKAGE\"
-     #<PACKAGE MY-PACKAGE> -> \"MY-PACKAGE\""
-  (typecase designator
-    (package 
-      (package-name designator))
-    (string
-      (string-upcase designator))
-    (symbol  
-      ;; Works for both interned and uninterned symbols
-      (string-upcase (symbol-name designator)))
-    (t
-      (error "Invalid package designator: ~S" designator))))
-
-
 (defun collect-file-references (tracker source-file target-file)
   "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
    Returns a list of reference objects."
@@ -140,13 +120,6 @@
                  :test #'eq)))))
 
 
-(defun record-macro-body-symbols (tracker macro-name symbols)
-  "Record the non-CL symbols used in a macro's body."
-  (setf (gethash (make-tracking-key macro-name) 
-                 (slot-value tracker 'macro-bodies))
-        symbols))
-
-
 (defun record-package-cycle (tracker cycle-chain)
   "Record a package dependency cycle."
   (pushnew cycle-chain (package-cycles tracker) :test #'string=))
@@ -158,13 +131,6 @@
 (defmethod get-package-cycles (&optional tracker)
   "Get all recorded package dependency cycles."
   (package-cycles (ensure-tracker tracker)))
-
-
-(defmethod get-macro-body-symbols (&optional (tracker nil tracker-provided-p) macro-name)
-  "Get all recorded symbols used in a macro's body."
-  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (gethash (make-tracking-key macro-name) 
-             (slot-value actual-tracker 'macro-bodies))))
 
 
 (defun process-package-import-option (package from-pkg-name pkg-name parser symbol)
@@ -273,57 +239,6 @@
     (t nil)))
 
 
-(defun record-helper-functions (parser body)
- "Record helper functions defined within a body using defun/flet/labels.
-  PARSER - The file parser for context
-  BODY - List of body forms to scan for function definitions
-  Returns list of helper function names recorded."
- (let ((helper-functions nil)
-       (file (file parser))
-       (pkg-name (current-package-name parser)))
-       ;(pkg (current-package parser)))
-   ;; Scan body for function definitions
-   (dolist (form body)
-     (when (and (listp form)
-                (member (car form) '(defun flet labels)))
-       (let ((func-name (if (eq (car form) 'defun)
-                         (second form)
-                         (caar (cdr form))))
-             (context (limit-form-size form pkg-name)))
-         (push func-name helper-functions)
-         ;; Record each helper function with its context
-         (record-definition *current-tracker* func-name
-                          :FUNCTION
-                          file
-                          :package pkg-name
-                          :exported-p nil
-                          :context context))))
-   helper-functions))
-
-
-(defun preceding-forms-in-body (form parser)
- "Find forms that precede the given form in the same body context.
-  Used to find relevant declarations for symbol-value and symbol-function forms.
-  Returns a list of preceding forms in reverse order (most recent first)."
- (let* ((file (file parser))
-        (preceding nil))
-   (with-open-file (stream file :direction :input)
-     (loop with found = nil
-           for current-form = (read stream nil nil)
-           while (and current-form (not found))
-           do (if (equal current-form form)
-                 (setf found t)
-                 (push current-form preceding))
-           finally (return (remove-if-not 
-                          ;; Only keep declarations and type specs
-                          (lambda (f)
-                            (and (listp f)
-                                 (or (eq (car f) 'declare)
-                                     (and (eq (car f) 'type)
-                                          (= (length f) 3)))))
-                          preceding))))))
-
-
 (defun analyze-lambda-list (parser lambda-list)
  "Analyze a lambda list for type declarations and default values that 
   could create dependencies."
@@ -424,22 +339,6 @@
            (symbol-package item)
            (eq (symbol-package item) 
                (find-package :common-lisp)))))
-
-
-(defun definition-name-p (symbol context)  
-  "Return T if symbol appears to be the name in a definition form.
-   These names should be ignored during reference analysis since they are being defined.
-   
-   SYMBOL - The symbol being checked
-   CONTEXT - The parent form containing the symbol"
-  (and (consp context)          ; Inside a compound form
-       (symbolp (car context))  ; Has symbol operator
-       (let ((op-name (symbol-name (car context))))
-         ;; Check if it's a definition operator
-         (or (alexandria:starts-with-subseq "DEF" op-name)
-             (alexandria:starts-with-subseq "DEFINE-" op-name)))
-       ;; Symbol must be in name position (second element)
-       (eql symbol (cadr context))))
 
 
 (defun check-package-reference (symbol parser tracker context parent-context depth)
@@ -545,32 +444,6 @@
           (*print-length* 10)      ; Limit list output
           (*print-level* 5))       ; Limit nesting output
       (walk form nil nil 0))))
-
-
-(defun classify-slot-reference (slot-spec)
-  "Classify a slot specification as :TYPE-VALUE or :METHOD-FUNCTION.
-   Returns (values type symbols) where:
-   type is :TYPE-VALUE or :METHOD-FUNCTION
-   symbols is list of referenced symbols.
-   
-   A slot is :METHOD-FUNCTION if it has :reader,:writer,:accessor options.
-   Otherwise it is :TYPE-VALUE for regular slots with just type/value refs."
-  (let ((symbols nil)
-        (ref-type :TYPE-VALUE))
-    (when (listp slot-spec)
-      (destructuring-bind (name &optional initform &rest slot-options) slot-spec
-        (declare (ignore name))
-        ;; Check initform for non-quoted symbols
-        (when (and initform (not (quoted-form-p initform)))
-          (collect-non-cl-symbols initform symbols))
-        ;; Process slot options
-        (loop for (option value) on slot-options by #'cddr
-              do (case option
-                   (:type (collect-non-cl-symbols value symbols))
-                   ((:reader :writer :accessor)
-                    (setf ref-type :METHOD-FUNCTION)
-                    (collect-non-cl-symbols value symbols))))))
-    (values ref-type (remove-duplicates symbols))))
 
 
 (defun limit-form-size (form pkg-name &key (max-depth 8) (max-elements 20))

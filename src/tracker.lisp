@@ -8,27 +8,6 @@
 (in-package #:dep)
 
 
-(defun get-definitions (&optional tracker symbol)
-  "Get all recorded definitions of a symbol or string.  
-   If only one arg provided, treat it as the symbol/string and use the current tracker."
-  (when (and tracker (null symbol))
-    ;; If only one arg provided, it's the symbol/string
-    (setf symbol tracker
-          tracker nil))
-  (let* ((actual-tracker (or tracker (ensure-tracker)))
-         (pkg-name (etypecase symbol
-                    (string "COMMON-LISP-USER")  
-                    (symbol (if (symbol-package symbol)
-                              (package-name (symbol-package symbol))
-                              "COMMON-LISP-USER"))))
-         (key (make-tracking-key symbol pkg-name)))
-    (or (gethash key (slot-value actual-tracker 'definitions))
-        ;; Try without package context as fallback
-        (gethash (make-tracking-key symbol) (slot-value actual-tracker 'definitions))
-        ;; Return nil if no definitions found
-        nil)))
-
-
 (defun get-references (&optional (tracker nil tracker-provided-p) symbol)
   "Get all recorded references to a symbol."
   (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
@@ -42,40 +21,6 @@
   "Get all definitions in a file."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
     (gethash file (slot-value actual-tracker 'file-map))))
-
-
-(defun package-depends-on-p (&optional (tracker nil tracker-provided-p) package1 package2)
-  "Check if package1 depends on package2 (directly or indirectly)."
-  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (labels ((check-deps (pkg visited)
-               (when (member pkg visited :test #'string=)
-                 (return-from check-deps nil))
-               (let ((uses (get-package-uses actual-tracker pkg)))
-                 (or (member package2 uses :test #'string=)
-                     (some (lambda (p)
-                            (check-deps p (cons pkg visited)))
-                          uses)))))
-      (check-deps package1 nil))))
-
-
-(defmethod clear-tracker (&optional (tracker nil tracker-provided-p))
-  "Clear all recorded information from the tracker."
-  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (with-slots (definitions references file-map package-uses 
-                 package-exports macro-bodies) actual-tracker
-      (clrhash definitions)
-      (clrhash references)
-      (clrhash file-map)
-      (clrhash package-uses)
-      (clrhash package-exports)
-      (clrhash macro-bodies))))
-
-
-(defmethod clear-tracker :after (&optional (tracker nil tracker-provided-p))
-  "Clear all recorded information including cycles from the tracker."
-  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (setf (file-cycles actual-tracker) nil)
-    (setf (package-cycles actual-tracker) nil)))
 
 
 (defun analyze (source-dir)

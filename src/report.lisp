@@ -226,7 +226,6 @@
       (yason:with-object ()
         ;; Project name and systems
         (yason:encode-object-element "project" (project.name tracker))
-        #+ignore (yason:with-object-element ("systems")
           (yason:encode (slot-value tracker 'subsystems)))
         ;; Anomalies
         (yason:with-object-element ("anomalies")
@@ -254,7 +253,6 @@
                                                             (anomaly.context a))))))
                           (anomalies tracker)))))))
         ;; System dependencies
-        #+ignore (yason:with-object-element ("systems")
           (let ((systems (make-hash-table :test 'equal)))
             (maphash (lambda (sys-name deps)
                       (setf (gethash sys-name systems)
@@ -272,7 +270,7 @@
         (let ((packages (build-package-dependency-json tracker)))
           (when packages
             (yason:with-object-element ("packages")
-              (yason:encode packages))))))))
+              (yason:encode packages))))))
 
 
 (defmethod generate-report ((format (eql :dot)) tracker &key (stream *standard-output*))
