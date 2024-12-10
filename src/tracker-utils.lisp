@@ -24,18 +24,47 @@
       (error "No tracker is currently bound. Please use 'with-dependency-tracker' to bind one.")))
 
 
-(defun make-tracking-key (designator &optional package)
-  "Create a lookup key for a symbol or package name, optionally in a specific package context.
-   DESIGNATOR can be either a symbol or a string.
-   For symbols: Creates a key based on the symbol name and optional package
-   For strings: Uses the string directly as a name
-   Returns a string key that uniquely identifies the entity."
-  (let ((name (etypecase designator
+(defun make-tracking-key (designator &optional package type qualifiers specializers)
+  "Create a lookup key for a symbol or package name, with optional type/method info.
+   DESIGNATOR can be either a symbol, a string, or a (setf name) form.
+   PACKAGE is the package name string (optional).
+   TYPE is one of +valid-definition-types+ (optional).
+   QUALIFIERS is a list of method qualifiers (optional).
+   SPECIALIZERS is a list of specializer type names (optional).
+   Returns a key string like name::package::type[::qualifiers][::specializers]."
+  (let* ((name (etypecase designator
                 (string designator)
-                (symbol (symbol-name designator)))))
-    (if package
-        (format nil "~A::~A" package name)
-        name)))
+                (symbol (string designator))
+                (cons (if (and (eq (car designator) 'setf) (= (length designator) 2))
+                         (format nil "(SETF ~A)" (string (cadr designator)))
+                         (error "Invalid designator form ~S in make-tracking-key~%  package: ~S~%  type: ~S" 
+                               designator package type)))))
+         (pkg (when package (string package))))
+    ;; Validate qualifiers/specializers are proper lists when provided
+    (when (and qualifiers (not (listp qualifiers)))
+      (error "Qualifiers must be a proper list in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S~%  qualifiers: ~S" 
+             designator package type qualifiers))
+    (when (and specializers (not (listp specializers)))
+      (error "Specializers must be a proper list in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S~%  specializers: ~S"
+             designator package type specializers))
+    ;; Type validation against known types
+    (when (and type (not (member type +valid-definition-types+)))
+      (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S"
+             designator package type))
+    ;; Base key includes name, package, type  
+    (let ((key (format nil "~A::~A::~A" 
+                      name
+                      (or pkg "") 
+                      (or type ""))))
+      ;; Append sorted qualifiers if provided
+      (when qualifiers
+        (setf key (format nil "~A::~{~A~^-~}" 
+                         key (sort (copy-list qualifiers) #'string<))))
+      ;; Append sorted specializers if provided  
+      (when specializers
+        (setf key (format nil "~A::(~{~A~^ ~})"
+                         key (sort (copy-list specializers) #'string<))))
+      key)))
 
 
 (defun print-tracker-slot (tracker slot-name stream)

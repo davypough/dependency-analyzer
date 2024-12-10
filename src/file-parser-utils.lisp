@@ -69,13 +69,28 @@
     (sort refs #'string< :key (lambda (r) (symbol-name (reference.symbol r))))))
 
 
-(defun record-definition (tracker symbol type file &key package exported-p context)
-  "Record a symbol definition in the tracker. Adds new definition to list of 
-   existing definitions for the symbol."  
-  (let* ((key (make-tracking-key symbol package))
-         (def (make-instance 'definition :name symbol :type type :file file
-                             :package package :exported-p exported-p :context context)))
-    (push def (gethash key (slot-value tracker 'definitions)))
+(defun record-definition (tracker symbol type file &key package exported-p context qualifiers specializers)
+  "Record a symbol definition in the tracker. Creates a single definition object and 
+   stores it under both a base key (name+package+type) and, if qualifiers/specializers 
+   are present, a specialized key that includes method details."
+  (let* ((def (make-instance 'definition 
+                            :name symbol 
+                            :type type 
+                            :file file
+                            :package package 
+                            :exported-p exported-p 
+                            :context context
+                            :qualifiers qualifiers
+                            :specializers specializers))
+         (base-key (make-tracking-key symbol package type))
+         (specialized-key (when (or qualifiers specializers)
+                          (make-tracking-key symbol package type qualifiers specializers))))
+    ;; Store under base key for reference lookup
+    (push def (gethash base-key (slot-value tracker 'definitions)))
+    ;; Store under specialized key if we have one
+    (when specialized-key
+      (push def (gethash specialized-key (slot-value tracker 'definitions))))
+    ;; Add to file map and exports
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p
       (record-export tracker package symbol))
@@ -600,3 +615,40 @@
                  (symbol (clean-symbol f))
                  (t f))))
       (truncate-form form 0))))
+
+
+(defun infer-reference-type (symbol context)
+  "Try to infer the type of a symbol reference from its context.
+   If can't determine, returns nil which will match any type."
+  (let ((type (when (consp context)
+                (case (car context)
+                  ((funcall function) :FUNCTION)
+                  ((type satisfies) :TYPE)
+                  ((error make-condition) :STRUCTURE/CLASS/CONDITION)
+                  ((setq setf) :VARIABLE)
+                  (otherwise nil)))))
+    (unless type
+      (format t "~%Warning: Could not determine type of reference to ~A in context ~A~%"
+              symbol context))
+    type))
+
+
+(defun parse-defmethod-args (args)
+  "Parse method specification arguments from a :method option in defgeneric.
+   Returns (values qualifiers lambda-list . body).
+   ARGS is the list of arguments after the :method keyword.
+   Examples:
+   - (:before (x) ...) -> (:before), (x), ...
+   - ((x string) y) -> (), ((x string) y), ...
+   - (:after (x number) y) -> (:after), ((x number) y), ..."
+  (let ((qualifiers nil)
+        lambda-list)
+    ;; Collect qualifiers until we hit the lambda-list
+    (loop for arg = (car args)
+          while (and args (or (keywordp arg) (symbolp arg))
+                     (not (listp arg)))
+          do (push arg qualifiers)
+             (setf args (cdr args))
+          finally (setf lambda-list (car args)
+                       args (cdr args)))
+    (values (nreverse qualifiers) lambda-list args)))

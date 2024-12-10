@@ -7,28 +7,54 @@
 (in-package #:dep)
 
 
+;(defconstant +valid-definition-types+ 
+;  '(:STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
+;    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :TYPE :PACKAGE)
+;  "Valid types for dependency definitions. Used for type checking and reference matching.")
+
+
+(alexandria:define-constant +valid-definition-types+ 
+  '(:STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
+    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :TYPE :PACKAGE)
+  :test #'equal
+  :documentation "Valid types for dependency definitions. Used for type checking and reference matching.")
+
+
 (defclass definition ()
   ((name :initarg :name :reader definition.name :type (or symbol string))
    (context :initarg :context :reader definition.context)
    (type :initarg :type :reader definition.type
-         :type (member :STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
-                       :SYMBOL-MACRO :TYPE :PACKAGE))
+         :type (member . #.+valid-definition-types+))
    (file :initarg :file :reader definition.file :type (or string pathname))
    (package :initarg :package :reader definition.package
             :type (or string symbol))
    (exported-p :initarg :exported-p :reader definition.exported-p
-               :type boolean))
+               :type boolean)
+   (qualifiers :initarg :qualifiers :reader definition.qualifiers 
+               :type list)
+   (specializers :initarg :specializers :reader definition.specializers
+                :type list))
   (:default-initargs :name nil :type nil :file nil :package nil
-                     :exported-p nil :context nil)
+                     :exported-p nil :context nil :qualifiers nil :specializers nil)
   (:documentation "Data structure holding info about a lisp definition;
                    eg, defun, defvar, or package"))
 
 
 (defmethod print-object ((def definition) stream)  
   (print-unreadable-object (def stream :type t)
-    (format stream "Name: ~S~%  Context: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A"
-            (definition.name def) (definition.context def) (definition.type def)
-            (project-pathname (definition.file def)) (definition.package def) (definition.exported-p def))))
+    (format stream "Name: ~S~%  Context: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~A~A"
+            (definition.name def) 
+            (definition.context def) 
+            (definition.type def)
+            (project-pathname (definition.file def)) 
+            (definition.package def) 
+            (definition.exported-p def)
+            (if (definition.qualifiers def)
+                (format nil "~%  Qualifiers: ~S" (definition.qualifiers def))
+                "")
+            (if (definition.specializers def)
+                (format nil "~%  Specializers: ~S" (definition.specializers def)) 
+                ""))))
 
 
 (defclass reference ()

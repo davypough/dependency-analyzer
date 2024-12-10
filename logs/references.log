@@ -1,13 +1,6 @@
 REFERENCES.LOG
 ------------------------------
 
-#<REFERENCE Symbol: USER-MAIN-PACKAGE
-  Context: (#:USER-MAIN-PACKAGE)
-  File: /source/single-pkg-refs.lisp
-  Package: "USER-MAIN-PACKAGE"
-  Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
-
 #<REFERENCE Symbol: *DEFPARAMETER-VARIABLE*
   Context: NIL
   File: /source/single-pkg-refs.lisp
@@ -101,6 +94,13 @@ REFERENCES.LOG
 
 #<REFERENCE Symbol: SYMBOL-VALUE-VARIABLE
   Context: NIL
+  File: /source/single-pkg-refs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Visibility: LOCAL
+  Definition: /source/single-pkg-defs.lisp>
+
+#<REFERENCE Symbol: USER-MAIN-PACKAGE
+  Context: (#:USER-MAIN-PACKAGE)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL

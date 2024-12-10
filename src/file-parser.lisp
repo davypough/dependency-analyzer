@@ -116,24 +116,43 @@
                   (let* ((sym-pkg (symbol-package subform))
                          (pkg-name (if sym-pkg
                                      (package-name sym-pkg)
-                                     (current-package-name parser))))
+                                     (current-package-name parser)))
+                         ;; Infer the type from context
+                         (ref-type (infer-reference-type subform context)))
+                    (format t "~&Could not determine type of reference to ~A in context ~A~%"
+                            subform (limit-form-size context nil))
                     ;; Check for unqualified cross-package reference from CL-USER
                     (multiple-value-bind (visibility anomaly-p)
                         (check-package-reference subform parser *current-tracker* 
                                                context parent-context depth)
                       (declare (ignore anomaly-p))
-                      ;; If symbol matches any definition record in a different file
-                      (let* ((key (make-tracking-key subform pkg-name))
-                             (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                        (when defs
-                          (dolist (def defs)
-                            (unless (equal (definition.file def) (file parser))
-                              (record-reference *current-tracker* subform
-                                              (file parser)
-                                              :package pkg-name
-                                              :context (limit-form-size context pkg-name)
-                                              :visibility visibility
-                                              :definition def)))))))))
+                      ;; If type is nil, we need to match all types
+                      (if ref-type
+                          ;; Look for definitions matching specific type
+                          (let* ((key (make-tracking-key subform pkg-name ref-type))
+                                 (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                            (when defs
+                              (dolist (def defs)
+                                (unless (equal (definition.file def) (file parser))
+                                  (record-reference *current-tracker* subform
+                                                  (file parser)
+                                                  :package pkg-name
+                                                  :context (limit-form-size context pkg-name)
+                                                  :visibility visibility
+                                                  :definition def)))))
+                          ;; Try all valid definition types when type unknown
+                          (dolist (try-type +valid-definition-types+)
+                            (let* ((key (make-tracking-key subform pkg-name try-type))
+                                   (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                              (when defs
+                                (dolist (def defs)
+                                  (unless (equal (definition.file def) (file parser))
+                                    (record-reference *current-tracker* subform
+                                                    (file parser)
+                                                    :package pkg-name
+                                                    :context (limit-form-size context pkg-name)
+                                                    :visibility visibility
+                                                    :definition def)))))))))))
                (string
                 ;; Check if this string matches a package definition
                 (let* ((norm-name (normalize-designator subform))
@@ -338,39 +357,115 @@
 
 
 (defun analyze-defgeneric (parser form)
- "Handle defgeneric form. Analyzes:
-  - Generic function name and exportedness"
-   (let* ((name (second form))
-          (pkg (current-package parser))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (context (limit-form-size form pkg-name)))
-     (record-definition *current-tracker* name
-                       :FUNCTION
-                       file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
-                                     :external)
-                       :context context)))
+  "Handle defgeneric form. Records both the generic function and any methods 
+   specified in the options list. Analyzes:
+   - Generic function name and exportedness
+   - Method specifiers from :method options
+   FORM is of form: (defgeneric name lambda-list &rest options)"
+  (destructuring-bind (def-op name lambda-list &rest options) form
+    (declare (ignore def-op lambda-list))
+    (let* ((pkg (current-package parser))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name)))
+      ;; Record the generic function definition
+      (record-definition *current-tracker* name
+                        :GENERIC-FUNCTION
+                        file
+                        :package pkg-name
+                        :exported-p (eq (nth-value 1 
+                                       (find-symbol (symbol-name name) pkg))
+                                      :external)
+                        :context context)
+      ;; Process any :method options to record method definitions
+      (dolist (option options)
+        (when (and (listp option) (eq (car option) :method))
+          (destructuring-bind (method-key &rest method-spec) option
+            (declare (ignore method-key))
+            (multiple-value-bind (qualifiers lambda-list body)
+                (parse-defmethod-args method-spec)
+              (declare (ignore body))
+              ;; Extract specializers from lambda list required params
+              (let ((specializers (mapcar (lambda (param)
+                                          (if (listp param)
+                                              (string (cadr param))  ; (var type) form
+                                              "T"))                  ; Just var
+                                        (remove-if (lambda (x)
+                                                   (member x lambda-list-keywords))
+                                                 lambda-list))))
+                ;; Record the method definition
+                (record-definition *current-tracker* name
+                                 :METHOD
+                                 file
+                                 :package pkg-name
+                                 :exported-p (eq (nth-value 1
+                                                (find-symbol (symbol-name name) pkg))
+                                               :external)
+                                 :context context
+                                 :qualifiers qualifiers
+                                 :specializers specializers)))))))))
 
 
 (defun analyze-defmethod (parser form)
- "Handle defmethod form. Analyzes:
-  - Method name and exportedness"
-   (let* ((name (second form))
-          (pkg (current-package parser))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (context (limit-form-size form pkg-name)))
-     (record-definition *current-tracker* name
-                       :FUNCTION
-                       file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
-                                     :external)
-                       :context context)))
+  "Handle defmethod form. Analyzes:
+   - Method name, qualifiers, specializers and exportedness.
+   Handles both ordinary methods and setf methods."
+  (let* ((after-defmethod (cdr form))
+         ;; Handle (setf name) form properly 
+         (name-and-qualifiers (if (and (consp (car after-defmethod))
+                                     (eq (caar after-defmethod) 'setf))
+                                (cons (car after-defmethod) (cdr after-defmethod))
+                                after-defmethod))
+         ;; Split into name, qualifiers, lambda-list, body
+         (name (if (consp (car name-and-qualifiers))
+                  (car name-and-qualifiers)  ; (setf name) form
+                  (car name-and-qualifiers)))
+         (rest (if (consp (car name-and-qualifiers))
+                  (cdr name-and-qualifiers)  ; After (setf name)
+                  (cdr name-and-qualifiers)))
+         ;; Collect qualifiers until we hit the lambda-list
+         (qualifiers nil)
+         lambda-list
+         (remaining rest))
+    ;; Collect qualifiers until we hit a list that looks like a lambda list
+    (loop while remaining do
+          (let ((item (car remaining)))
+            (if (and (listp item) 
+                    (every (lambda (x) 
+                            (or (symbolp x) 
+                                (and (listp x) (= (length x) 2)))) ; var or (var type)
+                          item))
+                (progn 
+                  (setf lambda-list item)
+                  (return))
+                (push item qualifiers))
+            (setf remaining (cdr remaining))))
+    (setf qualifiers (nreverse qualifiers))
+    
+    (when lambda-list  ; Only process if we found a valid lambda list
+      (let* ((pkg (current-package parser))
+             (pkg-name (current-package-name parser))
+             (file (file parser))
+             (context (limit-form-size form pkg-name))
+             ;; Extract specializers from lambda-list required params
+             (specializers (mapcar (lambda (param)
+                                   (if (listp param) 
+                                       (string (second param))  
+                                       "T"))                  
+                                 (remove-if (lambda (x) 
+                                            (member x lambda-list-keywords))
+                                          lambda-list))))
+        ;; Record single definition with full info
+        (record-definition *current-tracker* name
+                          :METHOD
+                          file
+                          :package pkg-name
+                          :exported-p (eq (nth-value 1 
+                                         (find-symbol (string name) pkg))
+                                        :external)
+                          :context context
+                          :qualifiers qualifiers
+                          :specializers specializers)))))
 
 
 (defun analyze-defsetf (parser form)
@@ -407,6 +502,7 @@
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
+     ;; Record class definition
      (record-definition *current-tracker* name
                        :STRUCTURE/CLASS/CONDITION
                        file
@@ -418,19 +514,43 @@
      ;; Record accessor/reader/writer methods
      (dolist (slot slots)
        (when (listp slot)  ; Skip atomic slot names
-         (destructuring-bind (slot-name &rest slot-options) slot
-           (declare (ignore slot-name))
+         (let ((slot-options (cdr slot)))  ; Simplified - don't need slot-name anymore
            (loop for (option value) on slot-options by #'cddr
-                 when (member option '(:reader :writer :accessor))
-                 do (let ((func-context (limit-form-size slot pkg-name)))
-                      (record-definition *current-tracker* value
-                                       :FUNCTION
-                                       file
-                                       :package pkg-name
-                                       :exported-p (eq (nth-value 1 
-                                                     (find-symbol (string value) pkg))
-                                                    :external)
-                                       :context func-context))))))))
+                 do (case option
+                      (:reader
+                       (record-definition *current-tracker* value
+                                        :METHOD 
+                                        file
+                                        :package pkg-name
+                                        :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                        :context context
+                                        :specializers (list (string name))))
+                      (:writer
+                       (record-definition *current-tracker* value
+                                        :METHOD
+                                        file
+                                        :package pkg-name
+                                        :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                        :context context
+                                        :specializers (list "T" (string name))))
+                      (:accessor
+                       ;; Record reader method
+                       (record-definition *current-tracker* value
+                                        :METHOD
+                                        file
+                                        :package pkg-name
+                                        :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                        :context context
+                                        :specializers (list (string name)))
+                       ;; Record (setf accessor) writer method
+                       (let ((setf-name (list 'setf value)))
+                         (record-definition *current-tracker* setf-name
+                                          :METHOD
+                                          file
+                                          :package pkg-name
+                                          :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                          :context context
+                                          :specializers (list "T" (string name))))))))))))
 
 
 (defun analyze-deftype (parser form)

@@ -51,18 +51,28 @@ DEFINITIONS.LOG
   Exported: NIL>
 
 #<DEFINITION Name: COMPUTE-AREA
-  Context: (DEFGENERIC COMPUTE-AREA
-               (SHAPE)
-             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Type: :FUNCTION
+  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+             (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
+  Type: :METHOD
   File: /source/single-pkg-defs.lisp
   Package: "USER-MAIN-PACKAGE"
-  Exported: NIL>
+  Exported: NIL
+  Specializers: ("CIRCLE")>
 
 #<DEFINITION Name: COMPUTE-AREA
   Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
              (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
-  Type: :FUNCTION
+  Type: :METHOD
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL
+  Specializers: ("CIRCLE")>
+
+#<DEFINITION Name: COMPUTE-AREA
+  Context: (DEFGENERIC COMPUTE-AREA
+               (SHAPE)
+             (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Type: :GENERIC-FUNCTION
   File: /source/single-pkg-defs.lisp
   Package: "USER-MAIN-PACKAGE"
   Exported: NIL>
@@ -134,32 +144,62 @@ DEFINITIONS.LOG
   Exported: NIL>
 
 #<DEFINITION Name: PROCESS-DATA
-  Context: (DEFGENERIC PROCESS-DATA
-               (DATA &KEY)
-             (:DOCUMENTATION "Process data with various methods"))
-  Type: :FUNCTION
+  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Type: :METHOD
   File: /source/single-pkg-defs.lisp
   Package: "USER-MAIN-PACKAGE"
-  Exported: NIL>
-
-#<DEFINITION Name: PROCESS-DATA
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Type: :FUNCTION
-  File: /source/single-pkg-defs.lisp
-  Package: "USER-MAIN-PACKAGE"
-  Exported: NIL>
+  Exported: NIL
+  Specializers: ("NUMBER")>
 
 #<DEFINITION Name: PROCESS-DATA
   Context: (DEFMETHOD PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
              (FORMAT NIL "LOG: ~A" ...))
-  Type: :FUNCTION
+  Type: :METHOD
   File: /source/single-pkg-defs.lisp
   Package: "USER-MAIN-PACKAGE"
-  Exported: NIL>
+  Exported: NIL
+  Qualifiers: (:LOGGING)
+  Specializers: ("STRING")>
+
+#<DEFINITION Name: PROCESS-DATA
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Type: :METHOD
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL
+  Specializers: ("STRING")>
+
+#<DEFINITION Name: PROCESS-DATA
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Type: :METHOD
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL
+  Specializers: ("STRING")>
+
+#<DEFINITION Name: PROCESS-DATA
+  Context: (DEFMETHOD PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
+             (FORMAT NIL "LOG: ~A" ...))
+  Type: :METHOD
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL
+  Qualifiers: (:LOGGING)
+  Specializers: ("STRING")>
 
 #<DEFINITION Name: PROCESS-DATA
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Type: :FUNCTION
+  Type: :METHOD
+  File: /source/single-pkg-defs.lisp
+  Package: "USER-MAIN-PACKAGE"
+  Exported: NIL
+  Specializers: ("NUMBER")>
+
+#<DEFINITION Name: PROCESS-DATA
+  Context: (DEFGENERIC PROCESS-DATA
+               (DATA &KEY)
+             (:DOCUMENTATION "Process data with various methods"))
+  Type: :GENERIC-FUNCTION
   File: /source/single-pkg-defs.lisp
   Package: "USER-MAIN-PACKAGE"
   Exported: NIL>
