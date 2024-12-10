@@ -117,42 +117,34 @@
                          (pkg-name (if sym-pkg
                                      (package-name sym-pkg)
                                      (current-package-name parser)))
-                         ;; Infer the type from context
-                         (ref-type (infer-reference-type subform context)))
-                    (format t "~&Could not determine type of reference to ~A in context ~A~%"
-                            subform (limit-form-size context nil))
+                         (found-def nil))
                     ;; Check for unqualified cross-package reference from CL-USER
                     (multiple-value-bind (visibility anomaly-p)
                         (check-package-reference subform parser *current-tracker* 
                                                context parent-context depth)
                       (declare (ignore anomaly-p))
-                      ;; If type is nil, we need to match all types
-                      (if ref-type
-                          ;; Look for definitions matching specific type
-                          (let* ((key (make-tracking-key subform pkg-name ref-type))
-                                 (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                            (when defs
-                              (dolist (def defs)
-                                (unless (equal (definition.file def) (file parser))
-                                  (record-reference *current-tracker* subform
-                                                  (file parser)
-                                                  :package pkg-name
-                                                  :context (limit-form-size context pkg-name)
-                                                  :visibility visibility
-                                                  :definition def)))))
-                          ;; Try all valid definition types when type unknown
-                          (dolist (try-type +valid-definition-types+)
-                            (let* ((key (make-tracking-key subform pkg-name try-type))
-                                   (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                              (when defs
-                                (dolist (def defs)
-                                  (unless (equal (definition.file def) (file parser))
-                                    (record-reference *current-tracker* subform
-                                                    (file parser)
-                                                    :package pkg-name
-                                                    :context (limit-form-size context pkg-name)
-                                                    :visibility visibility
-                                                    :definition def)))))))))))
+                      ;; Try all valid definition types
+                      (dolist (try-type +valid-definition-types+)
+                        (let* ((key (make-tracking-key subform pkg-name try-type))
+                               (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                          (when defs
+                            (setf found-def t)
+                            (dolist (def defs)
+                              (unless (equal (definition.file def) (file parser))
+                                (record-reference *current-tracker* subform
+                                                (file parser)
+                                                :package pkg-name
+                                                :context (limit-form-size context pkg-name)
+                                                :visibility visibility
+                                                :definition def))))))
+                      ;; Record anomaly if no matching definition found
+                      (unless found-def
+                        (record-anomaly *current-tracker*
+                                      :undefined-reference
+                                      :WARNING
+                                      (file parser)
+                                      (format nil "Reference to undefined symbol ~A" subform)
+                                      (limit-form-size context pkg-name))))))
                (string
                 ;; Check if this string matches a package definition
                 (let* ((norm-name (normalize-designator subform))
@@ -166,7 +158,7 @@
                                       :package norm-name
                                       :context (limit-form-size context norm-name)
                                       :visibility :LOCAL
-                                      :definition def))))))))
+                                      :definition def)))))))))
     (walk-form form #'handle-reference :log-stream log-stream)))
 
 

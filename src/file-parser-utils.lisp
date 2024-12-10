@@ -490,19 +490,47 @@
       (truncate-form form 0))))
 
 
-(defun infer-reference-type (symbol context)
+(defun infer-reference-type (symbol context parent-context)
   "Try to infer the type of a symbol reference from its context.
-   If can't determine, returns nil which will match any type."
-  (let ((type (when (consp context)
-                (case (car context)
-                  ((funcall function) :FUNCTION)
-                  ((type satisfies) :TYPE)
-                  ((error make-condition) :STRUCTURE/CLASS/CONDITION)
-                  ((setq setf) :VARIABLE)
-                  (otherwise nil)))))
-    (unless type
-      (format t "~%Warning: Could not determine type of reference to ~A in context ~A~%"
-              symbol context))
+   If can't determine, returns nil which will match any type.
+   Checks *current-tracker* to distinguish macros from functions."
+  (let ((type 
+         (cond
+           ;; Package references in defpackage and in-package forms
+           ((and (consp parent-context)
+                 (member (car parent-context) '(defpackage in-package)))
+            :PACKAGE)
+           
+           ;; Other contexts using immediate context
+           ((consp context)
+            (cond
+              ;; Check operator position symbol 
+              ((eq symbol (car context))
+               (let ((pkg-name (package-name (or (and (symbolp symbol)
+                                                     (symbol-package symbol))
+                                                *package*))))
+                 (if (gethash (make-tracking-key symbol pkg-name :MACRO)
+                            (slot-value *current-tracker* 'definitions))
+                     :MACRO
+                     :FUNCTION)))
+              
+              ((and (member (car context) '(funcall function fboundp fmakunbound))
+                    (equal symbol (cadr context)))
+               :FUNCTION)
+              ((and (member (car context) '(type the typep satisfies))
+                    (equal symbol (cadr context)))
+               :TYPE)
+              ((and (member (car context) '(make-instance make-condition error signal))
+                    (equal `',(cadr context) symbol))
+               :STRUCTURE/CLASS/CONDITION)
+              ((and (member (car context) '(setq setf boundp makunbound))
+                    (equal symbol (cadr context)))
+               :VARIABLE))))))
+    
+    (if type
+      (format t "~%Type of ~A is ~A in ~A~%" symbol type parent-context)
+      (format t "~%Warning: Could not determine type of reference to ~A in ~A~%"
+              symbol parent-context))
     type))
 
 
