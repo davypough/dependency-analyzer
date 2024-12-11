@@ -58,7 +58,7 @@
 
 
 (defclass reference ()
-  ((symbol :initarg :symbol :reader reference.symbol :type symbol)
+  ((name :initarg :name :reader reference.name :type symbol)
    (context :initarg :context :reader reference.context)
    (file :initarg :file :reader reference.file :type (or string pathname))
    (package :initarg :package :reader reference.package
@@ -67,7 +67,7 @@
                :type (member :LOCAL :INHERITED :IMPORTED)) 
    (definition :initarg :definition :reader reference.definition
                :type (or null (and standard-object definition))))
-  (:default-initargs :symbol nil :context nil :file nil :package nil
+  (:default-initargs :name nil :context nil :file nil :package nil
                      :visibility nil :definition nil)
   (:documentation "Data structure holding info about a lisp reference
                    to a definition"))
@@ -75,8 +75,8 @@
 
 (defmethod print-object ((ref reference) stream)
   (print-unreadable-object (ref stream :type t)
-    (format stream "Symbol: ~A~%  Context: ~S~%  File: ~A~%  Package: ~S~%  Visibility: ~A~%  Definition: ~A"
-            (reference.symbol ref) (reference.context ref) (project-pathname (reference.file ref))
+    (format stream "Name: ~S~%  Context: ~S~%  File: ~A~%  Package: ~S~%  Visibility: ~A~%  Definition: ~S"
+            (reference.name ref) (reference.context ref) (project-pathname (reference.file ref))
             (reference.package ref) (reference.visibility ref)
             (project-pathname (definition.file (reference.definition ref))))))
 

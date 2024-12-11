@@ -42,19 +42,19 @@
                  (declare (ignore key))
                  (dolist (ref refs-list)
                    (when (and (equal (reference.file ref) source-file)
-                            (gethash (reference.symbol ref) target-symbols))
+                            (gethash (reference.name ref) target-symbols))
                      (pushnew ref refs :test #'equal))))
                (slot-value tracker 'references)))
     ;; Return sorted list of references
-    (sort refs #'string< :key (lambda (r) (symbol-name (reference.symbol r))))))
+    (sort refs #'string< :key (lambda (r) (symbol-name (reference.name r))))))
 
 
-(defun record-definition (tracker symbol type file &key package exported-p context qualifiers specializers)
-  "Record a symbol definition in the tracker. Creates a single definition object and 
+(defun record-definition (tracker name type file &key package exported-p context qualifiers specializers)
+  "Record a name definition in the tracker. Creates a single definition object and 
    stores it under both a base key (name+package+type) and, if qualifiers/specializers 
    are present, a specialized key that includes method details."
   (let* ((def (make-instance 'definition 
-                            :name symbol 
+                            :name name 
                             :type type 
                             :file file
                             :package package 
@@ -62,9 +62,9 @@
                             :context context
                             :qualifiers qualifiers
                             :specializers specializers))
-         (base-key (make-tracking-key symbol package type))
+         (base-key (make-tracking-key name package type))
          (specialized-key (when (or qualifiers specializers)
-                          (make-tracking-key symbol package type qualifiers specializers))))
+                          (make-tracking-key name package type qualifiers specializers))))
     ;; Store under base key for reference lookup
     (push def (gethash base-key (slot-value tracker 'definitions)))
     ;; Store under specialized key if we have one
@@ -73,20 +73,20 @@
     ;; Add to file map and exports
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p
-      (record-export tracker package symbol))
+      (record-export tracker package name))
     def))
 
 
-(defun record-reference (tracker symbol file &key package context visibility definition)
- "Record a symbol reference in the tracker.
+(defun record-reference (tracker name file &key package context visibility definition)
+ "Record a name reference in the tracker.
   VISIBILITY is inherited, imported, or local (defaults to local)"
- (let* ((key (make-tracking-key symbol (when (symbol-package symbol)
-                                       (package-name (symbol-package symbol)))))
-        (ref (make-instance 'reference :symbol symbol :file file :package package :context context 
+ (let* ((key (make-tracking-key name (when (symbol-package name)
+                                       (package-name (symbol-package name)))))
+        (ref (make-instance 'reference :name name :file file :package package :context context 
                                      :visibility (or visibility :LOCAL) :definition definition)))
    (pushnew ref (gethash key (slot-value tracker 'references))
         :test (lambda (a b)
-                (and (equal (reference.symbol a) (reference.symbol b))
+                (and (equal (reference.name a) (reference.name b))
                      (equal (reference.file a) (reference.file b))
                      (equal (reference.package a) (reference.package b)))))
    ref))

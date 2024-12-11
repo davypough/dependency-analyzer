@@ -318,7 +318,7 @@
                                      (alexandria:alist-hash-table
                                       `(("file" . ,(project-pathname dep))
                                         ("references" . ,(mapcar #'symbol-name 
-                                                               (mapcar #'reference.symbol refs))))
+                                                               (mapcar #'reference.name refs))))
                                       :test 'equal)))
                                  deps)))
                       (setf (gethash file-str result)
@@ -378,14 +378,14 @@
                (declare (ignore key))
                (dolist (ref refs)
                  (when (equal (reference.file ref) file)
-                   ;; Track each referenced symbol with its package
-                   (let* ((sym (reference.symbol ref))
+                   ;; Track each referenced name with its package
+                   (let* ((sym (reference.name ref))
                           (pkg (reference.package ref))
                           (key (make-tracking-key sym pkg)))
                      (setf (gethash key refs-seen) t)))))
              (slot-value actual-tracker 'references))
     
-    ;; Then look up the definitions for each referenced symbol
+    ;; Then look up the definitions for each referenced name
     (maphash (lambda (key _)
                (declare (ignore _))
                (let ((def (gethash key (slot-value actual-tracker 'definitions))))

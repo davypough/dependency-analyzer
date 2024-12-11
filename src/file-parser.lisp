@@ -121,10 +121,11 @@
                          (defs (gethash key (slot-value *current-tracker* 'definitions))))
                     (dolist (def defs)
                       (when (not (equal (definition.file def) (file parser)))
-                        (record-reference *current-tracker* subform
+                        (record-reference *current-tracker*
+                                        subform
                                         (file parser)
                                         :package norm-name 
-                                        :context (limit-form-size context norm-name)
+                                        :context (limit-form-size parent-context norm-name)
                                         :visibility :LOCAL
                                         :definition def))))))
                (symbol
@@ -137,7 +138,7 @@
                         (found-def nil))
                     ;; Check package visibility
                     (let ((visibility (check-package-reference subform parser *current-tracker*
-                                                               context parent-context)))
+                                                             context parent-context)))
                       ;; Try all valid definition types
                       (dolist (try-type +valid-definition-types+)
                         (let* ((key (make-tracking-key subform pkg-name try-type))
@@ -146,7 +147,8 @@
                             (dolist (def defs)
                               (unless (equal (definition.file def) (file parser))
                                 (setf found-def t)
-                                (record-reference *current-tracker* subform
+                                (record-reference *current-tracker*
+                                                subform
                                                 (file parser)
                                                 :package pkg-name
                                                 :context (limit-form-size context pkg-name)

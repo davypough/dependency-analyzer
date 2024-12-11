@@ -208,7 +208,7 @@
                            (format stream "  Referenced symbols: ~{~A~^, ~}~%"
                                    (sort (remove-duplicates 
                                         (mapcar (lambda (r) 
-                                                (symbol-name (reference.symbol r)))
+                                                (symbol-name (reference.name r)))
                                               refs)
                                         :test #'string=)
                                          #'string<)))
@@ -351,7 +351,7 @@
                                  (format nil "References: ~{~A~^, ~}"
                                        (sort (remove-duplicates
                                              (mapcar (lambda (r)
-                                                     (symbol-name (reference.symbol r)))
+                                                     (symbol-name (reference.name r)))
                                                    refs)
                                              :test #'string=)
                                              #'string<)))))

@@ -1,101 +1,101 @@
 REFERENCES.LOG
 ------------------------------
 
-#<REFERENCE Symbol: *DEFPARAMETER-VARIABLE*
+#<REFERENCE Name: *DEFPARAMETER-VARIABLE*
   Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: *DEFVAR-VARIABLE*
+#<REFERENCE Name: *DEFVAR-VARIABLE*
   Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: +DEFCONSTANT-VARIABLE+
+#<REFERENCE Name: +DEFCONSTANT-VARIABLE+
   Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: CIRCLE-RADIUS
+#<REFERENCE Name: CIRCLE-RADIUS
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: COMPUTE-AREA
+#<REFERENCE Name: COMPUTE-AREA
   Context: (COMPUTE-AREA)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: CONDITION-NAME
+#<REFERENCE Name: CONDITION-NAME
   Context: (CONDITION-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: DEFMACRO-NAME
+#<REFERENCE Name: DEFMACRO-NAME
   Context: (DEFMACRO-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: DEFUN-NAME
+#<REFERENCE Name: DEFUN-NAME
   Context: (DEFUN-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: FDEFINITION-FUNCTION-NAME
+#<REFERENCE Name: FDEFINITION-FUNCTION-NAME
   Context: (FDEFINITION-FUNCTION-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: MACRO-FUNCTION-NAME
+#<REFERENCE Name: MACRO-FUNCTION-NAME
   Context: (MACRO-FUNCTION-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: PERSON.AGE
+#<REFERENCE Name: PERSON.AGE
   Context: (PERSON.AGE (MAKE-PERSON))
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: PROCESS-DATA
+#<REFERENCE Name: PROCESS-DATA
   Context: (PROCESS-DATA "test" :LOGGING)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: SYMBOL-FUNCTION-NAME
+#<REFERENCE Name: SYMBOL-FUNCTION-NAME
   Context: (SYMBOL-FUNCTION-NAME)
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
-#<REFERENCE Symbol: SYMBOL-VALUE-VARIABLE
+#<REFERENCE Name: SYMBOL-VALUE-VARIABLE
   Context: NIL
   File: /source/single-pkg-refs.lisp
   Package: "USER-MAIN-PACKAGE"
   Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
+  Definition: "/source/single-pkg-defs.lisp">
 
