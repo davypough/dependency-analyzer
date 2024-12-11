@@ -341,21 +341,19 @@
                (find-package :common-lisp)))))
 
 
-(defun check-package-reference (symbol parser tracker context parent-context depth)
-  "Check package visibility and cross-package references for a symbol.
-   Returns two values:
-   1. Package visibility (:LOCAL, :INHERITED, or :IMPORTED)
-   2. T if an anomaly was recorded, NIL otherwise"
-  (declare (ignore depth))
+(defun check-package-reference (symbol parser tracker context parent-context)
+  "Check package visibility for a symbol reference.
+   Returns the visibility: :LOCAL, :INHERITED, or :IMPORTED.
+   Records any anomalies found."
   (let* ((sym-pkg (symbol-package symbol))
          (cur-pkg (current-package parser))
          (pkg-name (if sym-pkg 
                       (package-name sym-pkg)
                       (current-package-name parser)))
          (visibility (determine-symbol-visibility symbol parser))
-         (anomaly-p nil)
          (package-ops '(defpackage in-package use-package make-package 
                        rename-package delete-package)))
+    
     ;; Check for unqualified cross-package reference while in CL-USER
     (when (eq cur-pkg (find-package :common-lisp-user))
       (when (and (not (symbol-qualified-p symbol parser))
@@ -377,9 +375,9 @@
                         :WARNING
                         (file parser)
                         (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                                symbol pkg-name))
-        (setf anomaly-p t)))
-    (values visibility anomaly-p)))
+                                symbol pkg-name))))
+    
+    visibility))
 
 
 (defun walk-form (form handler &key (log-stream *trace-output*) (log-depth t))
@@ -490,50 +488,6 @@
       (truncate-form form 0))))
 
 
-(defun infer-reference-type (symbol context parent-context)
-  "Try to infer the type of a symbol reference from its context.
-   If can't determine, returns nil which will match any type.
-   Checks *current-tracker* to distinguish macros from functions."
-  (let ((type 
-         (cond
-           ;; Package references in defpackage and in-package forms
-           ((and (consp parent-context)
-                 (member (car parent-context) '(defpackage in-package)))
-            :PACKAGE)
-           
-           ;; Other contexts using immediate context
-           ((consp context)
-            (cond
-              ;; Check operator position symbol 
-              ((eq symbol (car context))
-               (let ((pkg-name (package-name (or (and (symbolp symbol)
-                                                     (symbol-package symbol))
-                                                *package*))))
-                 (if (gethash (make-tracking-key symbol pkg-name :MACRO)
-                            (slot-value *current-tracker* 'definitions))
-                     :MACRO
-                     :FUNCTION)))
-              
-              ((and (member (car context) '(funcall function fboundp fmakunbound))
-                    (equal symbol (cadr context)))
-               :FUNCTION)
-              ((and (member (car context) '(type the typep satisfies))
-                    (equal symbol (cadr context)))
-               :TYPE)
-              ((and (member (car context) '(make-instance make-condition error signal))
-                    (equal `',(cadr context) symbol))
-               :STRUCTURE/CLASS/CONDITION)
-              ((and (member (car context) '(setq setf boundp makunbound))
-                    (equal symbol (cadr context)))
-               :VARIABLE))))))
-    
-    (if type
-      (format t "~%Type of ~A is ~A in ~A~%" symbol type parent-context)
-      (format t "~%Warning: Could not determine type of reference to ~A in ~A~%"
-              symbol parent-context))
-    type))
-
-
 (defun parse-defmethod-args (args)
   "Parse method specification arguments from a :method option in defgeneric.
    Returns (values qualifiers lambda-list . body).
@@ -553,3 +507,23 @@
           finally (setf lambda-list (car args)
                        args (cdr args)))
     (values (nreverse qualifiers) lambda-list args)))
+
+
+(defun package-context-p (context parent-context)
+  "Return T if the context indicates a form that accepts package designator references.
+   Such contexts include:
+   - Direct package forms (defpackage, in-package, use-package etc)
+   - Package options in defpackage (:use, :import-from, :nicknames)"
+  (and (consp context)
+       (or ;; Direct package forms
+           (member (car context) '(defpackage in-package use-package 
+                                  make-package rename-package delete-package))
+           ;; Package options in defpackage
+           (and (consp parent-context)
+                (eq (car parent-context) 'defpackage)
+                (keywordp (car context))
+                (member (car context) '(:use :import-from :nicknames))))))
+
+
+(defun not-interned-p (symbol)
+  (not (symbol-package symbol)))

@@ -5,6 +5,31 @@ UNDEFINED-REFERENCE ANOMALIES
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
   Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol *DEFPARAMETER-VARIABLE*
+  Context: (*DEFPARAMETER-VARIABLE* 0)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol *DEFPARAMETER-VARIABLE*
+  Context: (*DEFPARAMETER-VARIABLE* 0)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol *DEFVAR-VARIABLE*
+  Context: (*DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol *DEFVAR-VARIABLE*
+  Context: (*DEFVAR-VARIABLE* 0)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol +DEFCONSTANT-VARIABLE+
+  Context: (+DEFCONSTANT-VARIABLE+ "aeiou")>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
   Description: Reference to undefined symbol AGE
   Context: (AGE 0 :TYPE FIXNUM)>
   #<ANOMALY Type: :UNDEFINED-REFERENCE
@@ -27,6 +52,38 @@ UNDEFINED-REFERENCE ANOMALIES
   Location: /source/single-pkg-refs.lisp
   Description: Reference to undefined symbol ARG
   Context: (ARG)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol CIRCLE
+  Context: (CIRCLE)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol CIRCLE
+  Context: (CIRCLE (RADIUS 1 :TYPE NUMBER))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol CIRCLE-RADIUS
+  Context: (CIRCLE-RADIUS SHAPE)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol COMPUTE-AREA
+  Context: (COMPUTE-AREA ((SHAPE CIRCLE))
+            (* PI (EXPT (CIRCLE-RADIUS ...) 2 ...)))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol COMPUTE-AREA
+  Context: (COMPUTE-AREA (SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol CONDITION-NAME
+  Context: (CONDITION-NAME NIL NIL)>
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
   Location: /source/single-pkg-defs.lisp
@@ -65,6 +122,16 @@ UNDEFINED-REFERENCE ANOMALIES
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
   Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol DEFMACRO-NAME
+  Context: (DEFMACRO-NAME NIL 0)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol DEFUN-NAME
+  Context: (DEFUN-NAME NIL 0)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
   Description: Reference to undefined symbol ENV
   Context: (ENV 0)>
   #<ANOMALY Type: :UNDEFINED-REFERENCE
@@ -75,6 +142,11 @@ UNDEFINED-REFERENCE ANOMALIES
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
   Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol FDEFINITION-FUNCTION-NAME
+  Context: (FDEFINITION-FUNCTION-NAME)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
   Description: Reference to undefined symbol FORM
   Context: (FORM ENV 0)>
   #<ANOMALY Type: :UNDEFINED-REFERENCE
@@ -82,6 +154,16 @@ UNDEFINED-REFERENCE ANOMALIES
   Location: /source/single-pkg-defs.lisp
   Description: Reference to undefined symbol FORM
   Context: (FORM ENV)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-refs.lisp
+  Description: Reference to undefined symbol FUNCTION-WITH-CONDITION
+  Context: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol MACRO-FUNCTION-NAME
+  Context: (MACRO-FUNCTION-NAME)>
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
   Location: /source/single-pkg-refs.lisp
@@ -104,9 +186,41 @@ UNDEFINED-REFERENCE ANOMALIES
   Context: (MAKE-PERSON)>
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
+  Location: /source/single-pkg-refs.lisp
+  Description: Reference to undefined symbol MY-FUNCTION
+  Context: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol PERSON
+  Context: (PERSON (:CONC-NAME PERSON.))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
   Location: /source/single-pkg-defs.lisp
   Description: Reference to undefined symbol PERSON.
   Context: (PERSON.)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol PROCESS-DATA
+  Context: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol PROCESS-DATA
+  Context: (PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
+            (FORMAT NIL "LOG: ~A" DATA ...))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol PROCESS-DATA
+  Context: (PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol PROCESS-DATA
+  Context: (PROCESS-DATA (DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))>
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
   Location: /source/single-pkg-defs.lisp
@@ -130,6 +244,11 @@ UNDEFINED-REFERENCE ANOMALIES
   #<ANOMALY Type: :UNDEFINED-REFERENCE
   Severity: WARNING
   Location: /source/single-pkg-defs.lisp
-  Description: Reference to undefined symbol USER-MAIN-PACKAGE
-  Context: (#:USER-MAIN-PACKAGE (:USE :CL))>
+  Description: Reference to undefined symbol SYMBOL-FUNCTION-NAME
+  Context: (SYMBOL-FUNCTION-NAME)>
+  #<ANOMALY Type: :UNDEFINED-REFERENCE
+  Severity: WARNING
+  Location: /source/single-pkg-defs.lisp
+  Description: Reference to undefined symbol SYMBOL-VALUE-VARIABLE
+  Context: (SYMBOL-VALUE-VARIABLE)>
 

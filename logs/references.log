@@ -99,10 +99,3 @@ REFERENCES.LOG
   Visibility: LOCAL
   Definition: /source/single-pkg-defs.lisp>
 
-#<REFERENCE Symbol: USER-MAIN-PACKAGE
-  Context: (#:USER-MAIN-PACKAGE)
-  File: /source/single-pkg-refs.lisp
-  Package: "USER-MAIN-PACKAGE"
-  Visibility: LOCAL
-  Definition: /source/single-pkg-defs.lisp>
-

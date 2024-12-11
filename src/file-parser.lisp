@@ -106,31 +106,46 @@
 
 (defmethod analyze-reference-form ((parser file-parser) form &optional log-stream)
   "Analyze form recording references to definitions in different files.
-   Handles both symbol references and string references to packages."
+   Handles references to packages (via string/keyword/uninterned-symbol) and 
+   references to other defined symbols.
+   Package references are only checked in package-related contexts like defpackage,
+   in-package, use-package etc."
   (labels ((handle-reference (subform context parent-context depth)
+             (declare (ignorable subform context parent-context depth))
              (typecase subform
+               ((or string keyword (and symbol (satisfies not-interned-p)))
+                ;; Only process as package ref in package contexts
+                (when (package-context-p context parent-context)
+                  (let* ((norm-name (normalize-designator subform))
+                         (key (make-tracking-key norm-name nil :PACKAGE))
+                         (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                    (dolist (def defs)
+                      (when (not (equal (definition.file def) (file parser)))
+                        (record-reference *current-tracker* subform
+                                        (file parser)
+                                        :package norm-name 
+                                        :context (limit-form-size context norm-name)
+                                        :visibility :LOCAL
+                                        :definition def))))))
                (symbol
-                (unless (or (null subform)            ; Skip NIL
-                            (keywordp subform)          ; Skip keywords
-                            (cl-symbol-p subform))      ; Skip CL package symbols
+                (unless (or (null subform)           ; Skip NIL
+                          (cl-symbol-p subform))     ; Skip CL package symbols
                   (let* ((sym-pkg (symbol-package subform))
-                         (pkg-name (if sym-pkg
-                                     (package-name sym-pkg)
-                                     (current-package-name parser)))
-                         (found-def nil))
-                    ;; Check for unqualified cross-package reference from CL-USER
-                    (multiple-value-bind (visibility anomaly-p)
-                        (check-package-reference subform parser *current-tracker* 
-                                               context parent-context depth)
-                      (declare (ignore anomaly-p))
+                        (pkg-name (if sym-pkg
+                                    (package-name sym-pkg)
+                                    (current-package-name parser)))
+                        (found-def nil))
+                    ;; Check package visibility
+                    (let ((visibility (check-package-reference subform parser *current-tracker*
+                                                               context parent-context)))
                       ;; Try all valid definition types
                       (dolist (try-type +valid-definition-types+)
                         (let* ((key (make-tracking-key subform pkg-name try-type))
-                               (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                              (defs (gethash key (slot-value *current-tracker* 'definitions))))
                           (when defs
-                            (setf found-def t)
                             (dolist (def defs)
                               (unless (equal (definition.file def) (file parser))
+                                (setf found-def t)
                                 (record-reference *current-tracker* subform
                                                 (file parser)
                                                 :package pkg-name
@@ -144,21 +159,8 @@
                                       :WARNING
                                       (file parser)
                                       (format nil "Reference to undefined symbol ~A" subform)
-                                      (limit-form-size context pkg-name))))))
-               (string
-                ;; Check if this string matches a package definition
-                (let* ((norm-name (normalize-designator subform))
-                       (key (make-tracking-key norm-name))
-                       (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                  (dolist (def defs)
-                    (when (and (eq (definition.type def) :PACKAGE)
-                             (not (equal (definition.file def) (file parser))))
-                      (record-reference *current-tracker* subform
-                                      (file parser)
-                                      :package norm-name
-                                      :context (limit-form-size context norm-name)
-                                      :visibility :LOCAL
-                                      :definition def)))))))))
+                                      (limit-form-size context pkg-name))))))))))
+    ;; Walk the form applying handler
     (walk-form form #'handle-reference :log-stream log-stream)))
 
 
