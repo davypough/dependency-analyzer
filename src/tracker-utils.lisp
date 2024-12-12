@@ -67,6 +67,40 @@
       key)))
 
 
+(defun log-definitions (stream)
+  (format stream "Filename: DEFINITIONS.LOG")
+  (format stream "~2%The list of all definitions identified in the ~A project."
+                 (slot-value *current-tracker* 'project-name))
+  (let ((def-ht (slot-value *current-tracker* 'definitions))
+        (defs nil))
+    (maphash (lambda (key val)
+               (declare (ignore key))
+               (setf defs (union val defs :test #'equalp)))
+             def-ht)
+    (dolist (def (sort defs #'string< :key #'definition.name))
+      (format stream "~2%~S" def))))
+
+
+(defun log-references (stream)
+  (format stream "Filename: REFERENCES.LOG")
+  (format stream "~2%The list of all references to definitions in other files for the ~A project."
+                 (slot-value *current-tracker* 'project-name))
+  (let ((def-ht (slot-value *current-tracker* 'definitions))
+        (defs nil))
+    (maphash (lambda (key val)
+               (declare (ignore key))
+               (push (first val) defs))
+             def-ht)
+    (dolist (def (sort defs #'string< :key #'reference.name))
+      (format stream "~2%~S" def))))
+    
+
+(defun log-anomalies (stream)
+  (format stream "Filename: ANOMALIES.LOG")
+  (format stream "~2%The list of all anomalies detected during dependency analysis of the ~A project."
+                 (slot-value *current-tracker* 'project-name)))
+
+
 (defun print-tracker-slot (tracker slot-name stream)
   "Print contents of tracker slot to stream with headers and indentation.
    TRACKER is a dependency-tracker instance

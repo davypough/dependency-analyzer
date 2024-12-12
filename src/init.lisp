@@ -104,10 +104,12 @@
 
 (defun dep ()
   "Fresh reloads the dependency-analyzer system to continue testing."
-  (delete-fasl)
-  (ql:quickload :dependency-analyzer :verbose t)
-  (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
-           "d:/quicklisp/local-projects/test-project/source"))
+  (unwind-protect 
+    (progn (delete-fasl)
+           (ql:quickload :dependency-analyzer :verbose t)
+           (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
+                    "d:/quicklisp/local-projects/test-project/source"))
+    (in-package :dep)))
 
 
 (defgeneric show (object &rest rest)

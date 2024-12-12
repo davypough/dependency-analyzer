@@ -8,21 +8,6 @@
 (in-package #:dep)
 
 
-(defun get-references (&optional (tracker nil tracker-provided-p) symbol)
-  "Get all recorded references to a symbol."
-  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
-         (key (if (symbol-package symbol)
-                 (make-tracking-key symbol (package-name (symbol-package symbol)))
-                 (make-tracking-key symbol))))
-    (gethash key (slot-value actual-tracker 'references))))
-
-
-(defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
-  "Get all definitions in a file."
-  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (gethash file (slot-value actual-tracker 'file-map))))
-
-
 (defun analyze (source-dir)
   "Analyze source files in a directory and its subdirectories in three passes:
    1. Initialize all packages across all files by:

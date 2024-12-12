@@ -28,6 +28,12 @@
     (t (error "Invalid designator for normalization: ~S" designator))))
 
 
+(defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
+  "Get all definitions in a file."
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (gethash file (slot-value actual-tracker 'file-map))))
+
+
 (defun collect-file-references (tracker source-file target-file)
   "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
    Returns a list of reference objects."
@@ -92,9 +98,9 @@
    ref))
 
 
-(defun record-anomaly (tracker type severity location description &optional context)
+(defun record-anomaly (tracker type severity file description &optional context)
  "Record a new anomaly in the dependency tracker"
- (let ((anomaly (make-instance 'anomaly :type type :severity severity :location location 
+ (let ((anomaly (make-instance 'anomaly :type type :severity severity :file file 
                                        :description description :context context)))
    (push anomaly (gethash type (anomalies tracker)))
    anomaly))
@@ -107,14 +113,14 @@
            :test #'string=))
 
 
-(defun record-export (tracker package-name symbol)
-  "Record a symbol as being exported from a package.
-   Both package-name and symbol can be either strings or symbols."
+(defun record-export (tracker package-name name)
+  "Record a name as being exported from a package.
+   Both package-name and name can be either strings or symbols."
   (let ((pkg (find-package (string package-name))))
     (when pkg
-      (let ((exported-sym (etypecase symbol
-                           (string (intern symbol pkg))
-                           (symbol (intern (symbol-name symbol) pkg)))))
+      (let ((exported-sym (etypecase name
+                           (string (intern name pkg))
+                           (symbol (intern (symbol-name name) pkg)))))
         (pushnew exported-sym 
                  (gethash (string package-name) (slot-value tracker 'package-exports))
                  :test #'eq)))))
@@ -133,17 +139,17 @@
   (package-cycles (ensure-tracker tracker)))
 
 
-(defun process-package-import-option (package from-pkg-name pkg-name parser symbol)
-  "Process an :import-from package option for a single symbol.
-   Records dependencies between packages and the imported symbol reference.
+(defun process-package-import-option (package from-pkg-name pkg-name parser name)
+  "Process an :import-from package option for a single name.
+   Records dependencies between packages and the imported name reference.
    
    PACKAGE - The package object being defined
    FROM-PKG-NAME - Package name to import from (string, already normalized)
    PKG-NAME - Name of package being defined (string, already normalized)
    PARSER - Current file parser for context
-   SYMBOL - Symbol to import (can be string, symbol, or uninterned symbol)"
+   name - name to import (can be string, symbol, or uninterned symbol)"
   (let* ((from-pkg (find-package from-pkg-name))
-         (sym-name (normalize-designator symbol))
+         (sym-name (normalize-designator name))
          (from-sym (and from-pkg (find-symbol sym-name from-pkg))))
     (when (and from-pkg from-sym)
       (import from-sym package)
@@ -154,16 +160,16 @@
                        :visibility :IMPORTED))))
 
 
-(defun process-package-export-option (package pkg-name symbol)
-  "Process an :export package option for a single symbol.
-   Records the symbol as being exported from the package.
+(defun process-package-export-option (package pkg-name name)
+  "Process an :export package option for a single name.
+   Records the name as being exported from the package.
    
    PACKAGE - The package object being defined  
    PKG-NAME - Name of package being defined (string, already normalized)
-   SYMBOL - Symbol to export (can be string, symbol, or uninterned symbol)
+   name - name to export (can be string, symbol, or uninterned symbol)
    
-   Returns the exported symbol if successful."
-  (let* ((sym-name (normalize-designator symbol))
+   Returns the exported name if successful."
+  (let* ((sym-name (normalize-designator name))
          (exported-sym (and sym-name 
                            (intern sym-name package))))
     (when exported-sym

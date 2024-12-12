@@ -7,12 +7,6 @@
 (in-package #:dep)
 
 
-;(defconstant +valid-definition-types+ 
-;  '(:STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
-;    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :TYPE :PACKAGE)
-;  "Valid types for dependency definitions. Used for type checking and reference matching.")
-
-
 (alexandria:define-constant +valid-definition-types+ 
   '(:STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
     :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :TYPE :PACKAGE)
@@ -20,87 +14,77 @@
   :documentation "Valid types for dependency definitions. Used for type checking and reference matching.")
 
 
+(defun format-if (stream control indent value)
+  "Print an indented slot NAME and VALUE, only if VALUE is non-nil."
+  (when value
+    (format stream control indent value)))
+
+
 (defclass definition ()
   ((name :initarg :name :reader definition.name :type (or symbol string))
-   (context :initarg :context :reader definition.context)
-   (type :initarg :type :reader definition.type
-         :type (member . #.+valid-definition-types+))
+   (context :initarg :context :reader definition.context :type cons)
+   (type :initarg :type :reader definition.type :type (member . #.+valid-definition-types+))
    (file :initarg :file :reader definition.file :type (or string pathname))
-   (package :initarg :package :reader definition.package
-            :type (or string symbol))
-   (exported-p :initarg :exported-p :reader definition.exported-p
-               :type boolean)
-   (qualifiers :initarg :qualifiers :reader definition.qualifiers 
-               :type list)
-   (specializers :initarg :specializers :reader definition.specializers
-                :type list))
-  (:default-initargs :name nil :type nil :file nil :package nil
-                     :exported-p nil :context nil :qualifiers nil :specializers nil)
-  (:documentation "Data structure holding info about a lisp definition;
-                   eg, defun, defvar, or package"))
+   (package :initarg :package :reader definition.package :type (or string symbol))
+   (exported-p :initarg :exported-p :reader definition.exported-p :type boolean)
+   (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
+   (specializers :initarg :specializers :reader definition.specializers :type list))
+  (:default-initargs :name nil :context nil :type nil :file nil :package nil
+                     :exported-p nil :qualifiers nil :specializers nil)
+  (:documentation "Data structure holding info about a lisp definition; eg, defun, defvar, or package"))
 
 
-(defmethod print-object ((def definition) stream)  
-  (print-unreadable-object (def stream :type t)
-    (format stream "Name: ~S~%  Context: ~S~%  Type: ~S~%  File: ~A~%  Package: ~S~%  Exported: ~A~A~A"
-            (definition.name def) 
-            (definition.context def) 
-            (definition.type def)
-            (project-pathname (definition.file def)) 
-            (definition.package def) 
-            (definition.exported-p def)
-            (if (definition.qualifiers def)
-                (format nil "~%  Qualifiers: ~S" (definition.qualifiers def))
-                "")
-            (if (definition.specializers def)
-                (format nil "~%  Specializers: ~S" (definition.specializers def)) 
-                ""))))
+(defmethod print-object ((object definition) stream)
+  (print-definition object stream 0))
+
+
+(defun print-definition (def &optional (stream *standard-output*) (indent 0))
+  (let ((indent-str (make-string indent :initial-element #\Space)))
+    (format stream "~&~ADEFINITION> Name: ~A~%" indent-str (definition.name def))
+    (format stream    "~A           Context: ~A~%" indent-str (definition.context def))
+    (format stream    "~A           Type: ~S~%" indent-str (definition.type def))
+    (format stream    "~A           File: ~A~%" indent-str (project-pathname (definition.file def)))
+    (format stream    "~A           Package: ~S~%" indent-str (definition.package def))
+    (format stream    "~A           Exported-p: ~S~%" indent-str (definition.exported-p def))
+    (format-if stream "~A           Qualifiers: ~S~%" indent-str (definition.qualifiers def))
+    (format-if stream "~A           Specializers: ~S~%" indent-str (definition.specializers def))))
 
 
 (defclass reference ()
-  ((name :initarg :name :reader reference.name :type symbol)
-   (context :initarg :context :reader reference.context)
+  ((name :initarg :name :reader reference.name :type (or string symbol))
+   (context :initarg :context :reader reference.context :type (or symbol list))
    (file :initarg :file :reader reference.file :type (or string pathname))
-   (package :initarg :package :reader reference.package
-            :type (or string symbol null))
-   (visibility :initarg :visibility :reader reference.visibility
-               :type (member :LOCAL :INHERITED :IMPORTED)) 
-   (definition :initarg :definition :reader reference.definition
-               :type (or null (and standard-object definition))))
-  (:default-initargs :name nil :context nil :file nil :package nil
-                     :visibility nil :definition nil)
-  (:documentation "Data structure holding info about a lisp reference
-                   to a definition"))
+   (package :initarg :package :reader reference.package :type (or string symbol))
+   (visibility :initarg :visibility :reader reference.visibility :type (member :LOCAL :INHERITED :IMPORTED)) 
+   (definition :initarg :definition :reader reference.definition :type (or null (and standard-object definition))))
+  (:default-initargs :name nil :context nil :file nil :package nil :visibility nil :definition nil)
+  (:documentation "Data structure holding info about a lisp reference to a definition"))
 
 
-(defmethod print-object ((ref reference) stream)
-  (print-unreadable-object (ref stream :type t)
-    (format stream "Name: ~S~%  Context: ~S~%  File: ~A~%  Package: ~S~%  Visibility: ~A~%  Definition: ~S"
-            (reference.name ref) (reference.context ref) (project-pathname (reference.file ref))
-            (reference.package ref) (reference.visibility ref)
-            (project-pathname (definition.file (reference.definition ref))))))
+(defmethod print-object ((object reference) stream)
+  (print-reference object stream 0))
+
+
+(defun print-reference (ref &optional (stream *standard-output*) (indent 0))
+  (let ((indent-str (make-string indent :initial-element #\Space)))
+    (format stream "~&~AREFERENCE> Name: ~A~%" indent-str (reference.name ref))
+    (format stream   "~A           Context: ~A~%" indent-str (reference.context ref))
+    (format stream   "~A           File: ~A~%" indent-str (project-pathname (reference.file ref)))
+    (format stream   "~A           Package: ~S~%" indent-str (reference.package ref))
+    (format stream   "~A           Visibility: ~A~%" indent-str (reference.visibility ref))
+    (format stream   "~A           Definition: " indent-str)
+    (print-definition (reference.definition ref) stream (+ indent 28))))
 
 
 (defclass anomaly ()
   ((type :initarg :type :reader anomaly.type :type keyword)
-   (severity :initarg :severity :reader anomaly.severity
-             :type (member :ERROR :WARNING :INFO))
-   (location :initarg :location :reader anomaly.location
-             :type (or string pathname))
-   (description :initarg :description :reader anomaly.description
-                :type string)
-   (context :initarg :context :reader anomaly.context))
-  (:default-initargs :type nil :severity nil :location nil :description nil
+   (severity :initarg :severity :reader anomaly.severity :type (member :ERROR :WARNING :INFO))
+   (file :initarg :file :reader anomaly.location :type (or string pathname))
+   (description :initarg :description :reader anomaly.description :type string)
+   (context :initarg :context :reader anomaly.context :type (or symbol list)))
+  (:default-initargs :type nil :severity nil :file nil :description nil
                      :context nil)
-  (:documentation "Data structure for recording dependency analysis
-                   anomalies"))
-
-
-(defmethod print-object ((anom anomaly) stream)
-  (print-unreadable-object (anom stream :type t)
-    (format stream "Type: ~S~%  Severity: ~A~%  Location: ~A~%  Description: ~A~%  Context: ~S"
-            (anomaly.type anom) (anomaly.severity anom) (project-pathname (anomaly.location anom))
-            (anomaly.description anom) (anomaly.context anom))))
+  (:documentation "Data structure for recording dependency analysis anomalies"))
 
 
 (defclass dependency-tracker ()
@@ -147,10 +131,11 @@
 (defmethod print-object ((tracker dependency-tracker) stream)
   "Print a human-readable representation of the tracker."
   (print-unreadable-object (tracker stream :type t)
-    (format stream "~A: ~D definitions, ~D references, ~D files"
+    (format stream "~A: ~D definitions, ~D references, ~D anomalies, ~D files"
             (project.name tracker)
-            (hash-table-count (slot-value tracker 'definitions))
+            (hash-table-count (slot-value tracker 'definitions))  ;need to collapse to actual definitions
             (hash-table-count (slot-value tracker 'references))
+            (hash-table-count (slot-value tracker 'anomalies))
             (hash-table-count (slot-value tracker 'file-map)))))
 
 
