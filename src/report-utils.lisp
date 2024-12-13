@@ -385,11 +385,11 @@
                      (setf (gethash key refs-seen) t)))))
              (slot-value actual-tracker 'references))
     
-    ;; Then look up the definitions for each referenced name
+    ;; Then look up the definitions for each referenced name  
     (maphash (lambda (key _)
                (declare (ignore _))
-               (let ((def (gethash key (slot-value actual-tracker 'definitions))))
-                 (when def
+               (let ((defs (gethash key (slot-value actual-tracker 'definitions))))
+                 (dolist (def defs)
                    (let ((def-file (definition.file def)))
                      (unless (equal def-file file)
                        (pushnew def-file deps :test #'equal))))))

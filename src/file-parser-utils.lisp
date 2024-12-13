@@ -83,13 +83,14 @@
     def))
 
 
-(defun record-reference (tracker name file &key package context visibility definition)
+(defun record-reference (tracker name file &key package context visibility definitions)
  "Record a name reference in the tracker.
-  VISIBILITY is inherited, imported, or local (defaults to local)"
+  VISIBILITY is inherited, imported, or local (defaults to local)
+  DEFINITIONS is a list of definitions this reference depends on"
  (let* ((key (make-tracking-key name (when (symbol-package name)
-                                       (package-name (symbol-package name)))))
+                                      (package-name (symbol-package name)))))
         (ref (make-instance 'reference :name name :file file :package package :context context 
-                                     :visibility (or visibility :LOCAL) :definition definition)))
+                                    :visibility (or visibility :LOCAL) :definitions definitions)))
    (pushnew ref (gethash key (slot-value tracker 'references))
         :test (lambda (a b)
                 (and (equal (reference.name a) (reference.name b))
@@ -533,3 +534,150 @@
 
 (defun not-interned-p (symbol)
   (not (symbol-package symbol)))
+
+
+(defun find-method-call-definitions (parser form)
+  "Find the generic function and applicable method definitions for a method call form.
+   Returns two values: generic-function definition and list of potentially applicable method definitions.
+   Matches conservatively since exact runtime types cannot be determined.
+   
+   PARSER - Current file parser providing context
+   FORM - The full method call form: (name {qualifier} {args}*)"
+  (let* ((name-and-quals (analyze-call-qualifiers (car form)))
+         (name (car name-and-quals))
+         (qualifiers (cdr name-and-quals))
+         (args (cdr form))
+         (pkg-name (current-package-name parser)))
+    
+    ;; First find generic function definition
+    (let* ((gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
+           (gf-defs (remove-if (lambda (def)
+                                (equal (definition.file def) (file parser)))
+                              (gethash gf-key (slot-value *current-tracker* 'definitions)))))
+      
+      ;; Then find potentially applicable methods
+      (let* ((method-key (make-tracking-key name pkg-name :METHOD))
+             (all-methods (remove-if (lambda (def)
+                                     (equal (definition.file def) (file parser)))
+                                   (gethash method-key (slot-value *current-tracker* 'definitions))))
+             ;; Filter methods by qualifiers and argument count
+             (applicable-methods
+              (remove-if-not 
+               (lambda (method-def)
+                 (and 
+                  ;; Must have same number of required args
+                  (= (length (definition.specializers method-def))
+                     (length args))
+                  ;; If qualified call, must match exactly
+                  (or (null qualifiers)
+                      (equal qualifiers (definition.qualifiers method-def)))))
+               all-methods)))
+        
+        (values (car gf-defs) ; Primary GF definition
+                applicable-methods))))) ; All potentially applicable methods
+
+
+(defun analyze-call-qualifiers (name-form)
+  "Analyze a method call name form to extract name and qualifiers if present.
+   Returns (values name qualifiers).
+   
+   Examples: 
+   foo -> (foo)
+   (call-next-method) -> (call-next-method)  
+   (:before foo) -> (foo :before)"
+  (etypecase name-form
+    (symbol (list name-form))
+    (cons (if (keywordp (car name-form))
+              (list (cadr name-form) (car name-form))
+              (list (car name-form))))))
+
+
+(defun analyze-function-call-context (symbol context parent-context)
+  "Analyze if a symbol appears in a function call context.
+   Returns (values call-p name args) where:
+   - call-p: T if symbol is being called as a function
+   - name: The function name being called
+   - args: List of argument forms
+   
+   Cases handled:
+   - Direct calls: (foo arg1 arg2)
+   - Funcall form: (funcall #'foo arg1 arg2)
+   - Apply form: (apply #'foo args)
+   - Special method forms: (call-next-method)"
+  (declare (ignore parent-context))
+  (when (and context (listp context))
+    (cond
+      ;; Direct function call
+      ((and (eq symbol (car context))
+            (not (quoted-form-p context)))
+       (values t symbol (cdr context)))
+      
+      ;; Funcall/apply with function quote
+      ((and (member (car context) '(funcall apply))
+            (listp (second context))
+            (eq (car (second context)) 'function)
+            (eq (cadr (second context)) symbol))
+       (values t symbol (cddr context)))
+      
+      ;; Funcall/apply with symbol
+      ((and (member (car context) '(funcall apply))
+            (eq (second context) symbol))
+       (values t symbol (cddr context)))
+      
+      ;; Special method forms
+      ((and (member symbol '(call-next-method next-method-p make-method))
+            (eq symbol (car context)))
+       (values t symbol (cdr context)))
+      
+      ;; Not a function call
+      (t (values nil nil nil)))))
+
+
+(defun try-definition-types (subform pkg-name parser context visibility)
+  "Attempts to find definitions for a given symbol in various definition types.
+  Records references or anomalies based on the results."
+  (let ((found-defs nil))
+    ;; Try all valid definition types
+    (dolist (try-type +valid-definition-types+)
+      (let* ((key (make-tracking-key subform pkg-name try-type))
+             (defs (gethash key (slot-value *current-tracker* 'definitions))))
+        ;; Collect definitions from other files
+        (dolist (def defs)
+          (unless (equal (definition.file def) (file parser))
+            (push def found-defs)))))
+    
+    ;; Record the appropriate result
+    (if found-defs
+        ;; Record reference with all found definitions
+        (record-reference *current-tracker*
+                          subform
+                          (file parser)
+                          :package pkg-name
+                          :context (limit-form-size context pkg-name)
+                          :visibility visibility
+                          :definitions found-defs)
+        ;; Record anomaly if no matching definition found
+        (record-anomaly *current-tracker*
+                        :undefined-reference
+                        :WARNING
+                        (file parser)
+                        (format nil "Reference to undefined symbol ~A" subform)
+                        (limit-form-size context pkg-name)))))
+
+
+(defun handle-method-call (subform parser pkg-name context visibility name args)
+  "Handles analysis and recording of method calls."
+  (multiple-value-bind (gf-def method-defs)
+      (find-method-call-definitions parser (cons name args))
+    (if gf-def
+        ;; Method call - record with all definitions
+        (when (or gf-def method-defs)
+          (record-reference *current-tracker*
+                            subform
+                            (file parser)
+                            :package pkg-name
+                            :context (limit-form-size context pkg-name)
+                            :visibility visibility
+                            :definitions (cons gf-def method-defs)))
+        ;; Not a method call - check other definition types
+        (try-definition-types subform pkg-name parser context visibility))))

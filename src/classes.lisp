@@ -30,8 +30,8 @@
    (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
    (specializers :initarg :specializers :reader definition.specializers :type list))
   (:default-initargs :name nil :context nil :type nil :file nil :package nil
-                     :exported-p nil :qualifiers nil :specializers nil)
-  (:documentation "Data structure holding info about a lisp definition; eg, defun, defvar, or package"))
+                    :exported-p nil :qualifiers nil :specializers nil)
+  (:documentation "Data structure holding info about a lisp definition; eg, defun, defvar, or package. For method definitions, specializers slot holds the actual method specializer forms, e.g., (number (eql 42) (satisfies shortstrp))."))
 
 
 (defmethod print-object ((object definition) stream)
@@ -39,15 +39,19 @@
 
 
 (defun print-definition (def &optional (stream *standard-output*) (indent 0))
+  "Print a readable representation of a definition. Shows extended 
+   specializer forms for method definitions."
   (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~ADEFINITION> Name: ~A~%" indent-str (definition.name def))
-    (format stream    "~A           Context: ~A~%" indent-str (definition.context def))
+    (format stream    "~A           Context: ~S~%" indent-str (definition.context def))
     (format stream    "~A           Type: ~S~%" indent-str (definition.type def))
     (format stream    "~A           File: ~A~%" indent-str (project-pathname (definition.file def)))
     (format stream    "~A           Package: ~S~%" indent-str (definition.package def))
     (format stream    "~A           Exported-p: ~S~%" indent-str (definition.exported-p def))
     (format-if stream "~A           Qualifiers: ~S~%" indent-str (definition.qualifiers def))
-    (format-if stream "~A           Specializers: ~S~%" indent-str (definition.specializers def))))
+    (when (and (eq (definition.type def) :METHOD)
+               (definition.specializers def))
+      (format stream  "~A           Specializers: ~S~%" indent-str (definition.specializers def)))))
 
 
 (defclass reference ()
@@ -56,8 +60,9 @@
    (file :initarg :file :reader reference.file :type (or string pathname))
    (package :initarg :package :reader reference.package :type (or string symbol))
    (visibility :initarg :visibility :reader reference.visibility :type (member :LOCAL :INHERITED :IMPORTED)) 
-   (definition :initarg :definition :reader reference.definition :type (or null (and standard-object definition))))
-  (:default-initargs :name nil :context nil :file nil :package nil :visibility nil :definition nil)
+   (definitions :initarg :definitions :reader reference.definitions
+                :type (and list (cons (and standard-object definition) list))))
+  (:default-initargs :name nil :context nil :file nil :package nil :visibility nil :definitions nil)
   (:documentation "Data structure holding info about a lisp reference to a definition"))
 
 
@@ -68,12 +73,16 @@
 (defun print-reference (ref &optional (stream *standard-output*) (indent 0))
   (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~AREFERENCE> Name: ~A~%" indent-str (reference.name ref))
-    (format stream   "~A           Context: ~A~%" indent-str (reference.context ref))
+    (format stream   "~A           Context: ~S~%" indent-str (reference.context ref))
     (format stream   "~A           File: ~A~%" indent-str (project-pathname (reference.file ref)))
     (format stream   "~A           Package: ~S~%" indent-str (reference.package ref))
     (format stream   "~A           Visibility: ~A~%" indent-str (reference.visibility ref))
-    (format stream   "~A           Definition: " indent-str)
-    (print-definition (reference.definition ref) stream (+ indent 28))))
+    (format stream   "~A           Definitions:~%" indent-str)
+    (let ((defs (reference.definitions ref)))
+      (if defs
+          (dolist (def defs)
+            (print-definition def stream (+ indent 28)))
+          (format stream "~A                            None~%" indent-str)))))
 
 
 (defclass anomaly ()

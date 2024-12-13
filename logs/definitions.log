@@ -1,5 +1,6 @@
-DEFINITIONS.LOG
-------------------------------
+Filename: DEFINITIONS.LOG
+
+The list of all definitions identified in the test-project project.
 
 DEFINITION> Name: *DEFPARAMETER-VARIABLE*
            Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
@@ -11,14 +12,6 @@ DEFINITION> Name: *DEFPARAMETER-VARIABLE*
 
 DEFINITION> Name: *DEFPARAMETER-VARIABLE*
            Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-           Type: :VARIABLE
-           File: /source/single-pkg-defs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Exported-p: NIL
-
-
-DEFINITION> Name: *DEFVAR-VARIABLE*
-           Context: (DEFVAR *DEFVAR-VARIABLE* 0)
            Type: :VARIABLE
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
@@ -34,8 +27,16 @@ DEFINITION> Name: *DEFVAR-VARIABLE*
            Exported-p: NIL
 
 
+DEFINITION> Name: *DEFVAR-VARIABLE*
+           Context: (DEFVAR *DEFVAR-VARIABLE* 0)
+           Type: :VARIABLE
+           File: /source/single-pkg-defs.lisp
+           Package: "USER-MAIN-PACKAGE"
+           Exported-p: NIL
+
+
 DEFINITION> Name: +DEFCONSTANT-VARIABLE+
-           Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ aeiou)
+           Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
            Type: :VARIABLE
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
@@ -43,7 +44,7 @@ DEFINITION> Name: +DEFCONSTANT-VARIABLE+
 
 
 DEFINITION> Name: CIRCLE
-           Context: (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+           Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
            Type: :STRUCTURE/CLASS/CONDITION
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
@@ -51,7 +52,7 @@ DEFINITION> Name: CIRCLE
 
 
 DEFINITION> Name: CIRCLE-RADIUS
-           Context: (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+           Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
            Type: :FUNCTION
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
@@ -59,34 +60,24 @@ DEFINITION> Name: CIRCLE-RADIUS
 
 
 DEFINITION> Name: COMPUTE-AREA
-           Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-                      (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
-           Type: :METHOD
-           File: /source/single-pkg-defs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Exported-p: NIL
-           Specializers: ("CIRCLE")
-
-
-DEFINITION> Name: COMPUTE-AREA
-           Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-                      (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
-           Type: :METHOD
-           File: /source/single-pkg-defs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Exported-p: NIL
-           Specializers: ("CIRCLE")
-
-
-DEFINITION> Name: COMPUTE-AREA
            Context: (DEFGENERIC COMPUTE-AREA
                         (SHAPE)
-                      (DOCUMENTATION
-                       Compute the area of different geometric shapes))
+                      (:DOCUMENTATION
+                       "Compute the area of different geometric shapes"))
            Type: :GENERIC-FUNCTION
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
            Exported-p: NIL
+
+
+DEFINITION> Name: COMPUTE-AREA
+           Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+                      (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
+           Type: :METHOD
+           File: /source/single-pkg-defs.lisp
+           Package: "USER-MAIN-PACKAGE"
+           Exported-p: NIL
+           Specializers: (CIRCLE)
 
 
 DEFINITION> Name: CONDITION-NAME
@@ -150,7 +141,8 @@ DEFINITION> Name: MY-FUNCTION
 
 
 DEFINITION> Name: PERSON
-           Context: (DEFSTRUCT (PERSON (CONC-NAME PERSON.)) (AGE 0 TYPE FIXNUM))
+           Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.))
+                      (AGE 0 :TYPE FIXNUM))
            Type: :STRUCTURE/CLASS/CONDITION
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
@@ -158,7 +150,8 @@ DEFINITION> Name: PERSON
 
 
 DEFINITION> Name: PERSON.AGE
-           Context: (DEFSTRUCT (PERSON (CONC-NAME PERSON.)) (AGE 0 TYPE FIXNUM))
+           Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.))
+                      (AGE 0 :TYPE FIXNUM))
            Type: :FUNCTION
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
@@ -171,18 +164,7 @@ DEFINITION> Name: PROCESS-DATA
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
            Exported-p: NIL
-           Specializers: ("NUMBER")
-
-
-DEFINITION> Name: PROCESS-DATA
-           Context: (DEFMETHOD PROCESS-DATA LOGGING ((DATA STRING) &KEY)
-                      (FORMAT NIL LOG: ~A ...))
-           Type: :METHOD
-           File: /source/single-pkg-defs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Exported-p: NIL
-           Qualifiers: (:LOGGING)
-           Specializers: ("STRING")
+           Specializers: (NUMBER)
 
 
 DEFINITION> Name: PROCESS-DATA
@@ -192,47 +174,28 @@ DEFINITION> Name: PROCESS-DATA
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
            Exported-p: NIL
-           Specializers: ("STRING")
-
-
-DEFINITION> Name: PROCESS-DATA
-           Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
-                      (STRING-UPCASE DATA))
-           Type: :METHOD
-           File: /source/single-pkg-defs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Exported-p: NIL
-           Specializers: ("STRING")
-
-
-DEFINITION> Name: PROCESS-DATA
-           Context: (DEFMETHOD PROCESS-DATA LOGGING ((DATA STRING) &KEY)
-                      (FORMAT NIL LOG: ~A ...))
-           Type: :METHOD
-           File: /source/single-pkg-defs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Exported-p: NIL
-           Qualifiers: (:LOGGING)
-           Specializers: ("STRING")
-
-
-DEFINITION> Name: PROCESS-DATA
-           Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-           Type: :METHOD
-           File: /source/single-pkg-defs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Exported-p: NIL
-           Specializers: ("NUMBER")
+           Specializers: (STRING)
 
 
 DEFINITION> Name: PROCESS-DATA
            Context: (DEFGENERIC PROCESS-DATA
                         (DATA &KEY)
-                      (DOCUMENTATION Process data with various methods))
+                      (:DOCUMENTATION "Process data with various methods"))
            Type: :GENERIC-FUNCTION
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
            Exported-p: NIL
+
+
+DEFINITION> Name: PROCESS-DATA
+           Context: (DEFMETHOD PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
+                      (FORMAT NIL "LOG: ~A" ...))
+           Type: :METHOD
+           File: /source/single-pkg-defs.lisp
+           Package: "USER-MAIN-PACKAGE"
+           Exported-p: NIL
+           Qualifiers: (:LOGGING)
+           Specializers: (STRING)
 
 
 DEFINITION> Name: SYMBOL-FUNCTION-NAME
@@ -252,11 +215,9 @@ DEFINITION> Name: SYMBOL-VALUE-VARIABLE
 
 
 DEFINITION> Name: USER-MAIN-PACKAGE
-           Context: (DEFPACKAGE USER-MAIN-PACKAGE
-                      (USE CL))
+           Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
+                      (:USE :CL))
            Type: :PACKAGE
            File: /source/single-pkg-defs.lisp
            Package: "USER-MAIN-PACKAGE"
            Exported-p: T
-
-

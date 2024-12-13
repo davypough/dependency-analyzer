@@ -70,13 +70,13 @@
         ;; Log final definitions, references, anomalies
         (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
-          (print-tracker-slot *current-tracker* 'definitions log-stream))
+          (log-definitions log-stream))
         (with-open-file (log-stream (merge-pathnames "references.log" logs-dir) :direction :output 
                                    :if-exists :supersede :if-does-not-exist :create)
-          (print-tracker-slot *current-tracker* 'references log-stream))
+          (log-references log-stream))
         (with-open-file (log-stream (merge-pathnames "anomalies.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
-          (print-tracker-slot *current-tracker* 'anomalies log-stream))
+          (log-anomalies log-stream))
         (in-package :dep)
         *current-tracker*))))
 

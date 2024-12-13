@@ -107,9 +107,8 @@
 (defmethod analyze-reference-form ((parser file-parser) form &optional log-stream)
   "Analyze form recording references to definitions in different files.
    Handles references to packages (via string/keyword/uninterned-symbol) and 
-   references to other defined symbols.
-   Package references are only checked in package-related contexts like defpackage,
-   in-package, use-package etc."
+   references to other defined symbols. Special handling for method calls to track
+   both generic function and applicable method definitions."
   (labels ((handle-reference (subform context parent-context depth)
              (declare (ignorable subform context parent-context depth))
              (typecase subform
@@ -119,49 +118,37 @@
                   (let* ((norm-name (normalize-designator subform))
                          (key (make-tracking-key norm-name nil :PACKAGE))
                          (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                    (dolist (def defs)
-                      (when (not (equal (definition.file def) (file parser)))
+                    ;; Collect all definitions from other files
+                    (let ((other-file-defs 
+                           (remove-if (lambda (def)  
+                                        (equal (definition.file def) (file parser)))
+                                      defs)))
+                      (when other-file-defs
                         (record-reference *current-tracker*
-                                        subform
-                                        (file parser)
-                                        :package norm-name 
-                                        :context (limit-form-size parent-context norm-name)
-                                        :visibility :LOCAL
-                                        :definition def))))))
+                                          subform
+                                          (file parser)
+                                          :package norm-name 
+                                          :context (limit-form-size parent-context norm-name)
+                                          :visibility :LOCAL
+                                          :definitions other-file-defs))))))
                (symbol
                 (unless (or (null subform)           ; Skip NIL
-                          (cl-symbol-p subform))     ; Skip CL package symbols
+                            (cl-symbol-p subform)) ; Skip CL package symbols
                   (let* ((sym-pkg (symbol-package subform))
-                        (pkg-name (if sym-pkg
-                                    (package-name sym-pkg)
-                                    (current-package-name parser)))
-                        (found-def nil))
-                    ;; Check package visibility
-                    (let ((visibility (check-package-reference subform parser *current-tracker*
-                                                             context parent-context)))
-                      ;; Try all valid definition types
-                      (dolist (try-type +valid-definition-types+)
-                        (let* ((key (make-tracking-key subform pkg-name try-type))
-                              (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                          (when defs
-                            (dolist (def defs)
-                              (unless (equal (definition.file def) (file parser))
-                                (setf found-def t)
-                                (record-reference *current-tracker*
-                                                subform
-                                                (file parser)
-                                                :package pkg-name
-                                                :context (limit-form-size context pkg-name)
-                                                :visibility visibility
-                                                :definition def))))))
-                      ;; Record anomaly if no matching definition found
-                      (unless found-def
-                        (record-anomaly *current-tracker*
-                                      :undefined-reference
-                                      :WARNING
-                                      (file parser)
-                                      (format nil "Reference to undefined symbol ~A" subform)
-                                      (limit-form-size context pkg-name))))))))))
+                         (pkg-name (if sym-pkg
+                                       (package-name sym-pkg)
+                                       (current-package-name parser)))
+                         (visibility (check-package-reference subform parser *current-tracker*
+                                                               context parent-context)))
+                    
+                    ;; Check if symbol is in function call context
+                    (multiple-value-bind (call-p name args)
+                        (analyze-function-call-context subform context parent-context)
+                      (if call-p
+                          ;; Function call - handle method call
+                          (handle-method-call subform parser pkg-name context visibility name args)
+                          ;; Not a function call - check all definition types
+                          (try-definition-types subform pkg-name parser context visibility)))))))))
     ;; Walk the form applying handler
     (walk-form form #'handle-reference :log-stream log-stream)))
 
@@ -405,7 +392,8 @@
 (defun analyze-defmethod (parser form)
   "Handle defmethod form. Analyzes:
    - Method name, qualifiers, specializers and exportedness.
-   Handles both ordinary methods and setf methods."
+   Handles both ordinary methods and setf methods.
+   Records actual specializer forms for exact method applicability testing."
   (let* ((after-defmethod (cdr form))
          ;; Handle (setf name) form properly 
          (name-and-qualifiers (if (and (consp (car after-defmethod))
@@ -443,15 +431,18 @@
              (pkg-name (current-package-name parser))
              (file (file parser))
              (context (limit-form-size form pkg-name))
-             ;; Extract specializers from lambda-list required params
-             (specializers (mapcar (lambda (param)
-                                   (if (listp param) 
-                                       (string (second param))  
-                                       "T"))                  
-                                 (remove-if (lambda (x) 
-                                            (member x lambda-list-keywords))
-                                          lambda-list))))
-        ;; Record single definition with full info
+             ;; Extract required parameters, excluding lambda list keywords
+             (required-params (remove-if (lambda (x) 
+                                        (member x lambda-list-keywords))
+                                       lambda-list))
+             ;; Extract specializer forms directly
+             (specializers 
+              (mapcar (lambda (param)
+                       (if (listp param)
+                           (second param)  ; Extract specializer form
+                           t))            ; Unspecialized = T
+                     required-params)))
+        ;; Record method definition with actual specializer forms
         (record-definition *current-tracker* name
                           :METHOD
                           file

@@ -82,17 +82,25 @@
 
 
 (defun log-references (stream)
+  "Log all references to external definitions to the specified stream.
+   Groups references by source and prints in sorted order."
   (format stream "Filename: REFERENCES.LOG")
   (format stream "~2%The list of all references to definitions in other files for the ~A project."
                  (slot-value *current-tracker* 'project-name))
-  (let ((def-ht (slot-value *current-tracker* 'definitions))
-        (defs nil))
-    (maphash (lambda (key val)
+  (let ((ref-ht (slot-value *current-tracker* 'references))
+        (refs nil))
+    ;; Collect all references
+    (maphash (lambda (key ref-list)
                (declare (ignore key))
-               (push (first val) defs))
-             def-ht)
-    (dolist (def (sort defs #'string< :key #'reference.name))
-      (format stream "~2%~S" def))))
+               (setf refs (union ref-list refs :test #'equalp)))
+             ref-ht)
+    ;; Sort and print each reference
+    (dolist (ref (sort refs #'string< 
+                       :key (lambda (r) 
+                             (format nil "~A:~A"
+                                     (reference.file r)
+                                     (reference.name r)))))
+      (format stream "~2%~S" ref))))
     
 
 (defun log-anomalies (stream)
