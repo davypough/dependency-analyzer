@@ -14,10 +14,17 @@
   :documentation "Valid types for dependency definitions. Used for type checking and reference matching.")
 
 
-(defun format-if (stream control indent value)
-  "Print an indented slot NAME and VALUE, only if VALUE is non-nil."
-  (when value
+#+ignore (defun format-if (stream control indent value)
+  "Print an indented slot NAME and VALUE, only if VALUE is non-nil and non-empty-string."
+  (when (and value (not (and (stringp value) (string= value ""))))
     (format stream control indent value)))
+
+
+(defun format-if (stream control indent value)
+  "Print an indented slot name and value only if VALUE is non-nil."
+  (when value
+    (format stream "~&~A" indent)
+    (format stream control value)))
 
 
 (defclass definition ()
@@ -37,30 +44,33 @@
 (defmethod print-object ((object definition) stream)
   (print-unreadable-object (object stream :type t)
     (with-slots (name context type file package exported-p qualifiers specializers) object
-      (format-if stream " :Name ~S" "" name)
-      (format-if stream " :Context ~S" "" context)  
-      (format-if stream " :Type ~S" "" type)
-      (format-if stream " :File ~S" "" (and file (project-pathname file)))
-      (format-if stream " :Package ~S" "" package)
-      (format-if stream " :Exported-p ~S" "" exported-p)
-      (format-if stream " :Qualifiers ~S" "" qualifiers)
-      (format-if stream " :Specializers ~S" "" specializers))))
+      (format-if stream " :Name ~S"       " " name)
+      (format-if stream " :Context ~S"    " " context)  
+      (format-if stream " :Type ~S"       " " type)
+      (format-if stream " :File ~S"       " " (and file (project-pathname file)))
+      (format-if stream " :Package ~S"    " " package)
+      (format-if stream " :Exported-p ~S" " " exported-p)
+      (format-if stream " :Qualifiers ~S" " " qualifiers)
+      (format-if stream " :Specializers ~S" " " specializers))))
 
 
 (defun print-definition (def &optional (stream *standard-output*) (indent 0))
-  "Print a readable representation of a definition. Shows extended 
-   specializer forms for method definitions."
+  "Print a readable representation of a definition. Similar to print-object,
+   but typically used for logging to a file. Omit null slots."
   (let ((indent-str (make-string indent :initial-element #\Space)))
-    (format stream "~&~ADEFINITION> Name: ~S~%" indent-str (definition.name def))
-    (format stream    "~A           Context: ~S~%" indent-str (definition.context def))
-    (format stream    "~A           Type: ~S~%" indent-str (definition.type def))
-    (format stream    "~A           File: ~A~%" indent-str (project-pathname (definition.file def)))
-    (format stream    "~A           Package: ~S~%" indent-str (definition.package def))
-    (format stream    "~A           Exported-p: ~S~%" indent-str (definition.exported-p def))
-    (format-if stream "~A           Qualifiers: ~S~%" indent-str (definition.qualifiers def))
-    (when (and (eq (definition.type def) :METHOD)
-               (definition.specializers def))
-      (format stream  "~A           Specializers: ~S~%" indent-str (definition.specializers def)))
+    (format stream "~&~ADEFINITION>" indent-str)
+    (format-if stream " :Name ~S" indent-str (definition.name def))
+    (format-if stream " :Context ~S" indent-str (definition.context def))
+    (format-if stream " :Type ~S" indent-str (definition.type def))
+    (format-if stream " :File ~S" indent-str (and (definition.file def)
+                                                  (project-pathname (definition.file def))))
+    (format-if stream " :Package ~S" indent-str (definition.package def))
+    (format-if stream " :Exported-p ~S" indent-str (definition.exported-p def))
+    (format-if stream " :Qualifiers ~S" indent-str (definition.qualifiers def))
+    ;; Only print specializers if the definition is a method and they exist
+    (format-if stream " :Specializers ~S" indent-str
+               (and (eq (definition.type def) :METHOD)
+                    (definition.specializers def)))
     (format stream "~%")))
 
 
@@ -81,38 +91,54 @@
 
 
 (defmethod print-object ((object reference) stream)
+  "Print a reference object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
     (with-slots (name context file package visibility definitions qualifiers arguments specializers) object
-      (format-if stream " :Name ~S" "" name)
+      (format-if stream " :Name ~A" "" name)
       (format-if stream " :Context ~S" "" context)
-      (format-if stream " :File ~S" "" (and file (project-pathname file)))
+      (format-if stream " :File ~A" "" (and file (project-pathname file)))
       (format-if stream " :Package ~S" "" package)
-      (format-if stream " :Visibility ~S" "" visibility)
+      (format-if stream " :Visibility ~A" "" visibility)
       (format-if stream " :Qualifiers ~S" "" qualifiers)
       (format-if stream " :Arguments ~S" "" arguments)
       (format-if stream " :Specializers ~S" "" specializers)
-      (format-if stream " :Definitions ~S" "" definitions))))
+      ;; Print definitions as a unit.
+      (if definitions
+          (progn
+            ;; Print the :Definitions header line
+            (format-if stream " :Definitions~A" "" "")
+            ;; Now print each definition with extra indentation
+            (dolist (def definitions)
+              (print-definition def stream 2)))
+          ;; No definitions available
+          (format-if stream " :Definitions ~A" "" "None")))))
 
 
 (defun print-reference (ref &optional (stream *standard-output*) (indent 0))
-  (let ((indent-str (make-string indent :initial-element #\Space)))
-    (format stream "~&~AREFERENCE> Name: ~A~%" indent-str (reference.name ref))
-    (format stream   "~A           Context: ~S~%" indent-str (reference.context ref))
-    (format stream   "~A           File: ~A~%" indent-str (project-pathname (reference.file ref)))
-    (format stream   "~A           Package: ~S~%" indent-str (reference.package ref))
-    (format stream   "~A           Visibility: ~A~%" indent-str (reference.visibility ref))
-    (when (reference.qualifiers ref)
-      (format stream "~A           Qualifiers: ~S~%" indent-str (reference.qualifiers ref)))
-    (when (reference.arguments ref)
-      (format stream "~A           Arguments: ~S~%" indent-str (reference.arguments ref)))
-    (when (reference.specializers ref)
-      (format stream "~A           Specializers: ~S~%" indent-str (reference.specializers ref)))
-    (format stream   "~A           Definitions:~%" indent-str)
-    (let ((defs (reference.definitions ref)))
-      (if defs
+  "Print a readable representation of a reference, omitting null slots.
+Definitions are printed as a unit, indented beneath the :Definitions header."
+  (let ((indent-str (make-string indent :initial-element #\Space))
+        (defs (reference.definitions ref)))
+    (format stream "~&~AREFERENCE>" indent-str)
+    ;; Print each non-nil slot using format-if
+    (format-if stream " :Name ~A" indent-str (reference.name ref))
+    (format-if stream " :Context ~S" indent-str (reference.context ref))
+    (format-if stream " :File ~A" indent-str (and (reference.file ref)
+                                                  (project-pathname (reference.file ref))))
+    (format-if stream " :Package ~S" indent-str (reference.package ref))
+    (format-if stream " :Visibility ~A" indent-str (reference.visibility ref))
+    (format-if stream " :Qualifiers ~S" indent-str (reference.qualifiers ref))
+    (format-if stream " :Arguments ~S" indent-str (reference.arguments ref))
+    (format-if stream " :Specializers ~S" indent-str (reference.specializers ref))
+    ;; Print definitions as a unit
+    (if defs
+        (progn
+          ;; Print :Definitions header line
+          (format-if stream " :Definitions~A" indent-str "")
           (dolist (def defs)
-            (print-definition def stream (+ indent 28)))
-          (format stream "~A                            None~%" indent-str)))))
+            (print-definition def stream (+ indent 2))))
+      ;; If no definitions, print a single line with "None"
+      (format-if stream " :Definitions ~A" indent-str "None"))))
 
 
 (defclass anomaly ()
@@ -128,26 +154,31 @@
 
 
 (defmethod print-object ((object anomaly) stream)
+  "Print an anomaly object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
     (with-slots (type severity primary-location description context files) object
       (format-if stream " :Type ~S" "" type)
-      (format-if stream " :Context ~S" "" context)
       (format-if stream " :Severity ~S" "" severity)
-      (format-if stream " :Location ~S" "" (and primary-location (project-pathname primary-location)))
-      (format-if stream " :Files ~S" "" (mapcar #'project-pathname files))
-      (format-if stream " :Description ~S" "" description))))
+      (format-if stream " :Location ~A" "" (and primary-location (project-pathname primary-location)))
+      (format-if stream " :Files ~{~A~^, ~}" "" (let ((mapped (mapcar #'project-pathname files)))
+                                                   (and mapped (not (null mapped)) mapped)))
+      (format-if stream " :Description ~S" "" description)
+      (format-if stream " :Context ~S" "" context))))
 
 
 (defun print-anomaly (anom &optional (stream *standard-output*) (indent 0))
-  "Print a readable representation of an anomaly record."
+  "Print a readable representation of an anomaly record, skipping null slots."
   (let ((indent-str (make-string indent :initial-element #\Space)))
-    (format stream "~&~AANOMALY> Type: ~S~%" indent-str (anomaly.type anom))
-    (format stream    "~A         Severity: ~S~%" indent-str (anomaly.severity anom))
-    (format stream    "~A         Location: ~A~%" indent-str (project-pathname (anomaly.location anom)))
-    (format stream    "~A         Files: ~{~A~^, ~}~%" 
-            indent-str (mapcar #'project-pathname (anomaly.files anom)))
-    (format stream    "~A         Description: ~A~%" indent-str (anomaly.description anom))
-    (format-if stream "~A         Context: ~S~%" indent-str (anomaly.context anom))
+    (format stream "~&~AANOMALY>" indent-str)
+    (format-if stream " :Type ~S" indent-str (anomaly.type anom))
+    (format-if stream " :Severity ~S" indent-str (anomaly.severity anom))
+    (format-if stream " :Location ~A" indent-str (and (anomaly.location anom)
+                                                      (project-pathname (anomaly.location anom))))
+    (format-if stream " :Files ~{~A~^, ~}" indent-str (let ((mapped (mapcar #'project-pathname (anomaly.files anom))))
+                                                        (and mapped (not (null mapped)) mapped)))
+    (format-if stream " :Description ~A" indent-str (anomaly.description anom))
+    (format-if stream " :Context ~S" indent-str (anomaly.context anom))
+    ;; Optional: a blank line after printing
     (format stream "~2%")))
 
 

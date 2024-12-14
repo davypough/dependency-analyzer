@@ -60,8 +60,11 @@
    stores it under both a base key (name+package+type) and, if qualifiers/specializers 
    are present, a specialized key that includes method details. Detects and records
    duplicate definitions of the same symbol."
-  (let* ((def (make-instance 'definition 
-                            :name name 
+  (let* ((def-name (if (eq type :PACKAGE)
+                       (normalize-designator name)
+                       name))
+         (def (make-instance 'definition 
+                            :name def-name
                             :type type 
                             :file file
                             :package package 
