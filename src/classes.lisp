@@ -35,14 +35,23 @@
 
 
 (defmethod print-object ((object definition) stream)
-  (print-definition object stream 0))
+  (print-unreadable-object (object stream :type t)
+    (with-slots (name context type file package exported-p qualifiers specializers) object
+      (format-if stream " :Name ~S" "" name)
+      (format-if stream " :Context ~S" "" context)  
+      (format-if stream " :Type ~S" "" type)
+      (format-if stream " :File ~S" "" (and file (project-pathname file)))
+      (format-if stream " :Package ~S" "" package)
+      (format-if stream " :Exported-p ~S" "" exported-p)
+      (format-if stream " :Qualifiers ~S" "" qualifiers)
+      (format-if stream " :Specializers ~S" "" specializers))))
 
 
 (defun print-definition (def &optional (stream *standard-output*) (indent 0))
   "Print a readable representation of a definition. Shows extended 
    specializer forms for method definitions."
   (let ((indent-str (make-string indent :initial-element #\Space)))
-    (format stream "~&~ADEFINITION> Name: ~A~%" indent-str (definition.name def))
+    (format stream "~&~ADEFINITION> Name: ~S~%" indent-str (definition.name def))
     (format stream    "~A           Context: ~S~%" indent-str (definition.context def))
     (format stream    "~A           Type: ~S~%" indent-str (definition.type def))
     (format stream    "~A           File: ~A~%" indent-str (project-pathname (definition.file def)))
@@ -51,7 +60,8 @@
     (format-if stream "~A           Qualifiers: ~S~%" indent-str (definition.qualifiers def))
     (when (and (eq (definition.type def) :METHOD)
                (definition.specializers def))
-      (format stream  "~A           Specializers: ~S~%" indent-str (definition.specializers def)))))
+      (format stream  "~A           Specializers: ~S~%" indent-str (definition.specializers def)))
+    (format stream "~%")))
 
 
 (defclass reference ()
@@ -71,7 +81,17 @@
 
 
 (defmethod print-object ((object reference) stream)
-  (print-reference object stream 0))
+  (print-unreadable-object (object stream :type t)
+    (with-slots (name context file package visibility definitions qualifiers arguments specializers) object
+      (format-if stream " :Name ~S" "" name)
+      (format-if stream " :Context ~S" "" context)
+      (format-if stream " :File ~S" "" (and file (project-pathname file)))
+      (format-if stream " :Package ~S" "" package)
+      (format-if stream " :Visibility ~S" "" visibility)
+      (format-if stream " :Qualifiers ~S" "" qualifiers)
+      (format-if stream " :Arguments ~S" "" arguments)
+      (format-if stream " :Specializers ~S" "" specializers)
+      (format-if stream " :Definitions ~S" "" definitions))))
 
 
 (defun print-reference (ref &optional (stream *standard-output*) (indent 0))
@@ -98,12 +118,37 @@
 (defclass anomaly ()
   ((type :initarg :type :reader anomaly.type :type keyword)
    (severity :initarg :severity :reader anomaly.severity :type (member :ERROR :WARNING :INFO))
-   (file :initarg :file :reader anomaly.location :type (or string pathname))
+   (primary-location :initarg :file :reader anomaly.location :type (or string pathname))
    (description :initarg :description :reader anomaly.description :type string)
-   (context :initarg :context :reader anomaly.context :type (or symbol list)))
+   (context :initarg :context :reader anomaly.context :type (or symbol list))
+   (files :initarg :files :reader anomaly.files :type list))
   (:default-initargs :type nil :severity nil :file nil :description nil
-                     :context nil)
-  (:documentation "Data structure for recording dependency analysis anomalies"))
+                     :context nil :files nil)
+  (:documentation "Data structure for recording dependency analysis anomalies."))
+
+
+(defmethod print-object ((object anomaly) stream)
+  (print-unreadable-object (object stream :type t)
+    (with-slots (type severity primary-location description context files) object
+      (format-if stream " :Type ~S" "" type)
+      (format-if stream " :Context ~S" "" context)
+      (format-if stream " :Severity ~S" "" severity)
+      (format-if stream " :Location ~S" "" (and primary-location (project-pathname primary-location)))
+      (format-if stream " :Files ~S" "" (mapcar #'project-pathname files))
+      (format-if stream " :Description ~S" "" description))))
+
+
+(defun print-anomaly (anom &optional (stream *standard-output*) (indent 0))
+  "Print a readable representation of an anomaly record."
+  (let ((indent-str (make-string indent :initial-element #\Space)))
+    (format stream "~&~AANOMALY> Type: ~S~%" indent-str (anomaly.type anom))
+    (format stream    "~A         Severity: ~S~%" indent-str (anomaly.severity anom))
+    (format stream    "~A         Location: ~A~%" indent-str (project-pathname (anomaly.location anom)))
+    (format stream    "~A         Files: ~{~A~^, ~}~%" 
+            indent-str (mapcar #'project-pathname (anomaly.files anom)))
+    (format stream    "~A         Description: ~A~%" indent-str (anomaly.description anom))
+    (format-if stream "~A         Context: ~S~%" indent-str (anomaly.context anom))
+    (format stream "~2%")))
 
 
 (defclass dependency-tracker ()

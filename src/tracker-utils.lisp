@@ -69,7 +69,7 @@
 
 (defun log-definitions (stream)
   (format stream "Filename: DEFINITIONS.LOG")
-  (format stream "~2%The list of all definitions identified in the ~A project."
+  (format stream "~2%The list of all definitions identified in the ~A project.~2%"
                  (slot-value *current-tracker* 'project-name))
   (let ((def-ht (slot-value *current-tracker* 'definitions))
         (defs nil))
@@ -78,14 +78,14 @@
                (setf defs (union val defs :test #'equalp)))
              def-ht)
     (dolist (def (sort defs #'string< :key #'definition.name))
-      (format stream "~2%~S" def))))
+      (print-definition def stream))))
 
 
 (defun log-references (stream)
   "Log all references to external definitions to the specified stream.
    Groups references by source and prints in sorted order."
   (format stream "Filename: REFERENCES.LOG")
-  (format stream "~2%The list of all references to definitions in other files for the ~A project."
+  (format stream "~2%The list of all references to definitions in other files for the ~A project.~2%"
                  (slot-value *current-tracker* 'project-name))
   (let ((ref-ht (slot-value *current-tracker* 'references))
         (refs nil))
@@ -100,13 +100,29 @@
                              (format nil "~A:~A"
                                      (reference.file r)
                                      (reference.name r)))))
-      (format stream "~2%~S" ref))))
+      (print-reference ref stream))))
     
 
 (defun log-anomalies (stream)
+  "Log all anomalies grouped by type to the specified stream."
   (format stream "Filename: ANOMALIES.LOG")
-  (format stream "~2%The list of all anomalies detected during dependency analysis of the ~A project."
-                 (slot-value *current-tracker* 'project-name)))
+  (format stream "~2%The list of all anomalies detected during dependency analysis of the ~A project.~2%"
+                 (slot-value *current-tracker* 'project-name))
+  (let ((anomaly-types nil))
+    ;; Collect all anomaly types
+    (maphash (lambda (type anomaly-list)
+               (declare (ignore anomaly-list))
+               (push type anomaly-types))
+             (anomalies *current-tracker*))
+    ;; Process each type in sorted order
+    (dolist (type (sort anomaly-types #'string< :key #'symbol-name))
+      (let ((anomalies-of-type (gethash type (anomalies *current-tracker*))))
+        (when anomalies-of-type
+          (format stream "~&~A Anomalies:" (string-upcase (symbol-name type)))
+          (dolist (anomaly (sort anomalies-of-type #'string< 
+                                :key #'anomaly.description))
+            (print-anomaly anomaly stream 2))
+          (terpri stream))))))
 
 
 (defun print-tracker-slot (tracker slot-name stream)

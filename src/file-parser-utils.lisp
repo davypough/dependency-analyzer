@@ -58,7 +58,8 @@
 (defun record-definition (tracker name type file &key package exported-p context qualifiers specializers)
   "Record a name definition in the tracker. Creates a single definition object and 
    stores it under both a base key (name+package+type) and, if qualifiers/specializers 
-   are present, a specialized key that includes method details."
+   are present, a specialized key that includes method details. Detects and records
+   duplicate definitions of the same symbol."
   (let* ((def (make-instance 'definition 
                             :name name 
                             :type type 
@@ -70,7 +71,30 @@
                             :specializers specializers))
          (base-key (make-tracking-key name package type))
          (specialized-key (when (or qualifiers specializers)
-                          (make-tracking-key name package type qualifiers specializers))))
+                          (make-tracking-key name package type qualifiers specializers)))
+         (existing-defs (gethash base-key (slot-value tracker 'definitions)))
+         (matching-defs 
+          (if specialized-key
+              ;; For methods, match on exact qualifiers/specializers
+              (remove-if-not (lambda (d)
+                              (and (equal (definition.qualifiers d) qualifiers)
+                                   (equal (definition.specializers d) specializers)))
+                            existing-defs)
+              ;; For non-methods, all existing defs match
+              existing-defs)))
+    
+    ;; Check for duplicates and record anomaly if found
+    (when matching-defs
+      (let ((def-files (mapcar #'definition.file matching-defs)))
+        (record-anomaly tracker 
+                       :duplicate-definition
+                       :WARNING
+                       file
+                       (format nil "~A ~A defined multiple times"
+                             type name)
+                       (definition.context def)
+                       (cons file def-files))))
+    
     ;; Store under base key for reference lookup
     (push def (gethash base-key (slot-value tracker 'definitions)))
     ;; Store under specialized key if we have one
@@ -106,12 +130,21 @@
    ref))
 
 
-(defun record-anomaly (tracker type severity file description &optional context)
- "Record a new anomaly in the dependency tracker"
- (let ((anomaly (make-instance 'anomaly :type type :severity severity :file file 
-                                       :description description :context context)))
-   (push anomaly (gethash type (anomalies tracker)))
-   anomaly))
+(defun record-anomaly (tracker type severity file description &optional context files)
+  "Record a new anomaly in the dependency tracker.
+   For :duplicate-definition type, files must be provided as list of all definition locations."
+  (when (and (eq type :duplicate-definition)
+             (not files))
+    (error "Files parameter required for duplicate definition anomalies"))
+  (let ((anomaly (make-instance 'anomaly 
+                               :type type 
+                               :severity severity 
+                               :file file
+                               :description description 
+                               :context context
+                               :files (or files (list file)))))
+    (push anomaly (gethash type (anomalies tracker)))
+    anomaly))
 
 
 (defun record-package-use (tracker using-package used-package)

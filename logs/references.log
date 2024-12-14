@@ -16,6 +16,7 @@ REFERENCE> Name: *DEFPARAMETER-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
+
                             DEFINITION> Name: *DEFPARAMETER-VARIABLE*
                                        Context: (DEFPARAMETER
                                                     *DEFPARAMETER-VARIABLE*
@@ -24,7 +25,6 @@ REFERENCE> Name: *DEFPARAMETER-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
 
 REFERENCE> Name: *DEFVAR-VARIABLE*
            Context: NIL
@@ -38,6 +38,7 @@ REFERENCE> Name: *DEFVAR-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
+
                             DEFINITION> Name: *DEFVAR-VARIABLE*
                                        Context: (DEFVAR *DEFVAR-VARIABLE*
                                                   (DEFPARAMETER
@@ -47,7 +48,6 @@ REFERENCE> Name: *DEFVAR-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
 
 REFERENCE> Name: *DEFVAR-VARIABLE*
            Context: (*DEFVAR-VARIABLE* ARG)
@@ -61,6 +61,7 @@ REFERENCE> Name: *DEFVAR-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
+
                             DEFINITION> Name: *DEFVAR-VARIABLE*
                                        Context: (DEFVAR *DEFVAR-VARIABLE*
                                                   (DEFPARAMETER
@@ -70,7 +71,6 @@ REFERENCE> Name: *DEFVAR-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
 
 REFERENCE> Name: *DEFVAR-VARIABLE*
            Context: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
@@ -84,6 +84,7 @@ REFERENCE> Name: *DEFVAR-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
+
                             DEFINITION> Name: *DEFVAR-VARIABLE*
                                        Context: (DEFVAR *DEFVAR-VARIABLE*
                                                   (DEFPARAMETER
@@ -93,7 +94,6 @@ REFERENCE> Name: *DEFVAR-VARIABLE*
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
 
 REFERENCE> Name: +DEFCONSTANT-VARIABLE+
            Context: NIL
@@ -110,7 +110,6 @@ REFERENCE> Name: +DEFCONSTANT-VARIABLE+
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
-
 REFERENCE> Name: CIRCLE-RADIUS
            Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
            File: /source/single-pkg-refs.lisp
@@ -124,7 +123,6 @@ REFERENCE> Name: CIRCLE-RADIUS
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
 
 REFERENCE> Name: COMPUTE-AREA
            Context: (COMPUTE-AREA (MAKE-CIRCLE))
@@ -143,6 +141,7 @@ REFERENCE> Name: COMPUTE-AREA
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
+
                             DEFINITION> Name: COMPUTE-AREA
                                        Context: (DEFMETHOD COMPUTE-AREA
                                                            ((SHAPE CIRCLE))
@@ -155,7 +154,6 @@ REFERENCE> Name: COMPUTE-AREA
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
                                        Specializers: (CIRCLE)
-
 
 REFERENCE> Name: COMPUTE-AREA
            Context: (COMPUTE-AREA)
@@ -173,7 +171,6 @@ REFERENCE> Name: COMPUTE-AREA
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
-
 REFERENCE> Name: CONDITION-NAME
            Context: (CONDITION-NAME)
            File: /source/single-pkg-refs.lisp
@@ -189,7 +186,6 @@ REFERENCE> Name: CONDITION-NAME
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
-
 REFERENCE> Name: DEFMACRO-NAME
            Context: (DEFMACRO-NAME)
            File: /source/single-pkg-refs.lisp
@@ -203,6 +199,18 @@ REFERENCE> Name: DEFMACRO-NAME
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
+REFERENCE> Name: DEFUN-NAME
+           Context: (DEFUN-NAME)
+           File: /source/single-pkg-refs.lisp
+           Package: "USER-MAIN-PACKAGE"
+           Visibility: LOCAL
+           Definitions:
+                            DEFINITION> Name: DEFUN-NAME
+                                       Context: (DEFUN DEFUN-NAME () 0)
+                                       Type: :FUNCTION
+                                       File: /source/single-pkg-defs.lisp
+                                       Package: "USER-MAIN-PACKAGE"
+                                       Exported-p: NIL
 
 REFERENCE> Name: DEFUN-NAME
            Context: (DEFUN-NAME)
@@ -217,7 +225,6 @@ REFERENCE> Name: DEFUN-NAME
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
-
 REFERENCE> Name: DEFUN-NAME
            Context: (DEFUN-NAME)
            File: /source/single-pkg-refs.lisp
@@ -230,21 +237,6 @@ REFERENCE> Name: DEFUN-NAME
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
-
-REFERENCE> Name: DEFUN-NAME
-           Context: (DEFUN-NAME)
-           File: /source/single-pkg-refs.lisp
-           Package: "USER-MAIN-PACKAGE"
-           Visibility: LOCAL
-           Definitions:
-                            DEFINITION> Name: DEFUN-NAME
-                                       Context: (DEFUN DEFUN-NAME () 0)
-                                       Type: :FUNCTION
-                                       File: /source/single-pkg-defs.lisp
-                                       Package: "USER-MAIN-PACKAGE"
-                                       Exported-p: NIL
-
 
 REFERENCE> Name: FDEFINITION-FUNCTION-NAME
            Context: (FDEFINITION-FUNCTION-NAME)
@@ -260,7 +252,6 @@ REFERENCE> Name: FDEFINITION-FUNCTION-NAME
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
 
 REFERENCE> Name: MACRO-FUNCTION-NAME
            Context: (MACRO-FUNCTION-NAME)
@@ -281,7 +272,6 @@ REFERENCE> Name: MACRO-FUNCTION-NAME
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
-
 REFERENCE> Name: PERSON.AGE
            Context: (PERSON.AGE (MAKE-PERSON))
            File: /source/single-pkg-refs.lisp
@@ -297,7 +287,6 @@ REFERENCE> Name: PERSON.AGE
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
-
 
 REFERENCE> Name: PROCESS-DATA
            Context: (PROCESS-DATA "test" :LOGGING)
@@ -316,7 +305,6 @@ REFERENCE> Name: PROCESS-DATA
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
-
 REFERENCE> Name: PROCESS-DATA
            Context: (PROCESS-DATA 42)
            File: /source/single-pkg-refs.lisp
@@ -334,6 +322,7 @@ REFERENCE> Name: PROCESS-DATA
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
+
                             DEFINITION> Name: PROCESS-DATA
                                        Context: (DEFMETHOD PROCESS-DATA
                                                            ((DATA NUMBER) &KEY)
@@ -343,7 +332,6 @@ REFERENCE> Name: PROCESS-DATA
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
                                        Specializers: (NUMBER)
-
 
 REFERENCE> Name: SYMBOL-FUNCTION-NAME
            Context: (SYMBOL-FUNCTION-NAME)
@@ -360,7 +348,6 @@ REFERENCE> Name: SYMBOL-FUNCTION-NAME
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
 
-
 REFERENCE> Name: SYMBOL-VALUE-VARIABLE
            Context: NIL
            File: /source/single-pkg-refs.lisp
@@ -375,3 +362,4 @@ REFERENCE> Name: SYMBOL-VALUE-VARIABLE
                                        File: /source/single-pkg-defs.lisp
                                        Package: "USER-MAIN-PACKAGE"
                                        Exported-p: NIL
+
