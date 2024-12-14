@@ -61,8 +61,12 @@
    (package :initarg :package :reader reference.package :type (or string symbol))
    (visibility :initarg :visibility :reader reference.visibility :type (member :LOCAL :INHERITED :IMPORTED)) 
    (definitions :initarg :definitions :reader reference.definitions
-                :type (and list (cons (and standard-object definition) list))))
-  (:default-initargs :name nil :context nil :file nil :package nil :visibility nil :definitions nil)
+                :type (and list (cons (and standard-object definition) list)))
+   (qualifiers :initarg :qualifiers :initform nil :reader reference.qualifiers :type list)
+   (arguments :initarg :arguments :initform nil :reader reference.arguments :type list)
+   (specializers :initarg :specializers :initform nil :reader reference.specializers :type list))
+  (:default-initargs :name nil :context nil :file nil :package nil :visibility nil
+                     :definitions nil :qualifiers nil :arguments nil :specializers nil)
   (:documentation "Data structure holding info about a lisp reference to a definition"))
 
 
@@ -77,6 +81,12 @@
     (format stream   "~A           File: ~A~%" indent-str (project-pathname (reference.file ref)))
     (format stream   "~A           Package: ~S~%" indent-str (reference.package ref))
     (format stream   "~A           Visibility: ~A~%" indent-str (reference.visibility ref))
+    (when (reference.qualifiers ref)
+      (format stream "~A           Qualifiers: ~S~%" indent-str (reference.qualifiers ref)))
+    (when (reference.arguments ref)
+      (format stream "~A           Arguments: ~S~%" indent-str (reference.arguments ref)))
+    (when (reference.specializers ref)
+      (format stream "~A           Specializers: ~S~%" indent-str (reference.specializers ref)))
     (format stream   "~A           Definitions:~%" indent-str)
     (let ((defs (reference.definitions ref)))
       (if defs

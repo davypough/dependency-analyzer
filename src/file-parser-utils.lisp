@@ -83,19 +83,26 @@
     def))
 
 
-(defun record-reference (tracker name file &key package context visibility definitions)
+(defun record-reference (tracker name file &key package context visibility definitions
+                                              qualifiers arguments specializers)
  "Record a name reference in the tracker.
   VISIBILITY is inherited, imported, or local (defaults to local)
-  DEFINITIONS is a list of definitions this reference depends on"
+  DEFINITIONS is a list of definitions this reference depends on
+  QUALIFIERS, ARGUMENTS, SPECIALIZERS track method call details when applicable"
  (let* ((key (make-tracking-key name (when (symbol-package name)
                                       (package-name (symbol-package name)))))
-        (ref (make-instance 'reference :name name :file file :package package :context context 
-                                    :visibility (or visibility :LOCAL) :definitions definitions)))
+        (ref (make-instance 'reference 
+                          :name name 
+                          :file file 
+                          :package package 
+                          :context context 
+                          :visibility (or visibility :LOCAL)
+                          :definitions definitions
+                          :qualifiers qualifiers
+                          :arguments arguments
+                          :specializers specializers)))
    (pushnew ref (gethash key (slot-value tracker 'references))
-        :test (lambda (a b)
-                (and (equal (reference.name a) (reference.name b))
-                     (equal (reference.file a) (reference.file b))
-                     (equal (reference.package a) (reference.package b)))))
+        :test #'equalp)
    ref))
 
 
@@ -537,59 +544,102 @@
 
 
 (defun find-method-call-definitions (parser form)
-  "Find the generic function and applicable method definitions for a method call form.
-   Returns two values: generic-function definition and list of potentially applicable method definitions.
-   Matches conservatively since exact runtime types cannot be determined.
-   
-   PARSER - Current file parser providing context
-   FORM - The full method call form: (name {qualifier} {args}*)"
+  "Enhanced method definition matching."
   (let* ((name-and-quals (analyze-call-qualifiers (car form)))
          (name (car name-and-quals))
          (qualifiers (cdr name-and-quals))
          (args (cdr form))
          (pkg-name (current-package-name parser)))
     
-    ;; First find generic function definition
     (let* ((gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
            (gf-defs (remove-if (lambda (def)
                                 (equal (definition.file def) (file parser)))
                               (gethash gf-key (slot-value *current-tracker* 'definitions)))))
       
-      ;; Then find potentially applicable methods
       (let* ((method-key (make-tracking-key name pkg-name :METHOD))
              (all-methods (remove-if (lambda (def)
                                      (equal (definition.file def) (file parser)))
                                    (gethash method-key (slot-value *current-tracker* 'definitions))))
-             ;; Filter methods by qualifiers and argument count
              (applicable-methods
               (remove-if-not 
                (lambda (method-def)
-                 (and 
-                  ;; Must have same number of required args
-                  (= (length (definition.specializers method-def))
-                     (length args))
-                  ;; If qualified call, must match exactly
-                  (or (null qualifiers)
-                      (equal qualifiers (definition.qualifiers method-def)))))
+                 (and (= (length (definition.specializers method-def))
+                        (length args))
+                      ;; Enhanced qualifier compatibility
+                      (qualifiers-compatible-p 
+                       (definition.qualifiers method-def)
+                       qualifiers)
+                      ;; Specializer checking as before
+                      (every #'specializer-compatible-p
+                             (definition.specializers method-def)
+                             args)))
                all-methods)))
         
-        (values (car gf-defs) ; Primary GF definition
-                applicable-methods))))) ; All potentially applicable methods
+        (values (car gf-defs) applicable-methods)))))
+
+
+(defun qualifiers-compatible-p (method-qualifiers call-qualifiers)
+  "Test if method qualifiers are compatible with call qualifiers.
+   Handles method combination rules and qualifier ordering."
+  (cond ((null call-qualifiers) t)  ; Unqualified call matches primary
+        ((null method-qualifiers) nil)  ; Qualified call needs matching method
+        ;; Check ordered qualifier matches
+        ((equal method-qualifiers call-qualifiers) t)
+        ;; Special case for :around/:before/:after combinations
+        ((and (member :around call-qualifiers)
+              (member :around method-qualifiers)) t)
+        (t nil)))
 
 
 (defun analyze-call-qualifiers (name-form)
-  "Analyze a method call name form to extract name and qualifiers if present.
-   Returns (values name qualifiers).
-   
-   Examples: 
-   foo -> (foo)
-   (call-next-method) -> (call-next-method)  
-   (:before foo) -> (foo :before)"
+  "Analyze a method call name form to extract name and qualifiers.
+   Handles multiple qualifier lists correctly."
   (etypecase name-form
     (symbol (list name-form))
-    (cons (if (keywordp (car name-form))
-              (list (cadr name-form) (car name-form))
+    (cons (if (every #'keywordp (butlast name-form))
+              (list* (car (last name-form)) (butlast name-form))
               (list (car name-form))))))
+
+
+(defun specializer-compatible-p (specializer arg)
+  "Test if an argument form could be compatible with a method specializer.
+   SPECIALIZER can be symbol, string, or specializer form
+   ARG is the actual form from the method call"
+  (cond
+    ;; T specializer matches anything 
+    ((or (eq specializer t)
+         (eq specializer 'cl:t)
+         (string= (princ-to-string specializer) "T"))
+     t)
+    
+    ;; EQL specializer cases
+    ((and (consp specializer) 
+          (eq (car specializer) 'eql))
+     (equal (cadr specializer) arg))
+    ((and (stringp specializer)
+          (> (length specializer) 5)
+          (string= (subseq specializer 0 5) "(EQL "))
+     (equal (read-from-string specializer) arg))
+    
+    ;; Constructor call for class
+    ((and (consp arg)
+          (symbolp (car arg))
+          (string= (symbol-name (car arg))
+                  (concatenate 'string "MAKE-" 
+                             (princ-to-string specializer))))
+     t)
+    
+    ;; Class/type specializer
+    ((ignore-errors (find-class (if (symbolp specializer)
+                                   specializer
+                                   (read-from-string specializer))
+                               nil))
+     (if (constantp arg)
+         (typep (eval arg) specializer)
+         t))
+    
+    ;; Conservative default
+    (t t)))
 
 
 (defun analyze-function-call-context (symbol context parent-context)
@@ -670,14 +720,23 @@
   (multiple-value-bind (gf-def method-defs)
       (find-method-call-definitions parser (cons name args))
     (if gf-def
-        ;; Method call - record with all definitions
+        ;; Method call - record with all applicable definitions
         (when (or gf-def method-defs)
-          (record-reference *current-tracker*
+          (let* ((name-and-quals (analyze-call-qualifiers name))
+                 (qualifiers (cdr name-and-quals))
+                 (specializers (remove-duplicates 
+                              (alexandria:flatten 
+                               (mapcar #'definition.specializers method-defs))
+                              :test #'equal)))
+            (record-reference *current-tracker*
                             subform
                             (file parser)
                             :package pkg-name
                             :context (limit-form-size context pkg-name)
                             :visibility visibility
-                            :definitions (cons gf-def method-defs)))
+                            :definitions (cons gf-def method-defs)
+                            :qualifiers qualifiers
+                            :arguments args
+                            :specializers specializers)))
         ;; Not a method call - check other definition types
         (try-definition-types subform pkg-name parser context visibility))))
