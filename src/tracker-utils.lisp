@@ -118,10 +118,10 @@
     (dolist (type (sort anomaly-types #'string< :key #'symbol-name))
       (let ((anomalies-of-type (gethash type (anomalies *current-tracker*))))
         (when anomalies-of-type
-          (format stream "~&~A Anomalies:" (string-upcase (symbol-name type)))
+          ;(format stream "~&~A Anomalies:" (string-upcase (symbol-name type)))
           (dolist (anomaly (sort anomalies-of-type #'string< 
                                 :key #'anomaly.description))
-            (print-anomaly anomaly stream 2))
+            (print-anomaly anomaly stream 0))
           (terpri stream))))))
 
 

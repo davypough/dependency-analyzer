@@ -3,168 +3,169 @@ Filename: DEFINITIONS.LOG
 The list of all definitions identified in the test-project project.
 
 DEFINITION>
- :Name *DEFPARAMETER-VARIABLE*
- :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
- :Type :VARIABLE
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name *DEFPARAMETER-VARIABLE*
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name *DEFPARAMETER-VARIABLE*
- :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
- :Type :VARIABLE
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name *DEFPARAMETER-VARIABLE*
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name *DEFVAR-VARIABLE*
- :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
- :Type :VARIABLE
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+    :Type :VARIABLE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name *DEFVAR-VARIABLE*
- :Context (DEFVAR *DEFVAR-VARIABLE* 0)
- :Type :VARIABLE
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name +DEFCONSTANT-VARIABLE+
- :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
- :Type :VARIABLE
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name +DEFCONSTANT-VARIABLE+
+    :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+    :Type :VARIABLE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name CIRCLE
- :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
- :Type :STRUCTURE/CLASS/CONDITION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name CIRCLE
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name CIRCLE-RADIUS
- :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
- :Type :FUNCTION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name CIRCLE-RADIUS
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+    :Type :FUNCTION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name COMPUTE-AREA
- :Context (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
- :Type :GENERIC-FUNCTION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name COMPUTE-AREA
+    :Context (DEFGENERIC COMPUTE-AREA
+                 (SHAPE)
+               (:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
+    :Type :GENERIC-FUNCTION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name COMPUTE-AREA
- :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
- :Type :METHOD
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
- :Specializers (CIRCLE)
+    :Name COMPUTE-AREA
+    :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+               (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Specializers (CIRCLE)
 DEFINITION>
- :Name CONDITION-NAME
- :Context (DEFINE-CONDITION CONDITION-NAME
-              NIL
-              NIL)
- :Type :STRUCTURE/CLASS/CONDITION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name CONDITION-NAME
+    :Context (DEFINE-CONDITION CONDITION-NAME
+                 NIL
+                 NIL)
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name DEFMACRO-NAME
- :Context (DEFMACRO DEFMACRO-NAME () 0)
- :Type :MACRO
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name DEFMACRO-NAME
+    :Context (DEFMACRO DEFMACRO-NAME () 0)
+    :Type :MACRO
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name DEFUN-NAME
- :Context (DEFUN DEFUN-NAME () 0)
- :Type :FUNCTION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name DEFUN-NAME
+    :Context (DEFUN DEFUN-NAME () 0)
+    :Type :FUNCTION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name FDEFINITION-FUNCTION-NAME
- :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
- :Type :FUNCTION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name FDEFINITION-FUNCTION-NAME
+    :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+    :Type :FUNCTION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name FUNCTION-WITH-CONDITION
- :Context (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
- :Type :FUNCTION
- :File "/source/single-pkg-refs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name FUNCTION-WITH-CONDITION
+    :Context (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+    :Type :FUNCTION
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name MACRO-FUNCTION-NAME
- :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0 ...))
- :Type :MACRO
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name MACRO-FUNCTION-NAME
+    :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                     (LAMBDA (FORM ENV) FORM ENV 0 ...))
+    :Type :MACRO
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name MY-FUNCTION
- :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
- :Type :FUNCTION
- :File "/source/single-pkg-refs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name MY-FUNCTION
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :Type :FUNCTION
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name PERSON
- :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
- :Type :STRUCTURE/CLASS/CONDITION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name PERSON
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name PERSON.AGE
- :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
- :Type :FUNCTION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name PERSON.AGE
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+    :Type :FUNCTION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name PROCESS-DATA
- :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
- :Type :METHOD
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
- :Specializers (NUMBER)
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Specializers (NUMBER)
 DEFINITION>
- :Name PROCESS-DATA
- :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
- :Type :METHOD
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
- :Specializers (STRING)
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Specializers (STRING)
 DEFINITION>
- :Name PROCESS-DATA
- :Context (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
- :Type :GENERIC-FUNCTION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name PROCESS-DATA
+    :Context (DEFGENERIC PROCESS-DATA
+                 (DATA &KEY)
+               (:DOCUMENTATION "Process data with various methods"))
+    :Type :GENERIC-FUNCTION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name PROCESS-DATA
- :Context (DEFMETHOD PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
-            (FORMAT NIL "LOG: ~A" ...))
- :Type :METHOD
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
- :Qualifiers (:LOGGING)
- :Specializers (STRING)
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
+               (FORMAT NIL "LOG: ~A" ...))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Qualifiers (:LOGGING)
+    :Specializers (STRING)
 DEFINITION>
- :Name SYMBOL-FUNCTION-NAME
- :Context (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
- :Type :FUNCTION
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name SYMBOL-FUNCTION-NAME
+    :Context (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+    :Type :FUNCTION
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name SYMBOL-VALUE-VARIABLE
- :Context (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
- :Type :VARIABLE
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
+    :Name SYMBOL-VALUE-VARIABLE
+    :Context (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+    :Type :VARIABLE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
 DEFINITION>
- :Name "USER-MAIN-PACKAGE"
- :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
-            (:USE :CL))
- :Type :PACKAGE
- :File "/source/single-pkg-defs.lisp"
- :Package "USER-MAIN-PACKAGE"
- :Exported-p T
+    :Name "USER-MAIN-PACKAGE"
+    :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
+               (:USE :CL))
+    :Type :PACKAGE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Exported-p T

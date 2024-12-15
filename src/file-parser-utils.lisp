@@ -89,14 +89,15 @@
     ;; Check for duplicates and record anomaly if found
     (when matching-defs
       (let ((def-files (mapcar #'definition.file matching-defs)))
-        (record-anomaly tracker 
-                       :duplicate-definition
-                       :WARNING
-                       file
-                       (format nil "~A ~A defined multiple times"
-                             type name)
-                       (definition.context def)
-                       (cons file def-files))))
+        (record-anomaly tracker
+                name  ; The name of the duplicated definition
+                :duplicate-definition
+                :WARNING
+                file
+                (format nil "~A ~A defined multiple times"
+                        type name)
+                (definition.context def)
+                (cons file def-files))))
     
     ;; Store under base key for reference lookup
     (push def (gethash base-key (slot-value tracker 'definitions)))
@@ -133,13 +134,14 @@
    ref))
 
 
-(defun record-anomaly (tracker type severity file description &optional context files)
+(defun record-anomaly (tracker name type severity file description &optional context files)
   "Record a new anomaly in the dependency tracker.
    For :duplicate-definition type, files must be provided as list of all definition locations."
   (when (and (eq type :duplicate-definition)
              (not files))
     (error "Files parameter required for duplicate definition anomalies"))
   (let ((anomaly (make-instance 'anomaly 
+                               :name name
                                :type type 
                                :severity severity 
                                :file file
@@ -241,11 +243,12 @@
         ;; Record as both a cycle and an anomaly
         (record-package-cycle *current-tracker* chain)
         (record-anomaly *current-tracker*
-                       :package-cycle
-                       :ERROR
-                       pkg-name
-                       (format nil "Package dependency cycle detected: ~A" chain)
-                       cycle)))))
+                (first cycle)  ; The first package in the cycle is a good identifier
+                :package-cycle
+                :ERROR
+                pkg-name
+                (format nil "Package dependency cycle detected: ~A" chain)
+                cycle)))))
 
 
 (defmethod analyze-subform ((parser file-parser) form)
@@ -421,11 +424,13 @@
                               (eq symbol (cadr parent-context))))))
         
         (record-anomaly tracker
-                        :missing-in-package
-                        :WARNING
-                        (file parser)
-                        (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                                symbol pkg-name))))
+                symbol  ; The symbol being referenced without package qualifier
+                :missing-in-package 
+                :WARNING
+                (file parser)
+                (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                        symbol pkg-name)
+                (limit-form-size parent-context symbol))))
     
     visibility))
 
@@ -744,11 +749,12 @@
                           :definitions found-defs)
         ;; Record anomaly if no matching definition found
         (record-anomaly *current-tracker*
-                        :undefined-reference
-                        :WARNING
-                        (file parser)
-                        (format nil "Reference to undefined symbol ~A" subform)
-                        (limit-form-size context pkg-name)))))
+                subform  ; The undefined symbol being referenced
+                :undefined-reference
+                :WARNING
+                (file parser)
+                (format nil "Reference to undefined symbol ~A" subform)
+                (limit-form-size context pkg-name)))))
 
 
 (defun handle-method-call (subform parser pkg-name context visibility name args)
