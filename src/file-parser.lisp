@@ -125,8 +125,8 @@
                                       defs)))
                       (when other-file-defs
                         (record-reference *current-tracker*
-                                          subform
-                                          (file parser)
+                                          :name subform
+                                          :file (file parser)
                                           :package norm-name 
                                           :context (limit-form-size parent-context norm-name)
                                           :visibility :LOCAL
@@ -192,9 +192,11 @@
            (context (limit-form-size form pkg-name)))
 
       ;; Record definition before any analysis starts
-      (record-definition *current-tracker* pkg-name
-                        :PACKAGE
-                        file
+      ;; MODIFIED: Updated to use keyword args
+      (record-definition *current-tracker*
+                        :name pkg-name
+                        :type :PACKAGE
+                        :file file
                         :package pkg-name  
                         :exported-p t     
                         :context context)
@@ -272,10 +274,11 @@
                    "")
                   (t (string (second conc-option)))))))
     
-    ;; Record structure definition
-    (record-definition *current-tracker* struct-name
-                      :STRUCTURE/CLASS/CONDITION
-                      file
+    ;; MODIFIED: Updated to use keyword args
+    (record-definition *current-tracker*
+                      :name struct-name
+                      :type :STRUCTURE/CLASS/CONDITION
+                      :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
                                      (find-symbol (symbol-name struct-name) pkg))
@@ -289,9 +292,11 @@
                                           (string slot-name))
                              pkg))
              (accessor-context (limit-form-size form pkg-name)))
-        (record-definition *current-tracker* accessor
-                          :FUNCTION
-                          file
+        ;; MODIFIED: Updated to use keyword args 
+        (record-definition *current-tracker*
+                          :name accessor
+                          :type :FUNCTION
+                          :file file
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
                                          (find-symbol (string accessor) pkg))
@@ -309,12 +314,14 @@
          (file (file parser))
          (name (second form))
          (context (limit-form-size form pkg-name)))
-    (record-definition *current-tracker* name
-                      :VARIABLE
-                      file
+    ;; MODIFIED: Updated to use keyword args
+    (record-definition *current-tracker*
+                      :name name
+                      :type :VARIABLE
+                      :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) pkg))
-                                      :external)
+                                    :external)
                       :context context)))
 
 
@@ -327,16 +334,18 @@
          (pkg-name (current-package-name parser))
          (file (file parser))
          (context (limit-form-size form pkg-name)))
-    (record-definition *current-tracker* name
-                        (if (eq def-op 'defun) 
-                            :FUNCTION 
-                            :MACRO)
-                        file
-                        :package pkg-name
-                        :exported-p (eq (nth-value 1 
-                                       (find-symbol (symbol-name name) pkg))
-                                      :external)
-                        :context context)))
+    ;; MODIFIED: Updated to use keyword args
+    (record-definition *current-tracker*
+                      :name name
+                      :type (if (eq def-op 'defun) 
+                              :FUNCTION 
+                              :MACRO)
+                      :file file
+                      :package pkg-name
+                      :exported-p (eq (nth-value 1 
+                                     (find-symbol (symbol-name name) pkg))
+                                    :external)
+                      :context context)))
 
 
 (defun analyze-defgeneric (parser form)
@@ -351,10 +360,11 @@
            (pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
-      ;; Record the generic function definition
-      (record-definition *current-tracker* name
-                        :GENERIC-FUNCTION
-                        file
+      ;; MODIFIED: Updated to use keyword args
+      (record-definition *current-tracker*
+                        :name name
+                        :type :GENERIC-FUNCTION
+                        :file file
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
                                        (find-symbol (symbol-name name) pkg))
@@ -376,10 +386,11 @@
                                         (remove-if (lambda (x)
                                                    (member x lambda-list-keywords))
                                                  lambda-list))))
-                ;; Record the method definition
-                (record-definition *current-tracker* name
-                                 :METHOD
-                                 file
+                ;; MODIFIED: Updated to use keyword args
+                (record-definition *current-tracker*
+                                 :name name
+                                 :type :METHOD
+                                 :file file
                                  :package pkg-name
                                  :exported-p (eq (nth-value 1
                                                 (find-symbol (symbol-name name) pkg))
@@ -442,10 +453,11 @@
                            (second param)  ; Extract specializer form
                            t))            ; Unspecialized = T
                      required-params)))
-        ;; Record method definition with actual specializer forms
-        (record-definition *current-tracker* name
-                          :METHOD
-                          file
+        ;; MODIFIED: Updated to use keyword args
+        (record-definition *current-tracker*
+                          :name name
+                          :type :METHOD
+                          :file file
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
                                          (find-symbol (string name) pkg))
@@ -466,9 +478,11 @@
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
-     (record-definition *current-tracker* name
-                       :SETF
-                       file
+     ;; MODIFIED: Updated to use keyword args
+     (record-definition *current-tracker*
+                       :name name
+                       :type :SETF
+                       :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
                                       (find-symbol (symbol-name name) pkg))
@@ -489,13 +503,14 @@
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
-     ;; Record class definition
-     (record-definition *current-tracker* name
-                       :STRUCTURE/CLASS/CONDITION
-                       file
+     ;; MODIFIED: Updated to use keyword args
+     (record-definition *current-tracker*
+                       :name name
+                       :type :STRUCTURE/CLASS/CONDITION
+                       :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
+                                      (find-symbol (string name) pkg))
                                      :external)
                        :context context)
      ;; Record accessor/reader/writer methods
@@ -505,35 +520,43 @@
            (loop for (option value) on slot-options by #'cddr
                  do (case option
                       (:reader
-                       (record-definition *current-tracker* value
-                                        :METHOD 
-                                        file
+                       ;; MODIFIED: Updated to use keyword args
+                       (record-definition *current-tracker*
+                                        :name value
+                                        :type :METHOD 
+                                        :file file
                                         :package pkg-name
                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                         :context context
                                         :specializers (list (string name))))
                       (:writer
-                       (record-definition *current-tracker* value
-                                        :METHOD
-                                        file
+                       ;; MODIFIED: Updated to use keyword args
+                       (record-definition *current-tracker*
+                                        :name value
+                                        :type :METHOD
+                                        :file file
                                         :package pkg-name
                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                         :context context
                                         :specializers (list "T" (string name))))
                       (:accessor
                        ;; Record reader method
-                       (record-definition *current-tracker* value
-                                        :METHOD
-                                        file
+                       ;; MODIFIED: Updated to use keyword args
+                       (record-definition *current-tracker*
+                                        :name value
+                                        :type :METHOD
+                                        :file file
                                         :package pkg-name
                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                         :context context
                                         :specializers (list (string name)))
                        ;; Record (setf accessor) writer method
                        (let ((setf-name (list 'setf value)))
-                         (record-definition *current-tracker* setf-name
-                                          :METHOD
-                                          file
+                         ;; MODIFIED: Updated to use keyword args
+                         (record-definition *current-tracker*
+                                          :name setf-name
+                                          :type :METHOD
+                                          :file file
                                           :package pkg-name
                                           :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                           :context context
@@ -548,9 +571,11 @@
         (pkg-name (current-package-name parser))
         (file (file parser))
         (context (limit-form-size form pkg-name)))
-   (record-definition *current-tracker* name
-                     :TYPE 
-                     file
+   ;; MODIFIED: Updated to use keyword args
+   (record-definition *current-tracker*
+                     :name name
+                     :type :TYPE 
+                     :file file
                      :package pkg-name
                      :exported-p (eq (nth-value 1 
                                     (find-symbol (symbol-name name) pkg))
@@ -572,9 +597,11 @@
            (pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
-      (record-definition *current-tracker* name
-                        :STRUCTURE/CLASS/CONDITION
-                        file
+      ;; MODIFIED: Fixed string-name to symbol-name
+      (record-definition *current-tracker*
+                        :name name
+                        :type :STRUCTURE/CLASS/CONDITION
+                        :file file
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
                                        (find-symbol (symbol-name name) pkg))
@@ -586,9 +613,10 @@
           (loop for (option value) on (cdr slot) by #'cddr
                 when (member option '(:reader :writer :accessor))
                 do (let ((func-context (limit-form-size slot pkg-name)))
-                     (record-definition *current-tracker* value
-                                      :FUNCTION
-                                      file
+                     (record-definition *current-tracker*
+                                      :name value
+                                      :type :FUNCTION
+                                      :file file
                                       :package pkg-name
                                       :exported-p (eq (nth-value 1 
                                                     (find-symbol (symbol-name value) pkg))
@@ -604,12 +632,14 @@
          (pkg-name (current-package-name parser))
          (file (file parser))
          (context (limit-form-size form pkg-name)))
-    (record-definition *current-tracker* name
-                      :FUNCTION
-                      file
+    ;; MODIFIED: Updated to use keyword args
+    (record-definition *current-tracker*
+                      :name name
+                      :type :FUNCTION
+                      :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
-                                    (find-symbol (symbol-name name) pkg))
+                                    (find-symbol (string name) pkg))
                                    :external)
                       :context context)))
 
@@ -625,12 +655,14 @@
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
-     (record-definition *current-tracker* name
-                       :MACRO
-                       file
+     ;; MODIFIED: Updated to use keyword args
+     (record-definition *current-tracker*
+                       :name name
+                       :type :MACRO
+                       :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
+                                      (find-symbol (string name) pkg))
                                      :external)
                        :context context)))
 
@@ -643,12 +675,14 @@
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
-     (record-definition *current-tracker* name
-                       :MACRO
-                       file
+     ;; MODIFIED: Updated to use keyword args
+     (record-definition *current-tracker*
+                       :name name
+                       :type :MACRO
+                       :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
+                                      (find-symbol (string name) pkg))
                                      :external)
                        :context context)))
 
@@ -661,9 +695,11 @@
         (pkg-name (current-package-name parser))
         (file (file parser))
         (context (limit-form-size form pkg-name)))
-   (record-definition *current-tracker* name
-                     :SYMBOL-MACRO
-                     file
+   ;; MODIFIED: Fixed to use keyword args consistently
+   (record-definition *current-tracker*
+                     :name name
+                     :type :SYMBOL-MACRO
+                     :file file
                      :package pkg-name
                      :exported-p (eq (nth-value 1 
                                     (find-symbol (symbol-name name) pkg))
@@ -679,9 +715,11 @@
         (pkg-name (current-package-name parser))
         (file (file parser))
         (context (limit-form-size form pkg-name)))
-   (record-definition *current-tracker* name
-                     :VARIABLE
-                     file
+   ;; MODIFIED: Fixed to use keyword args consistently
+   (record-definition *current-tracker*
+                     :name name
+                     :type :VARIABLE
+                     :file file
                      :package pkg-name
                      :exported-p (eq (nth-value 1 
                                     (find-symbol (symbol-name name) pkg))
@@ -697,11 +735,13 @@
          (pkg-name (current-package-name parser))
          (file (file parser))
          (context (limit-form-size form pkg-name)))
-    (record-definition *current-tracker* name
-                      (if (eq accessor 'macro-function)
-                          :MACRO
-                          :FUNCTION)
-                      file
+    ;; MODIFIED: Fixed to use keyword args consistently
+    (record-definition *current-tracker*
+                      :name name
+                      :type (if (eq accessor 'macro-function)
+                               :MACRO
+                               :FUNCTION)
+                      :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
                                      (find-symbol (symbol-name name) pkg))
@@ -717,11 +757,13 @@
            (pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
-      (record-definition *current-tracker* name
-                        :FUNCTION  ; Setf expanders are functions
-                        file
+      ;; MODIFIED: Fixed to use keyword args consistently
+      (record-definition *current-tracker*
+                        :name name
+                        :type :FUNCTION  ; Setf expanders are functions
+                        :file file
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
-                                       (find-symbol (symbol-name name) pkg))
+                                       (find-symbol (string name) pkg))
                                       :external)
                         :context context)))

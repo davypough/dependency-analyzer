@@ -55,7 +55,7 @@
     (sort refs #'string< :key (lambda (r) (symbol-name (reference.name r))))))
 
 
-(defun record-definition (tracker name type file &key package exported-p context qualifiers specializers)
+(defun record-definition (tracker &key name type file package exported-p context qualifiers specializers)
   "Record a name definition in the tracker. Creates a single definition object and 
    stores it under both a base key (name+package+type) and, if qualifiers/specializers 
    are present, a specialized key that includes method details. Detects and records
@@ -90,14 +90,13 @@
     (when matching-defs
       (let ((def-files (mapcar #'definition.file matching-defs)))
         (record-anomaly tracker
-                name  ; The name of the duplicated definition
-                :duplicate-definition
-                :WARNING
-                file
-                (format nil "~A ~A defined multiple times"
-                        type name)
-                (definition.context def)
-                (cons file def-files))))
+                :name name
+                :type :duplicate-definition
+                :severity :WARNING
+                :file file
+                :description (format nil "~A ~A defined multiple times" type name)
+                :context (definition.context def)
+                :files (cons file def-files))))
     
     ;; Store under base key for reference lookup
     (push def (gethash base-key (slot-value tracker 'definitions)))
@@ -111,8 +110,8 @@
     def))
 
 
-(defun record-reference (tracker name file &key package context visibility definitions
-                                              qualifiers arguments specializers)
+(defun record-reference (tracker &key name file package context visibility definitions
+                                     qualifiers arguments specializers)
  "Record a name reference in the tracker.
   VISIBILITY is inherited, imported, or local (defaults to local)
   DEFINITIONS is a list of definitions this reference depends on
@@ -134,7 +133,7 @@
    ref))
 
 
-(defun record-anomaly (tracker name type severity file description &optional context files)
+(defun record-anomaly (tracker &key name type severity file description context files)
   "Record a new anomaly in the dependency tracker.
    For :duplicate-definition type, files must be provided as list of all definition locations."
   (when (and (eq type :duplicate-definition)
@@ -200,10 +199,11 @@
     (when (and from-pkg from-sym)
       (import from-sym package)
       (record-package-use *current-tracker* pkg-name from-pkg-name)
-      (record-reference *current-tracker* from-sym
-                       (file parser)
-                       :package from-pkg-name
-                       :visibility :IMPORTED))))
+      (record-reference *current-tracker*
+                  :name from-sym
+                  :file (file parser)
+                  :package from-pkg-name
+                  :visibility :IMPORTED))))
 
 
 (defun process-package-export-option (package pkg-name name)
@@ -243,12 +243,12 @@
         ;; Record as both a cycle and an anomaly
         (record-package-cycle *current-tracker* chain)
         (record-anomaly *current-tracker*
-                (first cycle)  ; The first package in the cycle is a good identifier
-                :package-cycle
-                :ERROR
-                pkg-name
-                (format nil "Package dependency cycle detected: ~A" chain)
-                cycle)))))
+                :name (first cycle)
+                :type :package-cycle
+                :severity :ERROR
+                :file pkg-name
+                :description (format nil "Package dependency cycle detected: ~A" chain)
+                :context cycle)))))
 
 
 (defmethod analyze-subform ((parser file-parser) form)
@@ -275,10 +275,11 @@
                             (otherwise :LOCAL)))))))
        (when (gethash (make-tracking-key form pkg-name) 
                      (slot-value *current-tracker* 'definitions))
-         (record-reference *current-tracker* form
-                         current-file
-                         :package pkg-name
-                         :visibility visibility))))
+         (record-reference *current-tracker*
+                  :name form
+                  :file current-file
+                  :package pkg-name
+                  :visibility visibility))))
     ;(cons
     ; (analyze-form parser form))
     (array
@@ -423,14 +424,15 @@
                               (eq (car parent-context) 'defpackage)
                               (eq symbol (cadr parent-context))))))
         
+        ;; MODIFIED: Updated to use keyword args
         (record-anomaly tracker
-                symbol  ; The symbol being referenced without package qualifier
-                :missing-in-package 
-                :WARNING
-                (file parser)
-                (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                        symbol pkg-name)
-                (limit-form-size parent-context symbol))))
+                        :name symbol
+                        :type :missing-in-package 
+                        :severity :WARNING
+                        :file (file parser)
+                        :description (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                                           symbol pkg-name)
+                        :context (limit-form-size parent-context symbol))))
     
     visibility))
 
@@ -741,20 +743,20 @@
     (if found-defs
         ;; Record reference with all found definitions
         (record-reference *current-tracker*
-                          subform
-                          (file parser)
-                          :package pkg-name
-                          :context (limit-form-size context pkg-name)
-                          :visibility visibility
-                          :definitions found-defs)
+                  :name subform
+                  :file (file parser)
+                  :package pkg-name
+                  :context (limit-form-size context pkg-name)
+                  :visibility visibility
+                  :definitions found-defs)
         ;; Record anomaly if no matching definition found
         (record-anomaly *current-tracker*
-                subform  ; The undefined symbol being referenced
-                :undefined-reference
-                :WARNING
-                (file parser)
-                (format nil "Reference to undefined symbol ~A" subform)
-                (limit-form-size context pkg-name)))))
+                :name subform
+                :type :undefined-reference 
+                :severity :WARNING
+                :file (file parser)
+                :description (format nil "Reference to undefined symbol ~A" subform)
+                :context (limit-form-size context pkg-name)))))
 
 
 (defun handle-method-call (subform parser pkg-name context visibility name args)
@@ -771,14 +773,14 @@
                                (mapcar #'definition.specializers method-defs))
                               :test #'equal)))
             (record-reference *current-tracker*
-                            subform
-                            (file parser)
-                            :package pkg-name
-                            :context (limit-form-size context pkg-name)
-                            :visibility visibility
-                            :definitions (cons gf-def method-defs)
-                            :qualifiers qualifiers
-                            :arguments args
-                            :specializers specializers)))
+                  :name subform
+                  :file (file parser)
+                  :package pkg-name 
+                  :context (limit-form-size context pkg-name)
+                  :visibility visibility
+                  :definitions (cons gf-def method-defs)
+                  :qualifiers qualifiers
+                  :arguments args
+                  :specializers specializers)))
         ;; Not a method call - check other definition types
         (try-definition-types subform pkg-name parser context visibility))))
