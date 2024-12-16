@@ -1,45 +1,2821 @@
 
 Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFPACKAGE #:USER-MAIN-PACKAGE
+                (:USE :CL))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFPACKAGE
+  Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
+             (:USE :CL))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (#:USER-MAIN-PACKAGE (:USE :CL))
+  Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
+             (:USE :CL))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: #:USER-MAIN-PACKAGE
+  Context: (#:USER-MAIN-PACKAGE (:USE :CL))
+  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+            (:USE :CL))
+  Depth: 2
+WALK(ING):
+  Expression: ((:USE :CL))
+  Context: (#:USER-MAIN-PACKAGE (:USE :CL))
+  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+            (:USE :CL))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (:USE :CL)
+  Context: ((:USE :CL))
+  Parent: (#:USER-MAIN-PACKAGE (:USE :CL))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: :USE
+  Context: (:USE :CL)
+  Parent: ((:USE :CL))
+  Depth: 4
+WALK(ING):
+  Expression: (:CL)
+  Context: (:USE :CL)
+  Parent: ((:USE :CL))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: :CL
+  Context: (:CL)
+  Parent: (:USE :CL)
+  Depth: 5
+WALK(ING):
+  Expression: NIL
+  Context: (:CL)
+  Parent: (:USE :CL)
+  Depth: 5
+WALK(ING):
+  Expression: NIL
+  Context: ((:USE :CL))
+  Parent: (#:USER-MAIN-PACKAGE (:USE :CL))
+  Depth: 3
 
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFVAR *DEFVAR-VARIABLE* 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFVAR
+  Context: (DEFVAR *DEFVAR-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (*DEFVAR-VARIABLE* 0)
+  Context: (DEFVAR *DEFVAR-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: *DEFVAR-VARIABLE*
+  Context: (*DEFVAR-VARIABLE* 0)
+  Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
+  Depth: 2
+WALK(ING):
+  Expression: (0)
+  Context: (*DEFVAR-VARIABLE* 0)
+  Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (*DEFVAR-VARIABLE* 0)
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (*DEFVAR-VARIABLE* 0)
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFPARAMETER
+  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (*DEFPARAMETER-VARIABLE* 0)
+  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: *DEFPARAMETER-VARIABLE*
+  Context: (*DEFPARAMETER-VARIABLE* 0)
+  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Depth: 2
+WALK(ING):
+  Expression: (0)
+  Context: (*DEFPARAMETER-VARIABLE* 0)
+  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (*DEFPARAMETER-VARIABLE* 0)
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (*DEFPARAMETER-VARIABLE* 0)
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFCONSTANT
+  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (+DEFCONSTANT-VARIABLE+ "aeiou")
+  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: +DEFCONSTANT-VARIABLE+
+  Context: (+DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 2
+WALK(ING):
+  Expression: ("aeiou")
+  Context: (+DEFCONSTANT-VARIABLE+ "aeiou")
+  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: "aeiou"
+  Context: ("aeiou")
+  Parent: (+DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: ("aeiou")
+  Parent: (+DEFCONSTANT-VARIABLE+ "aeiou")
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: SETF
+  Context: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Context: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
+  Context: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Parent: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: SYMBOL-VALUE
+  Context: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
+  Parent: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
+WALK(ING):
+  Expression: ('SYMBOL-VALUE-VARIABLE)
+  Context: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
+  Parent: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: 'SYMBOL-VALUE-VARIABLE
+  Context: ('SYMBOL-VALUE-VARIABLE)
+  Parent: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: QUOTE
+  Context: 'SYMBOL-VALUE-VARIABLE
+  Parent: ('SYMBOL-VALUE-VARIABLE)
+  Depth: 5
+WALK(ING):
+  Expression: (SYMBOL-VALUE-VARIABLE)
+  Context: 'SYMBOL-VALUE-VARIABLE
+  Parent: ('SYMBOL-VALUE-VARIABLE)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: SYMBOL-VALUE-VARIABLE
+  Context: (SYMBOL-VALUE-VARIABLE)
+  Parent: 'SYMBOL-VALUE-VARIABLE
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (SYMBOL-VALUE-VARIABLE)
+  Parent: 'SYMBOL-VALUE-VARIABLE
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ('SYMBOL-VALUE-VARIABLE)
+  Parent: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
+  Depth: 4
+WALK(ING):
+  Expression: (0)
+  Context: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Parent: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: ((SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFVAR *DEFVAR-VARIABLE*
+                (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFVAR
+  Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (*DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: *DEFVAR-VARIABLE*
+  Context: (*DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Depth: 2
+WALK(ING):
+  Expression: ((DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Context: (*DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Context: ((DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Parent: (*DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: DEFPARAMETER
+  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Parent: ((DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Depth: 4
+WALK(ING):
+  Expression: (*DEFPARAMETER-VARIABLE* 0)
+  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Parent: ((DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: *DEFPARAMETER-VARIABLE*
+  Context: (*DEFPARAMETER-VARIABLE* 0)
+  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Depth: 5
+WALK(ING):
+  Expression: (0)
+  Context: (*DEFPARAMETER-VARIABLE* 0)
+  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (*DEFPARAMETER-VARIABLE* 0)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (*DEFPARAMETER-VARIABLE* 0)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Parent: (*DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFUN DEFUN-NAME () 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFUN
+  Context: (DEFUN DEFUN-NAME () 0)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (DEFUN-NAME NIL 0)
+  Context: (DEFUN DEFUN-NAME () 0)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: DEFUN-NAME
+  Context: (DEFUN-NAME NIL 0)
+  Parent: (DEFUN DEFUN-NAME () 0)
+  Depth: 2
+WALK(ING):
+  Expression: (NIL 0)
+  Context: (DEFUN-NAME NIL 0)
+  Parent: (DEFUN DEFUN-NAME () 0)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL 0)
+  Parent: (DEFUN-NAME NIL 0)
+  Depth: 3
+WALK(ING):
+  Expression: (0)
+  Context: (NIL 0)
+  Parent: (DEFUN-NAME NIL 0)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: SETF
+  Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
+  Context: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: SYMBOL-FUNCTION
+  Context: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
+  Parent: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
+WALK(ING):
+  Expression: ('SYMBOL-FUNCTION-NAME)
+  Context: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
+  Parent: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: 'SYMBOL-FUNCTION-NAME
+  Context: ('SYMBOL-FUNCTION-NAME)
+  Parent: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: QUOTE
+  Context: 'SYMBOL-FUNCTION-NAME
+  Parent: ('SYMBOL-FUNCTION-NAME)
+  Depth: 5
+WALK(ING):
+  Expression: (SYMBOL-FUNCTION-NAME)
+  Context: 'SYMBOL-FUNCTION-NAME
+  Parent: ('SYMBOL-FUNCTION-NAME)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: SYMBOL-FUNCTION-NAME
+  Context: (SYMBOL-FUNCTION-NAME)
+  Parent: 'SYMBOL-FUNCTION-NAME
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (SYMBOL-FUNCTION-NAME)
+  Parent: 'SYMBOL-FUNCTION-NAME
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ('SYMBOL-FUNCTION-NAME)
+  Parent: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
+  Depth: 4
+WALK(ING):
+  Expression: ((LAMBDA () 0))
+  Context: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (LAMBDA () 0)
+  Context: ((LAMBDA () 0))
+  Parent: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: LAMBDA
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
+WALK(ING):
+  Expression: (NIL 0)
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
+WALK(ING):
+  Expression: (0)
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((LAMBDA () 0))
+  Parent: ((SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: SETF
+  Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
+  Context: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: FDEFINITION
+  Context: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
+  Parent: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
+WALK(ING):
+  Expression: ('FDEFINITION-FUNCTION-NAME)
+  Context: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
+  Parent: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: 'FDEFINITION-FUNCTION-NAME
+  Context: ('FDEFINITION-FUNCTION-NAME)
+  Parent: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: QUOTE
+  Context: 'FDEFINITION-FUNCTION-NAME
+  Parent: ('FDEFINITION-FUNCTION-NAME)
+  Depth: 5
+WALK(ING):
+  Expression: (FDEFINITION-FUNCTION-NAME)
+  Context: 'FDEFINITION-FUNCTION-NAME
+  Parent: ('FDEFINITION-FUNCTION-NAME)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: FDEFINITION-FUNCTION-NAME
+  Context: (FDEFINITION-FUNCTION-NAME)
+  Parent: 'FDEFINITION-FUNCTION-NAME
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (FDEFINITION-FUNCTION-NAME)
+  Parent: 'FDEFINITION-FUNCTION-NAME
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ('FDEFINITION-FUNCTION-NAME)
+  Parent: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
+  Depth: 4
+WALK(ING):
+  Expression: ((LAMBDA () 0))
+  Context: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (LAMBDA () 0)
+  Context: ((LAMBDA () 0))
+  Parent: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: LAMBDA
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
+WALK(ING):
+  Expression: (NIL 0)
+  Context: (LAMBDA () 0)
+  Parent: ((LAMBDA () 0))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
+WALK(ING):
+  Expression: (0)
+  Context: (NIL 0)
+  Parent: (LAMBDA () 0)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((LAMBDA () 0))
+  Parent: ((FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFSTRUCT
+  Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: CIRCLE
+  Context: (CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Depth: 2
+WALK(ING):
+  Expression: ((RADIUS 1 :TYPE NUMBER))
+  Context: (CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (RADIUS 1 :TYPE NUMBER)
+  Context: ((RADIUS 1 :TYPE NUMBER))
+  Parent: (CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: RADIUS
+  Context: (RADIUS 1 :TYPE NUMBER)
+  Parent: ((RADIUS 1 :TYPE NUMBER))
+  Depth: 4
+WALK(ING):
+  Expression: (1 :TYPE NUMBER)
+  Context: (RADIUS 1 :TYPE NUMBER)
+  Parent: ((RADIUS 1 :TYPE NUMBER))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: 1
+  Context: (1 :TYPE NUMBER)
+  Parent: (RADIUS 1 :TYPE NUMBER)
+  Depth: 5
+WALK(ING):
+  Expression: (:TYPE NUMBER)
+  Context: (1 :TYPE NUMBER)
+  Parent: (RADIUS 1 :TYPE NUMBER)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: :TYPE
+  Context: (:TYPE NUMBER)
+  Parent: (1 :TYPE NUMBER)
+  Depth: 6
+WALK(ING):
+  Expression: (NUMBER)
+  Context: (:TYPE NUMBER)
+  Parent: (1 :TYPE NUMBER)
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: NUMBER
+  Context: (NUMBER)
+  Parent: (:TYPE NUMBER)
+  Depth: 7
+WALK(ING):
+  Expression: NIL
+  Context: (NUMBER)
+  Parent: (:TYPE NUMBER)
+  Depth: 7
+WALK(ING):
+  Expression: NIL
+  Context: ((RADIUS 1 :TYPE NUMBER))
+  Parent: (CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFSTRUCT
+  Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: (PERSON (:CONC-NAME PERSON.))
+  Context: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: PERSON
+  Context: (PERSON (:CONC-NAME PERSON.))
+  Parent: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Depth: 3
+WALK(ING):
+  Expression: ((:CONC-NAME PERSON.))
+  Context: (PERSON (:CONC-NAME PERSON.))
+  Parent: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (:CONC-NAME PERSON.)
+  Context: ((:CONC-NAME PERSON.))
+  Parent: (PERSON (:CONC-NAME PERSON.))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: :CONC-NAME
+  Context: (:CONC-NAME PERSON.)
+  Parent: ((:CONC-NAME PERSON.))
+  Depth: 5
+WALK(ING):
+  Expression: (PERSON.)
+  Context: (:CONC-NAME PERSON.)
+  Parent: ((:CONC-NAME PERSON.))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: PERSON.
+  Context: (PERSON.)
+  Parent: (:CONC-NAME PERSON.)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (PERSON.)
+  Parent: (:CONC-NAME PERSON.)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((:CONC-NAME PERSON.))
+  Parent: (PERSON (:CONC-NAME PERSON.))
+  Depth: 4
+WALK(ING):
+  Expression: ((AGE 0 :TYPE FIXNUM))
+  Context: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (AGE 0 :TYPE FIXNUM)
+  Context: ((AGE 0 :TYPE FIXNUM))
+  Parent: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: AGE
+  Context: (AGE 0 :TYPE FIXNUM)
+  Parent: ((AGE 0 :TYPE FIXNUM))
+  Depth: 4
+WALK(ING):
+  Expression: (0 :TYPE FIXNUM)
+  Context: (AGE 0 :TYPE FIXNUM)
+  Parent: ((AGE 0 :TYPE FIXNUM))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0 :TYPE FIXNUM)
+  Parent: (AGE 0 :TYPE FIXNUM)
+  Depth: 5
+WALK(ING):
+  Expression: (:TYPE FIXNUM)
+  Context: (0 :TYPE FIXNUM)
+  Parent: (AGE 0 :TYPE FIXNUM)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: :TYPE
+  Context: (:TYPE FIXNUM)
+  Parent: (0 :TYPE FIXNUM)
+  Depth: 6
+WALK(ING):
+  Expression: (FIXNUM)
+  Context: (:TYPE FIXNUM)
+  Parent: (0 :TYPE FIXNUM)
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: FIXNUM
+  Context: (FIXNUM)
+  Parent: (:TYPE FIXNUM)
+  Depth: 7
+WALK(ING):
+  Expression: NIL
+  Context: (FIXNUM)
+  Parent: (:TYPE FIXNUM)
+  Depth: 7
+WALK(ING):
+  Expression: NIL
+  Context: ((AGE 0 :TYPE FIXNUM))
+  Parent: ((PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFGENERIC COMPUTE-AREA
+                  (SHAPE)
+                (:DOCUMENTATION
+                 "Compute the area of different geometric shapes"))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFGENERIC
+  Context: (DEFGENERIC COMPUTE-AREA
+               (SHAPE)
+             (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (COMPUTE-AREA (SHAPE)
+               (:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
+  Context: (DEFGENERIC COMPUTE-AREA
+               (SHAPE)
+             (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: COMPUTE-AREA
+  Context: (COMPUTE-AREA (SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (DEFGENERIC COMPUTE-AREA
+              (SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 2
+WALK(ING):
+  Expression: ((SHAPE)
+               (:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
+  Context: (COMPUTE-AREA (SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (DEFGENERIC COMPUTE-AREA
+              (SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (SHAPE)
+  Context: ((SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (COMPUTE-AREA (SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: SHAPE
+  Context: (SHAPE)
+  Parent: ((SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (SHAPE)
+  Parent: ((SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
+WALK(ING):
+  Expression: ((:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
+  Context: ((SHAPE)
+            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: (COMPUTE-AREA (SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Context: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: ((SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: :DOCUMENTATION
+  Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Parent: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 5
+WALK(ING):
+  Expression: ("Compute the area of different geometric shapes")
+  Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Parent: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: "Compute the area of different geometric shapes"
+  Context: ("Compute the area of different geometric shapes")
+  Parent: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ("Compute the area of different geometric shapes")
+  Parent: (:DOCUMENTATION "Compute the area of different geometric shapes")
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Parent: ((SHAPE)
+           (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+                (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFMETHOD
+  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (COMPUTE-AREA ((SHAPE CIRCLE))
+               (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: COMPUTE-AREA
+  Context: (COMPUTE-AREA ((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 2
+WALK(ING):
+  Expression: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Context: (COMPUTE-AREA ((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: ((SHAPE CIRCLE))
+  Context: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: (COMPUTE-AREA ((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (SHAPE CIRCLE)
+  Context: ((SHAPE CIRCLE))
+  Parent: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: SHAPE
+  Context: (SHAPE CIRCLE)
+  Parent: ((SHAPE CIRCLE))
+  Depth: 5
+WALK(ING):
+  Expression: (CIRCLE)
+  Context: (SHAPE CIRCLE)
+  Parent: ((SHAPE CIRCLE))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: CIRCLE
+  Context: (CIRCLE)
+  Parent: (SHAPE CIRCLE)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (CIRCLE)
+  Parent: (SHAPE CIRCLE)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((SHAPE CIRCLE))
+  Parent: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 4
+WALK(ING):
+  Expression: ((* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Context: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: (COMPUTE-AREA ((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Context: ((* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: *
+  Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Parent: ((* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 5
+WALK(ING):
+  Expression: (PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Parent: ((* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: PI
+  Context: (PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Depth: 6
+WALK(ING):
+  Expression: ((EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Context: (PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+  Context: ((EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Parent: (PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Depth: 7
+               Processing list form
+WALK(ING):
+  Expression: EXPT
+  Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+  Parent: ((EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Depth: 8
+WALK(ING):
+  Expression: ((CIRCLE-RADIUS SHAPE) 2)
+  Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+  Parent: ((EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Depth: 8
+                 Processing list form
+WALK(ING):
+  Expression: (CIRCLE-RADIUS SHAPE)
+  Context: ((CIRCLE-RADIUS SHAPE) 2)
+  Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+  Depth: 9
+                   Processing list form
+WALK(ING):
+  Expression: CIRCLE-RADIUS
+  Context: (CIRCLE-RADIUS SHAPE)
+  Parent: ((CIRCLE-RADIUS SHAPE) 2)
+  Depth: 10
+WALK(ING):
+  Expression: (SHAPE)
+  Context: (CIRCLE-RADIUS SHAPE)
+  Parent: ((CIRCLE-RADIUS SHAPE) 2)
+  Depth: 10
+                     Processing list form
+WALK(ING):
+  Expression: SHAPE
+  Context: (SHAPE)
+  Parent: (CIRCLE-RADIUS SHAPE)
+  Depth: 11
+WALK(ING):
+  Expression: NIL
+  Context: (SHAPE)
+  Parent: (CIRCLE-RADIUS SHAPE)
+  Depth: 11
+WALK(ING):
+  Expression: (2)
+  Context: ((CIRCLE-RADIUS SHAPE) 2)
+  Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+  Depth: 9
+                   Processing list form
+WALK(ING):
+  Expression: 2
+  Context: (2)
+  Parent: ((CIRCLE-RADIUS SHAPE) 2)
+  Depth: 10
+WALK(ING):
+  Expression: NIL
+  Context: (2)
+  Parent: ((CIRCLE-RADIUS SHAPE) 2)
+  Depth: 10
+WALK(ING):
+  Expression: NIL
+  Context: ((EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Parent: (PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Depth: 7
+WALK(ING):
+  Expression: NIL
+  Context: ((* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Parent: (((SHAPE CIRCLE)) (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFGENERIC PROCESS-DATA
+                  (DATA &KEY)
+                (:DOCUMENTATION "Process data with various methods"))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFGENERIC
+  Context: (DEFGENERIC PROCESS-DATA
+               (DATA &KEY)
+             (:DOCUMENTATION "Process data with various methods"))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (PROCESS-DATA (DATA &KEY)
+               (:DOCUMENTATION "Process data with various methods"))
+  Context: (DEFGENERIC PROCESS-DATA
+               (DATA &KEY)
+             (:DOCUMENTATION "Process data with various methods"))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: PROCESS-DATA
+  Context: (PROCESS-DATA (DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Parent: (DEFGENERIC PROCESS-DATA
+              (DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Depth: 2
+WALK(ING):
+  Expression: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
+  Context: (PROCESS-DATA (DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Parent: (DEFGENERIC PROCESS-DATA
+              (DATA &KEY)
+            (:DOCUMENTATION "Process data with various methods"))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (DATA &KEY)
+  Context: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
+  Parent: (PROCESS-DATA (DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: DATA
+  Context: (DATA &KEY)
+  Parent: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
+WALK(ING):
+  Expression: (&KEY)
+  Context: (DATA &KEY)
+  Parent: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: &KEY
+  Context: (&KEY)
+  Parent: (DATA &KEY)
+  Depth: 5
+WALK(ING):
+  Expression: NIL
+  Context: (&KEY)
+  Parent: (DATA &KEY)
+  Depth: 5
+WALK(ING):
+  Expression: ((:DOCUMENTATION "Process data with various methods"))
+  Context: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
+  Parent: (PROCESS-DATA (DATA &KEY)
+           (:DOCUMENTATION "Process data with various methods"))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (:DOCUMENTATION "Process data with various methods")
+  Context: ((:DOCUMENTATION "Process data with various methods"))
+  Parent: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: :DOCUMENTATION
+  Context: (:DOCUMENTATION "Process data with various methods")
+  Parent: ((:DOCUMENTATION "Process data with various methods"))
+  Depth: 5
+WALK(ING):
+  Expression: ("Process data with various methods")
+  Context: (:DOCUMENTATION "Process data with various methods")
+  Parent: ((:DOCUMENTATION "Process data with various methods"))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: "Process data with various methods"
+  Context: ("Process data with various methods")
+  Parent: (:DOCUMENTATION "Process data with various methods")
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ("Process data with various methods")
+  Parent: (:DOCUMENTATION "Process data with various methods")
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((:DOCUMENTATION "Process data with various methods"))
+  Parent: ((DATA &KEY) (:DOCUMENTATION "Process data with various methods"))
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFMETHOD
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: PROCESS-DATA
+  Context: (PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 2
+WALK(ING):
+  Expression: (((DATA STRING)) (STRING-UPCASE DATA))
+  Context: (PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: ((DATA STRING))
+  Context: (((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: (PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (DATA STRING)
+  Context: ((DATA STRING))
+  Parent: (((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: DATA
+  Context: (DATA STRING)
+  Parent: ((DATA STRING))
+  Depth: 5
+WALK(ING):
+  Expression: (STRING)
+  Context: (DATA STRING)
+  Parent: ((DATA STRING))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: STRING
+  Context: (STRING)
+  Parent: (DATA STRING)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (STRING)
+  Parent: (DATA STRING)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((DATA STRING))
+  Parent: (((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 4
+WALK(ING):
+  Expression: ((STRING-UPCASE DATA))
+  Context: (((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: (PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (STRING-UPCASE DATA)
+  Context: ((STRING-UPCASE DATA))
+  Parent: (((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: STRING-UPCASE
+  Context: (STRING-UPCASE DATA)
+  Parent: ((STRING-UPCASE DATA))
+  Depth: 5
+WALK(ING):
+  Expression: (DATA)
+  Context: (STRING-UPCASE DATA)
+  Parent: ((STRING-UPCASE DATA))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: DATA
+  Context: (DATA)
+  Parent: (STRING-UPCASE DATA)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (DATA)
+  Parent: (STRING-UPCASE DATA)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((STRING-UPCASE DATA))
+  Parent: (((DATA STRING)) (STRING-UPCASE DATA))
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFMETHOD PROCESS-DATA :AFTER
+                         ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+                (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFMETHOD
+  Context: (DEFMETHOD PROCESS-DATA :AFTER
+                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+               (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Context: (DEFMETHOD PROCESS-DATA :AFTER
+                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: PROCESS-DATA
+  Context: (PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 2
+WALK(ING):
+  Expression: (:AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+               (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Context: (PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: :AFTER
+  Context: (:AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 3
+WALK(ING):
+  Expression: (((DATA STRING) &KEY (LOG-LEVEL :INFO))
+               (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Context: (:AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+  Context: (((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (:AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: (DATA STRING)
+  Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+  Parent: (((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: DATA
+  Context: (DATA STRING)
+  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+  Depth: 6
+WALK(ING):
+  Expression: (STRING)
+  Context: (DATA STRING)
+  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: STRING
+  Context: (STRING)
+  Parent: (DATA STRING)
+  Depth: 7
+WALK(ING):
+  Expression: NIL
+  Context: (STRING)
+  Parent: (DATA STRING)
+  Depth: 7
+WALK(ING):
+  Expression: (&KEY (LOG-LEVEL :INFO))
+  Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+  Parent: (((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: &KEY
+  Context: (&KEY (LOG-LEVEL :INFO))
+  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+  Depth: 6
+WALK(ING):
+  Expression: ((LOG-LEVEL :INFO))
+  Context: (&KEY (LOG-LEVEL :INFO))
+  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: (LOG-LEVEL :INFO)
+  Context: ((LOG-LEVEL :INFO))
+  Parent: (&KEY (LOG-LEVEL :INFO))
+  Depth: 7
+               Processing list form
+WALK(ING):
+  Expression: LOG-LEVEL
+  Context: (LOG-LEVEL :INFO)
+  Parent: ((LOG-LEVEL :INFO))
+  Depth: 8
+WALK(ING):
+  Expression: (:INFO)
+  Context: (LOG-LEVEL :INFO)
+  Parent: ((LOG-LEVEL :INFO))
+  Depth: 8
+                 Processing list form
+WALK(ING):
+  Expression: :INFO
+  Context: (:INFO)
+  Parent: (LOG-LEVEL :INFO)
+  Depth: 9
+WALK(ING):
+  Expression: NIL
+  Context: (:INFO)
+  Parent: (LOG-LEVEL :INFO)
+  Depth: 9
+WALK(ING):
+  Expression: NIL
+  Context: ((LOG-LEVEL :INFO))
+  Parent: (&KEY (LOG-LEVEL :INFO))
+  Depth: 7
+WALK(ING):
+  Expression: ((WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Context: (((DATA STRING) &KEY (LOG-LEVEL :INFO))
+            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (:AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Context: ((WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: WHEN
+  Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Parent: ((WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 6
+WALK(ING):
+  Expression: ((EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Parent: ((WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: (EQ LOG-LEVEL :INFO)
+  Context: ((EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Depth: 7
+               Processing list form
+WALK(ING):
+  Expression: EQ
+  Context: (EQ LOG-LEVEL :INFO)
+  Parent: ((EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Depth: 8
+WALK(ING):
+  Expression: (LOG-LEVEL :INFO)
+  Context: (EQ LOG-LEVEL :INFO)
+  Parent: ((EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Depth: 8
+                 Processing list form
+WALK(ING):
+  Expression: LOG-LEVEL
+  Context: (LOG-LEVEL :INFO)
+  Parent: (EQ LOG-LEVEL :INFO)
+  Depth: 9
+WALK(ING):
+  Expression: (:INFO)
+  Context: (LOG-LEVEL :INFO)
+  Parent: (EQ LOG-LEVEL :INFO)
+  Depth: 9
+                   Processing list form
+WALK(ING):
+  Expression: :INFO
+  Context: (:INFO)
+  Parent: (LOG-LEVEL :INFO)
+  Depth: 10
+WALK(ING):
+  Expression: NIL
+  Context: (:INFO)
+  Parent: (LOG-LEVEL :INFO)
+  Depth: 10
+WALK(ING):
+  Expression: ((FORMAT NIL "LOG: ~A" DATA))
+  Context: ((EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Depth: 7
+               Processing list form
+WALK(ING):
+  Expression: (FORMAT NIL "LOG: ~A" DATA)
+  Context: ((FORMAT NIL "LOG: ~A" DATA))
+  Parent: ((EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Depth: 8
+                 Processing list form
+WALK(ING):
+  Expression: FORMAT
+  Context: (FORMAT NIL "LOG: ~A" DATA)
+  Parent: ((FORMAT NIL "LOG: ~A" DATA))
+  Depth: 9
+WALK(ING):
+  Expression: (NIL "LOG: ~A" DATA)
+  Context: (FORMAT NIL "LOG: ~A" DATA)
+  Parent: ((FORMAT NIL "LOG: ~A" DATA))
+  Depth: 9
+                   Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL "LOG: ~A" DATA)
+  Parent: (FORMAT NIL "LOG: ~A" DATA)
+  Depth: 10
+WALK(ING):
+  Expression: ("LOG: ~A" DATA)
+  Context: (NIL "LOG: ~A" DATA)
+  Parent: (FORMAT NIL "LOG: ~A" DATA)
+  Depth: 10
+                     Processing list form
+WALK(ING):
+  Expression: "LOG: ~A"
+  Context: ("LOG: ~A" DATA)
+  Parent: (NIL "LOG: ~A" DATA)
+  Depth: 11
+WALK(ING):
+  Expression: (DATA)
+  Context: ("LOG: ~A" DATA)
+  Parent: (NIL "LOG: ~A" DATA)
+  Depth: 11
+                       Processing list form
+WALK(ING):
+  Expression: DATA
+  Context: (DATA)
+  Parent: ("LOG: ~A" DATA)
+  Depth: 12
+WALK(ING):
+  Expression: NIL
+  Context: (DATA)
+  Parent: ("LOG: ~A" DATA)
+  Depth: 12
+WALK(ING):
+  Expression: NIL
+  Context: ((FORMAT NIL "LOG: ~A" DATA))
+  Parent: ((EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+  Depth: 8
+WALK(ING):
+  Expression: NIL
+  Context: ((WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Parent: (((DATA STRING) &KEY (LOG-LEVEL :INFO))
+           (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Depth: 5
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFMETHOD
+  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: PROCESS-DATA
+  Context: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 2
+WALK(ING):
+  Expression: (((DATA NUMBER) &KEY) (1+ DATA))
+  Context: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: ((DATA NUMBER) &KEY)
+  Context: (((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (DATA NUMBER)
+  Context: ((DATA NUMBER) &KEY)
+  Parent: (((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: DATA
+  Context: (DATA NUMBER)
+  Parent: ((DATA NUMBER) &KEY)
+  Depth: 5
+WALK(ING):
+  Expression: (NUMBER)
+  Context: (DATA NUMBER)
+  Parent: ((DATA NUMBER) &KEY)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: NUMBER
+  Context: (NUMBER)
+  Parent: (DATA NUMBER)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (NUMBER)
+  Parent: (DATA NUMBER)
+  Depth: 6
+WALK(ING):
+  Expression: (&KEY)
+  Context: ((DATA NUMBER) &KEY)
+  Parent: (((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: &KEY
+  Context: (&KEY)
+  Parent: ((DATA NUMBER) &KEY)
+  Depth: 5
+WALK(ING):
+  Expression: NIL
+  Context: (&KEY)
+  Parent: ((DATA NUMBER) &KEY)
+  Depth: 5
+WALK(ING):
+  Expression: ((1+ DATA))
+  Context: (((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (1+ DATA)
+  Context: ((1+ DATA))
+  Parent: (((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: 1+
+  Context: (1+ DATA)
+  Parent: ((1+ DATA))
+  Depth: 5
+WALK(ING):
+  Expression: (DATA)
+  Context: (1+ DATA)
+  Parent: ((1+ DATA))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: DATA
+  Context: (DATA)
+  Parent: (1+ DATA)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (DATA)
+  Parent: (1+ DATA)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((1+ DATA))
+  Parent: (((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFMACRO DEFMACRO-NAME () 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFMACRO
+  Context: (DEFMACRO DEFMACRO-NAME () 0)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (DEFMACRO-NAME NIL 0)
+  Context: (DEFMACRO DEFMACRO-NAME () 0)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: DEFMACRO-NAME
+  Context: (DEFMACRO-NAME NIL 0)
+  Parent: (DEFMACRO DEFMACRO-NAME () 0)
+  Depth: 2
+WALK(ING):
+  Expression: (NIL 0)
+  Context: (DEFMACRO-NAME NIL 0)
+  Parent: (DEFMACRO DEFMACRO-NAME () 0)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL 0)
+  Parent: (DEFMACRO-NAME NIL 0)
+  Depth: 3
+WALK(ING):
+  Expression: (0)
+  Context: (NIL 0)
+  Parent: (DEFMACRO-NAME NIL 0)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (NIL 0)
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                      (LAMBDA (FORM ENV) FORM ENV 0))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: SETF
+  Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                   (LAMBDA (FORM ENV) FORM ENV 0))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+               (LAMBDA (FORM ENV) FORM ENV 0))
+  Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                   (LAMBDA (FORM ENV) FORM ENV 0))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+  Context: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+            (LAMBDA (FORM ENV) FORM ENV 0))
+  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: MACRO-FUNCTION
+  Context: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+  Parent: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME) (LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 3
+WALK(ING):
+  Expression: ('MACRO-FUNCTION-NAME)
+  Context: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+  Parent: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME) (LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: 'MACRO-FUNCTION-NAME
+  Context: ('MACRO-FUNCTION-NAME)
+  Parent: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: QUOTE
+  Context: 'MACRO-FUNCTION-NAME
+  Parent: ('MACRO-FUNCTION-NAME)
+  Depth: 5
+WALK(ING):
+  Expression: (MACRO-FUNCTION-NAME)
+  Context: 'MACRO-FUNCTION-NAME
+  Parent: ('MACRO-FUNCTION-NAME)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: MACRO-FUNCTION-NAME
+  Context: (MACRO-FUNCTION-NAME)
+  Parent: 'MACRO-FUNCTION-NAME
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (MACRO-FUNCTION-NAME)
+  Parent: 'MACRO-FUNCTION-NAME
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ('MACRO-FUNCTION-NAME)
+  Parent: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+  Depth: 4
+WALK(ING):
+  Expression: ((LAMBDA (FORM ENV) FORM ENV 0))
+  Context: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+            (LAMBDA (FORM ENV) FORM ENV 0))
+  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (LAMBDA (FORM ENV) FORM ENV 0)
+  Context: ((LAMBDA (FORM ENV) FORM ENV 0))
+  Parent: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME) (LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: LAMBDA
+  Context: (LAMBDA (FORM ENV) FORM ENV 0)
+  Parent: ((LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 4
+WALK(ING):
+  Expression: ((FORM ENV) FORM ENV 0)
+  Context: (LAMBDA (FORM ENV) FORM ENV 0)
+  Parent: ((LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: (FORM ENV)
+  Context: ((FORM ENV) FORM ENV 0)
+  Parent: (LAMBDA (FORM ENV) FORM ENV 0)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: FORM
+  Context: (FORM ENV)
+  Parent: ((FORM ENV) FORM ENV 0)
+  Depth: 6
+WALK(ING):
+  Expression: (ENV)
+  Context: (FORM ENV)
+  Parent: ((FORM ENV) FORM ENV 0)
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: ENV
+  Context: (ENV)
+  Parent: (FORM ENV)
+  Depth: 7
+WALK(ING):
+  Expression: NIL
+  Context: (ENV)
+  Parent: (FORM ENV)
+  Depth: 7
+WALK(ING):
+  Expression: (FORM ENV 0)
+  Context: ((FORM ENV) FORM ENV 0)
+  Parent: (LAMBDA (FORM ENV) FORM ENV 0)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: FORM
+  Context: (FORM ENV 0)
+  Parent: ((FORM ENV) FORM ENV 0)
+  Depth: 6
+WALK(ING):
+  Expression: (ENV 0)
+  Context: (FORM ENV 0)
+  Parent: ((FORM ENV) FORM ENV 0)
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: ENV
+  Context: (ENV 0)
+  Parent: (FORM ENV 0)
+  Depth: 7
+WALK(ING):
+  Expression: (0)
+  Context: (ENV 0)
+  Parent: (FORM ENV 0)
+  Depth: 7
+               Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (ENV 0)
+  Depth: 8
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (ENV 0)
+  Depth: 8
+WALK(ING):
+  Expression: NIL
+  Context: ((LAMBDA (FORM ENV) FORM ENV 0))
+  Parent: ((MACRO-FUNCTION 'MACRO-FUNCTION-NAME) (LAMBDA (FORM ENV) FORM ENV 0))
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFINE-CONDITION CONDITION-NAME
+                  NIL
+                  NIL)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFINE-CONDITION
+  Context: (DEFINE-CONDITION CONDITION-NAME
+               NIL
+               NIL)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (CONDITION-NAME NIL NIL)
+  Context: (DEFINE-CONDITION CONDITION-NAME
+               NIL
+               NIL)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: CONDITION-NAME
+  Context: (CONDITION-NAME NIL NIL)
+  Parent: (DEFINE-CONDITION CONDITION-NAME
+              NIL
+              NIL)
+  Depth: 2
+WALK(ING):
+  Expression: (NIL NIL)
+  Context: (CONDITION-NAME NIL NIL)
+  Parent: (DEFINE-CONDITION CONDITION-NAME
+              NIL
+              NIL)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL NIL)
+  Parent: (CONDITION-NAME NIL NIL)
+  Depth: 3
+WALK(ING):
+  Expression: (NIL)
+  Context: (NIL NIL)
+  Parent: (CONDITION-NAME NIL NIL)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL)
+  Parent: (NIL NIL)
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (NIL)
+  Parent: (NIL NIL)
+  Depth: 4
 
 
 Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
 
 
+-------------------------------
+WALK(ING):
+  Expression: *DEFVAR-VARIABLE*
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 
+-------------------------------
+WALK(ING):
+  Expression: *DEFPARAMETER-VARIABLE*
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 
+-------------------------------
+WALK(ING):
+  Expression: +DEFCONSTANT-VARIABLE+
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 
+-------------------------------
+WALK(ING):
+  Expression: SYMBOL-VALUE-VARIABLE
+  Context: NIL
+  Parent: NIL
+  Depth: 0
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFUN-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFUN-NAME
+  Context: (DEFUN-NAME)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: NIL
+  Context: (DEFUN-NAME)
+  Parent: NIL
+  Depth: 1
 
+-------------------------------
+WALK(ING):
+  Expression: (FUNCALL 'SYMBOL-FUNCTION-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: FUNCALL
+  Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ('SYMBOL-FUNCTION-NAME)
+  Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: 'SYMBOL-FUNCTION-NAME
+  Context: ('SYMBOL-FUNCTION-NAME)
+  Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: QUOTE
+  Context: 'SYMBOL-FUNCTION-NAME
+  Parent: ('SYMBOL-FUNCTION-NAME)
+  Depth: 3
+WALK(ING):
+  Expression: (SYMBOL-FUNCTION-NAME)
+  Context: 'SYMBOL-FUNCTION-NAME
+  Parent: ('SYMBOL-FUNCTION-NAME)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: SYMBOL-FUNCTION-NAME
+  Context: (SYMBOL-FUNCTION-NAME)
+  Parent: 'SYMBOL-FUNCTION-NAME
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (SYMBOL-FUNCTION-NAME)
+  Parent: 'SYMBOL-FUNCTION-NAME
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: ('SYMBOL-FUNCTION-NAME)
+  Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
+  Depth: 2
 
+-------------------------------
+WALK(ING):
+  Expression: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: FUNCALL
+  Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ('FDEFINITION-FUNCTION-NAME)
+  Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: 'FDEFINITION-FUNCTION-NAME
+  Context: ('FDEFINITION-FUNCTION-NAME)
+  Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: QUOTE
+  Context: 'FDEFINITION-FUNCTION-NAME
+  Parent: ('FDEFINITION-FUNCTION-NAME)
+  Depth: 3
+WALK(ING):
+  Expression: (FDEFINITION-FUNCTION-NAME)
+  Context: 'FDEFINITION-FUNCTION-NAME
+  Parent: ('FDEFINITION-FUNCTION-NAME)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: FDEFINITION-FUNCTION-NAME
+  Context: (FDEFINITION-FUNCTION-NAME)
+  Parent: 'FDEFINITION-FUNCTION-NAME
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (FDEFINITION-FUNCTION-NAME)
+  Parent: 'FDEFINITION-FUNCTION-NAME
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: ('FDEFINITION-FUNCTION-NAME)
+  Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+  Depth: 2
 
+-------------------------------
+WALK(ING):
+  Expression: (CIRCLE-RADIUS (MAKE-CIRCLE))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: CIRCLE-RADIUS
+  Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((MAKE-CIRCLE))
+  Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: (MAKE-CIRCLE)
+  Context: ((MAKE-CIRCLE))
+  Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: MAKE-CIRCLE
+  Context: (MAKE-CIRCLE)
+  Parent: ((MAKE-CIRCLE))
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: (MAKE-CIRCLE)
+  Parent: ((MAKE-CIRCLE))
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: ((MAKE-CIRCLE))
+  Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
+  Depth: 2
 
+-------------------------------
+WALK(ING):
+  Expression: (PERSON.AGE (MAKE-PERSON))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: PERSON.AGE
+  Context: (PERSON.AGE (MAKE-PERSON))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((MAKE-PERSON))
+  Context: (PERSON.AGE (MAKE-PERSON))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: (MAKE-PERSON)
+  Context: ((MAKE-PERSON))
+  Parent: (PERSON.AGE (MAKE-PERSON))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: MAKE-PERSON
+  Context: (MAKE-PERSON)
+  Parent: ((MAKE-PERSON))
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: (MAKE-PERSON)
+  Parent: ((MAKE-PERSON))
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: ((MAKE-PERSON))
+  Parent: (PERSON.AGE (MAKE-PERSON))
+  Depth: 2
 
+-------------------------------
+WALK(ING):
+  Expression: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: FUNCALL
+  Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: #'COMPUTE-AREA
+  Context: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: FUNCTION
+  Context: #'COMPUTE-AREA
+  Parent: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
+WALK(ING):
+  Expression: (COMPUTE-AREA)
+  Context: #'COMPUTE-AREA
+  Parent: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: COMPUTE-AREA
+  Context: (COMPUTE-AREA)
+  Parent: #'COMPUTE-AREA
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (COMPUTE-AREA)
+  Parent: #'COMPUTE-AREA
+  Depth: 4
+WALK(ING):
+  Expression: ((MAKE-CIRCLE :RADIUS 1))
+  Context: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (MAKE-CIRCLE :RADIUS 1)
+  Context: ((MAKE-CIRCLE :RADIUS 1))
+  Parent: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: MAKE-CIRCLE
+  Context: (MAKE-CIRCLE :RADIUS 1)
+  Parent: ((MAKE-CIRCLE :RADIUS 1))
+  Depth: 4
+WALK(ING):
+  Expression: (:RADIUS 1)
+  Context: (MAKE-CIRCLE :RADIUS 1)
+  Parent: ((MAKE-CIRCLE :RADIUS 1))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: :RADIUS
+  Context: (:RADIUS 1)
+  Parent: (MAKE-CIRCLE :RADIUS 1)
+  Depth: 5
+WALK(ING):
+  Expression: (1)
+  Context: (:RADIUS 1)
+  Parent: (MAKE-CIRCLE :RADIUS 1)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: 1
+  Context: (1)
+  Parent: (:RADIUS 1)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (1)
+  Parent: (:RADIUS 1)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((MAKE-CIRCLE :RADIUS 1))
+  Parent: (#'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (PROCESS-DATA "test" :LOGGING)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: PROCESS-DATA
+  Context: (PROCESS-DATA "test" :LOGGING)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ("test" :LOGGING)
+  Context: (PROCESS-DATA "test" :LOGGING)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: "test"
+  Context: ("test" :LOGGING)
+  Parent: (PROCESS-DATA "test" :LOGGING)
+  Depth: 2
+WALK(ING):
+  Expression: (:LOGGING)
+  Context: ("test" :LOGGING)
+  Parent: (PROCESS-DATA "test" :LOGGING)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: :LOGGING
+  Context: (:LOGGING)
+  Parent: ("test" :LOGGING)
+  Depth: 3
+WALK(ING):
+  Expression: NIL
+  Context: (:LOGGING)
+  Parent: ("test" :LOGGING)
+  Depth: 3
 
+-------------------------------
+WALK(ING):
+  Expression: (PROCESS-DATA 42)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: PROCESS-DATA
+  Context: (PROCESS-DATA 42)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (42)
+  Context: (PROCESS-DATA 42)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: 42
+  Context: (42)
+  Parent: (PROCESS-DATA 42)
+  Depth: 2
+WALK(ING):
+  Expression: NIL
+  Context: (42)
+  Parent: (PROCESS-DATA 42)
+  Depth: 2
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFMACRO-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFMACRO-NAME
+  Context: (DEFMACRO-NAME)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: NIL
+  Context: (DEFMACRO-NAME)
+  Parent: NIL
+  Depth: 1
 
+-------------------------------
+WALK(ING):
+  Expression: (MACRO-FUNCTION-NAME)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: MACRO-FUNCTION-NAME
+  Context: (MACRO-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: NIL
+  Context: (MACRO-FUNCTION-NAME)
+  Parent: NIL
+  Depth: 1
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFUN
+  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
+  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: FUNCTION-WITH-CONDITION
+  Context: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
+  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+  Depth: 2
+WALK(ING):
+  Expression: (NIL (ERROR 'CONDITION-NAME))
+  Context: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
+  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: NIL
+  Context: (NIL (ERROR 'CONDITION-NAME))
+  Parent: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
+  Depth: 3
+WALK(ING):
+  Expression: ((ERROR 'CONDITION-NAME))
+  Context: (NIL (ERROR 'CONDITION-NAME))
+  Parent: (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (ERROR 'CONDITION-NAME)
+  Context: ((ERROR 'CONDITION-NAME))
+  Parent: (NIL (ERROR 'CONDITION-NAME))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: ERROR
+  Context: (ERROR 'CONDITION-NAME)
+  Parent: ((ERROR 'CONDITION-NAME))
+  Depth: 5
+WALK(ING):
+  Expression: ('CONDITION-NAME)
+  Context: (ERROR 'CONDITION-NAME)
+  Parent: ((ERROR 'CONDITION-NAME))
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: 'CONDITION-NAME
+  Context: ('CONDITION-NAME)
+  Parent: (ERROR 'CONDITION-NAME)
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: QUOTE
+  Context: 'CONDITION-NAME
+  Parent: ('CONDITION-NAME)
+  Depth: 7
+WALK(ING):
+  Expression: (CONDITION-NAME)
+  Context: 'CONDITION-NAME
+  Parent: ('CONDITION-NAME)
+  Depth: 7
+               Processing list form
+WALK(ING):
+  Expression: CONDITION-NAME
+  Context: (CONDITION-NAME)
+  Parent: 'CONDITION-NAME
+  Depth: 8
+WALK(ING):
+  Expression: NIL
+  Context: (CONDITION-NAME)
+  Parent: 'CONDITION-NAME
+  Depth: 8
+WALK(ING):
+  Expression: NIL
+  Context: ('CONDITION-NAME)
+  Parent: (ERROR 'CONDITION-NAME)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: ((ERROR 'CONDITION-NAME))
+  Parent: (NIL (ERROR 'CONDITION-NAME))
+  Depth: 4
 
+-------------------------------
+WALK(ING):
+  Expression: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: DEFUN
+  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: MY-FUNCTION
+  Context: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 2
+WALK(ING):
+  Expression: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Context: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (ARG)
+  Context: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: ARG
+  Context: (ARG)
+  Parent: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (ARG)
+  Parent: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 4
+WALK(ING):
+  Expression: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Context: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: (DEFUN-NAME)
+  Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: DEFUN-NAME
+  Context: (DEFUN-NAME)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 5
+WALK(ING):
+  Expression: NIL
+  Context: (DEFUN-NAME)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 5
+WALK(ING):
+  Expression: (*DEFVAR-VARIABLE* ARG)
+  Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Parent: ((ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: *DEFVAR-VARIABLE*
+  Context: (*DEFVAR-VARIABLE* ARG)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 5
+WALK(ING):
+  Expression: (ARG)
+  Context: (*DEFVAR-VARIABLE* ARG)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: ARG
+  Context: (ARG)
+  Parent: (*DEFVAR-VARIABLE* ARG)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (ARG)
+  Parent: (*DEFVAR-VARIABLE* ARG)
+  Depth: 6
 
+-------------------------------
+WALK(ING):
+  Expression: (LET ((ARG 0))
+                (DEFUN-NAME)
+                *DEFVAR-VARIABLE*
+                (COMPUTE-AREA (MAKE-CIRCLE))
+                ARG)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+ Processing list form
+WALK(ING):
+  Expression: LET
+  Context: (LET ((ARG 0))
+             (DEFUN-NAME)
+             *DEFVAR-VARIABLE*
+             (COMPUTE-AREA (MAKE-CIRCLE))
+             ARG)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Context: (LET ((ARG 0))
+             (DEFUN-NAME)
+             *DEFVAR-VARIABLE*
+             (COMPUTE-AREA (MAKE-CIRCLE))
+             ARG)
+  Parent: NIL
+  Depth: 1
+   Processing list form
+WALK(ING):
+  Expression: ((ARG 0))
+  Context: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
+            (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: (LET ((ARG 0))
+            (DEFUN-NAME)
+            *DEFVAR-VARIABLE*
+            (COMPUTE-AREA (MAKE-CIRCLE))
+            ARG)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (ARG 0)
+  Context: ((ARG 0))
+  Parent: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
+           (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: ARG
+  Context: (ARG 0)
+  Parent: ((ARG 0))
+  Depth: 4
+WALK(ING):
+  Expression: (0)
+  Context: (ARG 0)
+  Parent: ((ARG 0))
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: 0
+  Context: (0)
+  Parent: (ARG 0)
+  Depth: 5
+WALK(ING):
+  Expression: NIL
+  Context: (0)
+  Parent: (ARG 0)
+  Depth: 5
+WALK(ING):
+  Expression: NIL
+  Context: ((ARG 0))
+  Parent: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
+           (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 3
+WALK(ING):
+  Expression: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Context: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
+            (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: (LET ((ARG 0))
+            (DEFUN-NAME)
+            *DEFVAR-VARIABLE*
+            (COMPUTE-AREA (MAKE-CIRCLE))
+            ARG)
+  Depth: 2
+     Processing list form
+WALK(ING):
+  Expression: (DEFUN-NAME)
+  Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
+           (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: DEFUN-NAME
+  Context: (DEFUN-NAME)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 4
+WALK(ING):
+  Expression: NIL
+  Context: (DEFUN-NAME)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 4
+WALK(ING):
+  Expression: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Context: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: (((ARG 0)) (DEFUN-NAME) *DEFVAR-VARIABLE*
+           (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 3
+       Processing list form
+WALK(ING):
+  Expression: *DEFVAR-VARIABLE*
+  Context: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 4
+WALK(ING):
+  Expression: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Context: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: ((DEFUN-NAME) *DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 4
+         Processing list form
+WALK(ING):
+  Expression: (COMPUTE-AREA (MAKE-CIRCLE))
+  Context: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: COMPUTE-AREA
+  Context: (COMPUTE-AREA (MAKE-CIRCLE))
+  Parent: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 6
+WALK(ING):
+  Expression: ((MAKE-CIRCLE))
+  Context: (COMPUTE-AREA (MAKE-CIRCLE))
+  Parent: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 6
+             Processing list form
+WALK(ING):
+  Expression: (MAKE-CIRCLE)
+  Context: ((MAKE-CIRCLE))
+  Parent: (COMPUTE-AREA (MAKE-CIRCLE))
+  Depth: 7
+               Processing list form
+WALK(ING):
+  Expression: MAKE-CIRCLE
+  Context: (MAKE-CIRCLE)
+  Parent: ((MAKE-CIRCLE))
+  Depth: 8
+WALK(ING):
+  Expression: NIL
+  Context: (MAKE-CIRCLE)
+  Parent: ((MAKE-CIRCLE))
+  Depth: 8
+WALK(ING):
+  Expression: NIL
+  Context: ((MAKE-CIRCLE))
+  Parent: (COMPUTE-AREA (MAKE-CIRCLE))
+  Depth: 7
+WALK(ING):
+  Expression: (ARG)
+  Context: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Parent: (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 5
+           Processing list form
+WALK(ING):
+  Expression: ARG
+  Context: (ARG)
+  Parent: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 6
+WALK(ING):
+  Expression: NIL
+  Context: (ARG)
+  Parent: ((COMPUTE-AREA (MAKE-CIRCLE)) ARG)
+  Depth: 6
 

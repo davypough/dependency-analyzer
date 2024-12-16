@@ -111,7 +111,7 @@
 
 
 (defun record-reference (tracker &key name file package context visibility definitions
-                                     qualifiers arguments specializers)
+                                     qualifiers arguments specializers log-stream)
  "Record a name reference in the tracker.
   VISIBILITY is inherited, imported, or local (defaults to local)
   DEFINITIONS is a list of definitions this reference depends on
@@ -130,6 +130,7 @@
                           :specializers specializers)))
    (pushnew ref (gethash key (slot-value tracker 'references))
         :test #'equalp)
+   (format log-stream "~%~A~%" ref)
    ref))
 
 
@@ -184,7 +185,7 @@
   (package-cycles (ensure-tracker tracker)))
 
 
-(defun process-package-import-option (package from-pkg-name pkg-name parser name)
+(defun process-package-import-option (package from-pkg-name pkg-name parser name log-stream)
   "Process an :import-from package option for a single name.
    Records dependencies between packages and the imported name reference.
    
@@ -203,7 +204,7 @@
                   :name from-sym
                   :file (file parser)
                   :package from-pkg-name
-                  :visibility :IMPORTED))))
+                  :visibility :IMPORTED :log-stream log-stream))))
 
 
 (defun process-package-export-option (package pkg-name name)
@@ -251,7 +252,7 @@
                 :context cycle)))))
 
 
-(defmethod analyze-subform ((parser file-parser) form)
+(defmethod analyze-subform ((parser file-parser) form log-stream)
   "Analyze a single form for symbol references, recording only references to
    symbols that have definition records. Recursively examines all subforms including
    array elements and hash tables."
@@ -279,16 +280,16 @@
                   :name form
                   :file current-file
                   :package pkg-name
-                  :visibility visibility))))
+                  :visibility visibility :log-stream log-stream))))
     ;(cons
     ; (analyze-form parser form))
     (array
      (dotimes (i (array-total-size form))
-       (analyze-subform parser (row-major-aref form i))))
+       (analyze-subform parser (row-major-aref form i) log-stream)))
     (hash-table
      (maphash (lambda (k v)
-                (analyze-subform parser k)
-                (analyze-subform parser v))
+                (analyze-subform parser k log-stream)
+                (analyze-subform parser v log-stream))
               form))
     (t nil)))
 
@@ -445,6 +446,72 @@
    LOG-DEPTH - Whether to track and log nesting depth"
   (labels ((walk (x context parent-context depth)
              ;; Log form being processed
+             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%  Depth: ~D~%" 
+                     x context parent-context depth)
+
+             (unless (skip-item-p x)
+               ;; Log details if requested 
+               #+ignore (when log-stream
+                 (let ((indent (if log-depth 
+                                (make-string (* depth 2) :initial-element #\Space)
+                                "")))
+                   (format log-stream "~&~AForm: ~S~%" indent x)
+                   (when context
+                     (format log-stream "~A Context: ~S~%" indent context))
+                   (when parent-context  
+                     (format log-stream "~A Parent: ~S~%" indent parent-context))
+                   (format log-stream "~A~%" indent)))
+             
+               ;; Process form with handler - now passing parent context
+               (funcall handler x context parent-context depth)
+             
+               ;; Recursively process subforms
+               (typecase x
+                 (cons
+                  (when log-stream
+                    (format log-stream "~A Processing list form~%" 
+                            (if log-depth
+                                (make-string (* depth 2) :initial-element #\Space)
+                                "")))
+                  (walk (car x) x context (1+ depth)) 
+                  (walk (cdr x) x context (1+ depth)))
+               
+                 (array
+                  (when log-stream
+                    (format log-stream "~A Processing array~%"
+                            (if log-depth
+                                (make-string (* depth 2) :initial-element #\Space)
+                                "")))
+                  (dotimes (i (array-total-size x))
+                    (walk (row-major-aref x i) x context (1+ depth))))
+               
+                 (hash-table
+                  (when log-stream
+                    (format log-stream "~A Processing hash table~%"
+                            (if log-depth
+                                (make-string (* depth 2) :initial-element #\Space)
+                                "")))
+                  (maphash (lambda (k v)
+                            (walk k x context (1+ depth))
+                            (walk v x context (1+ depth)))
+                          x))))))
+    
+    ;; Start walking at top level
+    (let ((*print-circle* nil)     ; Prevent circular printing issues
+          (*print-length* 10)      ; Limit list output
+          (*print-level* 5))       ; Limit nesting output
+      (format log-stream "~&-------------------------------~%")
+      (walk form nil nil 0))))
+
+
+#+ignore (defun walk-form (form handler &key (log-stream *trace-output*) (log-depth t))
+  "Walk a form calling HANDLER on each subform with context and depth info.
+   FORM - The form to analyze
+   HANDLER - Function taking (form context parent-context depth)
+   LOG-STREAM - Where to send debug output (nil for no logging)
+   LOG-DEPTH - Whether to track and log nesting depth"
+  (labels ((walk (x context parent-context depth)
+             ;; Log form being processed
              (format log-stream "~&WALK-FORM handling:~%  Form: ~S~%  Context: ~S~%  Parent: ~S~%  Depth: ~D~%" 
                      x context parent-context depth)
 
@@ -460,7 +527,7 @@
                      (format log-stream "~A Parent: ~S~%" indent parent-context))
                    (format log-stream "~A~%" indent))))
              
-             ;; Process form with handler - now passing parent context
+             ;; Process string or symbol with handler - now passing parent context
              (funcall handler x context parent-context depth)
              
              ;; Recursively process subforms
@@ -498,6 +565,7 @@
     (let ((*print-circle* nil)     ; Prevent circular printing issues
           (*print-length* 10)      ; Limit list output
           (*print-level* 5))       ; Limit nesting output
+      (format log-stream "~&-------------------------------~%")
       (walk form nil nil 0))))
 
 
@@ -726,9 +794,10 @@
       (t (values nil nil nil)))))
 
 
-(defun try-definition-types (subform pkg-name parser context visibility)
+(defun try-definition-types (subform pkg-name parser context visibility log-stream)
   "Attempts to find definitions for a given symbol in various definition types.
   Records references or anomalies based on the results."
+  (declare (special log-stream))
   (let ((found-defs nil))
     ;; Try all valid definition types
     (dolist (try-type +valid-definition-types+)
@@ -748,7 +817,8 @@
                   :package pkg-name
                   :context (limit-form-size context pkg-name)
                   :visibility visibility
-                  :definitions found-defs)
+                  :definitions found-defs :log-stream log-stream)
+)
         ;; Record anomaly if no matching definition found
         (record-anomaly *current-tracker*
                 :name subform
@@ -756,11 +826,12 @@
                 :severity :WARNING
                 :file (file parser)
                 :description (format nil "Reference to undefined symbol ~A" subform)
-                :context (limit-form-size context pkg-name)))))
+                :context (limit-form-size context pkg-name))))
 
 
-(defun handle-method-call (subform parser pkg-name context visibility name args)
+(defun handle-method-call (subform parser pkg-name context visibility name args log-stream)
   "Handles analysis and recording of method calls."
+  (declare (special log-stream))
   (multiple-value-bind (gf-def method-defs)
       (find-method-call-definitions parser (cons name args))
     (if gf-def
@@ -781,6 +852,6 @@
                   :definitions (cons gf-def method-defs)
                   :qualifiers qualifiers
                   :arguments args
-                  :specializers specializers)))
+                  :specializers specializers :log-stream log-stream)))
         ;; Not a method call - check other definition types
-        (try-definition-types subform pkg-name parser context visibility))))
+        (try-definition-types subform pkg-name parser context visibility log-stream))))

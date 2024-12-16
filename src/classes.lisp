@@ -14,12 +14,6 @@
   :documentation "Valid types for dependency definitions. Used for type checking and reference matching.")
 
 
-#+ignore (defun format-if (stream control indent value)
-  "Print an indented slot NAME and VALUE, only if VALUE is non-nil and non-empty-string."
-  (when (and value (not (and (stringp value) (string= value ""))))
-    (format stream control indent value)))
-
-
 (defun format-if (stream control indent value)
   "Print an indented slot name and value only if VALUE is non-nil."
   (when value

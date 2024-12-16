@@ -72,7 +72,7 @@
                        (not (quoted-form-p subform)))
                (case (car subform)
                  ;; Package definition forms
-                 (defpackage (analyze-defpackage parser subform))
+                 (defpackage (analyze-defpackage parser subform log-stream))
                  ;; Type/class family
                  (defclass (analyze-defclass parser subform))
                  (defstruct (analyze-defstruct parser subform))
@@ -124,13 +124,13 @@
                                         (equal (definition.file def) (file parser)))
                                       defs)))
                       (when other-file-defs
-                        (record-reference *current-tracker*
+                        (record-reference *current-tracker*  ;record a package reference
                                           :name subform
                                           :file (file parser)
                                           :package norm-name 
                                           :context (limit-form-size parent-context norm-name)
                                           :visibility :LOCAL
-                                          :definitions other-file-defs))))))
+                                          :definitions other-file-defs :log-stream log-stream))))))
                (symbol
                 (unless (or (null subform)           ; Skip NIL
                             (cl-symbol-p subform)) ; Skip CL package symbols
@@ -146,9 +146,9 @@
                         (analyze-function-call-context subform context parent-context)
                       (if call-p
                           ;; Function call - handle method call
-                          (handle-method-call subform parser pkg-name context visibility name args)
+                          (handle-method-call subform parser pkg-name context visibility name args log-stream)
                           ;; Not a function call - check all definition types
-                          (try-definition-types subform pkg-name parser context visibility)))))))))
+                          (try-definition-types subform pkg-name parser context visibility log-stream)))))))))
     ;; Walk the form applying handler
     (walk-form form #'handle-reference :log-stream log-stream)))
 
@@ -169,7 +169,7 @@
                (project-pathname (file parser)) form name))))
 
 
-(defun analyze-defpackage (parser form)
+(defun analyze-defpackage (parser form log-stream)
   "Handle defpackage form, recording package definition and analyzing:
    - Package name and its dependencies
    - Package inheritance (:use)
@@ -236,7 +236,7 @@
              (let ((from-pkg (normalize-designator (second option))))
                (dolist (sym (cddr option))
                  (process-package-import-option 
-                  package from-pkg pkg-name parser sym))))
+                  package from-pkg pkg-name parser sym log-stream))))
             ((:documentation :size :nicknames)
              nil)  ; Skip these options
             (t (unless (eq (car option) :export)
