@@ -67,9 +67,10 @@
       key)))
 
 
-(defun log-definitions (stream)
-  (format stream "Filename: DEFINITIONS.LOG")
-  (format stream "~2%The list of all definitions identified in the ~A project.~2%"
+(defun log-definitions ()
+  (declare (special log-stream))
+  (format log-stream "Filename: DEFINITIONS.LOG")
+  (format log-stream "~2%The list of all definitions identified in the ~A project.~2%"
                  (slot-value *current-tracker* 'project-name))
   (let ((def-ht (slot-value *current-tracker* 'definitions))
         (defs nil))
@@ -78,15 +79,16 @@
                (setf defs (union val defs :test #'equalp)))
              def-ht)
     (dolist (def (sort defs #'string< :key #'definition.name))
-      (print-definition def stream)
-      (format stream "~%"))))
+      (print-definition def log-stream)
+      (format log-stream "~%"))))
 
 
-(defun log-references (stream)
+(defun log-references ()
   "Log all references to external definitions to the specified stream.
    Groups references by source and prints in sorted order."
-  (format stream "Filename: REFERENCES.LOG")
-  (format stream "~2%The list of all references to definitions in other files for the ~A project.~2%"
+  (declare (special log-stream))
+  (format log-stream "Filename: REFERENCES.LOG")
+  (format log-stream "~2%The list of all references to definitions in other files for the ~A project.~2%"
                  (slot-value *current-tracker* 'project-name))
   (let ((ref-ht (slot-value *current-tracker* 'references))
         (refs nil))
@@ -101,13 +103,14 @@
                              (format nil "~A:~A"
                                      (reference.file r)
                                      (reference.name r)))))
-      (print-reference ref stream))))
+      (print-reference ref log-stream))))
     
 
-(defun log-anomalies (stream)
+(defun log-anomalies ()
   "Log all anomalies grouped by type to the specified stream."
-  (format stream "Filename: ANOMALIES.LOG")
-  (format stream "~2%The list of all anomalies detected during dependency analysis of the ~A project.~2%"
+  (declare (special log-stream))
+  (format log-stream "Filename: ANOMALIES.LOG")
+  (format log-stream "~2%The list of all anomalies detected during dependency analysis of the ~A project.~2%"
                  (slot-value *current-tracker* 'project-name))
   (let ((anomaly-types nil))
     ;; Collect all anomaly types
@@ -122,19 +125,19 @@
           ;(format stream "~&~A Anomalies:" (string-upcase (symbol-name type)))
           (dolist (anomaly (sort anomalies-of-type #'string< 
                                 :key #'anomaly.description))
-            (print-anomaly anomaly stream 0))
-          (terpri stream))))))
+            (print-anomaly anomaly log-stream 0))
+          (terpri log-stream))))))
 
 
-(defun print-tracker-slot (tracker slot-name stream)
-  "Print contents of tracker slot to stream with headers and indentation.
+#+ignore (defun print-tracker-slot (tracker slot-name)
+  "Print contents of tracker slot to log-stream with headers and indentation.
    TRACKER is a dependency-tracker instance
-   SLOT-NAME is one of 'definitions, 'references, or 'anomalies
-   STREAM is where to write the output"
+   SLOT-NAME is one of 'definitions, 'references, or 'anomalies"
+  (declare (special log-stream))
   (let ((table (slot-value tracker slot-name)))
     ;; Print slot header
-    (format stream "~&~A.LOG~%" (string-upcase slot-name))
-    (format stream "~V,,,'-<~>~2%" 30)
+    (format log-stream "~&~A.LOG~%" (string-upcase slot-name))
+    (format log-stream "~V,,,'-<~>~2%" 30)
     (case slot-name
       (definitions
        ;; Sort and print definitions directly
@@ -145,7 +148,7 @@
                       (push def defs)))
                   table)
          (dolist (def (sort defs #'string< :key #'definition.name))
-           (format stream "~A~2%" def))))
+           (format log-stream "~A~2%" def))))
 
       (references
        ;; Group references by symbol (and package), but print no sub-headers.
@@ -162,13 +165,13 @@
                 )
                ((null (cdr refs))
                 ;; Only one reference, print it directly.
-                (format stream "~A~2%" (car refs)))
+                (format log-stream "~A~2%" (car refs)))
                (t
                 ;; Multiple references, print them in a grouped list.
-                (format stream "(~%")
+                (format log-stream "(~%")
                 (dolist (ref refs)
-                  (format stream "  ~A~%" ref))
-                (format stream ")~%")))))))
+                  (format log-stream "  ~A~%" ref))
+                (format log-stream ")~%")))))))
 
       (anomalies
        ;; Group anomalies by type
@@ -178,9 +181,9 @@
                     (push type types))
                   table)
          (dolist (type (sort types #'string<))
-           (format stream "~&~A ANOMALIES~%"
+           (format log-stream "~&~A ANOMALIES~%"
                    (string-upcase (symbol-name type)))
            (dolist (anomaly (sort (gethash type table)
                                   #'string< :key #'anomaly.description))
-             (format stream "  ~A~%" anomaly))
-           (format stream "~%")))))))
+             (format log-stream "  ~A~%" anomaly))
+           (format log-stream "~%")))))))

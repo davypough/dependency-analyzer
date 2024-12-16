@@ -46,47 +46,56 @@
         (format t "~%First Pass - Initializing Packages...~%")
         (with-open-file (log-stream (merge-pathnames "packages-trace.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
-          (unless (initialize-packages source-files log-stream)
+          (declare (special log-stream))
+          (unless (initialize-packages source-files)
             (error "~2%Package initialization failed. Cannot continue reliable analysis. See packages-trace.log file.")))
         
         ;; Second pass: analyze definitions
         (format t "~%Second Pass - Collecting Definitions...~%")
         (with-open-file (log-stream (merge-pathnames "definitions-trace.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
+          (declare (special log-stream))
           (dolist (file source-files)
             (format log-stream "~%Definitions Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
-              (parse-definitions-in-file file-parser log-stream))))
+              (parse-definitions-in-file file-parser))))
         
         ;; Third pass: analyze references  
         (format t "~%Third Pass - Analyzing References...~2%") 
-        (with-open-file (log-stream (merge-pathnames "references-trace.log" logs-dir) :direction :output
-                                   :if-exists :supersede :if-does-not-exist :create)
-          (dolist (file source-files)
-            (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
-            (let ((file-parser (make-instance 'file-parser :file file)))
-              (parse-references-in-file file-parser log-stream))))
+        (with-open-file (log-stream (merge-pathnames "references-trace.log" logs-dir) 
+                           :direction :output
+                           :if-exists :supersede 
+                           :if-does-not-exist :create)
+           (declare (special log-stream))
+           (dolist (file source-files)
+             (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
+             (let ((file-parser (make-instance 'file-parser :file file)))
+               (parse-references-in-file file-parser))))
 
         ;; Log final definitions, references, anomalies
         (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
-          (log-definitions log-stream))
+          (declare (special log-stream))
+          (log-definitions))
         (with-open-file (log-stream (merge-pathnames "references.log" logs-dir) :direction :output 
                                    :if-exists :supersede :if-does-not-exist :create)
-          (log-references log-stream))
+          (declare (special log-stream))
+          (log-references))
         (with-open-file (log-stream (merge-pathnames "anomalies.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
-          (log-anomalies log-stream))
+          (declare (special log-stream))
+          (log-anomalies))
         (in-package :dep)
         *current-tracker*))))
 
 
-(defun initialize-packages (source-files log-stream)
+(defun initialize-packages (source-files)
   "Initialize all packages in source files using a staged approach:
    1. Collect all package definition forms
    2. Create base packages with just names
    3. Evaluate full package definitions  
    Returns T if successful, NIL if errors encountered."
+  (declare (special log-stream))
   (let ((package-forms nil))
     ;; Stage 1: Collect all package forms
     (format log-stream "~&Stage 1: Collecting package forms...~%")

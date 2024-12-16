@@ -24,14 +24,6 @@ ANOMALY>
 ANOMALY>
     :Name *DEFPARAMETER-VARIABLE*
     :Type :UNDEFINED-REFERENCE
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol *DEFPARAMETER-VARIABLE*
-
-ANOMALY>
-    :Name *DEFPARAMETER-VARIABLE*
-    :Type :UNDEFINED-REFERENCE
     :Context (*DEFPARAMETER-VARIABLE* 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
@@ -46,32 +38,6 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol *DEFPARAMETER-VARIABLE*
-
-ANOMALY>
-    :Name *DEFVAR-VARIABLE*
-    :Type :UNDEFINED-REFERENCE
-    :Context (*DEFVAR-VARIABLE* (COMPUTE-AREA (MAKE-CIRCLE)) ARG)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol *DEFVAR-VARIABLE*
-
-ANOMALY>
-    :Name *DEFVAR-VARIABLE*
-    :Type :UNDEFINED-REFERENCE
-    :Context (*DEFVAR-VARIABLE* ARG)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol *DEFVAR-VARIABLE*
-
-ANOMALY>
-    :Name *DEFVAR-VARIABLE*
-    :Type :UNDEFINED-REFERENCE
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol *DEFVAR-VARIABLE*
 
 ANOMALY>
     :Name *DEFVAR-VARIABLE*
@@ -90,14 +56,6 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol *DEFVAR-VARIABLE*
-
-ANOMALY>
-    :Name +DEFCONSTANT-VARIABLE+
-    :Type :UNDEFINED-REFERENCE
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol +DEFCONSTANT-VARIABLE+
 
 ANOMALY>
     :Name +DEFCONSTANT-VARIABLE+
@@ -174,15 +132,6 @@ ANOMALY>
 ANOMALY>
     :Name CIRCLE-RADIUS
     :Type :UNDEFINED-REFERENCE
-    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol CIRCLE-RADIUS
-
-ANOMALY>
-    :Name CIRCLE-RADIUS
-    :Type :UNDEFINED-REFERENCE
     :Context (CIRCLE-RADIUS SHAPE)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
@@ -208,15 +157,6 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol COMPUTE-AREA
-
-ANOMALY>
-    :Name CONDITION-NAME
-    :Type :UNDEFINED-REFERENCE
-    :Context (CONDITION-NAME)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol CONDITION-NAME
 
 ANOMALY>
     :Name CONDITION-NAME
@@ -293,47 +233,11 @@ ANOMALY>
 ANOMALY>
     :Name DEFMACRO-NAME
     :Type :UNDEFINED-REFERENCE
-    :Context (DEFMACRO-NAME)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol DEFMACRO-NAME
-
-ANOMALY>
-    :Name DEFMACRO-NAME
-    :Type :UNDEFINED-REFERENCE
     :Context (DEFMACRO-NAME NIL 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol DEFMACRO-NAME
-
-ANOMALY>
-    :Name DEFUN-NAME
-    :Type :UNDEFINED-REFERENCE
-    :Context (DEFUN-NAME)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol DEFUN-NAME
-
-ANOMALY>
-    :Name DEFUN-NAME
-    :Type :UNDEFINED-REFERENCE
-    :Context (DEFUN-NAME)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol DEFUN-NAME
-
-ANOMALY>
-    :Name DEFUN-NAME
-    :Type :UNDEFINED-REFERENCE
-    :Context (DEFUN-NAME)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol DEFUN-NAME
 
 ANOMALY>
     :Name DEFUN-NAME
@@ -361,15 +265,6 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol ENV
-
-ANOMALY>
-    :Name FDEFINITION-FUNCTION-NAME
-    :Type :UNDEFINED-REFERENCE
-    :Context (FDEFINITION-FUNCTION-NAME)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol FDEFINITION-FUNCTION-NAME
 
 ANOMALY>
     :Name FDEFINITION-FUNCTION-NAME
@@ -424,15 +319,6 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol LOG-LEVEL
-
-ANOMALY>
-    :Name MACRO-FUNCTION-NAME
-    :Type :UNDEFINED-REFERENCE
-    :Context (MACRO-FUNCTION-NAME)
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol MACRO-FUNCTION-NAME
 
 ANOMALY>
     :Name MACRO-FUNCTION-NAME
@@ -505,15 +391,6 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol PERSON.
-
-ANOMALY>
-    :Name PERSON.AGE
-    :Type :UNDEFINED-REFERENCE
-    :Context (PERSON.AGE (MAKE-PERSON))
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol PERSON.AGE
 
 ANOMALY>
     :Name PROCESS-DATA
@@ -594,26 +471,9 @@ ANOMALY>
     :Type :UNDEFINED-REFERENCE
     :Context (SYMBOL-FUNCTION-NAME)
     :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol SYMBOL-FUNCTION-NAME
-
-ANOMALY>
-    :Name SYMBOL-FUNCTION-NAME
-    :Type :UNDEFINED-REFERENCE
-    :Context (SYMBOL-FUNCTION-NAME)
-    :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol SYMBOL-FUNCTION-NAME
-
-ANOMALY>
-    :Name SYMBOL-VALUE-VARIABLE
-    :Type :UNDEFINED-REFERENCE
-    :Severity :WARNING
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Reference to undefined symbol SYMBOL-VALUE-VARIABLE
 
 ANOMALY>
     :Name SYMBOL-VALUE-VARIABLE
