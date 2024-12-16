@@ -262,6 +262,7 @@ REFERENCE>
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
     :Arguments ("test" :LOGGING)
+    :Specializers (STRING :INFO)
     :Definitions
                     DEFINITION>
                         :Name PROCESS-DATA
@@ -272,6 +273,19 @@ REFERENCE>
                         :Type :GENERIC-FUNCTION
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA :AFTER
+                                            ((DATA STRING)
+                                             &KEY (LOG-LEVEL :INFO ...))
+                                   (WHEN (EQ LOG-LEVEL :INFO)
+                                     (FORMAT NIL "LOG: ~A" DATA))
+                                   ...)
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                        :Qualifiers (:AFTER)
+                        :Specializers (STRING :INFO)
 REFERENCE>
     :Name PROCESS-DATA
     :Context (PROCESS-DATA 42)

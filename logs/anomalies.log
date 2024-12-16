@@ -303,6 +303,24 @@ ANOMALY>
     :Description Reference to undefined symbol FUNCTION-WITH-CONDITION
 
 ANOMALY>
+    :Name LOG-LEVEL
+    :Type :UNDEFINED-REFERENCE
+    :Context (LOG-LEVEL :INFO)
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Description Reference to undefined symbol LOG-LEVEL
+
+ANOMALY>
+    :Name LOG-LEVEL
+    :Type :UNDEFINED-REFERENCE
+    :Context (LOG-LEVEL :INFO)
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Description Reference to undefined symbol LOG-LEVEL
+
+ANOMALY>
     :Name MACRO-FUNCTION-NAME
     :Type :UNDEFINED-REFERENCE
     :Context (MACRO-FUNCTION-NAME)
@@ -386,8 +404,8 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (PROCESS-DATA :LOGGING ((DATA STRING) &KEY)
-              (FORMAT NIL "LOG: ~A" DATA ...))
+    :Context (PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)) ...)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -396,7 +414,7 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+    :Context (PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp

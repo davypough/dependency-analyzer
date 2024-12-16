@@ -78,7 +78,8 @@
                (setf defs (union val defs :test #'equalp)))
              def-ht)
     (dolist (def (sort defs #'string< :key #'definition.name))
-      (print-definition def stream))))
+      (print-definition def stream)
+      (format stream "~%"))))
 
 
 (defun log-references (stream)
