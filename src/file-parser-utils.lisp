@@ -337,20 +337,6 @@
           (find-package :common-lisp))))
 
 
-(defun collect-non-cl-symbols (form symbols)
-  "Recursively collect all non-CL symbols from form into symbols list.
-   Handles nested lists and ignores quoted forms."
-  (typecase form
-    (symbol 
-     (unless (or (null form) (cl-symbol-p form))
-       (push form symbols)))
-    (cons
-     (unless (quoted-form-p form)
-       (setf symbols (collect-non-cl-symbols (car form) symbols))
-       (setf symbols (collect-non-cl-symbols (cdr form) symbols)))))
-  symbols)
-
-
 (defun quoted-form-p (form)
  "Return true if form is quoted with quote or function quote."
  (and (consp form)
@@ -440,64 +426,29 @@
     visibility))
 
 
-(defun walk-form (form handler &key (log-depth t))
+(defun walk-form (form handler)
   "Walk a form calling HANDLER on each subform with context and depth info.
    FORM - The form to analyze
-   HANDLER - Function taking (form context parent-context depth)
-   LOG-STREAM - Where to send debug output (nil for no logging)
-   LOG-DEPTH - Whether to track and log nesting depth"
+   HANDLER - Function taking (form context parent-context depth)"
   (declare (special log-stream))
   (labels ((walk (x context parent-context depth)
-             ;; Log form being processed
              (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%  Depth: ~D~%" 
-                     x context parent-context depth)
-
-             (unless (skip-item-p x)
-               ;; Log details if requested 
-               #+ignore (when log-stream
-                 (let ((indent (if log-depth 
-                                (make-string (* depth 2) :initial-element #\Space)
-                                "")))
-                   (format log-stream "~&~AForm: ~S~%" indent x)
-                   (when context
-                     (format log-stream "~A Context: ~S~%" indent context))
-                   (when parent-context  
-                     (format log-stream "~A Parent: ~S~%" indent parent-context))
-                   (format log-stream "~A~%" indent)))
-             
-               ;; Process form with handler - now passing parent context
-               (funcall handler x context parent-context depth)
-             
+                                x context parent-context depth)
+             (unless (skip-item-p x)  ;skip non-referring items
+               (funcall handler x context parent-context depth)  
                ;; Recursively process subforms
                (typecase x
-                 (cons
-                  (when log-stream
-                    (format log-stream "~A Processing list form~%" 
-                            (if log-depth
-                                (make-string (* depth 2) :initial-element #\Space)
-                                "")))
-                  (walk (car x) x context (1+ depth)) 
-                  (walk (cdr x) x context (1+ depth)))
-               
-                 (array
-                  (when log-stream
-                    (format log-stream "~A Processing array~%"
-                            (if log-depth
-                                (make-string (* depth 2) :initial-element #\Space)
-                                "")))
-                  (dotimes (i (array-total-size x))
-                    (walk (row-major-aref x i) x context (1+ depth))))
-               
-                 (hash-table
-                  (when log-stream
-                    (format log-stream "~A Processing hash table~%"
-                            (if log-depth
-                                (make-string (* depth 2) :initial-element #\Space)
-                                "")))
-                  (maphash (lambda (k v)
-                            (walk k x context (1+ depth))
-                            (walk v x context (1+ depth)))
-                          x))))))
+                 (cons 
+                   (dolist (element x)
+                     (walk element x context (1+ depth))))
+                 (array 
+                   (dotimes (i (array-total-size x))
+                     (walk (row-major-aref x i) x context (1+ depth))))
+                 (hash-table 
+                   (maphash (lambda (k v)
+                             (walk k x context (1+ depth))
+                             (walk v x context (1+ depth)))
+                           x))))))
     
     ;; Start walking at top level
     (let ((*print-circle* nil)     ; Prevent circular printing issues

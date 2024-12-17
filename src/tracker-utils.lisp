@@ -88,7 +88,7 @@
    Groups references by source and prints in sorted order."
   (declare (special log-stream))
   (format log-stream "Filename: REFERENCES.LOG")
-  (format log-stream "~2%The list of all references to definitions in other files for the ~A project.~2%"
+  (format log-stream "~2%The list of all references to definitions in other files for the ~A project.~%"
                  (slot-value *current-tracker* 'project-name))
   (let ((ref-ht (slot-value *current-tracker* 'references))
         (refs nil))
@@ -103,6 +103,7 @@
                              (format nil "~A:~A"
                                      (reference.file r)
                                      (reference.name r)))))
+      (terpri log-stream)
       (print-reference ref log-stream))))
     
 

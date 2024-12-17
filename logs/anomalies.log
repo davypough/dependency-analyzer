@@ -24,7 +24,7 @@ ANOMALY>
 ANOMALY>
     :Name *DEFPARAMETER-VARIABLE*
     :Type :UNDEFINED-REFERENCE
-    :Context (*DEFPARAMETER-VARIABLE* 0)
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -33,7 +33,7 @@ ANOMALY>
 ANOMALY>
     :Name *DEFPARAMETER-VARIABLE*
     :Type :UNDEFINED-REFERENCE
-    :Context (*DEFPARAMETER-VARIABLE* 0)
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -42,7 +42,7 @@ ANOMALY>
 ANOMALY>
     :Name *DEFVAR-VARIABLE*
     :Type :UNDEFINED-REFERENCE
-    :Context (*DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -51,7 +51,7 @@ ANOMALY>
 ANOMALY>
     :Name *DEFVAR-VARIABLE*
     :Type :UNDEFINED-REFERENCE
-    :Context (*DEFVAR-VARIABLE* 0)
+    :Context (DEFVAR *DEFVAR-VARIABLE* 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -60,7 +60,7 @@ ANOMALY>
 ANOMALY>
     :Name +DEFCONSTANT-VARIABLE+
     :Type :UNDEFINED-REFERENCE
-    :Context (+DEFCONSTANT-VARIABLE+ "aeiou")
+    :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -78,7 +78,12 @@ ANOMALY>
 ANOMALY>
     :Name ARG
     :Type :UNDEFINED-REFERENCE
-    :Context (ARG)
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE ...))
+               ARG
+               ...)
     :Severity :WARNING
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
@@ -96,7 +101,7 @@ ANOMALY>
 ANOMALY>
     :Name ARG
     :Type :UNDEFINED-REFERENCE
-    :Context (ARG)
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
     :Severity :WARNING
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
@@ -114,7 +119,7 @@ ANOMALY>
 ANOMALY>
     :Name CIRCLE
     :Type :UNDEFINED-REFERENCE
-    :Context (CIRCLE)
+    :Context (SHAPE CIRCLE)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -123,7 +128,7 @@ ANOMALY>
 ANOMALY>
     :Name CIRCLE
     :Type :UNDEFINED-REFERENCE
-    :Context (CIRCLE (RADIUS 1 :TYPE NUMBER))
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -141,8 +146,8 @@ ANOMALY>
 ANOMALY>
     :Name COMPUTE-AREA
     :Type :UNDEFINED-REFERENCE
-    :Context (COMPUTE-AREA ((SHAPE CIRCLE))
-              (* PI (EXPT (CIRCLE-RADIUS ...) 2 ...)))
+    :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+               (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -151,8 +156,10 @@ ANOMALY>
 ANOMALY>
     :Name COMPUTE-AREA
     :Type :UNDEFINED-REFERENCE
-    :Context (COMPUTE-AREA (SHAPE)
-              (:DOCUMENTATION "Compute the area of different geometric shapes"))
+    :Context (DEFGENERIC COMPUTE-AREA
+                 (SHAPE)
+               (:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -161,7 +168,9 @@ ANOMALY>
 ANOMALY>
     :Name CONDITION-NAME
     :Type :UNDEFINED-REFERENCE
-    :Context (CONDITION-NAME NIL NIL)
+    :Context (DEFINE-CONDITION CONDITION-NAME
+                 NIL
+                 NIL)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -170,7 +179,7 @@ ANOMALY>
 ANOMALY>
     :Name DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (DATA)
+    :Context (1+ DATA)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -188,7 +197,7 @@ ANOMALY>
 ANOMALY>
     :Name DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (DATA)
+    :Context (FORMAT NIL "LOG: ~A" DATA)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -206,7 +215,7 @@ ANOMALY>
 ANOMALY>
     :Name DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (DATA)
+    :Context (STRING-UPCASE DATA)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -233,7 +242,7 @@ ANOMALY>
 ANOMALY>
     :Name DEFMACRO-NAME
     :Type :UNDEFINED-REFERENCE
-    :Context (DEFMACRO-NAME NIL 0)
+    :Context (DEFMACRO DEFMACRO-NAME () 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -242,7 +251,7 @@ ANOMALY>
 ANOMALY>
     :Name DEFUN-NAME
     :Type :UNDEFINED-REFERENCE
-    :Context (DEFUN-NAME NIL 0)
+    :Context (DEFUN DEFUN-NAME () 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -251,7 +260,7 @@ ANOMALY>
 ANOMALY>
     :Name ENV
     :Type :UNDEFINED-REFERENCE
-    :Context (ENV 0)
+    :Context (LAMBDA (FORM ENV) FORM ENV 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -260,7 +269,7 @@ ANOMALY>
 ANOMALY>
     :Name ENV
     :Type :UNDEFINED-REFERENCE
-    :Context (ENV)
+    :Context (FORM ENV)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -269,7 +278,7 @@ ANOMALY>
 ANOMALY>
     :Name FDEFINITION-FUNCTION-NAME
     :Type :UNDEFINED-REFERENCE
-    :Context (FDEFINITION-FUNCTION-NAME)
+    :Context 'FDEFINITION-FUNCTION-NAME
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -278,7 +287,7 @@ ANOMALY>
 ANOMALY>
     :Name FORM
     :Type :UNDEFINED-REFERENCE
-    :Context (FORM ENV 0)
+    :Context (LAMBDA (FORM ENV) FORM ENV 0)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -296,7 +305,7 @@ ANOMALY>
 ANOMALY>
     :Name FUNCTION-WITH-CONDITION
     :Type :UNDEFINED-REFERENCE
-    :Context (FUNCTION-WITH-CONDITION NIL (ERROR 'CONDITION-NAME))
+    :Context (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
     :Severity :WARNING
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
@@ -305,7 +314,7 @@ ANOMALY>
 ANOMALY>
     :Name LOG-LEVEL
     :Type :UNDEFINED-REFERENCE
-    :Context (LOG-LEVEL :INFO)
+    :Context (EQ LOG-LEVEL :INFO)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -323,7 +332,7 @@ ANOMALY>
 ANOMALY>
     :Name MACRO-FUNCTION-NAME
     :Type :UNDEFINED-REFERENCE
-    :Context (MACRO-FUNCTION-NAME)
+    :Context 'MACRO-FUNCTION-NAME
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -368,7 +377,7 @@ ANOMALY>
 ANOMALY>
     :Name MY-FUNCTION
     :Type :UNDEFINED-REFERENCE
-    :Context (MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
     :Severity :WARNING
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
@@ -386,7 +395,7 @@ ANOMALY>
 ANOMALY>
     :Name PERSON.
     :Type :UNDEFINED-REFERENCE
-    :Context (PERSON.)
+    :Context (:CONC-NAME PERSON.)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -395,7 +404,7 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+    :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -404,8 +413,10 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)) ...)
+    :Context (DEFMETHOD PROCESS-DATA :AFTER
+                        ((DATA STRING) &KEY (LOG-LEVEL :INFO ...))
+               (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+               ...)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -414,7 +425,7 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -423,8 +434,9 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (PROCESS-DATA (DATA &KEY)
-              (:DOCUMENTATION "Process data with various methods"))
+    :Context (DEFGENERIC PROCESS-DATA
+                 (DATA &KEY)
+               (:DOCUMENTATION "Process data with various methods"))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -442,7 +454,7 @@ ANOMALY>
 ANOMALY>
     :Name SHAPE
     :Type :UNDEFINED-REFERENCE
-    :Context (SHAPE)
+    :Context (CIRCLE-RADIUS SHAPE)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -469,7 +481,7 @@ ANOMALY>
 ANOMALY>
     :Name SYMBOL-FUNCTION-NAME
     :Type :UNDEFINED-REFERENCE
-    :Context (SYMBOL-FUNCTION-NAME)
+    :Context 'SYMBOL-FUNCTION-NAME
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -478,7 +490,7 @@ ANOMALY>
 ANOMALY>
     :Name SYMBOL-VALUE-VARIABLE
     :Type :UNDEFINED-REFERENCE
-    :Context (SYMBOL-VALUE-VARIABLE)
+    :Context 'SYMBOL-VALUE-VARIABLE
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
