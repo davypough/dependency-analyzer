@@ -52,7 +52,13 @@
                      (pushnew ref refs :test #'equal))))
                (slot-value tracker 'references)))
     ;; Return sorted list of references
-    (sort refs #'string< :key (lambda (r) (symbol-name (reference.name r))))))
+    (sort refs #'string< 
+          :key (lambda (r) 
+                (with-output-to-string (s)
+                  (format s "~A~{~A~}~{~A~}" 
+                         (reference.name r)
+                         (reference.qualifiers r)
+                         (reference.arguments r)))))))
 
 
 (defun record-definition (tracker &key name type file package exported-p context qualifiers specializers)
@@ -111,15 +117,18 @@
 
 
 (defun record-reference (tracker &key name file package context visibility definitions
-                                     qualifiers arguments specializers)
+                                     qualifiers arguments)
   "Record a name reference in the tracker.
    VISIBILITY is inherited, imported, or local (defaults to local)
-   DEFINITIONS is a list of definitions this reference depends on
-   QUALIFIERS, ARGUMENTS, SPECIALIZERS track method call details when applicable"
- (declare (special log-stream))
- (let* ((key (make-tracking-key name (when (symbol-package name)
-                                      (package-name (symbol-package name)))))
-        (ref (make-instance 'reference 
+   DEFINITIONS is a non-empty list of definitions this reference depends on
+   QUALIFIERS tracks method qualifiers in the call 
+   ARGUMENTS is alternating list of argument values and their types"
+  (declare (special log-stream))
+  (let* ((key (make-tracking-key name (etypecase name
+                                      (string name) 
+                                      (symbol (when (symbol-package name)
+                                              (package-name (symbol-package name)))))))
+         (ref (make-instance 'reference 
                           :name name 
                           :file file 
                           :package package 
@@ -127,8 +136,7 @@
                           :visibility (or visibility :LOCAL)
                           :definitions definitions
                           :qualifiers qualifiers
-                          :arguments arguments
-                          :specializers specializers)))
+                          :arguments arguments)))
    (pushnew ref (gethash key (slot-value tracker 'references))
         :test #'equalp)
    (format log-stream "~%~A~%" ref)
@@ -526,7 +534,7 @@
 (defun package-context-p (context parent-context)
   "Return T if the context indicates a form that accepts package designator references.
    Such contexts include:
-   - Direct package forms (defpackage, in-package, use-package etc)
+   - Direct package forms (defpackage, in-package, use-package etc)  
    - Package options in defpackage (:use, :import-from, :nicknames)"
   (and (consp context)
        (or ;; Direct package forms
@@ -569,10 +577,10 @@
                       (qualifiers-compatible-p 
                        (definition.qualifiers method-def)
                        qualifiers)
-                      ;; Specializer checking as before
-                      (every #'specializer-compatible-p
-                             (definition.specializers method-def)
-                             args)))
+                      ;; Type/specializer checking
+                      (loop for specializer in (definition.specializers method-def)
+                            for arg in args
+                            always (specializer-compatible-p specializer arg))))
                all-methods)))
         
         (values (car gf-defs) applicable-methods)))))
@@ -629,14 +637,16 @@
                              (princ-to-string specializer))))
      t)
     
-    ;; Class/type specializer
-    ((ignore-errors (find-class (if (symbolp specializer)
-                                   specializer
-                                   (read-from-string specializer))
-                               nil))
-     (if (constantp arg)
-         (typep (eval arg) specializer)
-         t))
+    ;; Non-constant form - permissive match
+    ((consp arg) t)
+    
+    ;; Class/type specializer with constant arg
+    ((and (not (consp arg))
+          (ignore-errors (find-class (if (symbolp specializer)
+                                       specializer
+                                       (read-from-string specializer))
+                                   nil)))
+     (typep arg specializer))
     
     ;; Conservative default
     (t t)))
@@ -728,10 +738,15 @@
         (when (or gf-def method-defs)
           (let* ((name-and-quals (analyze-call-qualifiers name))
                  (qualifiers (cdr name-and-quals))
-                 (specializers (remove-duplicates 
-                              (alexandria:flatten 
-                               (mapcar #'definition.specializers method-defs))
-                              :test #'equal)))
+                 (typed-args (loop for arg in args
+                                 collect arg
+                                 collect (cond ((null arg) 'null)
+                                             ((stringp arg) 'string)
+                                             ((numberp arg) 'number)
+                                             ((keywordp arg) 'keyword)
+                                             ((symbolp arg) 'symbol)
+                                             ((consp arg) 'unanalyzed)
+                                             (t (type-of arg))))))
             (record-reference *current-tracker*
                   :name subform
                   :file (file parser)
@@ -740,7 +755,6 @@
                   :visibility visibility
                   :definitions (cons gf-def method-defs)
                   :qualifiers qualifiers
-                  :arguments args
-                  :specializers specializers)))
+                  :arguments typed-args)))
         ;; Not a method call - check other definition types
         (try-definition-types subform pkg-name parser context visibility))))

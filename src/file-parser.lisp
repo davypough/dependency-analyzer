@@ -117,24 +117,23 @@
              (declare (ignorable subform context parent-context depth))
              (typecase subform
                ((or string keyword (and symbol (satisfies not-interned-p)))
-                ;; Only process as package ref in package contexts
-                (when (package-context-p context parent-context)
-                  (let* ((norm-name (normalize-designator subform))
-                         (key (make-tracking-key norm-name nil :PACKAGE))
-                         (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                    ;; Collect all definitions from other files
-                    (let ((other-file-defs 
-                           (remove-if (lambda (def)  
-                                        (equal (definition.file def) (file parser)))
-                                      defs)))
-                      (when other-file-defs
-                        (record-reference *current-tracker*  ;record a package reference
-                                          :name subform
-                                          :file (file parser)
-                                          :package norm-name 
-                                          :context (limit-form-size parent-context norm-name)
-                                          :visibility :LOCAL
-                                          :definitions other-file-defs))))))
+                 ;; Only process as package ref in package contexts
+                 (when (package-context-p context parent-context)
+                   (let* ((norm-name (normalize-designator subform))
+                          (key (make-tracking-key norm-name norm-name :PACKAGE))  ;; Changed from nil to norm-name
+                          (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                     ;; Collect all definitions from other files  
+                     (let ((other-file-defs (remove-if (lambda (def)  
+                                                         (equal (definition.file def) (file parser)))
+                                            defs)))
+                       (when other-file-defs
+                         (record-reference *current-tracker*  ;record a package reference
+                          :name norm-name
+                          :file (file parser)
+                          :package norm-name 
+                          :context (limit-form-size parent-context norm-name)
+                          :visibility :LOCAL
+                          :definitions other-file-defs))))))
                (symbol
                 (unless (or (null subform)           ; Skip NIL
                             (cl-symbol-p subform)) ; Skip CL package symbols

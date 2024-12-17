@@ -1078,6 +1078,22 @@ WALK(ING):
   Parent: NIL
   Depth: 1
 
+#<REFERENCE 
+    :Name "USER-MAIN-PACKAGE"
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name "USER-MAIN-PACKAGE"
+                        :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
+                                   (:USE :CL))
+                        :Type :PACKAGE
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                        :Exported-p T
+>
+
 -------------------------------
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
@@ -1454,8 +1470,7 @@ WALK(ING):
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
-    :Arguments ("test" :LOGGING)
-    :Specializers (STRING :INFO)
+    :Arguments ("test" STRING :LOGGING KEYWORD)
     :Definitions
                     DEFINITION>
                         :Name PROCESS-DATA
@@ -1509,8 +1524,7 @@ WALK(ING):
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
-    :Arguments (42)
-    :Specializers (NUMBER)
+    :Arguments (42 NUMBER)
     :Definitions
                     DEFINITION>
                         :Name PROCESS-DATA
@@ -1880,8 +1894,7 @@ WALK(ING):
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
-    :Arguments ((MAKE-CIRCLE))
-    :Specializers (CIRCLE)
+    :Arguments ((MAKE-CIRCLE) DEPENDENCY-ANALYZER::UNANALYZED)
     :Definitions
                     DEFINITION>
                         :Name COMPUTE-AREA

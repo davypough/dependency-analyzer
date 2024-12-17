@@ -74,48 +74,37 @@
    (file :initarg :file :reader reference.file :type (or string pathname))
    (package :initarg :package :reader reference.package :type (or string symbol))
    (visibility :initarg :visibility :reader reference.visibility :type (member :LOCAL :INHERITED :IMPORTED)) 
-   (definitions :initarg :definitions :reader reference.definitions
-                :type (and list (cons (and standard-object definition) list)))
+   (definitions :initarg :definitions :reader reference.definitions :type cons)
    (qualifiers :initarg :qualifiers :initform nil :reader reference.qualifiers :type list)
-   (arguments :initarg :arguments :initform nil :reader reference.arguments :type list)
-   (specializers :initarg :specializers :initform nil :reader reference.specializers :type list))
+   (arguments :initarg :arguments :initform nil :reader reference.arguments :type list))
   (:default-initargs :name nil :context nil :file nil :package nil :visibility nil
-                     :definitions nil :qualifiers nil :arguments nil :specializers nil)
+                    :definitions nil :qualifiers nil :arguments nil)
   (:documentation "Data structure holding info about a lisp reference to a definition"))
 
 
 (defmethod print-object ((object reference) stream)
   "Print a reference object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
-    (with-slots (name context file package visibility definitions qualifiers arguments specializers) object
-      (format-if stream "    :Name ~A" "" name)
+    (with-slots (name context file package visibility definitions qualifiers arguments) object
+      (format-if stream "    :Name ~S" "" name)
       (format-if stream "    :Context ~S" "" context)
       (format-if stream "    :File ~A" "" (and file (project-pathname file)))
       (format-if stream "    :Package ~S" "" package)
       (format-if stream "    :Visibility ~A" "" visibility)
       (format-if stream "    :Qualifiers ~S" "" qualifiers)
       (format-if stream "    :Arguments ~S" "" arguments)
-      (format-if stream "    :Specializers ~S" "" specializers)
-      ;; Print definitions as a unit.
-      (if definitions
-          (progn
-            ;; Print the :Definitions header line
-            (format-if stream "    :Definitions~A" "" "")
-            ;; Now print each definition with extra indentation
-            (dolist (def definitions)
-              (print-definition def stream 20)))
-          ;; No definitions available
-          (format-if stream "    :Definitions ~A" "" "None")))))
+      (format-if stream "    :Definitions~A" "" "")
+      (dolist (def definitions)
+        (print-definition def stream 20)))))
 
 
 (defun print-reference (ref &optional (stream *standard-output*) (indent 0))
   "Print a readable representation of a reference, omitting null slots.
 Definitions are printed as a unit, indented beneath the :Definitions header."
-  (let ((indent-str (make-string indent :initial-element #\Space))
-        (defs (reference.definitions ref)))
+  (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~AREFERENCE>" indent-str)
     ;; Print each non-nil slot using format-if
-    (format-if stream "    :Name ~A" indent-str (reference.name ref))
+    (format-if stream "    :Name ~S" indent-str (reference.name ref))
     (format-if stream "    :Context ~S" indent-str (reference.context ref))
     (format-if stream "    :File ~A" indent-str (and (reference.file ref)
                                                   (project-pathname (reference.file ref))))
@@ -123,16 +112,9 @@ Definitions are printed as a unit, indented beneath the :Definitions header."
     (format-if stream "    :Visibility ~A" indent-str (reference.visibility ref))
     (format-if stream "    :Qualifiers ~S" indent-str (reference.qualifiers ref))
     (format-if stream "    :Arguments ~S" indent-str (reference.arguments ref))
-    (format-if stream "    :Specializers ~S" indent-str (reference.specializers ref))
-    ;; Print definitions as a unit
-    (if defs
-        (progn
-          ;; Print :Definitions header line
-          (format-if stream "    :Definitions~A" indent-str "")
-          (dolist (def defs)
-            (print-definition def stream (+ indent 20))))
-      ;; If no definitions, print a single line with "None"
-      (format-if stream "    :Definitions ~A" indent-str "None"))))
+    (format-if stream "    :Definitions~A" indent-str "")
+    (dolist (def (reference.definitions ref))
+      (print-definition def stream (+ indent 20)))))
 
 
 (defclass anomaly ()

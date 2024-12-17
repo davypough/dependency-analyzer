@@ -305,7 +305,7 @@
                 (setf (gethash dep is-dependency) t)))
             (slot-value tracker 'file-map))
    
-   ;; Second pass simplified to just list references
+   ;; Second pass enhanced with method reference details
    (maphash (lambda (file def-list)
               (declare (ignore def-list)) 
               (unless (gethash file is-dependency)
@@ -317,8 +317,14 @@
                                    (let ((refs (collect-file-references tracker file dep)))
                                      (alexandria:alist-hash-table
                                       `(("file" . ,(project-pathname dep))
-                                        ("references" . ,(mapcar #'symbol-name 
-                                                               (mapcar #'reference.name refs))))
+                                        ("references" . 
+                                          ,(mapcar (lambda (ref)
+                                                    (alexandria:alist-hash-table
+                                                      `(("name" . ,(symbol-name (reference.name ref)))
+                                                        ("qualifiers" . ,(reference.qualifiers ref))
+                                                        ("arguments" . ,(reference.arguments ref)))
+                                                      :test 'equal))
+                                                  refs)))
                                       :test 'equal)))
                                  deps)))
                       (setf (gethash file-str result)

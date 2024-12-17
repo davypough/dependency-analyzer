@@ -192,7 +192,7 @@
                  (format stream "    ~A~%" sym)))))
          (slot-value tracker 'package-uses))
  (format stream "~2%")
- ;; File Dependencies
+  ;; File Dependencies
         (format stream "File Dependencies:~%")
         (maphash (lambda (file definitions)
                  (declare (ignore definitions))
@@ -205,13 +205,12 @@
                              (refs (collect-file-references tracker file dep)))
                          (format stream "~A~%" dep-line)
                          (when refs
-                           (format stream "  Referenced symbols: ~{~A~^, ~}~%"
-                                   (sort (remove-duplicates 
-                                        (mapcar (lambda (r) 
-                                                (symbol-name (reference.name r)))
-                                              refs)
-                                        :test #'string=)
-                                         #'string<)))
+                           (dolist (ref refs)
+                             (let ((name (reference.name ref))
+                                   (quals (reference.qualifiers ref))
+                                   (args (reference.arguments ref)))
+                               (format stream "    ~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]~%" 
+                                     name quals args))))
                          (format stream "~%"))))))
                (slot-value tracker 'file-map)))
 
@@ -348,13 +347,12 @@
                           (dep-id (string-to-dot-id dep-name))
                           (refs (collect-file-references tracker file dep))
                           (label (when refs
-                                 (format nil "References: ~{~A~^, ~}"
-                                       (sort (remove-duplicates
-                                             (mapcar (lambda (r)
-                                                     (symbol-name (reference.name r)))
-                                                   refs)
-                                             :test #'string=)
-                                             #'string<)))))
+                                 (format nil "~{~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]~^, ~}"
+                                       (mapcar (lambda (r)
+                                               (list (reference.name r)
+                                                     (reference.qualifiers r)
+                                                     (reference.arguments r)))
+                                              refs)))))
                      (format stream "    \"~A\" -> \"~A\"~@[ [label=\"~A\"]~];~%"
                              file-id dep-id label)))))
              (slot-value tracker 'file-map)))
