@@ -29,15 +29,16 @@
    (package :initarg :package :reader definition.package :type (or string symbol))
    (exported-p :initarg :exported-p :reader definition.exported-p :type boolean)
    (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
-   (specializers :initarg :specializers :reader definition.specializers :type list))
+   (lambda-list :initarg :lambda-list :reader definition.lambda-list :type list))
   (:default-initargs :name nil :context nil :type nil :file nil :package nil
-                    :exported-p nil :qualifiers nil :specializers nil)
-  (:documentation "Data structure holding info about a lisp definition; eg, defun, defvar, or package. For method definitions, specializers slot holds the actual method specializer forms, e.g., (number (eql 42) (satisfies shortstrp))."))
+                    :exported-p nil :qualifiers nil :lambda-list nil)
+  (:documentation "Data structure holding info about a lisp definition; eg, defun, defvar, or package. For method definitions, lambda-list slot holds the full method lambda list."))
 
 
 (defmethod print-object ((object definition) stream)
+  "Print a definition object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
-    (with-slots (name context type file package exported-p qualifiers specializers) object
+    (with-slots (name context type file package exported-p qualifiers lambda-list) object
       (format-if stream "    :Name ~S"       " " name)
       (format-if stream "    :Context ~S"    " " context)
       (format-if stream "    :Type ~S"       " " type)
@@ -45,7 +46,7 @@
       (format-if stream "    :Package ~S"    " " package)
       (format-if stream "    :Exported-p ~S" " " exported-p)
       (format-if stream "    :Qualifiers ~S" " " qualifiers)
-      (format-if stream "    :Specializers ~S" " " specializers))))
+      (format-if stream "    :Lambda-list ~S" " " lambda-list))))
 
 
 (defun print-definition (def &optional (stream *standard-output*) (indent 0))
@@ -61,10 +62,10 @@
     (format-if stream "    :Package ~S" indent-str (definition.package def))
     (format-if stream "    :Exported-p ~S" indent-str (definition.exported-p def))
     (format-if stream "    :Qualifiers ~S" indent-str (definition.qualifiers def))
-    ;; Only print specializers if the definition is a method and they exist
-    (format-if stream "    :Specializers ~S" indent-str
+    ;; Only print lambda list if the definition is a method
+    (format-if stream "    :Lambda-list ~S" indent-str
                (and (eq (definition.type def) :METHOD)
-                    (definition.specializers def)))
+                    (definition.lambda-list def)))
     (format stream "~%")))
 
 
@@ -100,10 +101,9 @@
 
 (defun print-reference (ref &optional (stream *standard-output*) (indent 0))
   "Print a readable representation of a reference, omitting null slots.
-Definitions are printed as a unit, indented beneath the :Definitions header."
+   Shows method qualifiers and arguments when present."
   (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~AREFERENCE>" indent-str)
-    ;; Print each non-nil slot using format-if
     (format-if stream "    :Name ~S" indent-str (reference.name ref))
     (format-if stream "    :Context ~S" indent-str (reference.context ref))
     (format-if stream "    :File ~A" indent-str (and (reference.file ref)

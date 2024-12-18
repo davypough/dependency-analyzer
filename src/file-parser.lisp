@@ -254,7 +254,7 @@
 
 
 (defun analyze-defstruct (parser form)
-  "Handle defstruct form. Records structure definition and its accessor functions,
+  "Handle defstruct form. Records structure definition and its accessor methods,
    letting walk-form handle nested definitions and references.
    PARSER - The file parser providing context
    FORM - The full definition form: (defstruct name-and-options &rest slots)"
@@ -279,7 +279,7 @@
                    "")
                   (t (string (second conc-option)))))))
     
-    ;; MODIFIED: Updated to use keyword args
+    ;; Record structure definition
     (record-definition *current-tracker*
                       :name struct-name
                       :type :STRUCTURE/CLASS/CONDITION
@@ -290,23 +290,38 @@
                                     :external)
                       :context context)
     
-    ;; Record accessor function definitions 
+    ;; Record accessor method definitions 
     (dolist (slot (cddr form))  ; Skip defstruct and name-and-options
       (let* ((slot-name (if (listp slot) (car slot) slot))
              (accessor (intern (concatenate 'string conc-name-prefix
-                                          (string slot-name))
+                                         (string slot-name))
                              pkg))
              (accessor-context (limit-form-size form pkg-name)))
-        ;; MODIFIED: Updated to use keyword args 
+        ;; Record reader method
         (record-definition *current-tracker*
                           :name accessor
-                          :type :FUNCTION
+                          :type :METHOD
                           :file file
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
                                          (find-symbol (string accessor) pkg))
                                         :external)
-                          :context accessor-context)))))
+                          :context accessor-context
+                          :qualifiers nil
+                          :lambda-list `((struct ,struct-name)))
+        ;; Record (setf accessor) writer method
+        (let ((setf-name accessor))
+          (record-definition *current-tracker*
+                            :name setf-name
+                            :type :METHOD
+                            :file file
+                            :package pkg-name
+                            :exported-p (eq (nth-value 1 
+                                           (find-symbol (string accessor) pkg))
+                                          :external)
+                            :context accessor-context
+                            :qualifiers nil
+                            :lambda-list `(new-value (struct ,struct-name))))))))
 
 
 (defun analyze-defvar-defparameter-defconstant (parser form)
@@ -368,14 +383,14 @@
            (pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
-      ;; MODIFIED: Updated to use keyword args
+      ;; Record generic function
       (record-definition *current-tracker*
                         :name name
                         :type :GENERIC-FUNCTION
                         :file file
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
-                                       (find-symbol (symbol-name name) pkg))
+                                       (find-symbol (string name) pkg))
                                       :external)
                         :context context)
       ;; Process any :method options to record method definitions
@@ -386,33 +401,23 @@
             (multiple-value-bind (qualifiers lambda-list body)
                 (parse-defmethod-args method-spec)
               (declare (ignore body))
-              ;; Extract specializers from lambda list required params
-              (let ((specializers (mapcar (lambda (param)
-                                          (if (listp param)
-                                              (string (cadr param))  ; (var type) form
-                                              "T"))                  ; Just var
-                                        (remove-if (lambda (x)
-                                                   (member x lambda-list-keywords))
-                                                 lambda-list))))
-                ;; MODIFIED: Updated to use keyword args
-                (record-definition *current-tracker*
-                                 :name name
-                                 :type :METHOD
-                                 :file file
-                                 :package pkg-name
-                                 :exported-p (eq (nth-value 1
-                                                (find-symbol (symbol-name name) pkg))
-                                               :external)
-                                 :context context
-                                 :qualifiers qualifiers
-                                 :specializers specializers)))))))))
+              (record-definition *current-tracker*
+                               :name name
+                               :type :METHOD
+                               :file file
+                               :package pkg-name
+                               :exported-p (eq (nth-value 1
+                                              (find-symbol (string name) pkg))
+                                             :external)
+                               :context context
+                               :qualifiers qualifiers
+                               :lambda-list lambda-list))))))))
 
 
 (defun analyze-defmethod (parser form)
   "Handle defmethod form. Analyzes:
-   - Method name, qualifiers, specializers and exportedness.
-   Handles both ordinary methods and setf methods.
-   Records actual specializer forms for exact method applicability testing."
+   - Method name, qualifiers, and lambda list.
+   Handles both ordinary methods and setf methods."
   (declare (special log-stream))
   (let* ((after-defmethod (cdr form))
          ;; Handle (setf name) form properly 
@@ -422,7 +427,7 @@
                                 after-defmethod))
          ;; Split into name, qualifiers, lambda-list, body
          (name (if (consp (car name-and-qualifiers))
-                  (car name-and-qualifiers)  ; (setf name) form
+                  (cadr (car name-and-qualifiers))  ; (setf name) form
                   (car name-and-qualifiers)))
          (rest (if (consp (car name-and-qualifiers))
                   (cdr name-and-qualifiers)  ; After (setf name)
@@ -450,19 +455,7 @@
       (let* ((pkg (current-package parser))
              (pkg-name (current-package-name parser))
              (file (file parser))
-             (context (limit-form-size form pkg-name))
-             ;; Extract required parameters, excluding lambda list keywords
-             (required-params (remove-if (lambda (x) 
-                                        (member x lambda-list-keywords))
-                                       lambda-list))
-             ;; Extract specializer forms directly
-             (specializers 
-              (mapcar (lambda (param)
-                       (if (listp param)
-                           (second param)  ; Extract specializer form
-                           t))            ; Unspecialized = T
-                     required-params)))
-        ;; MODIFIED: Updated to use keyword args
+             (context (limit-form-size form pkg-name)))
         (record-definition *current-tracker*
                           :name name
                           :type :METHOD
@@ -473,7 +466,7 @@
                                         :external)
                           :context context
                           :qualifiers qualifiers
-                          :specializers specializers)))))
+                          :lambda-list lambda-list)))))
 
 
 (defun analyze-defsetf (parser form)
@@ -514,7 +507,7 @@
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
-     ;; MODIFIED: Updated to use keyword args
+     ;; Record class definition
      (record-definition *current-tracker*
                        :name name
                        :type :STRUCTURE/CLASS/CONDITION
@@ -527,11 +520,10 @@
      ;; Record accessor/reader/writer methods
      (dolist (slot slots)
        (when (listp slot)  ; Skip atomic slot names
-         (let ((slot-options (cdr slot)))  ; Simplified - don't need slot-name anymore
+         (let ((slot-options (cdr slot)))  
            (loop for (option value) on slot-options by #'cddr
                  do (case option
                       (:reader
-                       ;; MODIFIED: Updated to use keyword args
                        (record-definition *current-tracker*
                                         :name value
                                         :type :METHOD 
@@ -539,9 +531,9 @@
                                         :package pkg-name
                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                         :context context
-                                        :specializers (list (string name))))
+                                        :qualifiers nil
+                                        :lambda-list `((object ,name))))
                       (:writer
-                       ;; MODIFIED: Updated to use keyword args
                        (record-definition *current-tracker*
                                         :name value
                                         :type :METHOD
@@ -549,10 +541,10 @@
                                         :package pkg-name
                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                         :context context
-                                        :specializers (list "T" (string name))))
+                                        :qualifiers nil
+                                        :lambda-list `(new-value (object ,name))))
                       (:accessor
                        ;; Record reader method
-                       ;; MODIFIED: Updated to use keyword args
                        (record-definition *current-tracker*
                                         :name value
                                         :type :METHOD
@@ -560,10 +552,10 @@
                                         :package pkg-name
                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                         :context context
-                                        :specializers (list (string name)))
+                                        :qualifiers nil
+                                        :lambda-list `((object ,name)))
                        ;; Record (setf accessor) writer method
-                       (let ((setf-name (list 'setf value)))
-                         ;; MODIFIED: Updated to use keyword args
+                       (let ((setf-name value))
                          (record-definition *current-tracker*
                                           :name setf-name
                                           :type :METHOD
@@ -571,7 +563,8 @@
                                           :package pkg-name
                                           :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
                                           :context context
-                                          :specializers (list "T" (string name))))))))))))
+                                          :qualifiers nil
+                                          :lambda-list `(new-value (object ,name))))))))))))
 
 
 (defun analyze-deftype (parser form)
@@ -610,7 +603,7 @@
            (pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
-      ;; MODIFIED: Fixed string-name to symbol-name
+      ;; Record condition definition
       (record-definition *current-tracker*
                         :name name
                         :type :STRUCTURE/CLASS/CONDITION
@@ -626,15 +619,47 @@
           (loop for (option value) on (cdr slot) by #'cddr
                 when (member option '(:reader :writer :accessor))
                 do (let ((func-context (limit-form-size slot pkg-name)))
-                     (record-definition *current-tracker*
-                                      :name value
-                                      :type :FUNCTION
-                                      :file file
-                                      :package pkg-name
-                                      :exported-p (eq (nth-value 1 
-                                                    (find-symbol (symbol-name value) pkg))
-                                                   :external)
-                                      :context func-context))))))))
+                     (case option
+                       (:reader 
+                        (record-definition *current-tracker*
+                                         :name value
+                                         :type :METHOD
+                                         :file file
+                                         :package pkg-name
+                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                         :context func-context
+                                         :qualifiers nil
+                                         :lambda-list `((condition ,name))))
+                       (:writer
+                        (record-definition *current-tracker*
+                                         :name value
+                                         :type :METHOD
+                                         :file file
+                                         :package pkg-name
+                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                         :context func-context
+                                         :qualifiers nil
+                                         :lambda-list `(new-value (condition ,name))))
+                       (:accessor
+                        (record-definition *current-tracker*
+                                         :name value
+                                         :type :METHOD
+                                         :file file
+                                         :package pkg-name
+                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                         :context func-context
+                                         :qualifiers nil
+                                         :lambda-list `((condition ,name)))
+                        (let ((setf-name value))
+                          (record-definition *current-tracker*
+                                           :name setf-name
+                                           :type :METHOD
+                                           :file file
+                                           :package pkg-name
+                                           :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                           :context func-context
+                                           :qualifiers nil
+                                           :lambda-list `(new-value (condition ,name)))))))))))))
 
 
 (defun analyze-define-method-combination (parser form)

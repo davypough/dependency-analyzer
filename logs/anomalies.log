@@ -22,6 +22,25 @@ ANOMALY>
 
 
 ANOMALY>
+    :Name LOG-LEVEL
+    :Type :INVALID-METHOD-CALL
+    :Context (LOG-LEVEL :INFO)
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Description Method call has unpaired keyword arguments: (:INFO)
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :INVALID-METHOD-CALL
+    :Context (PROCESS-DATA "test" :LOGGING)
+    :Severity :ERROR
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Description Method call has unpaired keyword arguments: (:LOGGING)
+
+
+ANOMALY>
     :Name *DEFPARAMETER-VARIABLE*
     :Type :UNDEFINED-REFERENCE
     :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
@@ -315,15 +334,6 @@ ANOMALY>
     :Name LOG-LEVEL
     :Type :UNDEFINED-REFERENCE
     :Context (EQ LOG-LEVEL :INFO)
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Description Reference to undefined symbol LOG-LEVEL
-
-ANOMALY>
-    :Name LOG-LEVEL
-    :Type :UNDEFINED-REFERENCE
-    :Context (LOG-LEVEL :INFO)
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp

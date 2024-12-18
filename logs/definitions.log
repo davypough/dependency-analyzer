@@ -47,9 +47,19 @@ DEFINITION>
 DEFINITION>
     :Name CIRCLE-RADIUS
     :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-    :Type :FUNCTION
+    :Type :METHOD
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
+    :Lambda-list (DEPENDENCY-ANALYZER::NEW-VALUE
+                  (DEPENDENCY-ANALYZER::STRUCT CIRCLE))
+
+DEFINITION>
+    :Name CIRCLE-RADIUS
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Lambda-list ((DEPENDENCY-ANALYZER::STRUCT CIRCLE))
 
 DEFINITION>
     :Name COMPUTE-AREA
@@ -68,7 +78,7 @@ DEFINITION>
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
-    :Specializers (CIRCLE)
+    :Lambda-list ((SHAPE CIRCLE))
 
 DEFINITION>
     :Name CONDITION-NAME
@@ -132,9 +142,19 @@ DEFINITION>
 DEFINITION>
     :Name PERSON.AGE
     :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-    :Type :FUNCTION
+    :Type :METHOD
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
+    :Lambda-list (DEPENDENCY-ANALYZER::NEW-VALUE
+                  (DEPENDENCY-ANALYZER::STRUCT PERSON))
+
+DEFINITION>
+    :Name PERSON.AGE
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Lambda-list ((DEPENDENCY-ANALYZER::STRUCT PERSON))
 
 DEFINITION>
     :Name PROCESS-DATA
@@ -142,7 +162,7 @@ DEFINITION>
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
-    :Specializers (NUMBER)
+    :Lambda-list ((DATA NUMBER) &KEY)
 
 DEFINITION>
     :Name PROCESS-DATA
@@ -150,7 +170,7 @@ DEFINITION>
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
-    :Specializers (STRING)
+    :Lambda-list ((DATA STRING))
 
 DEFINITION>
     :Name PROCESS-DATA
@@ -171,7 +191,7 @@ DEFINITION>
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Qualifiers (:AFTER)
-    :Specializers (STRING :INFO)
+    :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
 
 DEFINITION>
     :Name SYMBOL-FUNCTION-NAME

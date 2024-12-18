@@ -61,9 +61,9 @@
                          (reference.arguments r)))))))
 
 
-(defun record-definition (tracker &key name type file package exported-p context qualifiers specializers)
+(defun record-definition (tracker &key name type file package exported-p context qualifiers lambda-list)
   "Record a name definition in the tracker. Creates a single definition object and 
-   stores it under both a base key (name+package+type) and, if qualifiers/specializers 
+   stores it under both a base key (name+package+type) and, if qualifiers/lambda-list 
    are present, a specialized key that includes method details. Detects and records
    duplicate definitions of the same symbol."
   (let* ((def-name (if (eq type :PACKAGE)
@@ -77,17 +77,19 @@
                             :exported-p exported-p 
                             :context context
                             :qualifiers qualifiers
-                            :specializers specializers))
+                            :lambda-list lambda-list))
          (base-key (make-tracking-key name package type))
-         (specialized-key (when (or qualifiers specializers)
-                          (make-tracking-key name package type qualifiers specializers)))
+         (specialized-key (when (and (eq type :METHOD) lambda-list)
+                          (make-tracking-key name package type qualifiers 
+                                           (extract-specializers lambda-list))))
          (existing-defs (gethash base-key (slot-value tracker 'definitions)))
          (matching-defs 
           (if specialized-key
               ;; For methods, match on exact qualifiers/specializers
               (remove-if-not (lambda (d)
                               (and (equal (definition.qualifiers d) qualifiers)
-                                   (equal (definition.specializers d) specializers)))
+                                   (equal (extract-specializers (definition.lambda-list d))
+                                         (extract-specializers lambda-list))))
                             existing-defs)
               ;; For non-methods, all existing defs match
               existing-defs)))
@@ -306,7 +308,7 @@
 
 (defun analyze-lambda-list (parser lambda-list)
  "Analyze a lambda list for type declarations and default values that 
-  could create dependencies."
+  could create dependencies. Handles standard and method lambda lists."
  (let ((state :required))
    (dolist (item lambda-list)
      (case item
@@ -318,10 +320,13 @@
             (:required 
              (typecase item
                (symbol nil) ; Simple parameter
-               (cons ; Destructuring or type declaration
-                (when (> (length item) 1)
-                  ;; Check for type declarations
-                  (analyze-definition-form parser (second item))))))
+               (cons ; Either destructuring or specializer
+                (if (and (= (length item) 2)  ; Specializer form (var type)
+                        (symbolp (car item)))
+                    (analyze-definition-form parser (second item))
+                    ;; Destructuring - analyze any type declarations
+                    (when (> (length item) 1)
+                      (analyze-definition-form parser (second item)))))))
             (&optional
              (when (and (listp item) (cddr item))
                (analyze-definition-form parser (third item)))) ; Default value
@@ -331,6 +336,7 @@
                                   (cadar item)
                                   (car item))))
                  (declare (ignore key-item))
+                 ;; Analyze supplied-p if present
                  (when (and (listp item) (cddr item))
                    (analyze-definition-form parser (third item)))))) ; Default value
             (&aux
@@ -512,18 +518,26 @@
 
 (defun parse-defmethod-args (args)
   "Parse method specification arguments from a :method option in defgeneric.
-   Returns (values qualifiers lambda-list . body).
+   Returns (values qualifiers lambda-list body).
    ARGS is the list of arguments after the :method keyword.
    Examples:
    - (:before (x) ...) -> (:before), (x), ...
    - ((x string) y) -> (), ((x string) y), ...
-   - (:after (x number) y) -> (:after), ((x number) y), ..."
+   - (:after (x number) y) -> (:after), ((x number) y), ...
+   - (:around (x) &key k) -> (:around), (x &key k), ...
+   Method lambda lists can contain &optional, &rest, &key, &allow-other-keys
+   but not &aux."
   (let ((qualifiers nil)
         lambda-list)
     ;; Collect qualifiers until we hit the lambda-list
     (loop for arg = (car args)
-          while (and args (or (keywordp arg) (symbolp arg))
-                     (not (listp arg)))
+          while (and args 
+                    (or (keywordp arg) (symbolp arg))
+                    (not (member arg lambda-list-keywords))
+                    (not (and (listp arg) 
+                            (or (symbolp (car arg))  ; Regular param
+                                (and (listp (car arg))  ; Specialized param
+                                     (= (length (car arg)) 2))))))
           do (push arg qualifiers)
              (setf args (cdr args))
           finally (setf lambda-list (car args)
@@ -552,18 +566,31 @@
 
 
 (defun find-method-call-definitions (parser form)
-  "Enhanced method definition matching."
+  "Find matching method definitions for a method call.
+   Assumes arguments are well-formed (keyword args properly paired).
+   Returns (values gf-def method-defs) where:
+   - gf-def is the generic function definition
+   - method-defs are the applicable method definitions
+   Form is the full method call form e.g. (process-data \"test\" :log-level :debug)"
   (let* ((name-and-quals (analyze-call-qualifiers (car form)))
          (name (car name-and-quals))
          (qualifiers (cdr name-and-quals))
          (args (cdr form))
-         (pkg-name (current-package-name parser)))
+         (pkg-name (current-package-name parser))
+         ;; Split args into required and keyword parts
+         (req-args (loop for arg in args
+                        until (keywordp arg)
+                        collect arg))
+         (key-args (loop for (key val) on (member-if #'keywordp args) by #'cddr
+                        collect (list key val))))
     
+    ;; Get generic function definition
     (let* ((gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
            (gf-defs (remove-if (lambda (def)
                                 (equal (definition.file def) (file parser)))
                               (gethash gf-key (slot-value *current-tracker* 'definitions)))))
       
+      ;; Find matching method definitions
       (let* ((method-key (make-tracking-key name pkg-name :METHOD))
              (all-methods (remove-if (lambda (def)
                                      (equal (definition.file def) (file parser)))
@@ -571,19 +598,51 @@
              (applicable-methods
               (remove-if-not 
                (lambda (method-def)
-                 (and (= (length (definition.specializers method-def))
-                        (length args))
-                      ;; Enhanced qualifier compatibility
-                      (qualifiers-compatible-p 
-                       (definition.qualifiers method-def)
-                       qualifiers)
-                      ;; Type/specializer checking
-                      (loop for specializer in (definition.specializers method-def)
-                            for arg in args
-                            always (specializer-compatible-p specializer arg))))
+                 (let* ((lambda-list (definition.lambda-list method-def))
+                        (specializers (extract-specializers lambda-list)))
+                   (and 
+                    ;; Match qualifiers
+                    (qualifiers-compatible-p 
+                     (definition.qualifiers method-def)
+                     qualifiers)
+                    ;; Match required args
+                    (and (= (length specializers) (length req-args))
+                         (every #'specializer-compatible-p
+                                specializers
+                                req-args))
+                    ;; Match keyword args against lambda list
+                    (lambda-list-accepts-keys-p lambda-list key-args))))
                all-methods)))
         
         (values (car gf-defs) applicable-methods)))))
+
+
+(defun lambda-list-accepts-keys-p (lambda-list key-args)
+  "Test if a lambda list can accept the given keyword arguments.
+   Returns true if either:
+   - Lambda list has no &key params and no key args provided
+   - Lambda list has &allow-other-keys 
+   - All provided keys match declared key parameters
+   Key-args is list of (key value) pairs from method call."
+  (let* ((key-start (position '&key lambda-list))
+         (allow-others (and key-start 
+                           (member '&allow-other-keys lambda-list))))
+    (cond 
+      ((null key-args) t)  ; No key args always ok
+      ((null key-start) nil)  ; Key args but no &key in lambda list
+      (allow-others t)  ; &allow-other-keys accepts any keys
+      (t  ; Check each key against declared key params
+       (let ((allowed-keys 
+              (loop for param in (subseq lambda-list (1+ key-start))
+                    until (member param lambda-list-keywords)
+                    collect (if (listp param)
+                              (if (listp (car param))
+                                  (caar param)
+                                  (car param))
+                              (intern (symbol-name param) :keyword)))))
+         (every (lambda (key-arg)
+                 (member (car key-arg) allowed-keys))
+                key-args))))))
 
 
 (defun qualifiers-compatible-p (method-qualifiers call-qualifiers)
@@ -729,32 +788,75 @@
 
 
 (defun handle-method-call (subform parser pkg-name context visibility name args)
-  "Handles analysis and recording of method calls."
+  "Handles analysis and recording of method calls. Creates either:
+   - A reference record if call matches an existing method 
+   - An anomaly for malformed arguments (unpaired keys)
+   - An anomaly for no matching method"
   (declare (special log-stream))
-  (multiple-value-bind (gf-def method-defs)
-      (find-method-call-definitions parser (cons name args))
-    (if gf-def
-        ;; Method call - record with all applicable definitions
-        (when (or gf-def method-defs)
-          (let* ((name-and-quals (analyze-call-qualifiers name))
-                 (qualifiers (cdr name-and-quals))
-                 (typed-args (loop for arg in args
-                                 collect arg
-                                 collect (cond ((null arg) 'null)
-                                             ((stringp arg) 'string)
-                                             ((numberp arg) 'number)
-                                             ((keywordp arg) 'keyword)
-                                             ((symbolp arg) 'symbol)
-                                             ((consp arg) 'unanalyzed)
-                                             (t (type-of arg))))))
-            (record-reference *current-tracker*
-                  :name subform
-                  :file (file parser)
-                  :package pkg-name 
-                  :context (limit-form-size context pkg-name)
-                  :visibility visibility
-                  :definitions (cons gf-def method-defs)
-                  :qualifiers qualifiers
-                  :arguments typed-args)))
-        ;; Not a method call - check other definition types
-        (try-definition-types subform pkg-name parser context visibility))))
+  ;; First check if keyword arguments are properly paired
+  (let ((key-pos (position-if #'keywordp args)))
+    (if (and key-pos 
+             (oddp (length (nthcdr key-pos args))))
+        ;; Invalid - unpaired keyword arguments
+        (record-anomaly *current-tracker*
+                       :name subform
+                       :type :invalid-method-call
+                       :severity :ERROR 
+                       :file (file parser)
+                       :description (format nil "Method call has unpaired keyword arguments: ~S" 
+                                         (subseq args key-pos))
+                       :context (limit-form-size context pkg-name))
+        ;; Arguments well-formed, try to find matching method
+        (multiple-value-bind (gf-def method-defs)
+            (find-method-call-definitions parser (cons name args))
+          (if gf-def
+              ;; Have generic function - check method matches
+              (if method-defs
+                  ;; Valid method call - record reference with all definitions
+                  (let* ((name-and-quals (analyze-call-qualifiers name))
+                         (qualifiers (cdr name-and-quals))
+                         (typed-args (loop for arg in args
+                                         collect arg
+                                         collect (cond ((null arg) 'null)
+                                                     ((stringp arg) 'string)
+                                                     ((numberp arg) 'number)
+                                                     ((keywordp arg) 'keyword)
+                                                     ((symbolp arg) 'symbol)
+                                                     ((consp arg) 'unanalyzed)
+                                                     (t (type-of arg))))))
+                    (record-reference *current-tracker*
+                                    :name subform
+                                    :file (file parser)
+                                    :package pkg-name 
+                                    :context (limit-form-size context pkg-name)
+                                    :visibility visibility
+                                    :definitions (cons gf-def method-defs)
+                                    :qualifiers qualifiers
+                                    :arguments typed-args))
+                  ;; No matching method - create anomaly
+                  (record-anomaly *current-tracker*
+                                :name subform
+                                :type :invalid-method-call 
+                                :severity :ERROR
+                                :file (file parser)
+                                :description (format nil "No applicable method for ~A with arguments ~S" 
+                                                   name args)
+                                :context (limit-form-size context pkg-name)))
+              ;; No generic function found
+              (try-definition-types subform pkg-name parser context visibility))))))
+
+
+(defun extract-specializers (lambda-list)
+  "Extract specializer types from a method lambda list.
+   Returns list of type specializers as symbols or lists for (eql ...) forms.
+   Returns (T) for non-method lambda lists.
+   Examples: 
+    ((data string) x &key k) -> (STRING T)
+    (a (b number) (c (eql 42))) -> (T NUMBER (EQL 42))"
+  (loop for param in (loop for param in lambda-list
+                          until (and (symbolp param) 
+                                   (member param lambda-list-keywords))
+                          collect param)
+        collect (if (listp param)
+                   (second param) 
+                   t)))
