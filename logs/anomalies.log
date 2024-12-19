@@ -3,9 +3,25 @@ Filename: ANOMALIES.LOG
 The list of all anomalies detected during dependency analysis of the test-project project.
 
 ANOMALY>
+    :Name PROCESS-DATA
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
+    :Description METHOD PROCESS-DATA defined multiple times
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
+    :Description METHOD PROCESS-DATA defined multiple times
+
+ANOMALY>
     :Name *DEFPARAMETER-VARIABLE*
     :Type :DUPLICATE-DEFINITION
-    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
@@ -14,7 +30,6 @@ ANOMALY>
 ANOMALY>
     :Name *DEFVAR-VARIABLE*
     :Type :DUPLICATE-DEFINITION
-    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
@@ -38,6 +53,24 @@ ANOMALY>
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
     :Description Method call has unpaired keyword arguments: (:LOGGING)
+
+ANOMALY>
+    :Name COMPUTE-AREA
+    :Type :INVALID-METHOD-CALL
+    :Context (COMPUTE-AREA (MAKE-CIRCLE))
+    :Severity :ERROR
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Description No applicable method for COMPUTE-AREA with arguments ((MAKE-CIRCLE))
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :INVALID-METHOD-CALL
+    :Context (PROCESS-DATA 42)
+    :Severity :ERROR
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Description No applicable method for PROCESS-DATA with arguments (42)
 
 
 ANOMALY>
@@ -152,6 +185,15 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol CIRCLE
+
+ANOMALY>
+    :Name CIRCLE-RADIUS
+    :Type :UNDEFINED-REFERENCE
+    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Description Reference to undefined symbol CIRCLE-RADIUS
 
 ANOMALY>
     :Name CIRCLE-RADIUS
@@ -410,6 +452,15 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol PERSON.
+
+ANOMALY>
+    :Name PERSON.AGE
+    :Type :UNDEFINED-REFERENCE
+    :Context (PERSON.AGE (MAKE-PERSON))
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Description Reference to undefined symbol PERSON.AGE
 
 ANOMALY>
     :Name PROCESS-DATA

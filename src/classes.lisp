@@ -58,7 +58,7 @@
     (format-if stream "    :Context ~S" indent-str (definition.context def))
     (format-if stream "    :Type ~S" indent-str (definition.type def))
     (format-if stream "    :File ~A" indent-str (and (definition.file def)
-                                                  (project-pathname (definition.file def))))
+                                                    (project-pathname (definition.file def))))
     (format-if stream "    :Package ~S" indent-str (definition.package def))
     (format-if stream "    :Exported-p ~S" indent-str (definition.exported-p def))
     (format-if stream "    :Qualifiers ~S" indent-str (definition.qualifiers def))

@@ -98,17 +98,17 @@
     (when matching-defs
       (let ((def-files (mapcar #'definition.file matching-defs)))
         (record-anomaly tracker
-                :name name
-                :type :duplicate-definition
-                :severity :WARNING
-                :file file
-                :description (format nil "~A ~A defined multiple times" type name)
-                :context (definition.context def)
-                :files (cons file def-files))))
+                       :name name
+                       :type :duplicate-definition
+                       :severity :WARNING
+                       :file file
+                       :description (format nil "~A ~A defined multiple times" type name)
+                       :context (definition.context def)
+                       :files (cons file def-files))))
     
     ;; Store under base key for reference lookup
     (push def (gethash base-key (slot-value tracker 'definitions)))
-    ;; Store under specialized key if we have one
+    ;; Store under specialized key if we have one 
     (when specialized-key
       (push def (gethash specialized-key (slot-value tracker 'definitions))))
     ;; Add to file map and exports

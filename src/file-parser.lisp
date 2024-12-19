@@ -65,45 +65,138 @@
 
 
 (defmethod analyze-definition-form ((parser file-parser) form)
-  "Analyze form for definitions using walk-form with systematic handler.
-   Records definitions and processes nested definitions maintaining package context."
+  "Analyze form for definitions, recording location and basic info.
+   Handles all standard definition forms, setf forms, and extended definitions."
   (declare (special log-stream))
   (labels ((definition-handler (subform context parent-context depth)
-             (declare (ignorable subform context parent-context depth))
+             (declare (ignore parent-context depth))
              (when (and (consp subform)
-                       (symbolp (car subform)) 
+                       (symbolp (car subform))
                        (not (quoted-form-p subform)))
-               (case (car subform)
-                 ;; Package definition forms
-                 (defpackage (analyze-defpackage parser subform))
-                 ;; Type/class family
-                 (defclass (analyze-defclass parser subform))
-                 (defstruct (analyze-defstruct parser subform))
-                 (deftype (analyze-deftype parser subform))
-                 (define-condition (analyze-define-condition parser subform))
-                 ;; Variable definitions
-                 ((defvar defparameter defconstant) 
-                  (analyze-defvar-defparameter-defconstant parser subform))
-                 ;; Function family
-                 ((defun defmacro) (analyze-defun-defmacro parser subform))
-                 (defgeneric (analyze-defgeneric parser subform))
-                 (defmethod (analyze-defmethod parser subform))
-                 ;; Setf forms
-                 (defsetf (analyze-defsetf parser subform))
-                 (define-setf-expander (analyze-define-setf-expander parser subform))
-                 ;; Other definition forms
-                 (define-symbol-macro (analyze-define-symbol-macro parser subform))
-                 (define-modify-macro (analyze-define-modify-macro parser subform))
-                 (define-compiler-macro (analyze-define-compiler-macro parser subform))
-                 (define-method-combination (analyze-define-method-combination parser subform))
-                 ;; Handle setf of symbol-function etc
-                 (setf (when (and (cddr subform) (listp (second subform)))
-                        (case (caadr subform)
-                          (symbol-value 
-                           (analyze-setf-symbol-value parser subform))
-                          ((symbol-function fdefinition macro-function)
-                           (analyze-setf-symbol-function-fdefinition-macro-function 
-                            parser subform)))))))))
+               (let ((op (car subform)))
+                 (cond
+                   ;; Standard variable definitions
+                   ((member op '(defvar defparameter defconstant))
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type :variable 
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context))
+                   
+                   ;; Function/macro definitions
+                   ((member op '(defun defmacro))
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type (if (eq op 'defun) :function :macro)
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context))
+
+                   ;; Generic function system
+                   ((member op '(defgeneric defmethod))
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type (if (eq op 'defgeneric) :generic-function :method)
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context))
+
+                   ;; Structure/class system
+                   ((member op '(defclass defstruct define-condition))
+                    (let ((name (if (and (eq op 'defstruct)    ; Only handle defstruct specially
+                                       (consp (cadr subform)))  ; Is it (name options...)?
+                                  (caadr subform)               ; Yes: extract name from list
+                                  (cadr subform))))             ; No: use directly
+                      (record-definition *current-tracker*
+                                       :name name
+                                       :type :structure/class/condition
+                                       :file (file parser)
+                                       :package (current-package-name parser)
+                                       :context context)))
+
+                   ;; Type system
+                   ((eq op 'deftype)
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type :type
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context))
+
+                   ;; Package system
+                   ((eq op 'defpackage)
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type :package
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context))
+
+                   ;; Setf forms
+                   ((and (eq op 'setf) 
+                         (consp (cadr subform))
+                         (symbolp (caadr subform))
+                         (consp (cdadr subform))
+                         (consp (cadadr subform))
+                         (eq (car (cadadr subform)) 'quote))
+                    (let ((accessor (caadr subform))
+                          (name (cadr (cadadr subform))))
+                      (case accessor
+                        (symbol-value 
+                         (record-definition *current-tracker*
+                                          :name name
+                                          :type :variable
+                                          :file (file parser)
+                                          :package (current-package-name parser)
+                                          :context context))
+                        ((symbol-function fdefinition)
+                         (record-definition *current-tracker*
+                                          :name name
+                                          :type :function
+                                          :file (file parser)
+                                          :package (current-package-name parser)
+                                          :context context))
+                        (macro-function
+                         (record-definition *current-tracker*
+                                          :name name
+                                          :type :macro
+                                          :file (file parser)
+                                          :package (current-package-name parser)
+                                          :context context)))))
+
+                   ;; Extended definition forms
+                   ((member op '(defsetf define-setf-expander))
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type :setf
+                                     :file (file parser) 
+                                     :package (current-package-name parser)
+                                     :context context))
+
+                   ((eq op 'define-symbol-macro)
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type :symbol-macro
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context))
+
+                   ((member op '(define-modify-macro define-compiler-macro))
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type :macro
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context))
+
+                   ((eq op 'define-method-combination)
+                    (record-definition *current-tracker*
+                                     :name (cadr subform)
+                                     :type :function
+                                     :file (file parser)
+                                     :package (current-package-name parser)
+                                     :context context)))))))
     (walk-form form #'definition-handler)))
 
 
@@ -330,8 +423,7 @@
    PARSER - The file parser providing context
    FORM - The full definition form: (defvar|defparameter|defconstant name [initform [decls...]])"
   (declare (special log-stream))
-  (let* ((pkg (current-package parser))
-         (pkg-name (current-package-name parser))
+  (let* ((pkg-name (current-package-name parser))
          (file (file parser))
          (name (second form))
          (context (limit-form-size form pkg-name)))
@@ -352,7 +444,6 @@
   (declare (special log-stream))
   (let* ((def-op (first form))
          (name (second form))
-         (pkg (current-package parser))
          (pkg-name (current-package-name parser))
          (file (file parser))
          (context (limit-form-size form pkg-name)))
@@ -379,8 +470,7 @@
   (declare (special log-stream))
   (destructuring-bind (def-op name lambda-list &rest options) form
     (declare (ignore def-op lambda-list))
-    (let* ((pkg (current-package parser))
-           (pkg-name (current-package-name parser))
+    (let* ((pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
       ;; Record generic function
@@ -452,8 +542,7 @@
     (setf qualifiers (nreverse qualifiers))
     
     (when lambda-list  ; Only process if we found a valid lambda list
-      (let* ((pkg (current-package parser))
-             (pkg-name (current-package-name parser))
+      (let* ((pkg-name (current-package-name parser))
              (file (file parser))
              (context (limit-form-size form pkg-name)))
         (record-definition *current-tracker*
@@ -477,7 +566,6 @@
   Returns the setf definition record."
    (declare (special log-stream))
    (let* ((name (second form))
-          (pkg (current-package parser))
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
@@ -503,7 +591,6 @@
   (declare (special log-stream))
    (let* ((name (second form))
           (slots (fourth form))
-          (pkg (current-package parser))
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
@@ -572,7 +659,6 @@
   - Type name and exportedness"
   (declare (special log-stream))
  (let* ((name (second form))
-        (pkg (current-package parser))
         (pkg-name (current-package-name parser))
         (file (file parser))
         (context (limit-form-size form pkg-name)))
@@ -599,8 +685,7 @@
   (destructuring-bind (def-op name superclasses &rest slots-and-options) form
     (declare (ignore def-op superclasses))
     
-    (let* ((pkg (current-package parser))
-           (pkg-name (current-package-name parser))
+    (let* ((pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
       ;; Record condition definition
@@ -667,7 +752,6 @@
    - Method combination name and exportedness"
   (declare (special log-stream))
   (let* ((name (second form))
-         (pkg (current-package parser))
          (pkg-name (current-package-name parser))
          (file (file parser))
          (context (limit-form-size form pkg-name)))
@@ -691,7 +775,6 @@
   - Documentation string if present"
   (declare (special log-stream))
   (let* ((name (second form))
-          (pkg (current-package parser))
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
@@ -712,7 +795,6 @@
   - Compiler macro name and exportedness"
   (declare (special log-stream))
    (let* ((name (second form))
-          (pkg (current-package parser))
           (pkg-name (current-package-name parser))
           (file (file parser))
           (context (limit-form-size form pkg-name)))
@@ -733,7 +815,6 @@
   - Symbol name and exportedness"
   (declare (special log-stream))
  (let* ((name (second form))
-        (pkg (current-package parser))
         (pkg-name (current-package-name parser))
         (file (file parser))
         (context (limit-form-size form pkg-name)))
@@ -754,7 +835,6 @@
   - Variable name and exportedness"
   (declare (special log-stream))
  (let* ((name (second (second (second form)))) ; Extract quoted symbol
-        (pkg (current-package parser))
         (pkg-name (current-package-name parser))
         (file (file parser))
         (context (limit-form-size form pkg-name)))
@@ -775,7 +855,6 @@
   (declare (special log-stream))
   (let* ((accessor (caadr form))           ; Get symbol-function, fdefinition, or macro-function
          (name (second (second (cadr form)))) ; Get the quoted symbol
-         (pkg (current-package parser))
          (pkg-name (current-package-name parser))
          (file (file parser))
          (context (limit-form-size form pkg-name)))
@@ -798,7 +877,6 @@
    - Access function name and exportedness"
   (declare (special log-stream))
     (let* ((name (second form))
-           (pkg (current-package parser))
            (pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
