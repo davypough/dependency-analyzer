@@ -23,12 +23,6 @@ REFERENCE>
 
 REFERENCE>
     :Name *DEFVAR-VARIABLE*
-    :Context (LET ((ARG 0))
-               (DEFUN-NAME)
-               *DEFVAR-VARIABLE*
-               (COMPUTE-AREA (MAKE-CIRCLE ...))
-               ARG
-               ...)
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
@@ -64,6 +58,12 @@ REFERENCE>
 
 REFERENCE>
     :Name *DEFVAR-VARIABLE*
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE ...))
+               ARG
+               ...)
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
@@ -224,3 +224,18 @@ REFERENCE>
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
+
+REFERENCE>
+    :Name "USER-MAIN-PACKAGE"
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name "USER-MAIN-PACKAGE"
+                        :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
+                                   (:USE :CL))
+                        :Type :PACKAGE
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                        :Exported-p T

@@ -352,8 +352,7 @@
    PARSER - The file parser providing context
    FORM - The full definition form: (defstruct name-and-options &rest slots)"
   (declare (special log-stream))
-  (let* ((pkg (current-package parser))
-         (pkg-name (current-package-name parser))
+  (let* ((pkg-name (current-package-name parser))
          (file (file parser))
          (name-and-options (second form))
          (struct-name (if (listp name-and-options)
@@ -379,7 +378,7 @@
                       :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
-                                     (find-symbol (symbol-name struct-name) pkg))
+                                     (find-symbol (symbol-name struct-name) (current-package parser)))
                                     :external)
                       :context context)
     
@@ -388,7 +387,7 @@
       (let* ((slot-name (if (listp slot) (car slot) slot))
              (accessor (intern (concatenate 'string conc-name-prefix
                                          (string slot-name))
-                             pkg))
+                             (current-package parser)))
              (accessor-context (limit-form-size form pkg-name)))
         ;; Record reader method
         (record-definition *current-tracker*
@@ -397,7 +396,7 @@
                           :file file
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
-                                         (find-symbol (string accessor) pkg))
+                                         (find-symbol (string accessor) (current-package parser)))
                                         :external)
                           :context accessor-context
                           :qualifiers nil
@@ -410,7 +409,7 @@
                             :file file
                             :package pkg-name
                             :exported-p (eq (nth-value 1 
-                                           (find-symbol (string accessor) pkg))
+                                           (find-symbol (string accessor) (current-package parser)))
                                           :external)
                             :context accessor-context
                             :qualifiers nil
@@ -433,7 +432,7 @@
                       :type :VARIABLE
                       :file file
                       :package pkg-name
-                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) pkg))
+                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) (current-package parser)))
                                     :external)
                       :context context)))
 
@@ -456,7 +455,7 @@
                       :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
-                                     (find-symbol (symbol-name name) pkg))
+                                     (find-symbol (symbol-name name) (current-package parser)))
                                     :external)
                       :context context)))
 
@@ -480,7 +479,7 @@
                         :file file
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
-                                       (find-symbol (string name) pkg))
+                                       (find-symbol (string name) (current-package parser)))
                                       :external)
                         :context context)
       ;; Process any :method options to record method definitions
@@ -497,7 +496,7 @@
                                :file file
                                :package pkg-name
                                :exported-p (eq (nth-value 1
-                                              (find-symbol (string name) pkg))
+                                              (find-symbol (string name) (current-package parser)))
                                              :external)
                                :context context
                                :qualifiers qualifiers
@@ -551,7 +550,7 @@
                           :file file
                           :package pkg-name
                           :exported-p (eq (nth-value 1 
-                                         (find-symbol (string name) pkg))
+                                         (find-symbol (string name) (current-package parser)))
                                         :external)
                           :context context
                           :qualifiers qualifiers
@@ -576,7 +575,7 @@
                        :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) pkg))
+                                      (find-symbol (symbol-name name) (current-package parser)))
                                      :external)
                        :context context)))
 
@@ -601,7 +600,7 @@
                        :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (string name) pkg))
+                                      (find-symbol (string name) (current-package parser)))
                                      :external)
                        :context context)
      ;; Record accessor/reader/writer methods
@@ -616,7 +615,7 @@
                                         :type :METHOD 
                                         :file file
                                         :package pkg-name
-                                        :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                        :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                         :context context
                                         :qualifiers nil
                                         :lambda-list `((object ,name))))
@@ -626,7 +625,7 @@
                                         :type :METHOD
                                         :file file
                                         :package pkg-name
-                                        :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                        :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                         :context context
                                         :qualifiers nil
                                         :lambda-list `(new-value (object ,name))))
@@ -637,7 +636,7 @@
                                         :type :METHOD
                                         :file file
                                         :package pkg-name
-                                        :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                        :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                         :context context
                                         :qualifiers nil
                                         :lambda-list `((object ,name)))
@@ -648,7 +647,7 @@
                                           :type :METHOD
                                           :file file
                                           :package pkg-name
-                                          :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                          :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                           :context context
                                           :qualifiers nil
                                           :lambda-list `(new-value (object ,name))))))))))))
@@ -669,7 +668,7 @@
                      :file file
                      :package pkg-name
                      :exported-p (eq (nth-value 1 
-                                    (find-symbol (symbol-name name) pkg))
+                                    (find-symbol (symbol-name name) (current-package parser)))
                                    :external)
                      :context context)))
 
@@ -695,7 +694,7 @@
                         :file file
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
-                                       (find-symbol (symbol-name name) pkg))
+                                       (find-symbol (symbol-name name) (current-package parser)))
                                       :external)
                         :context context)
       ;; Process slot accessors
@@ -711,7 +710,7 @@
                                          :type :METHOD
                                          :file file
                                          :package pkg-name
-                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                         :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                          :context func-context
                                          :qualifiers nil
                                          :lambda-list `((condition ,name))))
@@ -721,7 +720,7 @@
                                          :type :METHOD
                                          :file file
                                          :package pkg-name
-                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                         :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                          :context func-context
                                          :qualifiers nil
                                          :lambda-list `(new-value (condition ,name))))
@@ -731,7 +730,7 @@
                                          :type :METHOD
                                          :file file
                                          :package pkg-name
-                                         :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                         :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                          :context func-context
                                          :qualifiers nil
                                          :lambda-list `((condition ,name)))
@@ -741,7 +740,7 @@
                                            :type :METHOD
                                            :file file
                                            :package pkg-name
-                                           :exported-p (eq (nth-value 1 (find-symbol (string value) pkg)) :external)
+                                           :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                            :context func-context
                                            :qualifiers nil
                                            :lambda-list `(new-value (condition ,name)))))))))))))
@@ -762,7 +761,7 @@
                       :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
-                                    (find-symbol (string name) pkg))
+                                    (find-symbol (string name) (current-package parser)))
                                    :external)
                       :context context)))
 
@@ -785,7 +784,7 @@
                        :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (string name) pkg))
+                                      (find-symbol (string name) (current-package parser)))
                                      :external)
                        :context context)))
 
@@ -805,7 +804,7 @@
                        :file file
                        :package pkg-name
                        :exported-p (eq (nth-value 1 
-                                      (find-symbol (string name) pkg))
+                                      (find-symbol (string name) (current-package parser)))
                                      :external)
                        :context context)))
 
@@ -825,7 +824,7 @@
                      :file file
                      :package pkg-name
                      :exported-p (eq (nth-value 1 
-                                    (find-symbol (symbol-name name) pkg))
+                                    (find-symbol (symbol-name name) (current-package parser)))
                                    :external)
                      :context context)))
 
@@ -845,7 +844,7 @@
                      :file file
                      :package pkg-name
                      :exported-p (eq (nth-value 1 
-                                    (find-symbol (symbol-name name) pkg))
+                                    (find-symbol (symbol-name name) (current-package parser)))
                                    :external)
                      :context context)))
 
@@ -867,7 +866,7 @@
                       :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
-                                     (find-symbol (symbol-name name) pkg))
+                                     (find-symbol (symbol-name name) (current-package parser)))
                                     :external)
                       :context context)))
 
@@ -887,6 +886,6 @@
                         :file file
                         :package pkg-name
                         :exported-p (eq (nth-value 1 
-                                       (find-symbol (string name) pkg))
+                                       (find-symbol (string name) (current-package parser)))
                                       :external)
                         :context context)))

@@ -10,12 +10,9 @@
 
 (defun analyze (source-dir)
   "Analyze source files in a directory and its subdirectories in three passes:
-   1. Initialize all packages across all files by:
-      a) Collecting all package forms
-      b) Creating base packages
-      c) Evaluating full package forms
-   2. Collect all definitions across all files
-   3. Analyze references to those definitions  
+   1. Parse package definitions from all files
+   2. Collect all definitions from files 
+   3. Analyze references to those definitions
    Each pass logs its form traversal analysis to a separate log file."
   (let* ((source-pathname (pathname source-dir))
          (parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
@@ -42,13 +39,15 @@
       (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
       (with-dependency-tracker ((make-instance 'dependency-tracker :project-name parent-dir-name
                                              :project-root parent-pathname))
-        ;; First pass: initialize all packages
-        (format t "~%First Pass - Initializing Packages...~%")
+        ;; First pass: parse packages
+        (format t "~%First Pass - Parsing Packages...~%")
         (with-open-file (log-stream (merge-pathnames "packages-trace.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
           (declare (special log-stream))
-          (unless (initialize-packages source-files)
-            (error "~2%Package initialization failed. Cannot continue reliable analysis. See packages-trace.log file.")))
+          (dolist (file source-files)
+            (format log-stream "~%Package Analysis Trace for ~A~2%" file)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-packages-in-file file-parser))))
         
         ;; Second pass: analyze definitions
         (format t "~%Second Pass - Collecting Definitions...~%")
@@ -89,66 +88,86 @@
         *current-tracker*))))
 
 
-(defun initialize-packages (source-files)
-  "Initialize all packages in source files using a staged approach:
-   1. Collect all package definition forms
-   2. Create base packages with just names
-   3. Evaluate full package definitions  
-   Returns T if successful, NIL if errors encountered."
+(defun parse-packages-in-file (parser)
+  "Parse package definitions, validating against loaded environment.
+   Records package definitions and validates against current Lisp image 
+   since project should already be loaded."
   (declare (special log-stream))
-  (let ((package-forms nil))
-    ;; Stage 1: Collect all package forms
-    (format log-stream "~&Stage 1: Collecting package forms...~%")
-    (dolist (file source-files)
-      (with-open-file (stream file :direction :input)
-        (format log-stream "~&Scanning file: ~A~%" file)
-        (loop for form = (read stream nil :eof)
-              until (eq form :eof)
-              when (and (consp form) 
-                       (member (car form) '(defpackage make-package)))
-              do (progn 
-                   (format log-stream "~&Found package form: ~S" form)
-                   (push (list form file) package-forms))
-              finally (terpri log-stream))))
-    
-    ;; Stage 2: Create base packages
-    (format log-stream "~&Stage 2: Creating base packages...~%")
-    (dolist (form-and-file package-forms)
-      (let* ((form (first form-and-file))
-             (file (second form-and-file))
-             (raw-name (cond
-                        ((eq (car form) 'defpackage) 
-                         (second form))
-                        ((eq (car form) 'make-package)
-                         (if (stringp (second form))
-                             (second form)
-                             (second form)))))
-             (package-name (normalize-designator raw-name)))
-        (format log-stream "~&Creating base package: ~A~%" package-name)
-        (handler-case
-            (eval `(make-package ,package-name :use nil))
-          (error (e)
-            ;; Skip if package already exists
-            (unless (typep e 'package-error)
-              (format log-stream "~&Error creating package ~A in ~A: ~A~%" 
-                      package-name file e)
-              (return-from initialize-packages nil))))))
-    
-    ;; Stage 3: Evaluate full package definitions
-    (format log-stream "~%Stage 3: Evaluating package definitions...~%")
-    (handler-case
-        (dolist (form-and-file package-forms)
-          (let ((form (first form-and-file))
-                (file (second form-and-file)))
-            (format log-stream "~&Evaluating package form in ~A:~% ~S~%" file form)
-            (handler-case (eval form)
-              (error (e)
-                (format log-stream "~&Error evaluating package form in ~A:~% ~A~%" 
-                        file e)
-                (format log-stream "Form: ~S~%" form)
-                (return-from initialize-packages nil)))))
-      (error (e)
-        (format log-stream "~&Unexpected error during package initialization: ~A~%" e)
-        (return-from initialize-packages nil)))
-    
-    t))
+  (with-slots (file) parser
+    (format log-stream "~&Scanning file: ~A~%" file)
+    (with-open-file (stream file :direction :input)
+      (loop for form = (read stream nil :eof)
+            until (eq form :eof)
+            when (and (consp form) 
+                     (eq (car form) 'defpackage))
+            do (let* ((raw-name (second form))
+                     (pkg-name (normalize-designator raw-name))
+                     (context (limit-form-size form pkg-name))
+                     (loaded-pkg (find-package pkg-name)))
+
+                 (format log-stream "~&Found package form: ~S~%" form)
+
+                 ;; Verify package exists
+                 (unless loaded-pkg
+                   (record-anomaly *current-tracker*
+                                 :name pkg-name
+                                 :type :package-not-loaded
+                                 :severity :error
+                                 :file file
+                                 :description (format nil "Package ~A not found in environment - project may not be loaded" pkg-name)
+                                 :context context))
+
+                 ;; Record definition
+                 (record-definition *current-tracker*
+                                  :name pkg-name
+                                  :type :PACKAGE
+                                  :file file
+                                  :package pkg-name 
+                                  :exported-p t
+                                  :context context)
+
+                 (when loaded-pkg
+                   ;; Record and validate package uses
+                   (dolist (option (cddr form))
+                     (when (and (listp option)
+                              (eq (car option) :use))
+                       (dolist (used-pkg (cdr option))
+                         (let* ((used-name (normalize-designator used-pkg))
+                                (used-loaded (find-package used-name)))
+                           (record-package-use *current-tracker* pkg-name used-name)
+                           (unless (member used-loaded (package-use-list loaded-pkg))
+                             (record-anomaly *current-tracker*
+                                           :name pkg-name 
+                                           :type :package-use-mismatch
+                                           :severity :warning
+                                           :file file
+                                           :description (format nil "Package ~A :use of ~A not found in loaded environment" 
+                                                             pkg-name used-name)
+                                           :context context))))))
+
+                   ;; Record and validate exports 
+                   (dolist (option (cddr form))
+                     (when (and (listp option)
+                              (eq (car option) :export))
+                       (dolist (sym (cdr option))
+                         (let ((sym-name (string sym)))
+                           (record-export *current-tracker* pkg-name sym)
+                           (unless (find-symbol sym-name loaded-pkg)
+                             (record-anomaly *current-tracker*
+                                           :name pkg-name
+                                           :type :export-not-found
+                                           :severity :warning  
+                                           :file file
+                                           :description (format nil "Exported symbol ~A not found in loaded package ~A"
+                                                             sym-name pkg-name)
+                                           :context context))
+                           (unless (eq :external 
+                                     (nth-value 1 (find-symbol sym-name loaded-pkg)))
+                             (record-anomaly *current-tracker*
+                                           :name pkg-name
+                                           :type :export-not-external  
+                                           :severity :warning
+                                           :file file
+                                           :description (format nil "Symbol ~A not exported from loaded package ~A"
+                                                             sym-name pkg-name)
+                                           :context context))))))))))))

@@ -1233,23 +1233,33 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (PROCESS-DATA "test" :LOGGING)
+  Expression: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Context: NIL
   Parent: NIL
   Depth: 0
 WALK(ING):
   Expression: PROCESS-DATA
-  Context: (PROCESS-DATA "test" :LOGGING)
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: :AFTER
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: "test"
-  Context: (PROCESS-DATA "test" :LOGGING)
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 WALK(ING):
-  Expression: :LOGGING
-  Context: (PROCESS-DATA "test" :LOGGING)
+  Expression: :LOG-LEVEL
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: :WARN
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 

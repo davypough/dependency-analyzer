@@ -137,6 +137,15 @@ DEFINITION>
 
 DEFINITION>
     :Name "USER-MAIN-PACKAGE"
+    :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
+               (:USE :CL))
+    :Type :PACKAGE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Exported-p T
+
+DEFINITION>
+    :Name "USER-MAIN-PACKAGE"
     :Type :PACKAGE
     :File /source/single-pkg-defs.lisp
     :Package "COMMON-LISP-USER"

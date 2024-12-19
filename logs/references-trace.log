@@ -1078,6 +1078,22 @@ WALK(ING):
   Parent: NIL
   Depth: 1
 
+#<REFERENCE 
+    :Name "USER-MAIN-PACKAGE"
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name "USER-MAIN-PACKAGE"
+                        :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
+                                   (:USE :CL))
+                        :Type :PACKAGE
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                        :Exported-p T
+>
+
 -------------------------------
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
@@ -1390,23 +1406,33 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (PROCESS-DATA "test" :LOGGING)
+  Expression: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Context: NIL
   Parent: NIL
   Depth: 0
 WALK(ING):
   Expression: PROCESS-DATA
-  Context: (PROCESS-DATA "test" :LOGGING)
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: :AFTER
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: "test"
-  Context: (PROCESS-DATA "test" :LOGGING)
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 WALK(ING):
-  Expression: :LOGGING
-  Context: (PROCESS-DATA "test" :LOGGING)
+  Expression: :LOG-LEVEL
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: :WARN
+  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 

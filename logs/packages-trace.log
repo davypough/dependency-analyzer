@@ -1,13 +1,10 @@
-Stage 1: Collecting package forms...
+
+Package Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+
 Scanning file: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
 Found package form: (DEFPACKAGE #:USER-MAIN-PACKAGE
                       (:USE :CL))
+
+Package Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+
 Scanning file: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
-
-Stage 2: Creating base packages...
-Creating base package: USER-MAIN-PACKAGE
-
-Stage 3: Evaluating package definitions...
-Evaluating package form in d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp:
- (DEFPACKAGE #:USER-MAIN-PACKAGE
-   (:USE :CL))

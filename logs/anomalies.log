@@ -46,15 +46,6 @@ ANOMALY>
     :Description Method call has unpaired keyword arguments: (:INFO)
 
 ANOMALY>
-    :Name PROCESS-DATA
-    :Type :INVALID-METHOD-CALL
-    :Context (PROCESS-DATA "test" :LOGGING)
-    :Severity :ERROR
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description Method call has unpaired keyword arguments: (:LOGGING)
-
-ANOMALY>
     :Name COMPUTE-AREA
     :Type :INVALID-METHOD-CALL
     :Context (COMPUTE-AREA (MAKE-CIRCLE))
@@ -71,6 +62,27 @@ ANOMALY>
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
     :Description No applicable method for PROCESS-DATA with arguments (42)
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :INVALID-METHOD-CALL
+    :Context (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+    :Severity :ERROR
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Description No applicable method for PROCESS-DATA with arguments (:AFTER "test" :LOG-LEVEL
+                                                      :WARN)
+
+
+ANOMALY>
+    :Name "USER-MAIN-PACKAGE"
+    :Type :PACKAGE-NOT-LOADED
+    :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
+               (:USE :CL))
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Description Package USER-MAIN-PACKAGE not found in environment - project may not be loaded
 
 
 ANOMALY>
