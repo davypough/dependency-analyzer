@@ -761,9 +761,9 @@
   "Analyze if a symbol appears in a function call context.
    Returns (values call-p name args) where:
    - call-p: T if symbol is being called as a function
-   - name: The function name being called
+   - name: The function name being called 
    - args: List of argument forms
-   
+
    Cases handled:
    - Direct calls: (foo arg1 arg2)
    - Funcall form: (funcall #'foo arg1 arg2)
@@ -772,24 +772,26 @@
   (declare (ignore parent-context))
   (when (and context (listp context))
     (cond
-      ;; Direct function call
+      ;; Direct function call - now checks fboundp for non-CL symbols
       ((and (eq symbol (car context))
-            (not (quoted-form-p context)))
+            (not (quoted-form-p context))
+            (or (cl-symbol-p symbol)  ; Keep CL symbols (optimization)
+                (fboundp symbol)))     ; Check other symbols are bound as functions
        (values t symbol (cdr context)))
       
-      ;; Funcall/apply with function quote
+      ;; Funcall/apply with function quote - unchanged
       ((and (member (car context) '(funcall apply))
             (listp (second context))
             (eq (car (second context)) 'function)
             (eq (cadr (second context)) symbol))
        (values t symbol (cddr context)))
       
-      ;; Funcall/apply with symbol
+      ;; Funcall/apply with symbol - unchanged
       ((and (member (car context) '(funcall apply))
             (eq (second context) symbol))
        (values t symbol (cddr context)))
       
-      ;; Special method forms
+      ;; Special method forms - unchanged
       ((and (member symbol '(call-next-method next-method-p make-method))
             (eq symbol (car context)))
        (values t symbol (cdr context)))

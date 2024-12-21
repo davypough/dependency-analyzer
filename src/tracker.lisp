@@ -8,7 +8,7 @@
 (in-package #:dep)
 
 
-(defun analyze (source-dir)
+(defun analyze (source-dir package-designator)
   "Analyze source files in a directory for dependencies.
    Project must be loaded first for reliable analysis.
    Returns tracker instance with analysis results."
@@ -19,11 +19,17 @@
                                        :name nil
                                        :type nil))
          (parent-dir-name (car (last (pathname-directory source-pathname))))
+         (package (find-package package-designator))
          (logs-dir (merge-pathnames "logs/" (asdf:system-source-directory :dependency-analyzer))))
     
     ;; Verify source directory exists  
     (unless (ignore-errors (truename source-pathname))
       (error "~2%Error: The directory ~A does not exist.~%" source-dir))
+
+    ;; Verify package exists
+    (unless package
+      (error "~2%Error: The project package ~A was not found. Project must be loaded before analysis.~%" 
+             package-designator))
 
     ;; Collect all source files
     (let ((source-files

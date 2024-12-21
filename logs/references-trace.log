@@ -102,25 +102,35 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Expression: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Context: NIL
   Parent: NIL
   Depth: 0
 WALK(ING):
   Expression: DEFCONSTANT
-  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: +DEFCONSTANT-VARIABLE+
-  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: NIL
   Depth: 1
 WALK(ING):
-  Expression: "aeiou"
-  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+  Expression: 'C
+  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: NIL
   Depth: 1
+WALK(ING):
+  Expression: QUOTE
+  Context: 'C
+  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
+  Depth: 2
+WALK(ING):
+  Expression: C
+  Context: 'C
+  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
+  Depth: 2
 
 -------------------------------
 WALK(ING):
@@ -748,6 +758,63 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
+  Expression: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+WALK(ING):
+  Expression: DEFMETHOD
+  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: PROCESS-DATA
+  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: ((DATA NUMBER) &KEY)
+  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (DATA NUMBER)
+  Context: ((DATA NUMBER) &KEY)
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 2
+WALK(ING):
+  Expression: DATA
+  Context: (DATA NUMBER)
+  Parent: ((DATA NUMBER) &KEY)
+  Depth: 3
+WALK(ING):
+  Expression: NUMBER
+  Context: (DATA NUMBER)
+  Parent: ((DATA NUMBER) &KEY)
+  Depth: 3
+WALK(ING):
+  Expression: &KEY
+  Context: ((DATA NUMBER) &KEY)
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 2
+WALK(ING):
+  Expression: (1+ DATA)
+  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: 1+
+  Context: (1+ DATA)
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 2
+WALK(ING):
+  Expression: DATA
+  Context: (1+ DATA)
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Depth: 2
+
+-------------------------------
+WALK(ING):
   Expression: (DEFMETHOD PROCESS-DATA :AFTER
                          ((DATA STRING) &KEY (LOG-LEVEL :INFO))
                 (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
@@ -880,63 +947,6 @@ WALK(ING):
   Context: (FORMAT NIL "LOG: ~A" DATA)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
   Depth: 3
-
--------------------------------
-WALK(ING):
-  Expression: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Context: NIL
-  Parent: NIL
-  Depth: 0
-WALK(ING):
-  Expression: DEFMETHOD
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: NIL
-  Depth: 1
-WALK(ING):
-  Expression: PROCESS-DATA
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: NIL
-  Depth: 1
-WALK(ING):
-  Expression: ((DATA NUMBER) &KEY)
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: NIL
-  Depth: 1
-WALK(ING):
-  Expression: (DATA NUMBER)
-  Context: ((DATA NUMBER) &KEY)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
-WALK(ING):
-  Expression: DATA
-  Context: (DATA NUMBER)
-  Parent: ((DATA NUMBER) &KEY)
-  Depth: 3
-WALK(ING):
-  Expression: NUMBER
-  Context: (DATA NUMBER)
-  Parent: ((DATA NUMBER) &KEY)
-  Depth: 3
-WALK(ING):
-  Expression: &KEY
-  Context: ((DATA NUMBER) &KEY)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
-WALK(ING):
-  Expression: (1+ DATA)
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: NIL
-  Depth: 1
-WALK(ING):
-  Expression: 1+
-  Context: (1+ DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
-WALK(ING):
-  Expression: DATA
-  Context: (1+ DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
@@ -1190,7 +1200,7 @@ WALK(ING):
     :Definitions
                     DEFINITION>
                         :Name +DEFCONSTANT-VARIABLE+
-                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"

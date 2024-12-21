@@ -109,7 +109,7 @@ REFERENCE>
     :Definitions
                     DEFINITION>
                         :Name +DEFCONSTANT-VARIABLE+
-                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
+                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
