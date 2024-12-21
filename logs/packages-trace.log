@@ -4,7 +4,25 @@ Package Analysis Trace for d:/quicklisp/local-projects/test-project/source/singl
 Scanning file: d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
 Found package form: (DEFPACKAGE #:USER-MAIN-PACKAGE
                       (:USE :CL))
+Found package form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+
+#<REFERENCE 
+    :Name "USER-MAIN-PACKAGE"
+    :Context (IN-PACKAGE #:USER-MAIN-PACKAGE)
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions>
 
 Package Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
 
 Scanning file: d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+Found package form: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+
+#<REFERENCE 
+    :Name "USER-MAIN-PACKAGE"
+    :Context (IN-PACKAGE #:USER-MAIN-PACKAGE)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions>

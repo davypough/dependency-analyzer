@@ -9,11 +9,9 @@
 
 
 (defun analyze (source-dir)
-  "Analyze source files in a directory and its subdirectories in three passes:
-   1. Parse package definitions from all files
-   2. Collect all definitions from files 
-   3. Analyze references to those definitions
-   Each pass logs its form traversal analysis to a separate log file."
+  "Analyze source files in a directory for dependencies.
+   Project must be loaded first for reliable analysis.
+   Returns tracker instance with analysis results."
   (let* ((source-pathname (pathname source-dir))
          (parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
                                                       (pathname-directory source-pathname)
@@ -22,9 +20,11 @@
                                        :type nil))
          (parent-dir-name (car (last (pathname-directory source-pathname))))
          (logs-dir (merge-pathnames "logs/" (asdf:system-source-directory :dependency-analyzer))))
+    
     ;; Verify source directory exists  
     (unless (ignore-errors (truename source-pathname))
       (error "~2%Error: The directory ~A does not exist.~%" source-dir))
+
     ;; Collect all source files
     (let ((source-files
             (mapcan (lambda (ext)
@@ -88,86 +88,95 @@
         *current-tracker*))))
 
 
+(defun verify-package-state (pkg-name file context operation)
+ "Verify package state matches the operation found in source.
+  Records anomaly if package state doesn't match expected."
+ (let ((pkg (find-package pkg-name)))
+   (case operation 
+     ((:defpackage :make-package :in-package)
+      (unless pkg
+        (record-anomaly *current-tracker*
+                       :name pkg-name
+                       :type :package-not-loaded
+                       :severity :error
+                       :file file
+                       :description (format nil "Package ~A not found in environment - project may not be loaded" pkg-name)
+                       :context context)))
+     (:delete-package
+      (when pkg
+        (record-anomaly *current-tracker*
+                       :name pkg-name 
+                       :type :package-state-mismatch
+                       :severity :error
+                       :file file
+                       :description (format nil "Package ~A exists but source contains delete-package" pkg-name)
+                       :context context)))
+     (:rename-package 
+      (unless pkg
+        (record-anomaly *current-tracker*
+                       :name pkg-name
+                       :type :package-state-mismatch 
+                       :severity :error
+                       :file file
+                       :description (format nil "Cannot rename package ~A - package not found" pkg-name)
+                       :context context))))))
+
+
 (defun parse-packages-in-file (parser)
-  "Parse package definitions, validating against loaded environment.
-   Records package definitions and validates against current Lisp image 
-   since project should already be loaded."
-  (declare (special log-stream))
-  (with-slots (file) parser
-    (format log-stream "~&Scanning file: ~A~%" file)
-    (with-open-file (stream file :direction :input)
-      (loop for form = (read stream nil :eof)
-            until (eq form :eof)
-            when (and (consp form) 
-                     (eq (car form) 'defpackage))
-            do (let* ((raw-name (second form))
-                     (pkg-name (normalize-designator raw-name))
-                     (context (limit-form-size form pkg-name))
-                     (loaded-pkg (find-package pkg-name)))
+ "Parse package definitions, validating against loaded environment.
+  Records package definitions and validates against current Lisp image 
+  since project should already be loaded."
+ (declare (special log-stream))
+ (with-slots (file) parser
+   (format log-stream "~&Scanning file: ~A~%" file)
+   (with-open-file (stream file :direction :input)
+     (loop for form = (read stream nil :eof)
+           until (eq form :eof)
+           when (and (consp form) 
+                    (symbolp (car form))
+                    (member (car form) '(defpackage make-package rename-package delete-package in-package)))
+           do (let* ((raw-name (second form))
+                    (pkg-name (normalize-designator raw-name))
+                    (op (car form))
+                    (context (limit-form-size form pkg-name)))
 
-                 (format log-stream "~&Found package form: ~S~%" form)
+                (format log-stream "~&Found package form: ~S~%" form)
+                
+                ;; Validate package state matches operation
+                (verify-package-state pkg-name file context op)
 
-                 ;; Verify package exists
-                 (unless loaded-pkg
-                   (record-anomaly *current-tracker*
-                                 :name pkg-name
-                                 :type :package-not-loaded
-                                 :severity :error
-                                 :file file
-                                 :description (format nil "Package ~A not found in environment - project may not be loaded" pkg-name)
-                                 :context context))
-
-                 ;; Record definition
-                 (record-definition *current-tracker*
-                                  :name pkg-name
-                                  :type :PACKAGE
-                                  :file file
-                                  :package pkg-name 
-                                  :exported-p t
-                                  :context context)
-
-                 (when loaded-pkg
-                   ;; Record and validate package uses
-                   (dolist (option (cddr form))
-                     (when (and (listp option)
-                              (eq (car option) :use))
-                       (dolist (used-pkg (cdr option))
-                         (let* ((used-name (normalize-designator used-pkg))
-                                (used-loaded (find-package used-name)))
-                           (record-package-use *current-tracker* pkg-name used-name)
-                           (unless (member used-loaded (package-use-list loaded-pkg))
-                             (record-anomaly *current-tracker*
-                                           :name pkg-name 
-                                           :type :package-use-mismatch
-                                           :severity :warning
-                                           :file file
-                                           :description (format nil "Package ~A :use of ~A not found in loaded environment" 
-                                                             pkg-name used-name)
-                                           :context context))))))
-
-                   ;; Record and validate exports 
-                   (dolist (option (cddr form))
-                     (when (and (listp option)
-                              (eq (car option) :export))
-                       (dolist (sym (cdr option))
-                         (let ((sym-name (string sym)))
-                           (record-export *current-tracker* pkg-name sym)
-                           (unless (find-symbol sym-name loaded-pkg)
-                             (record-anomaly *current-tracker*
-                                           :name pkg-name
-                                           :type :export-not-found
-                                           :severity :warning  
-                                           :file file
-                                           :description (format nil "Exported symbol ~A not found in loaded package ~A"
-                                                             sym-name pkg-name)
-                                           :context context))
-                           (unless (eq :external 
-                                     (nth-value 1 (find-symbol sym-name loaded-pkg)))
-                             (record-anomaly *current-tracker*
-                                           :name pkg-name
-                                           :type :export-not-external  
-                                           :severity :warning
-                                           :file file
-                                           :description (format nil "Symbol ~A not exported from loaded package ~A"
-                                                             sym-name pkg-name)
-                                           :context context))))))))))))
+                (case op
+                  (defpackage
+                   ;; Record definition and process options 
+                   (record-definition *current-tracker*
+                                    :name pkg-name
+                                    :type :PACKAGE
+                                    :file file
+                                    :package pkg-name 
+                                    :exported-p t
+                                    :context context)
+                   
+                   (let ((options (cddr form)))
+                     ;; Process :use options
+                     (dolist (option options)
+                       (when (and (listp option)
+                                (eq (car option) :use))
+                         (dolist (used-pkg (cdr option))
+                           (let ((used-name (normalize-designator used-pkg)))
+                             (record-package-use *current-tracker* pkg-name used-name)))))
+                     
+                     ;; Process :export options
+                     (dolist (option options)
+                       (when (and (listp option)
+                                (eq (car option) :export))
+                         (dolist (sym (cdr option))
+                           (record-export *current-tracker* pkg-name sym))))))
+                  
+                  ((make-package rename-package delete-package in-package)
+                   ;; Record package references for other operations
+                   (record-reference *current-tracker*
+                                   :name pkg-name
+                                   :file file 
+                                   :package pkg-name
+                                   :visibility :LOCAL
+                                   :context context))))))))

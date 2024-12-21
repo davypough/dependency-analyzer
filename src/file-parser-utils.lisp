@@ -76,27 +76,25 @@
                             :package package 
                             :exported-p exported-p 
                             :context context
-                            :qualifiers qualifiers
+                            :qualifiers (when qualifiers (list qualifiers)) ; Ensure list
                             :lambda-list lambda-list))
          (base-key (make-tracking-key name package type))
          (specialized-key (when (and (eq type :METHOD) lambda-list)
-                          (make-tracking-key name package type qualifiers 
+                          (make-tracking-key name package type 
+                                           (ensure-list qualifiers)
                                            (extract-specializers lambda-list))))
-         (existing-defs (gethash base-key (slot-value tracker 'definitions)))
-         (matching-defs 
-          (if specialized-key
-              ;; For methods, match on exact qualifiers/specializers
-              (remove-if-not (lambda (d)
-                              (and (equal (definition.qualifiers d) qualifiers)
-                                   (equal (extract-specializers (definition.lambda-list d))
-                                         (extract-specializers lambda-list))))
-                            existing-defs)
-              ;; For non-methods, all existing defs match
-              existing-defs)))
+         ;; For methods, use specialized key to find matches
+         (existing-defs (if specialized-key
+                           (gethash specialized-key (slot-value tracker 'definitions))
+                           (gethash base-key (slot-value tracker 'definitions))))
+         ;; Filter out definitions from same file
+         (other-file-defs (remove-if (lambda (d)
+                                      (equal (definition.file d) file))
+                                    existing-defs)))
     
-    ;; Check for duplicates and record anomaly if found
-    (when matching-defs
-      (let ((def-files (mapcar #'definition.file matching-defs)))
+    ;; Check for duplicates and record anomaly if found in other files
+    (when other-file-defs
+      (let ((def-files (mapcar #'definition.file other-file-defs)))
         (record-anomaly tracker
                        :name name
                        :type :duplicate-definition
@@ -106,12 +104,11 @@
                        :context (definition.context def)
                        :files (cons file def-files))))
     
-    ;; Store under base key for reference lookup
+    ;; Store under both keys
     (push def (gethash base-key (slot-value tracker 'definitions)))
-    ;; Store under specialized key if we have one 
     (when specialized-key
       (push def (gethash specialized-key (slot-value tracker 'definitions))))
-    ;; Add to file map and exports
+    ;; Add to file map and exports  
     (push def (gethash file (slot-value tracker 'file-map)))
     (when exported-p
       (record-export tracker package name))
@@ -566,55 +563,104 @@
 
 
 (defun find-method-call-definitions (parser form)
-  "Find matching method definitions for a method call.
-   Assumes arguments are well-formed (keyword args properly paired).
-   Returns (values gf-def method-defs) where:
-   - gf-def is the generic function definition
-   - method-defs are the applicable method definitions
-   Form is the full method call form e.g. (process-data \"test\" :log-level :debug)"
-  (let* ((name-and-quals (analyze-call-qualifiers (car form)))
-         (name (car name-and-quals))
-         (qualifiers (cdr name-and-quals))
-         (args (cdr form))
-         (pkg-name (current-package-name parser))
-         ;; Split args into required and keyword parts
-         (req-args (loop for arg in args
-                        until (keywordp arg)
-                        collect arg))
-         (key-args (loop for (key val) on (member-if #'keywordp args) by #'cddr
-                        collect (list key val))))
-    
-    ;; Get generic function definition
-    (let* ((gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
-           (gf-defs (remove-if (lambda (def)
-                                (equal (definition.file def) (file parser)))
-                              (gethash gf-key (slot-value *current-tracker* 'definitions)))))
-      
-      ;; Find matching method definitions
-      (let* ((method-key (make-tracking-key name pkg-name :METHOD))
-             (all-methods (remove-if (lambda (def)
-                                     (equal (definition.file def) (file parser)))
-                                   (gethash method-key (slot-value *current-tracker* 'definitions))))
-             (applicable-methods
-              (remove-if-not 
-               (lambda (method-def)
-                 (let* ((lambda-list (definition.lambda-list method-def))
-                        (specializers (extract-specializers lambda-list)))
-                   (and 
-                    ;; Match qualifiers
-                    (qualifiers-compatible-p 
-                     (definition.qualifiers method-def)
-                     qualifiers)
-                    ;; Match required args
-                    (and (= (length specializers) (length req-args))
-                         (every #'specializer-compatible-p
-                                specializers
-                                req-args))
-                    ;; Match keyword args against lambda list
-                    (lambda-list-accepts-keys-p lambda-list key-args))))
-               all-methods)))
-        
-        (values (car gf-defs) applicable-methods)))))
+ "Find matching method definitions for a method call.
+  Assumes arguments are well-formed (keyword args properly paired).
+  Returns (values gf-def method-defs) where:
+  - gf-def is the generic function definition
+  - method-defs are the applicable method definitions"
+ (let* ((name-and-quals (analyze-call-qualifiers (car form)))
+        (name (car name-and-quals))
+        (call-quals (cdr name-and-quals))
+        (args (cdr form))
+        (pkg-name (current-package-name parser))
+        ;; Split into required and keyword args
+        (req-args (loop for arg in args
+                       until (keywordp arg)
+                       collect arg))
+        (key-args (loop for (key val) on (member-if #'keywordp args) by #'cddr
+                       collect (cons key val))))
+   
+   ;; Get generic function definition
+   (let* ((gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
+          (gf-defs (remove-if (lambda (def)
+                               (equal (definition.file def) (file parser)))
+                             (gethash gf-key (slot-value *current-tracker* 'definitions)))))
+     
+     ;; Find matching method definitions
+     (let* ((method-key (make-tracking-key name pkg-name :METHOD))
+            (all-methods (remove-if (lambda (def)
+                                    (equal (definition.file def) (file parser)))
+                                  (gethash method-key (slot-value *current-tracker* 'definitions))))
+            (applicable-methods
+             (remove-if-not 
+              (lambda (method-def)
+                (let* ((lambda-list (definition.lambda-list method-def))
+                       (specializers (extract-specializers lambda-list))
+                       (method-quals (definition.qualifiers method-def)))
+                  (and 
+                   ;; Match qualifiers in correct order, being lenient 
+                   (or (null call-quals)
+                       (null method-quals)
+                       (qualifier-match-p call-quals method-quals))
+                   ;; Required args match specializers, with type compatibility
+                   (= (length specializers) (length req-args))
+                   (every #'type-compatible-p specializers req-args)
+                   ;; Keywords match method lambda list 
+                   (let ((key-start (position '&key lambda-list)))
+                     (or (null key-args)  ; No key args provided
+                         (null key-start) ; Method takes no keys
+                         (member '&allow-other-keys (subseq lambda-list key-start))
+                         ;; Check keys match declared params
+                         (let ((allowed-keys
+                                (loop for param in (subseq lambda-list (1+ key-start))
+                                      until (member param lambda-list-keywords)
+                                      collect 
+                                        (if (listp param)
+                                          (if (listp (car param))
+                                            (caar param)
+                                            (car param))
+                                          (intern (symbol-name param) :keyword)))))
+                           (every (lambda (key-arg)
+                                  (member (car key-arg) allowed-keys))
+                                key-args)))))))
+              all-methods)))
+       
+       (values (car gf-defs) applicable-methods)))))
+
+
+(defun qualifier-match-p (call-quals method-quals)
+  "Test if method qualifiers match call qualifiers, following CLOS rules.
+   Handles method combination scenarios like :before/:after/:around."
+  (or (equal call-quals method-quals)  ; Exact match
+      ;; :around can wrap any other qualifier
+      (and (member :around call-quals)  
+           (member :around method-quals))
+      ;; :before/:after care about order
+      (and (member :before call-quals)
+           (equal (position :before call-quals)
+                  (position :before method-quals)))
+      (and (member :after call-quals)
+           (equal (position :after call-quals)
+                  (position :after method-quals)))))
+
+
+(defun type-compatible-p (specializer arg)
+  "Test if argument is compatible with method specializer.
+   Handles standard classes, EQL specializers, and T specializers."
+  (cond ((or (eq specializer t) 
+             (eq specializer 'cl:t))
+         t)
+        ;; Handle EQL specializer syntax 
+        ((and (listp specializer)
+              (eq (car specializer) 'eql))
+         (equal (cadr specializer) arg))
+        ;; Basic built-in type checking
+        ((and (symbolp specializer)
+              (not (keywordp arg)))
+         (ignore-errors
+           (typep arg specializer)))
+        ;; Conservative match for unknown types
+        (t t)))
 
 
 (defun lambda-list-accepts-keys-p (lambda-list key-args)
@@ -860,3 +906,20 @@
         collect (if (listp param)
                    (second param) 
                    t)))
+
+
+(defun lambda-bindings (bindings)
+  "Extract bound parameter names from a lambda list or binding form.
+   Handles simple parameters, destructuring patterns, and specializers.
+   Returns list of symbols that are bound by this binding form."
+  (cond ((null bindings) nil)
+        ((atom bindings) (list bindings))  ; &rest param
+        ((symbolp (car bindings)) 
+         (cons (car bindings) (lambda-bindings (cdr bindings))))
+        ((consp (car bindings))  ; Destructuring or specializer
+         (if (and (= (length (car bindings)) 2) 
+                 (symbolp (caar bindings)))
+             (cons (caar bindings) (lambda-bindings (cdr bindings))) ; (var type) specializer
+             (append (lambda-bindings (car bindings))  ; Destructuring
+                    (lambda-bindings (cdr bindings)))))
+        (t nil)))

@@ -3,40 +3,6 @@ Filename: ANOMALIES.LOG
 The list of all anomalies detected during dependency analysis of the test-project project.
 
 ANOMALY>
-    :Name PROCESS-DATA
-    :Type :DUPLICATE-DEFINITION
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
-    :Description METHOD PROCESS-DATA defined multiple times
-
-ANOMALY>
-    :Name PROCESS-DATA
-    :Type :DUPLICATE-DEFINITION
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
-    :Description METHOD PROCESS-DATA defined multiple times
-
-ANOMALY>
-    :Name *DEFPARAMETER-VARIABLE*
-    :Type :DUPLICATE-DEFINITION
-    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
-    :Description VARIABLE *DEFPARAMETER-VARIABLE* defined multiple times
-
-ANOMALY>
-    :Name *DEFVAR-VARIABLE*
-    :Type :DUPLICATE-DEFINITION
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp, /source/single-pkg-defs.lisp
-    :Description VARIABLE *DEFVAR-VARIABLE* defined multiple times
-
-
-ANOMALY>
     :Name LOG-LEVEL
     :Type :INVALID-METHOD-CALL
     :Context (LOG-LEVEL :INFO)
@@ -57,32 +23,20 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :INVALID-METHOD-CALL
+    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+    :Severity :ERROR
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Description No applicable method for PROCESS-DATA with arguments ("test" :LOG-LEVEL :WARN)
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :INVALID-METHOD-CALL
     :Context (PROCESS-DATA 42)
     :Severity :ERROR
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
     :Description No applicable method for PROCESS-DATA with arguments (42)
-
-ANOMALY>
-    :Name PROCESS-DATA
-    :Type :INVALID-METHOD-CALL
-    :Context (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
-    :Severity :ERROR
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description No applicable method for PROCESS-DATA with arguments (:AFTER "test" :LOG-LEVEL
-                                                      :WARN)
-
-
-ANOMALY>
-    :Name "USER-MAIN-PACKAGE"
-    :Type :PACKAGE-NOT-LOADED
-    :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
-               (:USE :CL))
-    :Severity :ERROR
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Description Package USER-MAIN-PACKAGE not found in environment - project may not be loaded
 
 
 ANOMALY>
@@ -120,6 +74,24 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol *DEFVAR-VARIABLE*
+
+ANOMALY>
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :Type :UNDEFINED-REFERENCE
+    :Context '*SYMBOL-VALUE-VARIABLE*
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Description Reference to undefined symbol *SYMBOL-VALUE-VARIABLE*
+
+ANOMALY>
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :Type :UNDEFINED-REFERENCE
+    :Context (SPECIAL *SYMBOL-VALUE-VARIABLE*)
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Description Reference to undefined symbol *SYMBOL-VALUE-VARIABLE*
 
 ANOMALY>
     :Name +DEFCONSTANT-VARIABLE+
@@ -498,7 +470,7 @@ ANOMALY>
 ANOMALY>
     :Name PROCESS-DATA
     :Type :UNDEFINED-REFERENCE
-    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
     :Severity :WARNING
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
@@ -559,14 +531,5 @@ ANOMALY>
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Description Reference to undefined symbol SYMBOL-FUNCTION-NAME
-
-ANOMALY>
-    :Name SYMBOL-VALUE-VARIABLE
-    :Type :UNDEFINED-REFERENCE
-    :Context 'SYMBOL-VALUE-VARIABLE
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Description Reference to undefined symbol SYMBOL-VALUE-VARIABLE
 
 

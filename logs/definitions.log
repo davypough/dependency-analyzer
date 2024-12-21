@@ -4,31 +4,34 @@ The list of all definitions identified in the test-project project.
 
 DEFINITION>
     :Name *DEFPARAMETER-VARIABLE*
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+
+DEFINITION>
+    :Name *DEFVAR-VARIABLE*
     :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
 
 DEFINITION>
-    :Name *DEFPARAMETER-VARIABLE*
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* 0)
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
 
 DEFINITION>
-    :Name *DEFVAR-VARIABLE*
-    :Type :VARIABLE
-    :File /source/single-pkg-defs.lisp
-    :Package "USER-MAIN-PACKAGE"
-
-DEFINITION>
-    :Name *DEFVAR-VARIABLE*
+    :Name *SYMBOL-VALUE-VARIABLE*
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
 
 DEFINITION>
     :Name +DEFCONSTANT-VARIABLE+
+    :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
@@ -126,12 +129,6 @@ DEFINITION>
 DEFINITION>
     :Name SYMBOL-FUNCTION-NAME
     :Type :FUNCTION
-    :File /source/single-pkg-defs.lisp
-    :Package "USER-MAIN-PACKAGE"
-
-DEFINITION>
-    :Name SYMBOL-VALUE-VARIABLE
-    :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
     :Package "USER-MAIN-PACKAGE"
 

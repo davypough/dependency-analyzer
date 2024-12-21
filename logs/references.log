@@ -3,6 +3,13 @@ Filename: REFERENCES.LOG
 The list of all references to definitions in other files for the test-project project.
 
 REFERENCE>
+    :Name "USER-MAIN-PACKAGE"
+    :Context (IN-PACKAGE #:USER-MAIN-PACKAGE)
+    :File /source/single-pkg-defs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+REFERENCE>
     :Name *DEFPARAMETER-VARIABLE*
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
@@ -10,13 +17,7 @@ REFERENCE>
     :Definitions
                     DEFINITION>
                         :Name *DEFPARAMETER-VARIABLE*
-                        :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package "USER-MAIN-PACKAGE"
-                    DEFINITION>
-                        :Name *DEFPARAMETER-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE*
-                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -29,11 +30,14 @@ REFERENCE>
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -47,11 +51,14 @@ REFERENCE>
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -70,11 +77,26 @@ REFERENCE>
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+
+REFERENCE>
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name *SYMBOL-VALUE-VARIABLE*
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -87,6 +109,7 @@ REFERENCE>
     :Definitions
                     DEFINITION>
                         :Name +DEFCONSTANT-VARIABLE+
+                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -214,18 +237,6 @@ REFERENCE>
                         :Package "USER-MAIN-PACKAGE"
 
 REFERENCE>
-    :Name SYMBOL-VALUE-VARIABLE
-    :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
-    :Visibility LOCAL
-    :Definitions
-                    DEFINITION>
-                        :Name SYMBOL-VALUE-VARIABLE
-                        :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package "USER-MAIN-PACKAGE"
-
-REFERENCE>
     :Name "USER-MAIN-PACKAGE"
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
@@ -239,3 +250,11 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                         :Exported-p T
+
+REFERENCE>
+    :Name "USER-MAIN-PACKAGE"
+    :Context (IN-PACKAGE #:USER-MAIN-PACKAGE)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions

@@ -26,12 +26,17 @@
 
 (defun make-tracking-key (designator &optional package type qualifiers specializers)
   "Create a lookup key for a symbol or package name, with optional type/method info.
-   DESIGNATOR can be either a symbol, a string, or a (setf name) form.
-   PACKAGE is the package name string (optional).
+   For methods and generic functions, always includes qualifiers and specializers parts.
+   DESIGNATOR can be string, symbol, or (setf name) form.
+   PACKAGE is package name string (optional).
    TYPE is one of +valid-definition-types+ (optional).
    QUALIFIERS is a list of method qualifiers (optional).
    SPECIALIZERS is a list of specializer type names (optional).
-   Returns a key string like name::package::type[::qualifiers][::specializers]."
+   Returns key like: name::package::type[::()::()].
+   Examples:
+     PROCESS-DATA::USER-MAIN-PACKAGE::METHOD::()::(STRING)
+     PROCESS-DATA::USER-MAIN-PACKAGE::METHOD::(AFTER)::(STRING)
+     PROCESS-DATA::USER-MAIN-PACKAGE::GENERIC-FUNCTION::()::()"
   (let* ((name (etypecase designator
                 (string designator)
                 (symbol (string designator))
@@ -40,30 +45,25 @@
                          (error "Invalid designator form ~S in make-tracking-key~%  package: ~S~%  type: ~S" 
                                designator package type)))))
          (pkg (when package (string package))))
-    ;; Validate qualifiers/specializers are proper lists when provided
-    (when (and qualifiers (not (listp qualifiers)))
-      (error "Qualifiers must be a proper list in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S~%  qualifiers: ~S" 
-             designator package type qualifiers))
-    (when (and specializers (not (listp specializers)))
-      (error "Specializers must be a proper list in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S~%  specializers: ~S"
-             designator package type specializers))
-    ;; Type validation against known types
+    
     (when (and type (not (member type +valid-definition-types+)))
       (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S"
              designator package type))
-    ;; Base key includes name, package, type  
+    
     (let ((key (format nil "~A::~A::~A" 
                       name
                       (or pkg "") 
                       (or type ""))))
-      ;; Append sorted qualifiers if provided
-      (when qualifiers
-        (setf key (format nil "~A::~{~A~^-~}" 
-                         key (sort (copy-list qualifiers) #'string<))))
-      ;; Append sorted specializers if provided  
-      (when specializers
-        (setf key (format nil "~A::(~{~A~^ ~})"
-                         key (sort (copy-list specializers) #'string<))))
+      
+      (when (or (member type '(:METHOD :GENERIC-FUNCTION))
+                qualifiers 
+                specializers)
+        (let* ((sorted-quals (sort (copy-list (or qualifiers nil)) #'string<)))
+          (setf key (format nil "~A::(~{~A~^ ~})" key sorted-quals)))
+        
+        (let* ((sorted-specs (sort (copy-list (or specializers nil)) #'string<)))
+          (setf key (format nil "~A::(~{~A~^ ~})" key sorted-specs))))
+      
       key)))
 
 
@@ -128,63 +128,3 @@
                                 :key #'anomaly.description))
             (print-anomaly anomaly log-stream 0))
           (terpri log-stream))))))
-
-
-#+ignore (defun print-tracker-slot (tracker slot-name)
-  "Print contents of tracker slot to log-stream with headers and indentation.
-   TRACKER is a dependency-tracker instance
-   SLOT-NAME is one of 'definitions, 'references, or 'anomalies"
-  (declare (special log-stream))
-  (let ((table (slot-value tracker slot-name)))
-    ;; Print slot header
-    (format log-stream "~&~A.LOG~%" (string-upcase slot-name))
-    (format log-stream "~V,,,'-<~>~2%" 30)
-    (case slot-name
-      (definitions
-       ;; Sort and print definitions directly
-       (let ((defs nil))
-         (maphash (lambda (key def-list)
-                    (declare (ignore key))
-                    (dolist (def def-list)
-                      (push def defs)))
-                  table)
-         (dolist (def (sort defs #'string< :key #'definition.name))
-           (format log-stream "~A~2%" def))))
-
-      (references
-       ;; Group references by symbol (and package), but print no sub-headers.
-       (let ((keys nil))
-         (maphash (lambda (key refs)
-                    (declare (ignore refs))
-                    (push key keys))
-                  table)
-         (dolist (key (sort keys #'string<))
-           (let ((refs (gethash key table)))
-             (cond
-               ((null refs)
-                ;; No references, do nothing.
-                )
-               ((null (cdr refs))
-                ;; Only one reference, print it directly.
-                (format log-stream "~A~2%" (car refs)))
-               (t
-                ;; Multiple references, print them in a grouped list.
-                (format log-stream "(~%")
-                (dolist (ref refs)
-                  (format log-stream "  ~A~%" ref))
-                (format log-stream ")~%")))))))
-
-      (anomalies
-       ;; Group anomalies by type
-       (let ((types nil))
-         (maphash (lambda (type anomaly-list)
-                    (declare (ignore anomaly-list))
-                    (push type types))
-                  table)
-         (dolist (type (sort types #'string<))
-           (format log-stream "~&~A ANOMALIES~%"
-                   (string-upcase (symbol-name type)))
-           (dolist (anomaly (sort (gethash type table)
-                                  #'string< :key #'anomaly.description))
-             (format log-stream "  ~A~%" anomaly))
-           (format log-stream "~%")))))))

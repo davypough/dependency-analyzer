@@ -124,48 +124,6 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-  Context: NIL
-  Parent: NIL
-  Depth: 0
-WALK(ING):
-  Expression: SETF
-  Context: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-  Parent: NIL
-  Depth: 1
-WALK(ING):
-  Expression: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
-  Context: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-  Parent: NIL
-  Depth: 1
-WALK(ING):
-  Expression: SYMBOL-VALUE
-  Context: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
-  Parent: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-  Depth: 2
-WALK(ING):
-  Expression: 'SYMBOL-VALUE-VARIABLE
-  Context: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
-  Parent: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-  Depth: 2
-WALK(ING):
-  Expression: QUOTE
-  Context: 'SYMBOL-VALUE-VARIABLE
-  Parent: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
-  Depth: 3
-WALK(ING):
-  Expression: SYMBOL-VALUE-VARIABLE
-  Context: 'SYMBOL-VALUE-VARIABLE
-  Parent: (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE)
-  Depth: 3
-WALK(ING):
-  Expression: 0
-  Context: (SETF (SYMBOL-VALUE 'SYMBOL-VALUE-VARIABLE) 0)
-  Parent: NIL
-  Depth: 1
-
--------------------------------
-WALK(ING):
   Expression: (DEFVAR *DEFVAR-VARIABLE*
                 (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Context: NIL
@@ -201,6 +159,75 @@ WALK(ING):
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Depth: 2
+
+-------------------------------
+WALK(ING):
+  Expression: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+WALK(ING):
+  Expression: DECLAIM
+  Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
+  Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: SPECIAL
+  Context: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
+  Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
+  Depth: 2
+WALK(ING):
+  Expression: *SYMBOL-VALUE-VARIABLE*
+  Context: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
+  Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
+  Depth: 2
+
+-------------------------------
+WALK(ING):
+  Expression: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+WALK(ING):
+  Expression: SETF
+  Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
+  Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: SYMBOL-VALUE
+  Context: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
+  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
+  Depth: 2
+WALK(ING):
+  Expression: '*SYMBOL-VALUE-VARIABLE*
+  Context: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
+  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
+  Depth: 2
+WALK(ING):
+  Expression: QUOTE
+  Context: '*SYMBOL-VALUE-VARIABLE*
+  Parent: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
+  Depth: 3
+WALK(ING):
+  Expression: *SYMBOL-VALUE-VARIABLE*
+  Context: '*SYMBOL-VALUE-VARIABLE*
+  Parent: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
+  Depth: 3
+WALK(ING):
+  Expression: 0
+  Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
+  Parent: NIL
+  Depth: 1
 
 -------------------------------
 WALK(ING):
@@ -664,54 +691,59 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Expression: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Context: NIL
   Parent: NIL
   Depth: 0
 WALK(ING):
   Expression: DEFMETHOD
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: PROCESS-DATA
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: NIL
   Depth: 1
 WALK(ING):
-  Expression: ((DATA STRING))
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Expression: ((DATA STRING) &KEY)
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: (DATA STRING)
-  Context: ((DATA STRING))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Context: ((DATA STRING) &KEY)
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Depth: 2
 WALK(ING):
   Expression: DATA
   Context: (DATA STRING)
-  Parent: ((DATA STRING))
+  Parent: ((DATA STRING) &KEY)
   Depth: 3
 WALK(ING):
   Expression: STRING
   Context: (DATA STRING)
-  Parent: ((DATA STRING))
+  Parent: ((DATA STRING) &KEY)
   Depth: 3
 WALK(ING):
+  Expression: &KEY
+  Context: ((DATA STRING) &KEY)
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Depth: 2
+WALK(ING):
   Expression: (STRING-UPCASE DATA)
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: STRING-UPCASE
   Context: (STRING-UPCASE DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Depth: 2
 WALK(ING):
   Expression: DATA
   Context: (STRING-UPCASE DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING)) (STRING-UPCASE DATA))
+  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Depth: 2
 
 -------------------------------
@@ -1109,11 +1141,14 @@ WALK(ING):
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -1134,13 +1169,7 @@ WALK(ING):
     :Definitions
                     DEFINITION>
                         :Name *DEFPARAMETER-VARIABLE*
-                        :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package "USER-MAIN-PACKAGE"
-                    DEFINITION>
-                        :Name *DEFPARAMETER-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE*
-                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -1161,6 +1190,7 @@ WALK(ING):
     :Definitions
                     DEFINITION>
                         :Name +DEFCONSTANT-VARIABLE+
+                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ "aeiou")
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -1168,19 +1198,19 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: SYMBOL-VALUE-VARIABLE
+  Expression: *SYMBOL-VALUE-VARIABLE*
   Context: NIL
   Parent: NIL
   Depth: 0
 
 #<REFERENCE 
-    :Name SYMBOL-VALUE-VARIABLE
+    :Name *SYMBOL-VALUE-VARIABLE*
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
-                        :Name SYMBOL-VALUE-VARIABLE
+                        :Name *SYMBOL-VALUE-VARIABLE*
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -1406,33 +1436,28 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Expression: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Context: NIL
   Parent: NIL
   Depth: 0
 WALK(ING):
   Expression: PROCESS-DATA
-  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
-  Parent: NIL
-  Depth: 1
-WALK(ING):
-  Expression: :AFTER
-  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: "test"
-  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: :LOG-LEVEL
-  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 WALK(ING):
   Expression: :WARN
-  Context: (PROCESS-DATA :AFTER "test" :LOG-LEVEL :WARN)
+  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
 
@@ -1631,11 +1656,14 @@ WALK(ING):
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
@@ -1749,11 +1777,14 @@ WALK(ING):
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
                         :Type :VARIABLE
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
