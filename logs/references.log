@@ -24,6 +24,12 @@ REFERENCE>
 
 REFERENCE>
     :Name *DEFVAR-VARIABLE*
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE ...))
+               ARG
+               ...)
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
@@ -65,12 +71,6 @@ REFERENCE>
 
 REFERENCE>
     :Name *DEFVAR-VARIABLE*
-    :Context (LET ((ARG 0))
-               (DEFUN-NAME)
-               *DEFVAR-VARIABLE*
-               (COMPUTE-AREA (MAKE-CIRCLE ...))
-               ARG
-               ...)
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
@@ -224,6 +224,79 @@ REFERENCE>
                         :Package "USER-MAIN-PACKAGE"
 
 REFERENCE>
+    :Name PROCESS-DATA
+    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Arguments ("test" STRING :LOG-LEVEL KEYWORD :WARN KEYWORD)
+    :Definitions
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :GENERIC-FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+
+REFERENCE>
+    :Name PROCESS-DATA
+    :Context (PROCESS-DATA 42)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Arguments (42 NUMBER)
+    :Definitions
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :GENERIC-FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package "USER-MAIN-PACKAGE"
+
+REFERENCE>
     :Name SYMBOL-FUNCTION-NAME
     :Context 'SYMBOL-FUNCTION-NAME
     :File /source/single-pkg-refs.lisp
@@ -238,6 +311,13 @@ REFERENCE>
 
 REFERENCE>
     :Name "USER-MAIN-PACKAGE"
+    :Context (IN-PACKAGE #:USER-MAIN-PACKAGE)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+REFERENCE>
+    :Name "USER-MAIN-PACKAGE"
     :File /source/single-pkg-refs.lisp
     :Package "USER-MAIN-PACKAGE"
     :Visibility LOCAL
@@ -250,11 +330,3 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package "USER-MAIN-PACKAGE"
                         :Exported-p T
-
-REFERENCE>
-    :Name "USER-MAIN-PACKAGE"
-    :Context (IN-PACKAGE #:USER-MAIN-PACKAGE)
-    :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
-    :Visibility LOCAL
-    :Definitions

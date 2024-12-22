@@ -11,24 +11,6 @@ ANOMALY>
     :Files /source/single-pkg-refs.lisp
     :Description No applicable method for COMPUTE-AREA with arguments ((MAKE-CIRCLE))
 
-ANOMALY>
-    :Name PROCESS-DATA
-    :Type :INVALID-METHOD-CALL
-    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-    :Severity :ERROR
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description No applicable method for PROCESS-DATA with arguments ("test" :LOG-LEVEL :WARN)
-
-ANOMALY>
-    :Name PROCESS-DATA
-    :Type :INVALID-METHOD-CALL
-    :Context (PROCESS-DATA 42)
-    :Severity :ERROR
-    :Location /source/single-pkg-refs.lisp
-    :Files /source/single-pkg-refs.lisp
-    :Description No applicable method for PROCESS-DATA with arguments (42)
-
 
 ANOMALY>
     :Name *DEFPARAMETER-VARIABLE*

@@ -563,67 +563,23 @@
 
 
 (defun find-method-call-definitions (parser form)
-  "Find matching method definitions for a method call.
+  "Find method and generic function definitions for a method call form.
    Returns (values gf-def method-defs) where:
-   - gf-def is the generic function definition
-   - method-defs are the applicable method definitions that match:
-     - method qualifiers 
-     - required parameter specializers (evaluated in parser's package)
-     - optional parameter specializers (when provided)
-     - keyword parameter requirements"
-  (let* ((name-and-quals (analyze-call-qualifiers (car form)))
-         (name (car name-and-quals))
-         (call-quals (cdr name-and-quals))
+   - gf-def is the generic function definition from our tables
+   - method-defs are the applicable method definitions from our tables
+   FORM is of form: (name . args)"
+  (let* ((name (car form))
          (args (cdr form))
-         (pkg-name (current-package-name parser))
-         ;; Split into required/optional and keyword args
-         (key-pos (position-if #'keywordp args))
-         (req-opt-args (if key-pos
-                          (subseq args 0 key-pos)
-                          args))
-         (key-args (when key-pos
-                    (loop for (key val) on (subseq args key-pos) by #'cddr
-                          collect (cons key val)))))
-   
-   ;; Get generic function definition
-   (let* ((gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
-          (gf-defs (remove-if (lambda (def)
-                               (equal (definition.file def) (file parser)))
-                             (gethash gf-key (slot-value *current-tracker* 'definitions)))))
-     
-     ;; Find matching method definitions
-     (let* ((method-key (make-tracking-key name pkg-name :METHOD))
-            (all-methods (remove-if (lambda (def)
-                                    (equal (definition.file def) (file parser)))
-                                  (gethash method-key (slot-value *current-tracker* 'definitions))))
-            (applicable-methods
-             (remove-if-not 
-              (lambda (method-def)
-                (let* ((lambda-list (definition.lambda-list method-def))
-                       (method-quals (definition.qualifiers method-def))
-                       ;; Get required param count before &optional/&key
-                       (req-params (loop for param in lambda-list
-                                       until (member param lambda-list-keywords)
-                                       collect param))
-                       (req-args (subseq req-opt-args 0 (length req-params)))
-                       (opt-args (subseq req-opt-args (length req-params))))
-                  (and 
-                   ;; Match qualifiers in correct order
-                   (or (null call-quals)
-                       (null method-quals)
-                       (qualifier-match-p call-quals method-quals))
-                   ;; Required args match method signature
-                   (= (length req-params) (length req-args))
-                   (every (lambda (param arg)
-                           (type-compatible-p (second param) arg parser))
-                         req-params req-args)
-                   ;; Optional args match when provided
-                   (match-optional-arguments lambda-list opt-args key-pos parser)
-                   ;; Keywords valid for method lambda list
-                   (lambda-list-accepts-keys-p lambda-list key-args))))
-              all-methods)))
-       
-       (values (car gf-defs) applicable-methods)))))
+         (gf (ignore-errors (fdefinition name))))
+    (when (typep gf 'standard-generic-function)
+      (let* ((methods (ignore-errors (compute-applicable-methods gf args)))
+             (pkg-name (current-package-name parser))
+             (gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
+             (gf-defs (gethash gf-key (slot-value *current-tracker* 'definitions)))
+             (method-defs (loop for method in methods
+                               for method-key = (make-tracking-key name pkg-name :METHOD)
+                               append (gethash method-key (slot-value *current-tracker* 'definitions)))))
+        (values (car gf-defs) method-defs)))))
 
 
 (defun match-optional-arguments (lambda-list args key-start-pos parser)
@@ -844,7 +800,7 @@
     (t t)))
 
 
-(defun analyze-function-call-context (symbol context parent-context)
+(defun analyze-function-call-context (symbol context)
   "Analyze if a symbol appears in a function call context.
    Returns (values call-p name args) where:
    - call-p: T if symbol is being called as a function
@@ -856,7 +812,6 @@
    - Funcall form: (funcall #'foo arg1 arg2)
    - Apply form: (apply #'foo args)
    - Special method forms: (call-next-method)"
-  (declare (ignore parent-context))
   (when (and context (listp context))
     (cond
       ;; Direct function call - now checks fboundp for non-CL symbols
@@ -925,60 +880,45 @@
 (defun handle-method-call (subform parser pkg-name context visibility name args)
   "Handles analysis and recording of method calls. Creates either:
    - A reference record if call matches an existing method 
-   - An anomaly for malformed arguments (unpaired keys)
    - An anomaly for no matching method"
   (declare (special log-stream))
-  ;; First check if keyword arguments are properly paired
-  (let ((key-pos (position-if #'keywordp args)))
-    (if (and key-pos 
-             (oddp (length (nthcdr key-pos args))))
-        ;; Invalid - unpaired keyword arguments
-        (record-anomaly *current-tracker*
-                       :name subform
-                       :type :invalid-method-call
-                       :severity :ERROR 
-                       :file (file parser)
-                       :description (format nil "Method call has unpaired keyword arguments: ~S" 
-                                         (subseq args key-pos))
-                       :context (limit-form-size context pkg-name))
-        ;; Arguments well-formed, try to find matching method
-        (multiple-value-bind (gf-def method-defs)
-            (find-method-call-definitions parser (cons name args))
-          (if gf-def
-              ;; Have generic function - check method matches
-              (if method-defs
-                  ;; Valid method call - record reference with all definitions
-                  (let* ((name-and-quals (analyze-call-qualifiers name))
-                         (qualifiers (cdr name-and-quals))
-                         (typed-args (loop for arg in args
-                                         collect arg
-                                         collect (cond ((null arg) 'null)
-                                                     ((stringp arg) 'string)
-                                                     ((numberp arg) 'number)
-                                                     ((keywordp arg) 'keyword)
-                                                     ((symbolp arg) 'symbol)
-                                                     ((consp arg) 'unanalyzed)
-                                                     (t (type-of arg))))))
-                    (record-reference *current-tracker*
-                                    :name subform
-                                    :file (file parser)
-                                    :package pkg-name 
-                                    :context (limit-form-size context pkg-name)
-                                    :visibility visibility
-                                    :definitions (cons gf-def method-defs)
-                                    :qualifiers qualifiers
-                                    :arguments typed-args))
-                  ;; No matching method - create anomaly
-                  (record-anomaly *current-tracker*
-                                :name subform
-                                :type :invalid-method-call 
-                                :severity :ERROR
-                                :file (file parser)
-                                :description (format nil "No applicable method for ~A with arguments ~S" 
-                                                   name args)
-                                :context (limit-form-size context pkg-name)))
-              ;; No generic function found
-              (try-definition-types subform pkg-name parser context visibility))))))
+  (multiple-value-bind (gf-def method-defs)
+      (find-method-call-definitions parser (cons name args))
+    (if gf-def
+        ;; Have generic function - check method matches
+        (if method-defs
+            ;; Valid method call - record reference with all definitions
+            (let* ((name-and-quals (analyze-call-qualifiers name))
+                   (qualifiers (cdr name-and-quals))
+                   (typed-args (loop for arg in args
+                                   collect arg
+                                   collect (cond ((null arg) 'null)
+                                               ((stringp arg) 'string)
+                                               ((numberp arg) 'number)
+                                               ((keywordp arg) 'keyword)
+                                               ((symbolp arg) 'symbol)
+                                               ((consp arg) 'unanalyzed)
+                                               (t (type-of arg))))))
+              (record-reference *current-tracker*
+                              :name subform
+                              :file (file parser)
+                              :package pkg-name 
+                              :context (limit-form-size context pkg-name)
+                              :visibility visibility
+                              :definitions (cons gf-def method-defs)
+                              :qualifiers qualifiers
+                              :arguments typed-args))
+            ;; No matching method - create anomaly
+            (record-anomaly *current-tracker*
+                          :name subform
+                          :type :invalid-method-call 
+                          :severity :ERROR
+                          :file (file parser)
+                          :description (format nil "No applicable method for ~A with arguments ~S" 
+                                             name args)
+                          :context (limit-form-size context pkg-name)))
+        ;; No generic function found
+        (try-definition-types subform pkg-name parser context visibility))))
 
 
 (defun extract-specializers (lambda-list)

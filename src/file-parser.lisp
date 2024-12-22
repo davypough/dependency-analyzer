@@ -246,11 +246,11 @@
                     
                     ;; Check if symbol is in function call context
                     (multiple-value-bind (call-p name args)
-                        (analyze-function-call-context subform context parent-context)
+                        (analyze-function-call-context subform context) ;operator?
                       (if call-p
-                          ;; Function call - handle method call
+                          ;; Check if method first & process
                           (handle-method-call subform parser pkg-name context visibility name args)
-                          ;; Not a function call - check all definition types
+                          ;; Not a method call - check all standard definition types
                           (try-definition-types subform pkg-name parser context visibility)))))))))
     ;; Walk the form applying handler
     (walk-form form #'handle-reference)))
