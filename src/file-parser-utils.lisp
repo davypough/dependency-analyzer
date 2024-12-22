@@ -563,22 +563,27 @@
 
 
 (defun find-method-call-definitions (parser form)
- "Find matching method definitions for a method call.
-  Assumes arguments are well-formed (keyword args properly paired).
-  Returns (values gf-def method-defs) where:
-  - gf-def is the generic function definition
-  - method-defs are the applicable method definitions"
- (let* ((name-and-quals (analyze-call-qualifiers (car form)))
-        (name (car name-and-quals))
-        (call-quals (cdr name-and-quals))
-        (args (cdr form))
-        (pkg-name (current-package-name parser))
-        ;; Split into required and keyword args
-        (req-args (loop for arg in args
-                       until (keywordp arg)
-                       collect arg))
-        (key-args (loop for (key val) on (member-if #'keywordp args) by #'cddr
-                       collect (cons key val))))
+  "Find matching method definitions for a method call.
+   Returns (values gf-def method-defs) where:
+   - gf-def is the generic function definition
+   - method-defs are the applicable method definitions that match:
+     - method qualifiers 
+     - required parameter specializers (evaluated in parser's package)
+     - optional parameter specializers (when provided)
+     - keyword parameter requirements"
+  (let* ((name-and-quals (analyze-call-qualifiers (car form)))
+         (name (car name-and-quals))
+         (call-quals (cdr name-and-quals))
+         (args (cdr form))
+         (pkg-name (current-package-name parser))
+         ;; Split into required/optional and keyword args
+         (key-pos (position-if #'keywordp args))
+         (req-opt-args (if key-pos
+                          (subseq args 0 key-pos)
+                          args))
+         (key-args (when key-pos
+                    (loop for (key val) on (subseq args key-pos) by #'cddr
+                          collect (cons key val)))))
    
    ;; Get generic function definition
    (let* ((gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
@@ -595,37 +600,114 @@
              (remove-if-not 
               (lambda (method-def)
                 (let* ((lambda-list (definition.lambda-list method-def))
-                       (specializers (extract-specializers lambda-list))
-                       (method-quals (definition.qualifiers method-def)))
+                       (method-quals (definition.qualifiers method-def))
+                       ;; Get required param count before &optional/&key
+                       (req-params (loop for param in lambda-list
+                                       until (member param lambda-list-keywords)
+                                       collect param))
+                       (req-args (subseq req-opt-args 0 (length req-params)))
+                       (opt-args (subseq req-opt-args (length req-params))))
                   (and 
-                   ;; Match qualifiers in correct order, being lenient 
+                   ;; Match qualifiers in correct order
                    (or (null call-quals)
                        (null method-quals)
                        (qualifier-match-p call-quals method-quals))
-                   ;; Required args match specializers, with type compatibility
-                   (= (length specializers) (length req-args))
-                   (every #'type-compatible-p specializers req-args)
-                   ;; Keywords match method lambda list 
-                   (let ((key-start (position '&key lambda-list)))
-                     (or (null key-args)  ; No key args provided
-                         (null key-start) ; Method takes no keys
-                         (member '&allow-other-keys (subseq lambda-list key-start))
-                         ;; Check keys match declared params
-                         (let ((allowed-keys
-                                (loop for param in (subseq lambda-list (1+ key-start))
-                                      until (member param lambda-list-keywords)
-                                      collect 
-                                        (if (listp param)
-                                          (if (listp (car param))
-                                            (caar param)
-                                            (car param))
-                                          (intern (symbol-name param) :keyword)))))
-                           (every (lambda (key-arg)
-                                  (member (car key-arg) allowed-keys))
-                                key-args)))))))
+                   ;; Required args match method signature
+                   (= (length req-params) (length req-args))
+                   (every (lambda (param arg)
+                           (type-compatible-p (second param) arg parser))
+                         req-params req-args)
+                   ;; Optional args match when provided
+                   (match-optional-arguments lambda-list opt-args key-pos parser)
+                   ;; Keywords valid for method lambda list
+                   (lambda-list-accepts-keys-p lambda-list key-args))))
               all-methods)))
        
        (values (car gf-defs) applicable-methods)))))
+
+
+(defun match-optional-arguments (lambda-list args key-start-pos parser)
+  (let* ((opt-start (position '&optional lambda-list))
+         (required-count (if opt-start opt-start 0))
+         (opt-section-end (and opt-start
+                             (or (position '&rest lambda-list :start opt-start)
+                                 (position '&key lambda-list :start opt-start)
+                                 (length lambda-list))))
+         (opt-params (when opt-start
+                      (subseq lambda-list (1+ opt-start) opt-section-end)))
+         (max-opt-args (length opt-params))
+         (provided-args (length args)))
+    
+    (cond
+      ((null opt-start)
+       (zerop provided-args))
+      
+      ;; Corrected key position check
+      ((and key-start-pos 
+            (> provided-args (- key-start-pos required-count)))
+       nil)
+      
+      ((> provided-args max-opt-args)
+       nil)
+      
+      (t
+       (loop for arg in args
+             for param in opt-params
+             always (typecase param
+                     (symbol t)
+                     (cons
+                      (let ((spec (if (listp (car param))
+                                    (cadar param)
+                                    t)))
+                        (type-compatible-p spec arg parser)))))))))
+
+
+(defun lambda-list-accepts-keys-p (lambda-list key-args)
+  "Test if a lambda list can accept the given keyword arguments.
+   LAMBDA-LIST - The full method lambda list for testing
+   KEY-ARGS - List of (keyword . value) pairs from the call
+   
+   A method accepts key args if either:
+   1. No key args provided (always valid)
+   2. Has &key and &allow-other-keys (accepts any keys)
+   3. Has &key and all provided keys match declared parameters
+   
+   Key parameters can be specified as:
+   - symbol (keyword derived from name)
+   - (symbol-name) (keyword derived from name) 
+   - ((keyword var)) (explicit keyword)
+   - ((keyword var) default supplied-p) (with default)"
+  (let* ((key-start (position '&key lambda-list))
+         (allow-others-pos (and key-start 
+                              (position '&allow-other-keys lambda-list 
+                                      :start key-start))))
+    (cond 
+      ;; Case 1: No key args provided - always valid
+      ((null key-args) 
+       t)
+      
+      ;; Case 2: Key args but no &key in lambda list - invalid
+      ((null key-start) 
+       nil)
+      
+      ;; Case 3: Has &allow-other-keys - all keys valid
+      (allow-others-pos 
+       t)
+      
+      ;; Case 4: Must validate each key against declared parameters
+      (t 
+       (let ((allowed-keys 
+              (loop for param in (subseq lambda-list (1+ key-start))
+                    until (member param lambda-list-keywords)
+                    collect (if (listp param)
+                              (if (listp (car param))
+                                  (caar param)     ; ((keyword var) ...)
+                                  (car param))     ; (var ...)
+                              (intern (symbol-name param) 
+                                    :keyword)))))  ; bare-symbol
+         (every (lambda (key-arg)
+                 (member (car key-arg) allowed-keys))
+               key-args))))))
 
 
 (defun qualifier-match-p (call-quals method-quals)
@@ -644,51 +726,56 @@
                   (position :after method-quals)))))
 
 
-(defun type-compatible-p (specializer arg)
+(defun type-compatible-p (specializer arg parser)
   "Test if argument is compatible with method specializer.
-   Handles standard classes, EQL specializers, and T specializers."
-  (cond ((or (eq specializer t) 
-             (eq specializer 'cl:t))
-         t)
-        ;; Handle EQL specializer syntax 
-        ((and (listp specializer)
-              (eq (car specializer) 'eql))
-         (equal (cadr specializer) arg))
-        ;; Basic built-in type checking
-        ((and (symbolp specializer)
-              (not (keywordp arg)))
-         (ignore-errors
-           (typep arg specializer)))
-        ;; Conservative match for unknown types
-        (t t)))
-
-
-(defun lambda-list-accepts-keys-p (lambda-list key-args)
-  "Test if a lambda list can accept the given keyword arguments.
-   Returns true if either:
-   - Lambda list has no &key params and no key args provided
-   - Lambda list has &allow-other-keys 
-   - All provided keys match declared key parameters
-   Key-args is list of (key value) pairs from method call."
-  (let* ((key-start (position '&key lambda-list))
-         (allow-others (and key-start 
-                           (member '&allow-other-keys lambda-list))))
-    (cond 
-      ((null key-args) t)  ; No key args always ok
-      ((null key-start) nil)  ; Key args but no &key in lambda list
-      (allow-others t)  ; &allow-other-keys accepts any keys
-      (t  ; Check each key against declared key params
-       (let ((allowed-keys 
-              (loop for param in (subseq lambda-list (1+ key-start))
-                    until (member param lambda-list-keywords)
-                    collect (if (listp param)
-                              (if (listp (car param))
-                                  (caar param)
-                                  (car param))
-                              (intern (symbol-name param) :keyword)))))
-         (every (lambda (key-arg)
-                 (member (car key-arg) allowed-keys))
-                key-args))))))
+   Handles:
+   - Standard class/type specializers
+   - EQL specializers 
+   - Constructor forms by evaluation in parser's package context
+   - T (matches anything)
+   Evaluates constructor forms in parser's package context when available."
+  (cond 
+    ;; T specializer matches anything
+    ((or (eq specializer t) 
+         (eq specializer 'cl:t))
+     t)
+    
+    ;; EQL specializer - direct value match
+    ((and (listp specializer)
+          (eq (car specializer) 'eql))
+     (equal (cadr specializer) arg))
+    
+    ;; Constructor form - try evaluation in parser's package
+    ((and (or (and (consp arg)    ; (make-foo)
+                   (symbolp (car arg))
+                   (string= (symbol-name (car arg))
+                           (concatenate 'string "MAKE-" 
+                                      (symbol-name specializer))))
+              (and (symbolp arg)   ; make-foo
+                   (string= (symbol-name arg)
+                           (concatenate 'string "MAKE-" 
+                                      (symbol-name specializer)))))
+          (current-package parser))
+     (let ((*package* (current-package parser)))
+       (handler-case
+           (let ((obj (if (consp arg)
+                         (eval arg)
+                         (funcall arg))))
+             (typep obj specializer))
+         (error () 
+           ;; If evaluation fails, assume potentially compatible
+           t))))
+    
+    ;; Standard type/class specializer
+    ((and (not (consp arg))
+          (ignore-errors 
+            (find-class specializer nil)))
+     (handler-case
+         (typep arg specializer)
+       (error () t)))
+    
+    ;; Conservative default - assume potentially compatible
+    (t t)))
 
 
 (defun qualifiers-compatible-p (method-qualifiers call-qualifiers)
