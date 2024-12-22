@@ -273,89 +273,67 @@
 
 
 (defun analyze-defpackage (parser form)
-  "Handle defpackage form, recording package definition and analyzing:
-   - Package name and its dependencies
-   - Package inheritance (:use)
-   - Symbol importing (:import-from)
-   - Symbol exporting (:export)
-   - All other package options for potential dependencies"
+  "Handle defpackage form using runtime package information.
+   Records package definition, use relationships, and exports."
   (declare (special log-stream))
   (destructuring-bind (def-op name &rest options) form
-    (declare (ignore def-op)) 
-    ;; 1. Form Analysis Context
+    (declare (ignore def-op))
     (let* ((pkg-name (normalize-designator name))
            (file (file parser))
-           ;; Extract standard package options
-           (use-list (cdr (assoc :use options)))
-           (nicknames (cdr (assoc :nicknames options)))
-           ;; Create package with standard options 
-           (package (or (find-package pkg-name)
-                       (make-package pkg-name 
-                                   :use (mapcar #'normalize-designator use-list)
-                                   :nicknames (mapcar #'normalize-designator nicknames))))
+           (package (find-package pkg-name))
            (context (limit-form-size form pkg-name)))
-
-      ;; Record definition before any analysis starts
-      ;; MODIFIED: Updated to use keyword args
+      
+      ;; Record primary package definition
       (record-definition *current-tracker*
                         :name pkg-name
                         :type :PACKAGE
                         :file file
-                        :package pkg-name  
-                        :exported-p t     
+                        :package pkg-name
+                        :exported-p t
                         :context context)
-
-      ;; 2. Primary Definition Record
-      ;; (Moved to section 1 above)
       
-      ;; 3. Interface Elements
-      (let ((exported-syms nil))
-        ;; Collect all exported symbols for recording
-        (dolist (option options)
-          (when (and (listp option) (eq (car option) :export))
-            (dolist (sym (cdr option))
-              (let ((exported-sym (process-package-export-option 
-                                  package pkg-name sym)))
-                (when exported-sym 
-                  (push exported-sym exported-syms))))))
+      (when package
+        ;; Record actual package use relationships
+        (dolist (used-pkg (package-use-list package))
+          (record-package-use *current-tracker* 
+                            pkg-name
+                            (package-name used-pkg)))
         
-        ;; Record all exported symbols
-        (dolist (sym exported-syms)
-          (record-export *current-tracker* pkg-name sym)))
-
-      ;; 4. Specification Elements
-      ;; Process package use relationships - simplified to just record dependency
-      (dolist (option options)
-        (when (and (listp option) (eq (car option) :use))
-          (dolist (used-pkg (cdr option))
-            (let ((used-name (normalize-designator used-pkg)))
-              (record-package-use *current-tracker* pkg-name used-name)))))
-
-      ;; 5. Implementation Elements
-      ;; Process imports and other package options
-      (dolist (option options)
-        (when (listp option)
-          (case (car option)
-            (:import-from
-             (let ((from-pkg (normalize-designator (second option))))
-               (dolist (sym (cddr option))
-                 (process-package-import-option 
-                  package from-pkg pkg-name parser sym))))
-            ((:documentation :size :nicknames)
-             nil)  ; Skip these options
-            (t (unless (eq (car option) :export)
-                 ;; Process other options but skip already handled ones
-                 (dolist (item (cdr option))
-                   (when (and (symbolp item) (not (keywordp item)))
-                     (analyze-definition-form parser item))))))))
-
-      ;; Check for package dependency cycles
-      (detect-package-cycle pkg-name (parsing-packages parser)))))
+        ;; Record exported symbols
+        (do-external-symbols (sym package)
+          (record-export *current-tracker* pkg-name sym))
+        
+        ;; Handle package options from form to track original source location
+        (dolist (option options)
+          (when (listp option)
+            (case (car option)
+              (:import-from
+               (let ((from-pkg (normalize-designator (second option))))
+                 (dolist (sym (cddr option))
+                   (when (find-symbol (string sym) from-pkg)
+                     (process-package-import-option package 
+                                                  from-pkg
+                                                  pkg-name
+                                                  parser
+                                                  sym)))))
+              
+              ;; Skip options we handle through runtime info
+              ((:use :export :nicknames :documentation :size)
+               nil)
+              
+              ;; Process other options for potential dependencies
+              (t (unless (eq (car option) :export)
+                   (dolist (item (cdr option))
+                     (when (and (symbolp item) 
+                              (not (keywordp item)))
+                       (analyze-definition-form parser item))))))))
+        
+        ;; Check for package dependency cycles
+        (detect-package-cycle pkg-name (parsing-packages parser))))))
 
 
 (defun analyze-defstruct (parser form)
-  "Handle defstruct form. Records structure definition and its accessor methods,
-   letting walk-form handle nested definitions and references.
+  "Handle defstruct form using runtime class information.
    PARSER - The file parser providing context
    FORM - The full definition form: (defstruct name-and-options &rest slots)"
   (declare (special log-stream))
@@ -365,18 +343,8 @@
          (struct-name (if (listp name-and-options)
                          (car name-and-options)
                          name-and-options))
-         (options (when (listp name-and-options)
-                   (cdr name-and-options)))
          (context (limit-form-size form pkg-name))
-         ;; Determine accessor prefix based on :conc-name option
-         (conc-name-prefix 
-          (let ((conc-option (find :conc-name options :key #'car)))
-            (cond ((null conc-option)
-                   (concatenate 'string (string struct-name) "-"))  ; Default
-                  ((or (null (cdr conc-option))    ; (:conc-name)
-                      (null (second conc-option)))  ; (:conc-name nil) 
-                   "")
-                  (t (string (second conc-option)))))))
+         (struct-class (find-class struct-name nil)))
     
     ;; Record structure definition
     (record-definition *current-tracker*
@@ -385,42 +353,94 @@
                       :file file
                       :package pkg-name
                       :exported-p (eq (nth-value 1 
-                                     (find-symbol (symbol-name struct-name) (current-package parser)))
+                                     (find-symbol (symbol-name struct-name) 
+                                                (current-package parser)))
                                     :external)
                       :context context)
     
-    ;; Record accessor method definitions 
-    (dolist (slot (cddr form))  ; Skip defstruct and name-and-options
-      (let* ((slot-name (if (listp slot) (car slot) slot))
-             (accessor (intern (concatenate 'string conc-name-prefix
-                                         (string slot-name))
-                             (current-package parser)))
-             (accessor-context (limit-form-size form pkg-name)))
-        ;; Record reader method
-        (record-definition *current-tracker*
-                          :name accessor
-                          :type :METHOD
-                          :file file
-                          :package pkg-name
-                          :exported-p (eq (nth-value 1 
-                                         (find-symbol (string accessor) (current-package parser)))
-                                        :external)
-                          :context accessor-context
-                          :qualifiers nil
-                          :lambda-list `((struct ,struct-name)))
-        ;; Record (setf accessor) writer method
-        (let ((setf-name accessor))
+    (when struct-class
+      ;; Record constructor 
+      (let ((make-name (intern (format nil "MAKE-~A" struct-name)
+                              (symbol-package struct-name))))
+        (when (fboundp make-name)
           (record-definition *current-tracker*
-                            :name setf-name
-                            :type :METHOD
+                            :name make-name
+                            :type :FUNCTION
                             :file file
                             :package pkg-name
-                            :exported-p (eq (nth-value 1 
-                                           (find-symbol (string accessor) (current-package parser)))
+                            :exported-p (eq (nth-value 1
+                                           (find-symbol (symbol-name make-name)
+                                                      (current-package parser)))
                                           :external)
-                            :context accessor-context
-                            :qualifiers nil
-                            :lambda-list `(new-value (struct ,struct-name))))))))
+                            :context context)))
+      
+      ;; Record copier if it exists
+      (let ((copy-name (intern (format nil "COPY-~A" struct-name)
+                              (symbol-package struct-name))))
+        (when (fboundp copy-name)
+          (record-definition *current-tracker*
+                            :name copy-name
+                            :type :FUNCTION 
+                            :file file
+                            :package pkg-name
+                            :exported-p (eq (nth-value 1
+                                           (find-symbol (symbol-name copy-name)
+                                                      (current-package parser)))
+                                          :external)
+                            :context context)))
+      
+      ;; Record predicate if it exists
+      (let ((pred-name (intern (format nil "~A-P" struct-name)
+                              (symbol-package struct-name))))
+        (when (fboundp pred-name)
+          (record-definition *current-tracker*
+                            :name pred-name
+                            :type :FUNCTION
+                            :file file
+                            :package pkg-name
+                            :exported-p (eq (nth-value 1
+                                           (find-symbol (symbol-name pred-name)
+                                                      (current-package parser)))
+                                          :external)
+                            :context context)))
+      
+      ;; Extract slot names from the defstruct form
+      (let ((slot-forms (cddr form)))
+        (dolist (slot-form slot-forms)
+          (let* ((slot-name (if (listp slot-form) 
+                               (car slot-form)
+                               slot-form))
+                 (accessor-name (intern (format nil "~A-~A" struct-name slot-name)
+                                      (symbol-package struct-name))))
+            
+            ;; Record reader method if it exists
+            (when (fboundp accessor-name)
+              (record-definition *current-tracker*
+                               :name accessor-name
+                               :type :METHOD
+                               :file file
+                               :package pkg-name
+                               :exported-p (eq (nth-value 1
+                                              (find-symbol (symbol-name accessor-name)
+                                                         (current-package parser)))
+                                             :external)
+                               :context context
+                               :lambda-list `((struct ,struct-name))))
+            
+            ;; Record writer method if it exists
+            (let ((writer-name accessor-name))
+              (when (fboundp `(setf ,writer-name))
+                (record-definition *current-tracker*
+                                 :name writer-name
+                                 :type :METHOD
+                                 :file file
+                                 :package pkg-name
+                                 :exported-p (eq (nth-value 1
+                                                (find-symbol (symbol-name writer-name)
+                                                           (current-package parser)))
+                                               :external)
+                                 :context context
+                                 :lambda-list `(new-value (struct ,struct-name)))))))))))
 
 
 (defun analyze-defvar-defparameter-defconstant (parser form)
@@ -588,76 +608,113 @@
 
 
 (defun analyze-defclass (parser form)
- "Handle defclass form. Analyzes:
-  - Class name and exportedness
-  - Superclasses and their references
-  - Slot definitions with accessor/reader/writer methods
-  - Class options including :metaclass and :default-initargs
-  - Documentation strings"
+  "Handle defclass form using runtime information where possible.
+   Analyzes class definition and its accessor methods."
   (declare (special log-stream))
-   (let* ((name (second form))
-          (slots (fourth form))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (context (limit-form-size form pkg-name)))
-     ;; Record class definition
-     (record-definition *current-tracker*
-                       :name name
-                       :type :STRUCTURE/CLASS/CONDITION
-                       :file file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (string name) (current-package parser)))
-                                     :external)
-                       :context context)
-     ;; Record accessor/reader/writer methods
-     (dolist (slot slots)
-       (when (listp slot)  ; Skip atomic slot names
-         (let ((slot-options (cdr slot)))  
-           (loop for (option value) on slot-options by #'cddr
-                 do (case option
-                      (:reader
-                       (record-definition *current-tracker*
-                                        :name value
-                                        :type :METHOD 
-                                        :file file
-                                        :package pkg-name
-                                        :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
-                                        :context context
-                                        :qualifiers nil
-                                        :lambda-list `((object ,name))))
-                      (:writer
-                       (record-definition *current-tracker*
-                                        :name value
-                                        :type :METHOD
-                                        :file file
-                                        :package pkg-name
-                                        :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
-                                        :context context
-                                        :qualifiers nil
-                                        :lambda-list `(new-value (object ,name))))
-                      (:accessor
-                       ;; Record reader method
-                       (record-definition *current-tracker*
-                                        :name value
-                                        :type :METHOD
-                                        :file file
-                                        :package pkg-name
-                                        :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
-                                        :context context
-                                        :qualifiers nil
-                                        :lambda-list `((object ,name)))
-                       ;; Record (setf accessor) writer method
-                       (let ((setf-name value))
-                         (record-definition *current-tracker*
-                                          :name setf-name
-                                          :type :METHOD
-                                          :file file
-                                          :package pkg-name
-                                          :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
-                                          :context context
-                                          :qualifiers nil
-                                          :lambda-list `(new-value (object ,name))))))))))))
+  (let* ((name (second form))
+         (superclasses (third form))
+         (slots (fourth form))
+         (pkg-name (current-package-name parser))
+         (file (file parser))
+         (context (limit-form-size form pkg-name))
+         (class (find-class name nil)))
+    
+    ;; Record class definition
+    (record-definition *current-tracker*
+                      :name name
+                      :type :STRUCTURE/CLASS/CONDITION 
+                      :file file
+                      :package pkg-name
+                      :exported-p (eq (nth-value 1
+                                     (find-symbol (symbol-name name)
+                                                (current-package parser)))
+                                    :external)
+                      :context context)
+    
+    (when class
+      ;; Record superclass relationships
+      (dolist (super superclasses)
+        (when (find-class super nil)
+          (record-reference *current-tracker*
+                          :name super
+                          :file file
+                          :package pkg-name
+                          :context context
+                          :visibility :LOCAL)))
+      
+      ;; Process slot definitions and their accessors
+      (dolist (slot-form slots)
+        (let  ((slot-options (when (listp slot-form)
+                             (cdr slot-form))))
+          
+          ;; Handle reader methods
+          (let ((readers (loop for (key val) on slot-options by #'cddr
+                              when (eq key :reader)
+                              collect val)))
+            (dolist (reader readers)
+              (when (fboundp reader)
+                (record-definition *current-tracker*
+                                 :name reader
+                                 :type :METHOD
+                                 :file file
+                                 :package pkg-name
+                                 :exported-p (eq (nth-value 1 
+                                                (find-symbol (symbol-name reader)
+                                                           (current-package parser)))
+                                               :external)
+                                 :context context
+                                 :lambda-list `((object ,name))))))
+          
+          ;; Handle writer methods
+          (let ((writers (loop for (key val) on slot-options by #'cddr
+                              when (eq key :writer) 
+                              collect val)))
+            (dolist (writer writers)
+              (when (fboundp writer)
+                (record-definition *current-tracker*
+                                 :name writer
+                                 :type :METHOD
+                                 :file file
+                                 :package pkg-name
+                                 :exported-p (eq (nth-value 1
+                                                (find-symbol (symbol-name writer)
+                                                           (current-package parser)))
+                                               :external)
+                                 :context context
+                                 :lambda-list `(new-value (object ,name))))))
+          
+          ;; Handle accessor methods
+          (let ((accessors (loop for (key val) on slot-options by #'cddr
+                                when (eq key :accessor)
+                                collect val)))
+            (dolist (accessor accessors)
+              (when (fboundp accessor)
+                ;; Reader method
+                (record-definition *current-tracker*
+                                 :name accessor
+                                 :type :METHOD
+                                 :file file
+                                 :package pkg-name
+                                 :exported-p (eq (nth-value 1
+                                                (find-symbol (symbol-name accessor)
+                                                           (current-package parser)))
+                                               :external)
+                                 :context context
+                                 :lambda-list `((object ,name)))
+                ;; Writer method
+                (let ((writer accessor))
+                  (when (fboundp `(setf ,writer))
+                    (record-definition *current-tracker*
+                                     :name writer
+                                     :type :METHOD
+                                     :file file
+                                     :package pkg-name
+                                     :exported-p (eq (nth-value 1
+                                                    (find-symbol (symbol-name writer)
+                                                               (current-package parser)))
+                                                   :external)
+                                     :context context
+                                     :lambda-list `(new-value (object ,name)))))))))))))
 
 
 (defun analyze-deftype (parser form)

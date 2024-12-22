@@ -304,41 +304,100 @@
 
 
 (defun analyze-lambda-list (parser lambda-list)
- "Analyze a lambda list for type declarations and default values that 
-  could create dependencies. Handles standard and method lambda lists."
- (let ((state :required))
-   (dolist (item lambda-list)
-     (case item
-       ((&optional &rest &key &aux)
-        (setf state item))
-       ((&whole &environment &allow-other-keys)
-        nil)
-       (t (case state
-            (:required 
-             (typecase item
-               (symbol nil) ; Simple parameter
-               (cons ; Either destructuring or specializer
-                (if (and (= (length item) 2)  ; Specializer form (var type)
-                        (symbolp (car item)))
-                    (analyze-definition-form parser (second item))
-                    ;; Destructuring - analyze any type declarations
-                    (when (> (length item) 1)
-                      (analyze-definition-form parser (second item)))))))
-            (&optional
-             (when (and (listp item) (cddr item))
-               (analyze-definition-form parser (third item)))) ; Default value
-            (&key
-             (when (listp item)
-               (let ((key-item (if (listp (car item))
-                                  (cadar item)
-                                  (car item))))
-                 (declare (ignore key-item))
-                 ;; Analyze supplied-p if present
-                 (when (and (listp item) (cddr item))
-                   (analyze-definition-form parser (third item)))))) ; Default value
-            (&aux
-             (when (and (listp item) (cdr item))
-               (analyze-definition-form parser (second item))))))))))
+  "Analyze lambda list using runtime validation where possible.
+   Records type dependencies and validates parameter patterns."
+  (labels ((validate-type-spec (type-spec)
+             "Validate and record type specifier dependency"
+             (when type-spec
+               (cond
+                 ;; Class name
+                 ((and (symbolp type-spec)
+                       (find-class type-spec nil))
+                  (analyze-definition-form parser type-spec))
+                 ;; Type specifier
+                 ((ignore-errors (subtypep type-spec t))
+                  (analyze-definition-form parser type-spec)))))
+           
+           (analyze-default-form (form)
+             "Analyze potential dependencies in default value form"
+             (when form
+               (analyze-definition-form parser form)))
+           
+           (analyze-destructuring-pattern (pattern)
+             "Analyze nested destructuring pattern"
+             (when (consp pattern)
+               (dolist (elem pattern)
+                 (typecase elem
+                   (cons 
+                    (if (and (= (length elem) 2)
+                            (symbolp (car elem)))
+                        ;; Type declaration
+                        (validate-type-spec (cadr elem))
+                        ;; Nested pattern
+                        (analyze-destructuring-pattern elem)))
+                   (symbol nil))))) ; Simple var
+           
+           (analyze-specialized-parameter (param)
+             "Analyze method parameter specializer"
+             (when (and (consp param)
+                       (= (length param) 2)
+                       (symbolp (car param)))
+               (let ((specializer (cadr param)))
+                 (typecase specializer
+                   ;; EQL specializer
+                   ((cons (eql eql))
+                    (analyze-definition-form parser (cadr specializer)))
+                   ;; Class/type specializer
+                   (symbol
+                    (validate-type-spec specializer)))))))
+    
+    (let ((state :required))
+      (dolist (item lambda-list)
+        (cond
+          ;; Lambda list keywords change state
+          ((member item lambda-list-keywords)
+           (setf state item))
+          
+          ;; Process parameter based on current state
+          (t
+           (case state
+             (:required
+              (typecase item
+                (symbol nil) ; Simple parameter
+                (cons
+                 (if (and (= (length item) 2)
+                         (symbolp (car item)))
+                     ;; Method specializer
+                     (analyze-specialized-parameter item)
+                     ;; Destructuring pattern
+                     (analyze-destructuring-pattern item)))))
+             
+             (&optional
+              (typecase item
+                (symbol nil) ; Simple optional
+                (cons
+                 ;; (param default supplied-p)
+                 (when (cddr item)
+                   (analyze-default-form (third item))))))
+             
+             (&key
+              (typecase item
+                (symbol nil) ; Simple keyword
+                (cons
+                 (let* ((key-part (car item))
+                        (has-key-name (consp key-part)))
+                   ;; ((key var) default supplied-p)
+                   (when (cddr item)
+                     (analyze-default-form (third item)))
+                   ;; Check for type declaration
+                   (when (and has-key-name
+                            (cddr key-part))
+                     (validate-type-spec (third key-part)))))))
+             
+             (&aux
+              (when (and (consp item)
+                         (cdr item))
+                (analyze-default-form (second item)))))))))))
 
 
 (defun cl-symbol-p (symbol)
@@ -396,45 +455,68 @@
 
 
 (defun check-package-reference (symbol parser tracker context parent-context)
-  "Check package visibility for a symbol reference.
-   Returns the visibility: :LOCAL, :INHERITED, or :IMPORTED.
-   Records any anomalies found."
+  "Check symbol reference visibility using runtime package state.
+   Returns symbol visibility (:LOCAL :INHERITED :IMPORTED).
+   Records anomalies for unqualified cross-package references."
   (let* ((sym-pkg (symbol-package symbol))
          (cur-pkg (current-package parser))
          (pkg-name (if sym-pkg 
                       (package-name sym-pkg)
                       (current-package-name parser)))
-         (visibility (determine-symbol-visibility symbol parser))
          (package-ops '(defpackage in-package use-package make-package 
                        rename-package delete-package)))
-    
-    ;; Check for unqualified cross-package reference while in CL-USER
-    (when (eq cur-pkg (find-package :common-lisp-user))
-      (when (and (not (symbol-qualified-p symbol parser))
+
+    ;; Determine visibility using runtime package state
+    (multiple-value-bind (found-sym status)
+        (when cur-pkg
+          (find-symbol (string symbol) cur-pkg))
+      (let ((visibility 
+             (cond
+               ;; Uninterned symbol
+               ((null sym-pkg) :LOCAL)
+               ;; Symbol in current package
+               ((eq sym-pkg cur-pkg) :LOCAL)
+               ;; Found in current package
+               (found-sym
+                (case status
+                  (:inherited :INHERITED)
+                  (:external :IMPORTED)
+                  (t :LOCAL)))
+               ;; Not found
+               (t :LOCAL))))
+
+        ;; Check for unqualified references from CL-USER
+        (when (eq cur-pkg (find-package :common-lisp-user))
+          (when (and 
+                 ;; Not qualified with package
                  (not (eq sym-pkg (find-package :common-lisp-user)))
+                 ;; Not a CL symbol
+                 (not (eq sym-pkg (find-package :common-lisp)))
+                 ;; Not a package operation keyword
                  (not (member symbol '(:use cl common-lisp)))
-                 ;; Check if containing form is a package op
-                 (not (or (and (consp context) (member (car context) package-ops))
-                         (and (consp parent-context) (member (car parent-context) package-ops))))
-                 ;; Check if this is a package name being defined
+                 ;; Not in a package operation form
+                 (not (or (and (consp context)
+                              (member (car context) package-ops))
+                         (and (consp parent-context)
+                              (member (car parent-context) package-ops))))
+                 ;; Not a package being defined
                  (not (or (and (consp context)
                               (eq (car context) 'defpackage)
                               (eq symbol (cadr context)))
                          (and (consp parent-context)
                               (eq (car parent-context) 'defpackage)
                               (eq symbol (cadr parent-context))))))
+            
+            (record-anomaly tracker
+                           :name symbol
+                           :type :missing-in-package 
+                           :severity :WARNING
+                           :file (file parser)
+                           :description (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
+                                              symbol pkg-name)
+                           :context (limit-form-size parent-context symbol))))
         
-        ;; MODIFIED: Updated to use keyword args
-        (record-anomaly tracker
-                        :name symbol
-                        :type :missing-in-package 
-                        :severity :WARNING
-                        :file (file parser)
-                        :description (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                                           symbol pkg-name)
-                        :context (limit-form-size parent-context symbol))))
-    
-    visibility))
+        visibility))))
 
 
 (defun walk-form (form handler)
@@ -583,87 +665,167 @@
 
 
 (defun match-optional-arguments (lambda-list args key-start-pos parser)
-  (let* ((opt-start (position '&optional lambda-list))
-         (required-count (if opt-start opt-start 0))
-         (opt-section-end (and opt-start
-                             (or (position '&rest lambda-list :start opt-start)
-                                 (position '&key lambda-list :start opt-start)
-                                 (length lambda-list))))
-         (opt-params (when opt-start
-                      (subseq lambda-list (1+ opt-start) opt-section-end)))
-         (max-opt-args (length opt-params))
-         (provided-args (length args)))
+  "Match arguments against optional parameters in a lambda list.
+   Returns T if arguments could match the optional parameters.
+   Handles type declarations and nested destructuring patterns."
+  (labels ((find-section-end (start lambda-list)
+             "Find end of optional section"
+             (or (position-if #'lambda-list-keyword-p 
+                            lambda-list 
+                            :start (or start 0))
+                 (length lambda-list)))
+           
+           (lambda-list-keyword-p (item)
+             "Test for lambda-list section markers"
+             (member item '(&optional &rest &key &aux &allow-other-keys &whole &environment)))
+           
+           (extract-type-spec (param)
+             "Get type declaration from parameter"
+             (typecase param
+               (symbol t)  ; Simple parameter
+               (cons      ; Complex parameter
+                (if (listp (car param))
+                    ;; Destructuring or specializer
+                    (or (third (car param)) t)
+                    ;; Optional with default/supplied-p
+                    (or (third param) t)))))
+           
+           (valid-optional-param-p (param)
+             "Verify optional parameter syntax"
+             (typecase param
+               (symbol t)  ; Simple var
+               (cons      ; Complex form
+                (and (or (symbolp (car param))     ; (var default supplied-p)
+                        (and (listp (car param))   ; ((var type) default supplied-p)
+                             (<= (length (car param)) 3)
+                             (symbolp (caar param))))
+                     (<= (length param) 3)))))
+           
+           (count-required-params (lambda-list)
+             "Count required parameters before &optional"
+             (let ((opt-pos (position '&optional lambda-list)))
+               (if opt-pos
+                   opt-pos
+                   0))))
     
-    (cond
-      ((null opt-start)
-       (zerop provided-args))
+    (let* ((required-count (count-required-params lambda-list))
+           (opt-start (position '&optional lambda-list))
+           (opt-section-end (and opt-start
+                                (find-section-end opt-start lambda-list)))
+           (opt-params (when opt-start
+                        (subseq lambda-list 
+                                (1+ opt-start) 
+                                opt-section-end)))
+           (max-opt-args (length opt-params))
+           (provided-args (length args)))
       
-      ;; Corrected key position check
-      ((and key-start-pos 
-            (> provided-args (- key-start-pos required-count)))
-       nil)
+      ;; Validate all optional parameters
+      (when (and opt-start opt-params)
+        (unless (every #'valid-optional-param-p opt-params)
+          (return-from match-optional-arguments nil)))
       
-      ((> provided-args max-opt-args)
-       nil)
-      
-      (t
-       (loop for arg in args
-             for param in opt-params
-             always (typecase param
-                     (symbol t)
-                     (cons
-                      (let ((spec (if (listp (car param))
-                                    (cadar param)
-                                    t)))
-                        (type-compatible-p spec arg parser)))))))))
+      (cond
+        ;; No optional parameters - must have zero args
+        ((null opt-start)
+         (zerop provided-args))
+        
+        ;; Key parameters present - check boundary
+        ((and key-start-pos 
+              (> provided-args (- key-start-pos required-count)))
+         nil)
+        
+        ;; Too many arguments
+        ((> provided-args max-opt-args)
+         nil)
+        
+        ;; Match each argument against its parameter
+        (t
+         (loop for arg in args
+               for param in opt-params
+               always (let ((type-spec (extract-type-spec param)))
+                       (or (eq type-spec t)
+                           (type-compatible-p type-spec arg parser)))))))))
 
 
 (defun lambda-list-accepts-keys-p (lambda-list key-args)
   "Test if a lambda list can accept the given keyword arguments.
-   LAMBDA-LIST - The full method lambda list for testing
-   KEY-ARGS - List of (keyword . value) pairs from the call
-   
-   A method accepts key args if either:
-   1. No key args provided (always valid)
-   2. Has &key and &allow-other-keys (accepts any keys)
-   3. Has &key and all provided keys match declared parameters
-   
-   Key parameters can be specified as:
-   - symbol (keyword derived from name)
-   - (symbol-name) (keyword derived from name) 
-   - ((keyword var)) (explicit keyword)
-   - ((keyword var) default supplied-p) (with default)"
-  (let* ((key-start (position '&key lambda-list))
-         (allow-others-pos (and key-start 
-                              (position '&allow-other-keys lambda-list 
-                                      :start key-start))))
-    (cond 
-      ;; Case 1: No key args provided - always valid
-      ((null key-args) 
-       t)
+   Handles complex parameter patterns and keyword normalization."
+  (labels ((find-section-start (section lambda-list)
+             "Find starting position of a lambda list section"
+             (position section lambda-list))
+           
+           (find-section-end (start lambda-list)
+             "Find end of current lambda list section"
+             (or (position-if (lambda (x) 
+                              (and (symbolp x)
+                                   (char= (char (symbol-name x) 0) #\&)))
+                            lambda-list
+                            :start (1+ start))
+                 (length lambda-list)))
+           
+           (extract-key-name (param-spec)
+             "Extract normalized keyword name from parameter spec"
+             (typecase param-spec
+               (symbol 
+                (intern (symbol-name param-spec) :keyword))
+               (cons
+                (if (listp (car param-spec))
+                    ;; ((keyword var) default supplied-p)
+                    (caar param-spec)
+                    ;; (var default supplied-p)
+                    (intern (symbol-name (car param-spec)) :keyword)))))
+           
+           (valid-key-param-p (param)
+             "Validate keyword parameter syntax"
+             (typecase param
+               (symbol 
+                (not (member param lambda-list-keywords)))
+               (cons
+                (and (or (symbolp (car param))     ; (var default supplied-p)
+                        (and (listp (car param))   ; ((key var) default supplied-p)
+                             (= (length (car param)) 2)
+                             (or (keywordp (caar param))
+                                 (symbolp (caar param)))
+                             (symbolp (cadar param))))
+                     (<= (length param) 3)))))
+           
+           (get-allowed-keys (key-params)
+             "Extract allowed keywords from parameters"
+             (loop for param in key-params
+                   when (valid-key-param-p param)
+                   collect (extract-key-name param))))
+    
+    (let* ((key-start (find-section-start '&key lambda-list))
+           (rest-start (find-section-start '&rest lambda-list))
+           (allow-others-p (and key-start
+                              (find '&allow-other-keys lambda-list 
+                                   :start key-start)))
+           (key-section-end (and key-start
+                                (find-section-end key-start lambda-list))))
       
-      ;; Case 2: Key args but no &key in lambda list - invalid
-      ((null key-start) 
-       nil)
-      
-      ;; Case 3: Has &allow-other-keys - all keys valid
-      (allow-others-pos 
-       t)
-      
-      ;; Case 4: Must validate each key against declared parameters
-      (t 
-       (let ((allowed-keys 
-              (loop for param in (subseq lambda-list (1+ key-start))
-                    until (member param lambda-list-keywords)
-                    collect (if (listp param)
-                              (if (listp (car param))
-                                  (caar param)     ; ((keyword var) ...)
-                                  (car param))     ; (var ...)
-                              (intern (symbol-name param) 
-                                    :keyword)))))  ; bare-symbol
-         (every (lambda (key-arg)
-                 (member (car key-arg) allowed-keys))
-               key-args))))))
+      (cond
+        ;; No key args provided - always valid
+        ((null key-args)
+         t)
+        
+        ;; No &key in lambda list - check &rest
+        ((null key-start)
+         (and rest-start t))
+        
+        ;; Has &allow-other-keys - all keys valid
+        (allow-others-p
+         t)
+        
+        ;; Must validate against declared parameters
+        (t
+         (let* ((key-params (subseq lambda-list 
+                                   (1+ key-start)
+                                   key-section-end))
+                (allowed-keys (get-allowed-keys key-params)))
+           ;; Every provided key must be allowed
+           (every (lambda (key-arg)
+                   (member (car key-arg) allowed-keys))
+                 key-args)))))))
 
 
 (defun qualifier-match-p (call-quals method-quals)
@@ -683,68 +845,157 @@
 
 
 (defun type-compatible-p (specializer arg parser)
-  "Test if argument is compatible with method specializer.
-   Handles:
-   - Standard class/type specializers
-   - EQL specializers 
-   - Constructor forms by evaluation in parser's package context
-   - T (matches anything)
-   Evaluates constructor forms in parser's package context when available."
-  (cond 
-    ;; T specializer matches anything
-    ((or (eq specializer t) 
-         (eq specializer 'cl:t))
-     t)
+  "Test if argument could match specializer using runtime type info.
+   Uses only standard CL type operations for compatibility checks."
+  (flet ((get-make-name (type)
+           (intern (concatenate 'string "MAKE-" (string type))
+                  (if (symbolp type)
+                      (symbol-package type)
+                      *package*))))
     
-    ;; EQL specializer - direct value match
-    ((and (listp specializer)
-          (eq (car specializer) 'eql))
-     (equal (cadr specializer) arg))
-    
-    ;; Constructor form - try evaluation in parser's package
-    ((and (or (and (consp arg)    ; (make-foo)
-                   (symbolp (car arg))
-                   (string= (symbol-name (car arg))
-                           (concatenate 'string "MAKE-" 
-                                      (symbol-name specializer))))
-              (and (symbolp arg)   ; make-foo
-                   (string= (symbol-name arg)
-                           (concatenate 'string "MAKE-" 
-                                      (symbol-name specializer)))))
-          (current-package parser))
-     (let ((*package* (current-package parser)))
-       (handler-case
-           (let ((obj (if (consp arg)
-                         (eval arg)
-                         (funcall arg))))
-             (typep obj specializer))
-         (error () 
-           ;; If evaluation fails, assume potentially compatible
-           t))))
-    
-    ;; Standard type/class specializer
-    ((and (not (consp arg))
-          (ignore-errors 
-            (find-class specializer nil)))
-     (handler-case
-         (typep arg specializer)
-       (error () t)))
-    
-    ;; Conservative default - assume potentially compatible
-    (t t)))
+    (cond
+      ;; T specializer matches anything
+      ((or (eq specializer t)
+           (eq specializer 'cl:t)
+           (string= (princ-to-string specializer) "T"))
+       t)
+      
+      ;; EQL specializer
+      ((and (listp specializer)
+           (eq (car specializer) 'eql))
+       (let ((eql-val (cadr specializer)))
+         (cond
+           ;; Constant value - direct comparison
+           ((or (numberp arg) (characterp arg) 
+                (stringp arg) (pathnamep arg))
+            (equal eql-val arg))
+           ;; Symbol comparison
+           ((symbolp arg)
+            (eq eql-val arg))
+           ;; Non-constant - assume potentially compatible
+           (t t))))
+      
+      ;; Constructor form 
+      ((and (or (and (consp arg)
+                     (symbolp (car arg))
+                     (eq (car arg) (get-make-name specializer)))
+                (and (symbolp arg)
+                     (eq arg (get-make-name specializer))))
+            (find-package (current-package-name parser)))
+       (let ((*package* (find-package (current-package-name parser))))
+         (handler-case
+             (if (consp arg)
+                 ;; Verify constructor exists and returns compatible type
+                 (when (fboundp (car arg))
+                   (or 
+                    ;; Check if specializer names a class
+                    (find-class specializer nil)
+                    ;; Or if it's a type specifier
+                    (ignore-errors
+                      (subtypep specializer t))))
+                 ;; Just verify function existence for symbol
+                 (fboundp arg))
+           (error () t))))
+      
+      ;; Class/type specializer
+      ((symbolp specializer)
+       (multiple-value-bind (subtype-p valid-p)
+           (ignore-errors 
+             (cond
+               ;; Known literal type
+               ((or (numberp arg) (characterp arg)
+                    (stringp arg) (pathnamep arg))
+                (subtypep (type-of arg) specializer))
+               ;; make-instance form
+               ((and (consp arg)
+                     (eq (car arg) 'make-instance))
+                (ignore-errors
+                  (and (find-class (second arg) nil)
+                       (subtypep (second arg) specializer))))
+               ;; Symbol - check if names a type
+               ((symbolp arg)
+                (or 
+                 ;; Check as class name
+                 (and (find-class arg nil)
+                      (subtypep arg specializer))
+                 ;; Check as type specifier
+                 (ignore-errors
+                   (subtypep arg specializer))))
+               ;; Other forms - assume compatible
+               (t t)))
+         (if valid-p
+             subtype-p
+             t)))
+      
+      ;; Unknown/complex specializer - conservative
+      (t t))))
 
 
 (defun qualifiers-compatible-p (method-qualifiers call-qualifiers)
-  "Test if method qualifiers are compatible with call qualifiers.
-   Handles method combination rules and qualifier ordering."
-  (cond ((null call-qualifiers) t)  ; Unqualified call matches primary
-        ((null method-qualifiers) nil)  ; Qualified call needs matching method
-        ;; Check ordered qualifier matches
-        ((equal method-qualifiers call-qualifiers) t)
-        ;; Special case for :around/:before/:after combinations
-        ((and (member :around call-qualifiers)
-              (member :around method-qualifiers)) t)
-        (t nil)))
+  "Test if method qualifiers are compatible using method combination rules.
+   Handles standard, :before, :after, :around qualifier combinations."
+  (let ((method-quals (if (listp method-qualifiers)
+                         method-qualifiers
+                         (list method-qualifiers)))
+        (call-quals (if (listp call-qualifiers)
+                       call-qualifiers
+                       (list call-qualifiers))))
+    
+    (labels ((primary-method-p (quals)
+               "Test if quals indicate a primary method"
+               (null quals))
+             
+             (around-method-p (quals)
+               "Test if quals contain :around"
+               (member :around quals))
+             
+             (before-method-p (quals)
+               "Test if quals contain :before"
+               (member :before quals))
+             
+             (after-method-p (quals)
+               "Test if quals contain :after"
+               (member :after quals))
+             
+             (qualifiers-match (method-q call-q)
+               "Test if qualifier lists match exactly"
+               (equal method-q call-q))
+             
+             (qualifier-positions-match (quals1 quals2 qualifier)
+               "Test if qualifier appears at same position in both lists"
+               (= (or (position qualifier quals1) -1)
+                  (or (position qualifier quals2) -1))))
+      
+      (cond
+        ;; Unqualified call matches any primary method
+        ((null call-quals)
+         (primary-method-p method-quals))
+        
+        ;; Qualified call needs a non-primary method
+        ((primary-method-p method-quals)
+         nil)
+        
+        ;; Exact qualifier match
+        ((qualifiers-match method-quals call-quals)
+         t)
+        
+        ;; :around methods can wrap any method
+        ((and (around-method-p call-quals)
+              (around-method-p method-quals))
+         t)
+        
+        ;; :before methods must maintain order
+        ((and (before-method-p call-quals)
+              (before-method-p method-quals))
+         (qualifier-positions-match call-quals method-quals :before))
+        
+        ;; :after methods must maintain order
+        ((and (after-method-p call-quals)
+              (after-method-p method-quals))
+         (qualifier-positions-match call-quals method-quals :after))
+        
+        ;; No other combinations are valid
+        (t nil)))))
 
 
 (defun analyze-call-qualifiers (name-form)
@@ -758,88 +1009,177 @@
 
 
 (defun specializer-compatible-p (specializer arg)
-  "Test if an argument form could be compatible with a method specializer.
-   SPECIALIZER can be symbol, string, or specializer form
-   ARG is the actual form from the method call"
-  (cond
-    ;; T specializer matches anything 
-    ((or (eq specializer t)
-         (eq specializer 'cl:t)
-         (string= (princ-to-string specializer) "T"))
-     t)
+  "Test if an argument form could match a method specializer.
+   Uses runtime type information when available.
+   Returns T if potentially compatible, NIL if definitely incompatible."
+  (labels ((parse-eql-spec (spec)
+             "Parse EQL specializer form, handling string/cons formats"
+             (typecase spec
+               (cons 
+                (when (eq (car spec) 'eql)
+                  (cadr spec)))
+               (string
+                (ignore-errors
+                  (let ((form (read-from-string spec)))
+                    (when (and (consp form)
+                              (eq (car form) 'eql))
+                      (cadr form)))))))
+           
+           (get-constructor-name (type-name)
+             "Get constructor function name for a type"
+             (intern (concatenate 'string "MAKE-" 
+                                (string type-name))
+                    (if (symbolp type-name)
+                        (symbol-package type-name)
+                        *package*)))
+           
+           (constant-value-p (form)
+             "Test if form represents a constant value"
+             (or (numberp form)
+                 (characterp form)
+                 (stringp form)
+                 (pathnamep form)
+                 (and (symbolp form)
+                      (not (boundp form)))))
+           
+           (valid-type-p (type)
+             "Test if type specifier names a valid type"
+             (or (find-class type nil)
+                 (ignore-errors
+                   (subtypep type t)))))
     
-    ;; EQL specializer cases
-    ((and (consp specializer) 
-          (eq (car specializer) 'eql))
-     (equal (cadr specializer) arg))
-    ((and (stringp specializer)
-          (> (length specializer) 5)
-          (string= (subseq specializer 0 5) "(EQL "))
-     (equal (read-from-string specializer) arg))
-    
-    ;; Constructor call for class
-    ((and (consp arg)
-          (symbolp (car arg))
-          (string= (symbol-name (car arg))
-                  (concatenate 'string "MAKE-" 
-                             (princ-to-string specializer))))
-     t)
-    
-    ;; Non-constant form - permissive match
-    ((consp arg) t)
-    
-    ;; Class/type specializer with constant arg
-    ((and (not (consp arg))
-          (ignore-errors (find-class (if (symbolp specializer)
-                                       specializer
-                                       (read-from-string specializer))
-                                   nil)))
-     (typep arg specializer))
-    
-    ;; Conservative default
-    (t t)))
+    (cond
+      ;; T specializer - matches anything
+      ((or (eq specializer t)
+           (eq specializer 'cl:t)
+           (string= (princ-to-string specializer) "T"))
+       t)
+      
+      ;; EQL specializer
+      ((or (and (consp specializer)
+                (eq (car specializer) 'eql))
+           (and (stringp specializer)
+                (> (length specializer) 5)
+                (string= (subseq specializer 0 5) "(EQL ")))
+       (let ((eql-val (parse-eql-spec specializer)))
+         (cond
+           ;; Constant value comparison
+           ((constant-value-p arg)
+            (equal eql-val arg))
+           ;; Variable or complex form - assume potentially compatible
+           (t t))))
+      
+      ;; Constructor form for class
+      ((and (consp arg)
+            (symbolp (car arg))
+            (eq (car arg)
+                (get-constructor-name specializer)))
+       (if (valid-type-p specializer)
+           ;; Verify constructor exists
+           (fboundp (get-constructor-name specializer))
+           t))
+      
+      ;; Non-constant compound form
+      ((consp arg)
+       (or 
+        ;; make-instance form check
+        (and (eq (car arg) 'make-instance)
+             (valid-type-p (second arg))
+             (subtypep (second arg) specializer))
+        ;; Other forms - conservative
+        t))
+      
+      ;; Simple type specializer with constant
+      ((and (not (consp arg))
+            (valid-type-p specializer))
+       (if (constant-value-p arg)
+           (typep arg specializer)
+           t))
+      
+      ;; Unknown/complex case - conservative
+      (t t))))
 
 
 (defun analyze-function-call-context (symbol context)
   "Analyze if a symbol appears in a function call context.
-   Returns (values call-p name args) where:
+   Returns (values call-p name args caller-type), where:
    - call-p: T if symbol is being called as a function
-   - name: The function name being called 
+   - name: The function name being called
    - args: List of argument forms
-
-   Cases handled:
-   - Direct calls: (foo arg1 arg2)
-   - Funcall form: (funcall #'foo arg1 arg2)
-   - Apply form: (apply #'foo args)
-   - Special method forms: (call-next-method)"
-  (when (and context (listp context))
-    (cond
-      ;; Direct function call - now checks fboundp for non-CL symbols
-      ((and (eq symbol (car context))
-            (not (quoted-form-p context))
-            (or (cl-symbol-p symbol)  ; Keep CL symbols (optimization)
-                (fboundp symbol)))     ; Check other symbols are bound as functions
-       (values t symbol (cdr context)))
-      
-      ;; Funcall/apply with function quote - unchanged
-      ((and (member (car context) '(funcall apply))
-            (listp (second context))
-            (eq (car (second context)) 'function)
-            (eq (cadr (second context)) symbol))
-       (values t symbol (cddr context)))
-      
-      ;; Funcall/apply with symbol - unchanged
-      ((and (member (car context) '(funcall apply))
-            (eq (second context) symbol))
-       (values t symbol (cddr context)))
-      
-      ;; Special method forms - unchanged
-      ((and (member symbol '(call-next-method next-method-p make-method))
-            (eq symbol (car context)))
-       (values t symbol (cdr context)))
-      
-      ;; Not a function call
-      (t (values nil nil nil)))))
+   - caller-type: One of :direct :funcall :apply :method :macro"
+  (labels ((quoted-p (form)
+             "Test if form is quoted"
+             (and (consp form)
+                  (member (car form) '(quote function))))
+           
+           (function-name-p (sym)
+             "Test if symbol can be a function name"
+             (and sym
+                  (symbolp sym)
+                  (not (keywordp sym))
+                  (not (special-operator-p sym))
+                  (not (macro-function sym))))
+           
+           (valid-function-p (sym)
+             "Test if symbol names a valid function"
+             (or (cl-symbol-p sym)  ; CL package functions always valid
+                 (and (function-name-p sym)
+                      (fboundp sym)))))
+    
+    (when (and context (listp context))
+      (cond
+        ;; Direct function call 
+        ((and (eq symbol (car context))
+              (not (quoted-p context))
+              (valid-function-p symbol))
+         (values t 
+                 symbol 
+                 (cdr context)
+                 :direct))
+        
+        ;; Funcall with #'function form
+        ((and (eq (car context) 'funcall)
+              (listp (second context))
+              (eq (car (second context)) 'function)
+              (eq (cadr (second context)) symbol)
+              (valid-function-p symbol))
+         (values t 
+                 symbol 
+                 (cddr context)
+                 :funcall))
+        
+        ;; Apply with #'function form
+        ((and (eq (car context) 'apply)
+              (listp (second context))
+              (eq (car (second context)) 'function)
+              (eq (cadr (second context)) symbol)
+              (valid-function-p symbol))
+         (values t 
+                 symbol 
+                 (cddr context)
+                 :apply))
+        
+        ;; Funcall/apply with symbol
+        ((and (member (car context) '(funcall apply))
+              (eq (second context) symbol)
+              (valid-function-p symbol))
+         (values t 
+                 symbol 
+                 (cddr context)
+                 (if (eq (car context) 'funcall)
+                     :funcall
+                     :apply)))
+        
+        ;; Method combination forms
+        ((and (member symbol '(call-next-method next-method-p make-method))
+              (eq symbol (car context)))
+         (values t 
+                 symbol 
+                 (cdr context)
+                 :method))
+        
+        ;; Not a function call
+        (t (values nil nil nil nil))))))
 
 
 (defun try-definition-types (subform pkg-name parser context visibility)
