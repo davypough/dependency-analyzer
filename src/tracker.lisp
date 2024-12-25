@@ -19,7 +19,7 @@
                                        :name nil
                                        :type nil))
          (parent-dir-name (car (last (pathname-directory source-pathname))))
-         (package (find-package package-designator))
+         (project-package (find-package package-designator))
          (logs-dir (merge-pathnames "logs/" (asdf:system-source-directory :dependency-analyzer))))
     
     ;; Verify source directory exists  
@@ -27,7 +27,7 @@
       (error "~2%Error: The directory ~A does not exist.~%" source-dir))
 
     ;; Verify package exists
-    (unless package
+    (unless project-package
       (error "~2%Error: The project package ~A was not found. Project must be loaded before analysis.~%" 
              package-designator))
 
@@ -53,7 +53,7 @@
           (dolist (file source-files)
             (format log-stream "~%Package Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
-              (parse-packages-in-file file-parser))))
+              (parse-packages-in-file file-parser project-package))))
         
         ;; Second pass: analyze definitions
         (format t "~%Second Pass - Collecting Definitions...~%")
@@ -94,95 +94,68 @@
         *current-tracker*))))
 
 
-(defun verify-package-state (pkg-name file context operation)
- "Verify package state matches the operation found in source.
-  Records anomaly if package state doesn't match expected."
- (let ((pkg (find-package pkg-name)))
-   (case operation 
-     ((:defpackage :make-package :in-package)
-      (unless pkg
-        (record-anomaly *current-tracker*
-                       :name pkg-name
-                       :type :package-not-loaded
-                       :severity :error
-                       :file file
-                       :description (format nil "Package ~A not found in environment - project may not be loaded" pkg-name)
-                       :context context)))
-     (:delete-package
-      (when pkg
-        (record-anomaly *current-tracker*
-                       :name pkg-name 
-                       :type :package-state-mismatch
-                       :severity :error
-                       :file file
-                       :description (format nil "Package ~A exists but source contains delete-package" pkg-name)
-                       :context context)))
-     (:rename-package 
-      (unless pkg
-        (record-anomaly *current-tracker*
-                       :name pkg-name
-                       :type :package-state-mismatch 
-                       :severity :error
-                       :file file
-                       :description (format nil "Cannot rename package ~A - package not found" pkg-name)
-                       :context context))))))
-
-
-(defun parse-packages-in-file (parser)
- "Parse package definitions, validating against loaded environment.
-  Records package definitions and validates against current Lisp image 
-  since project should already be loaded."
- (declare (special log-stream))
- (with-slots (file) parser
-   (format log-stream "~&Scanning file: ~A~%" file)
-   (with-open-file (stream file :direction :input)
-     (loop for form = (read stream nil :eof)
-           until (eq form :eof)
-           when (and (consp form) 
-                    (symbolp (car form))
-                    (member (car form) '(defpackage make-package rename-package delete-package in-package)))
-           do (let* ((raw-name (second form))
-                    (pkg-name (normalize-designator raw-name))
-                    (op (car form))
-                    (context (limit-form-size form pkg-name)))
-
-                (format log-stream "~&Found package form: ~S~%" form)
-                
-                ;; Validate package state matches operation
-                (verify-package-state pkg-name file context op)
-
-                (case op
-                  (defpackage
-                   ;; Record definition and process options 
-                   (record-definition *current-tracker*
-                                    :name pkg-name
-                                    :type :PACKAGE
-                                    :file file
-                                    :package pkg-name 
-                                    :exported-p t
-                                    :context context)
-                   
-                   (let ((options (cddr form)))
-                     ;; Process :use options
-                     (dolist (option options)
-                       (when (and (listp option)
-                                (eq (car option) :use))
-                         (dolist (used-pkg (cdr option))
-                           (let ((used-name (normalize-designator used-pkg)))
-                             (record-package-use *current-tracker* pkg-name used-name)))))
+(defun parse-packages-in-file (parser project-package)
+  "First pass: Validate package form ordering and track package creations.
+   Records anomalies for:
+   1. Missing in-package as first form (unless proper exceptions)
+   2. Package creation forms spread across multiple files"
+  (declare (special log-stream))
+  (with-slots (file) parser
+    ;; For validating in-package requirement
+    (let ((first-form-package-p nil)
+          (second-form-in-package-p nil)
+          (found-non-package-form nil)
+          (package-creation-forms nil))
+      
+      ;; Scan all forms in file
+      (with-open-file (stream file :direction :input)
+        (loop for form = (read stream nil :eof)
+              for form-count from 1
+              until (eq form :eof)
+              do (when (and (consp form) (symbolp (car form)))
+                   (let ((op (car form)))
+                     ;; Track package creations for multi-file check
+                     (when (member op '(defpackage make-package))
+                       (push (list op (second form) file) package-creation-forms))
                      
-                     ;; Process :export options
-                     (dolist (option options)
-                       (when (and (listp option)
-                                (eq (car option) :export))
-                         (dolist (sym (cdr option))
-                           (record-export *current-tracker* pkg-name sym))))))
-                  
-                  ((make-package rename-package delete-package in-package)
-                   ;; Record package references for other operations
-                   (record-reference *current-tracker*
-                                   :name pkg-name
-                                   :file file 
-                                   :package pkg-name
-                                   :visibility :LOCAL
-                                   :context context))))))))
+                     ;; Track form positions for in-package validation
+                     (cond ((= form-count 1)
+                            (when (member op '(defpackage make-package in-package))
+                              (setf first-form-package-p t)))
+                           ((= form-count 2)
+                            (when (eq op 'in-package)
+                              (setf second-form-in-package-p t)))
+                           (t (unless (member op '(defpackage make-package in-package))
+                                (setf found-non-package-form t))))))))
+      
+      ;; Record anomaly if package definitions spread over multiple files
+      (when package-creation-forms
+        (let* ((files (mapcar #'third package-creation-forms))
+               (unique-files (remove-duplicates files :test #'equal))
+               (project-files (mapcar #'project-pathname unique-files)))
+          (when (> (length unique-files) 1)
+            (record-anomaly *current-tracker*
+                       :name (current-package-name parser)
+                       :type :dispersed-package-forms
+                       :severity :INFO
+                       :files project-files
+                       :description "Packages creation not consolidated into one file; potential for subtle package bugs")
+            (let ((anomalies (gethash (current-package-name parser) 
+                                    (slot-value *current-tracker* 'anomalies))))
+              (when anomalies
+                (format log-stream "~A~%" anomalies))))))
+
+      ;; Check for missing/improper in-package
+      (unless (or (eq project-package (find-package :cl-user))
+                  (and first-form-package-p second-form-in-package-p)
+                  (and (not found-non-package-form) first-form-package-p))
+        (record-anomaly *current-tracker*
+                       :name (current-package-name parser)
+                       :type :missing-in-package
+                       :severity :WARNING
+                       :files (list file)
+                       :description "File should begin with in-package form")
+        (let ((anomalies (gethash (current-package-name parser) 
+                                (slot-value *current-tracker* 'anomalies))))
+          (when anomalies
+            (format log-stream "~A~%" anomalies)))))))

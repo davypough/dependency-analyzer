@@ -27,24 +27,24 @@
    (type :initarg :type :reader definition.type :type (member . #.+valid-definition-types+))
    (file :initarg :file :reader definition.file :type (or string pathname))
    (package :initarg :package :reader definition.package :type (or string symbol))
-   (exported-p :initarg :exported-p :reader definition.exported-p :type boolean)
+   (status :initarg :status :reader definition.status :type (or keyword null))
    (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
    (lambda-list :initarg :lambda-list :reader definition.lambda-list :type list))
   (:default-initargs :name nil :context nil :type nil :file nil :package nil
-                    :exported-p nil :qualifiers nil :lambda-list nil)
+                     :status nil :qualifiers nil :lambda-list nil)
   (:documentation "Data structure holding info about a lisp definition; eg, defun, defvar, or package. For method definitions, lambda-list slot holds the full method lambda list."))
 
 
 (defmethod print-object ((object definition) stream)
   "Print a definition object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
-    (with-slots (name context type file package exported-p qualifiers lambda-list) object
+    (with-slots (name context type file package status qualifiers lambda-list) object
       (format-if stream "    :Name ~S"       " " name)
       (format-if stream "    :Context ~S"    " " context)
       (format-if stream "    :Type ~S"       " " type)
       (format-if stream "    :File ~A"       " " (and file (project-pathname file)))
       (format-if stream "    :Package ~S"    " " package)
-      (format-if stream "    :Exported-p ~S" " " exported-p)
+      (format-if stream "    :Status ~S"     " " status)
       (format-if stream "    :Qualifiers ~S" " " qualifiers)
       (format-if stream "    :Lambda-list ~S" " " lambda-list))))
 
@@ -60,7 +60,7 @@
     (format-if stream "    :File ~A" indent-str (and (definition.file def)
                                                     (project-pathname (definition.file def))))
     (format-if stream "    :Package ~S" indent-str (definition.package def))
-    (format-if stream "    :Exported-p ~S" indent-str (definition.exported-p def))
+    (format-if stream "    :Status ~S" indent-str (definition.status def))
     (format-if stream "    :Qualifiers ~S" indent-str (definition.qualifiers def))
     ;; Only print lambda list if the definition is a method
     (format-if stream "    :Lambda-list ~S" indent-str

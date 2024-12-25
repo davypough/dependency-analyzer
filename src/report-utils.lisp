@@ -12,52 +12,6 @@
   "Default maximum width for formatted report output.")
 
 
-(defun format-file-dependency-line (source target)
-  "Format a file dependency line 'X depends on Y'.
-   Returns both the formatted string and its display length."
-  (let ((line (format nil "~A depends on ~A" 
-                      (project-pathname source)
-                      (project-pathname target))))
-    (values line (length line))))
-
-
-(defun format-references-list (refs &key depends-pos (max-width *print-width*))
-  "Format a list of reference symbols with 'references' aligned under 'depends on'.
-   REFS - List of reference symbols
-   DEPENDS-POS - Column position of 'depends on' label
-   MAX-WIDTH - Maximum line width (defaults to *print-width*)"
-  (with-output-to-string (s)
-    (let* ((prefix (format nil "~vA" depends-pos ""))
-           (ref-strings (mapcar #'symbol-name (sort refs #'string< :key #'symbol-name)))
-           ;(available-width (- max-width depends-pos))
-           (first-line t))
-      ;; Handle empty reference list
-      (when (null refs)
-        (return-from format-references-list ""))
-      
-      ;; Start with "references" aligned under "depends on"
-      (format s "~Areferences " prefix)
-      
-      (loop with col = (+ depends-pos 11) ; length of "references " after prefix
-            for ref in ref-strings
-            do (let ((need-space (not first-line))
-                    (ref-len (length ref)))
-                 ;; Check if we need to wrap
-                 (when (> (+ col (if need-space 2 0) ref-len) max-width)
-                   ;; Start new line aligned with first "references"
-                   (format s "~%~A           " prefix)
-                   (setf col (+ depends-pos 11)
-                         need-space nil))
-                 ;; Add separator if needed
-                 (when need-space
-                   (format s ", ")
-                   (incf col 2))
-                 ;; Add reference
-                 (format s "~A" ref)
-                 (incf col ref-len)
-                 (setf first-line nil))))))
-
-
 (defun format-anomalies (stream tracker)
   "Format all anomalies in a consistent way, grouped by type and severity."
   (let ((found-anomalies nil))
@@ -80,76 +34,6 @@
              (anomalies tracker))
     ;; Return whether we found any anomalies
     found-anomalies))
-
-
-(defun project-pathname (pathname)
-  "Convert a pathname to a string representation relative to project root.
-   Returns a path starting with / that is relative to the project root.
-   E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
-  (when pathname
-    (let* ((project-root (project-root *current-tracker*))
-           (namestring (namestring pathname)))
-      (if project-root
-          (let ((relative (enough-namestring pathname project-root)))
-            (if (char= (char relative 0) #\/)
-                relative
-                (concatenate 'string "/" relative)))
-          namestring))))
-
-
-(defun format-specializers (specializers)
-  "Format method specializers in a readable way.
-   Examples:
-   - (t t) -> T T
-   - ((eql :square)) -> (EQL :SQUARE)
-   - (string number) -> STRING NUMBER"
-  (let ((result (format nil "~{~A~^ ~}"
-                       (mapcar (lambda (spec)
-                               (etypecase spec
-                                 ((eql t) 
-                                  "T")
-                                 (cons 
-                                  (if (eq (car spec) 'eql)
-                                      (format nil "(EQL ~A)" (cadr spec))
-                                      (format nil "~A" spec)))
-                                 (symbol
-                                  (format nil "~A" spec))))
-                             specializers))))
-    (if (string= result "") "T" result)))
-
-
-(defun format-qualifiers (qualifiers)
-  "Format method qualifiers in a readable way.
-   Examples:
-   - (:before) -> :BEFORE
-   - (:before :around) -> :BEFORE :AROUND
-   - nil -> \"\""
-  (typecase qualifiers
-    (null "")
-    (list (format nil "~{~A~^ ~}" 
-                  (mapcar (lambda (q)
-                          (typecase q
-                            (keyword (format nil "~A" q))
-                            (symbol (format nil "~A" q))
-                            (t (princ-to-string q))))
-                         qualifiers)))))
-
-
-(defun format-method-signature (name qualifiers specializers)
-  "Format a complete method signature.
-   Examples:
-   - (name () (t t)) -> name (T T)
-   - (name (:before) (string t)) -> name :BEFORE (STRING T)
-   - (name () ((eql :square))) -> name ((EQL :SQUARE))
-   - (name (:around :writer) (my-class t)) -> name :AROUND :WRITER (MY-CLASS T)"
-  (let ((qual-str (format-qualifiers qualifiers))
-        (spec-str (format-specializers specializers)))
-    (cond ((and (string= qual-str "") (string= spec-str ""))
-           (format nil "~A" name))
-          ((string= qual-str "")
-           (format nil "~A (~A)" name spec-str))
-          (t
-           (format nil "~A ~A (~A)" name qual-str spec-str)))))
 
 
 (defun simplify-path (pathname)

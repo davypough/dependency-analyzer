@@ -44,7 +44,7 @@
                          (format nil "(SETF ~A)" (string (cadr designator)))
                          (error "Invalid designator form ~S in make-tracking-key~%  package: ~S~%  type: ~S" 
                                designator package type)))))
-         (pkg (when package (string package))))
+         (pkg (when package (or (package-name package) (string package)))))
     
     (when (and type (not (member type +valid-definition-types+)))
       (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S"
@@ -65,6 +65,21 @@
           (setf key (format nil "~A::(~{~A~^ ~})" key sorted-specs))))
       
       key)))
+
+
+(defun project-pathname (pathname)
+  "Convert a pathname to a string representation relative to project root.
+   Returns a path starting with / that is relative to the project root.
+   E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
+  (when pathname
+    (let* ((project-root (project-root *current-tracker*))
+           (namestring (namestring pathname)))
+      (if project-root
+          (let ((relative (enough-namestring pathname project-root)))
+            (if (char= (char relative 0) #\/)
+                relative
+                (concatenate 'string "/" relative)))
+          namestring))))
 
 
 (defun log-definitions ()

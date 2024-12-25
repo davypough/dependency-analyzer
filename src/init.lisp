@@ -102,6 +102,31 @@
           (delete-file file))))))
 
 
+(defun delete-project-fasls (system-name)
+  "Delete FASL files for SYSTEM-NAME by:
+   1. Finding the system's source module
+   2. Translating its path to the FASL cache location
+   3. Deleting all FASL files in that directory"
+  (let* ((sys (asdf:find-system system-name))
+         (source-module (first (asdf:component-children sys)))
+         (source-dir (when (typep source-module 'asdf:module)
+                      (asdf:component-pathname source-module)))
+         (fasl-dir (when source-dir 
+                    (asdf:apply-output-translations source-dir))))
+    (if fasl-dir
+        (let ((fasl-files (directory (make-pathname :defaults fasl-dir
+                                                   :name :wild
+                                                   :type "fasl"))))
+          (format t "~&FASL directory: ~A~%" fasl-dir)
+          (if fasl-files
+              (dolist (fasl fasl-files t)
+                (format t "~&Deleting: ~A~%" fasl)
+                (delete-file fasl))
+              (format t "~&No FASL files found.~%")))
+        (format t "~&Could not determine FASL directory for system ~A~%" 
+                system-name))))
+
+
 (defun dep ()
   "Fresh reloads the dependency-analyzer system to continue testing."
   (asdf:load-system :test-project)

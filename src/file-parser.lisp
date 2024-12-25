@@ -24,18 +24,18 @@
             until (eq form :eof)
             do (cond
                  ;; Handle defpackage - eval and analyze
-                 ((and (consp form) (eq (car form) 'defpackage))
+                 ((and (consp form) (eq (first form) 'defpackage))
                   (eval form)
                   (analyze-definition-form parser form))
                  
                  ;; Handle in-package - eval and update context  
-                 ((and (consp form) (eq (car form) 'in-package))
+                 ((and (consp form) (eq (first form) 'in-package))
                   (eval form)
                   (analyze-in-package parser form))
                  
                  ;; Handle other package forms - just eval
                  ((and (consp form)
-                      (member (car form) '(use-package make-package rename-package delete-package)))
+                      (member (first form) '(use-package make-package rename-package delete-package)))
                   (eval form))
                  
                  ;; All other forms
@@ -57,7 +57,7 @@
     (with-open-file (stream file :direction :input)
       (loop for form = (read stream nil :eof)
             until (eq form :eof)
-            do (when (and (consp form) (eq (car form) 'in-package))
+            do (when (and (consp form) (eq (first form) 'in-package))
                  (eval form)
                  (analyze-in-package parser form))
                (analyze-reference-form parser form)
@@ -69,141 +69,152 @@
    Handles all standard definition forms, setf forms, and extended definitions."
   (declare (special log-stream))
   (when (and (consp form)
-             (symbolp (car form))
+             (symbolp (first form))
              (not (quoted-form-p form)))
-    (let ((op (car form)))
+    (let ((op (first form)))
       ;; Record variable definition before walking initialization
       (when (member op '(defvar defparameter defconstant))
-        (let ((name (cadr form)))
+        (let ((name (second form)))
           (record-definition *current-tracker*
                            :name name
                            :type :variable 
                            :file (file parser)
-                           :package (current-package-name parser)
+                           :package (symbol-package name)
+                           :status (symbol-status name (symbol-package name))
                            :context (limit-form-size form name))))
       
       ;; Handle all possible definition types
       (walk-form form
         (lambda (subform context parent-context depth)
-          (declare (ignore parent-context depth))
+          (declare (ignore context parent-context depth))
           (when (and (consp subform)
-                    (symbolp (car subform))
-                    (not (quoted-form-p subform)))
-            (let ((sub-op (car subform)))
+                     (symbolp (first subform))
+                     (not (quoted-form-p subform)))
+            (let ((sub-op (first subform)))
               (cond
                 ;; Function/macro definitions
                 ((member sub-op '(defun defmacro))
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)
                                   :type (if (eq sub-op 'defun) :function :macro)
                                   :file (file parser)
-                                  :package (current-package-name parser)
-                                  :context context))
+                                  :package (symbol-package (second subform))
+                                  :status (symbol-status (second subform) (symbol-package (second subform)))
+                                  :context subform))
 
                 ;; Generic function system
                 ((member sub-op '(defgeneric defmethod))
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)
                                   :type (if (eq sub-op 'defgeneric) :generic-function :method)
                                   :file (file parser)
-                                  :package (current-package-name parser)
-                                  :context context))
+                                  :package (symbol-package (second subform))
+                                  :status (symbol-status (second subform) (symbol-package (second subform)))
+                                  :context subform))
 
                 ;; Structure/class system
                 ((member sub-op '(defclass defstruct define-condition))
-                 (let ((name (if (and (eq sub-op 'defstruct)    ; Handle defstruct options
-                                    (consp (cadr subform)))
-                               (caadr subform)               
-                               (cadr subform))))             
-                   (record-definition *current-tracker*
+                   (let ((name (if (and (eq sub-op 'defstruct)    ; Handle defstruct options
+                                        (consp (second subform)))
+                                 (caadr subform)               
+                                 (second subform))))             
+                     (record-definition *current-tracker*
                                     :name name
                                     :type :structure/class/condition
                                     :file (file parser)
-                                    :package (current-package-name parser)
-                                    :context context)))
+                                    :package (symbol-package name)
+                                    :status (symbol-status name (symbol-package name))
+                                    :context subform)))
 
                 ;; Type system
                 ((eq sub-op 'deftype)
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)
                                   :type :type
                                   :file (file parser)
-                                  :package (current-package-name parser)
-                                  :context context))
+                                  :package (symbol-package (second subform))
+                                  :status (symbol-status (second subform) (symbol-package (second subform)))
+                                  :context subform))
 
                 ;; Package system
                 ((eq sub-op 'defpackage)
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)  ;string designator
                                   :type :package
                                   :file (file parser)
-                                  :package (current-package-name parser)
-                                  :context context))
+                                  :context subform))
 
                 ;; Setf forms
                 ((and (eq sub-op 'setf) 
-                     (consp (cadr subform))
-                     (symbolp (caadr subform))
-                     (consp (cdadr subform))
-                     (consp (cadadr subform))
-                     (eq (car (cadadr subform)) 'quote))
-                 (let ((accessor (caadr subform))
-                       (name (cadr (cadadr subform))))
-                   (case accessor
-                     (symbol-value 
-                      (record-definition *current-tracker*
+                      (consp (second subform))
+                      (symbolp (caadr subform))
+                      (consp (cdadr subform))
+                      (consp (cadadr subform))
+                      (eq (first (cadadr subform)) 'quote))
+                   (let ((accessor (caadr subform))
+                         (name (second (cadadr subform))))
+                     (case accessor
+                       (symbol-value 
+                         (record-definition *current-tracker*
                                        :name name
                                        :type :variable
                                        :file (file parser)
-                                       :package (current-package-name parser)
-                                       :context context))
-                     ((symbol-function fdefinition)
-                      (record-definition *current-tracker*
+                                       :package (symbol-package name)
+                                       :status (symbol-status name (symbol-package name))
+                                       :context subform))
+                       ((symbol-function fdefinition)
+                         (record-definition *current-tracker*
                                        :name name
                                        :type :function
                                        :file (file parser)
-                                       :package (current-package-name parser)
-                                       :context context))
-                     (macro-function
-                      (record-definition *current-tracker*
+                                       :package (symbol-package name)
+                                       :status (symbol-status name (symbol-package name))
+                                       :context subform))
+                       (macro-function
+                         (record-definition *current-tracker*
                                        :name name
                                        :type :macro
                                        :file (file parser)
-                                       :package (current-package-name parser)
-                                       :context context)))))
+                                       :package (symbol-package name)
+                                       :status (symbol-status name (symbol-package name))
+                                       :context subform)))))
 
                 ;; Extended definition forms
                 ((member sub-op '(defsetf define-setf-expander))
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)
                                   :type :setf
                                   :file (file parser) 
-                                  :package (current-package-name parser)
-                                  :context context))
+                                  :package (symbol-package (second subform))
+                                  :status (symbol-status (second subform) (symbol-package (second subform)))
+                                  :context subform))
 
                 ((eq sub-op 'define-symbol-macro)
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)
                                   :type :symbol-macro
                                   :file (file parser)
-                                  :package (current-package-name parser)
-                                  :context context))
+                                  :package (symbol-package (second subform))
+                                  :status (symbol-status (second subform) (symbol-package (second subform)))
+                                  :context subform))
 
                 ((member sub-op '(define-modify-macro define-compiler-macro))
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)
                                   :type :macro
                                   :file (file parser)
-                                  :package (current-package-name parser)
-                                  :context context))
+                                  :package (symbol-package (second subform))
+                                  :status (symbol-status (second subform) (symbol-package (second subform)))
+                                  :context subform))
 
                 ((eq sub-op 'define-method-combination)
-                 (record-definition *current-tracker*
-                                  :name (cadr subform)
+                   (record-definition *current-tracker*
+                                  :name (second subform)
                                   :type :function
                                   :file (file parser)
-                                  :package (current-package-name parser)
-                                  :context context))))))))
+                                  :package (symbol-package (second subform))
+                                  :status (symbol-status (second subform) (symbol-package (second subform)))
+                                  :context subform))))))))
   form))
 
 
@@ -289,7 +300,6 @@
                         :type :PACKAGE
                         :file file
                         :package pkg-name
-                        :exported-p t
                         :context context)
       
       (when package
@@ -306,7 +316,7 @@
         ;; Handle package options from form to track original source location
         (dolist (option options)
           (when (listp option)
-            (case (car option)
+            (case (first option)
               (:import-from
                (let ((from-pkg (normalize-designator (second option))))
                  (dolist (sym (cddr option))
@@ -322,7 +332,7 @@
                nil)
               
               ;; Process other options for potential dependencies
-              (t (unless (eq (car option) :export)
+              (t (unless (eq (first option) :export)
                    (dolist (item (cdr option))
                      (when (and (symbolp item) 
                               (not (keywordp item)))
@@ -341,7 +351,7 @@
          (file (file parser))
          (name-and-options (second form))
          (struct-name (if (listp name-and-options)
-                         (car name-and-options)
+                         (first name-and-options)
                          name-and-options))
          (context (limit-form-size form pkg-name))
          (struct-class (find-class struct-name nil)))
@@ -352,10 +362,6 @@
                       :type :STRUCTURE/CLASS/CONDITION
                       :file file
                       :package pkg-name
-                      :exported-p (eq (nth-value 1 
-                                     (find-symbol (symbol-name struct-name) 
-                                                (current-package parser)))
-                                    :external)
                       :context context)
     
     (when struct-class
@@ -368,10 +374,6 @@
                             :type :FUNCTION
                             :file file
                             :package pkg-name
-                            :exported-p (eq (nth-value 1
-                                           (find-symbol (symbol-name make-name)
-                                                      (current-package parser)))
-                                          :external)
                             :context context)))
       
       ;; Record copier if it exists
@@ -383,10 +385,6 @@
                             :type :FUNCTION 
                             :file file
                             :package pkg-name
-                            :exported-p (eq (nth-value 1
-                                           (find-symbol (symbol-name copy-name)
-                                                      (current-package parser)))
-                                          :external)
                             :context context)))
       
       ;; Record predicate if it exists
@@ -398,17 +396,13 @@
                             :type :FUNCTION
                             :file file
                             :package pkg-name
-                            :exported-p (eq (nth-value 1
-                                           (find-symbol (symbol-name pred-name)
-                                                      (current-package parser)))
-                                          :external)
                             :context context)))
       
       ;; Extract slot names from the defstruct form
       (let ((slot-forms (cddr form)))
         (dolist (slot-form slot-forms)
           (let* ((slot-name (if (listp slot-form) 
-                               (car slot-form)
+                               (first slot-form)
                                slot-form))
                  (accessor-name (intern (format nil "~A-~A" struct-name slot-name)
                                       (symbol-package struct-name))))
@@ -420,10 +414,6 @@
                                :type :METHOD
                                :file file
                                :package pkg-name
-                               :exported-p (eq (nth-value 1
-                                              (find-symbol (symbol-name accessor-name)
-                                                         (current-package parser)))
-                                             :external)
                                :context context
                                :lambda-list `((struct ,struct-name))))
             
@@ -435,176 +425,226 @@
                                  :type :METHOD
                                  :file file
                                  :package pkg-name
-                                 :exported-p (eq (nth-value 1
-                                                (find-symbol (symbol-name writer-name)
-                                                           (current-package parser)))
-                                               :external)
                                  :context context
                                  :lambda-list `(new-value (struct ,struct-name)))))))))))
 
 
 (defun analyze-defvar-defparameter-defconstant (parser form)
-  "Handle defvar, defparameter, and defconstant forms. Records the primary variable 
-   definition, letting walk-form handle any nested definitions in initforms or declarations.
-   PARSER - The file parser providing context
-   FORM - The full definition form: (defvar|defparameter|defconstant name [initform [decls...]])"
+  "Handle special variable and constant definitions using runtime verification.
+   Distinguishes between defvar, defparameter, and defconstant forms.
+   Verifies appropriate binding status and value characteristics."
   (declare (special log-stream))
-  (let* ((pkg-name (current-package-name parser))
-         (file (file parser))
-         (name (second form))
-         (context (limit-form-size form pkg-name)))
-    ;; MODIFIED: Updated to use keyword args
-    (record-definition *current-tracker*
-                      :name name
-                      :type :VARIABLE
-                      :file file
-                      :package pkg-name
-                      :exported-p (eq (nth-value 1 (find-symbol (symbol-name name) (current-package parser)))
-                                    :external)
-                      :context context)))
+  (when (and (listp form)
+             (>= (length form) 2)     ; At least operator and name needed
+             (member (first form) '(defvar defparameter defconstant)))
+    (let* ((op (first form))
+           (name (second form))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name))
+           (sym (find-symbol (string name)
+                           (find-package pkg-name)))
+           (has-initform (>= (length form) 3)))
+      
+      ;; Runtime verification by type
+      (when (and sym
+                 (case op
+                   ;; For constants: must be bound, must be constant
+                   (defconstant
+                    (and has-initform          ; Must have initial value
+                         (constantp sym)       ; Must be marked constant
+                         (boundp sym)))        ; Must have a value
+                   
+                   ;; For special vars: must be bound, not constant
+                   ((defvar defparameter)
+                    (and (boundp sym)         ; Must have a value
+                         (not (constantp sym)) ; Must not be constant
+                         ;; Test special binding capability
+                         (ignore-errors
+                           (let ((test-value (gensym)))
+                             (progv (list sym) (list test-value)
+                               (eq (symbol-value sym) test-value))))))))
+        
+        (record-definition *current-tracker*
+                          :name name
+                          :type (case op
+                                 (defconstant :CONSTANT)
+                                 (otherwise :SPECIAL-VARIABLE))
+                          :file file
+                          :package pkg-name
+                          :context context)))))
 
 
 (defun analyze-defun-defmacro (parser form)
-  "Handle defun and defmacro forms. Analyzes:
-   - Function/macro name and exportedness"
+  "Handle defun and defmacro forms using runtime function information.
+   Verifies function exists and examines its runtime properties."
   (declare (special log-stream))
   (let* ((def-op (first form))
          (name (second form))
          (pkg-name (current-package-name parser))
          (file (file parser))
-         (context (limit-form-size form pkg-name)))
-    ;; MODIFIED: Updated to use keyword args
-    (record-definition *current-tracker*
-                      :name name
-                      :type (if (eq def-op 'defun) 
-                              :FUNCTION 
-                              :MACRO)
-                      :file file
-                      :package pkg-name
-                      :exported-p (eq (nth-value 1 
-                                     (find-symbol (symbol-name name) (current-package parser)))
-                                    :external)
-                      :context context)))
+         (context (limit-form-size form pkg-name))
+         (sym (when (symbolp name)
+               (find-symbol (symbol-name name)
+                          (find-package pkg-name)))))
+
+    (when sym
+      ;; Check if function/macro actually exists
+      (when (if (eq def-op 'defun)
+                (fboundp sym)
+                (macro-function sym))
+        (record-definition *current-tracker*
+                          :name name
+                          :type (if (eq def-op 'defun)
+                                  :FUNCTION
+                                  :MACRO)
+                          :file file
+                          :package pkg-name
+                          :context context
+                          ;; Record lambda list if function exists
+                          :lambda-list (when (fboundp sym)
+                                       (let ((fn (symbol-function sym)))
+                                         (when fn
+                                           (second (function-lambda-expression fn))))))))))
 
 
 (defun analyze-defgeneric (parser form)
-  "Handle defgeneric form. Records both the generic function and any methods 
-   specified in the options list. Analyzes:
+  "Handle defgeneric form using runtime function information.
+   Analyzes:
    - Generic function name and exportedness
    - Method specifiers from :method options
    FORM is of form: (defgeneric name lambda-list &rest options)"
-  (declare (special log-stream))
   (destructuring-bind (def-op name lambda-list &rest options) form
-    (declare (ignore def-op lambda-list))
+    (declare (ignore def-op))
     (let* ((pkg-name (current-package-name parser))
            (file (file parser))
            (context (limit-form-size form pkg-name)))
-      ;; Record generic function
+
+      ;; Record generic function definition
       (record-definition *current-tracker*
                         :name name
                         :type :GENERIC-FUNCTION
                         :file file
                         :package pkg-name
-                        :exported-p (eq (nth-value 1 
-                                       (find-symbol (string name) (current-package parser)))
-                                      :external)
-                        :context context)
-      ;; Process any :method options to record method definitions
+                        :context context
+                        :lambda-list lambda-list)
+
+      ;; Analyze option declarations
       (dolist (option options)
-        (when (and (listp option) (eq (car option) :method))
-          (destructuring-bind (method-key &rest method-spec) option
-            (declare (ignore method-key))
-            (multiple-value-bind (qualifiers lambda-list body)
-                (parse-defmethod-args method-spec)
-              (declare (ignore body))
-              (record-definition *current-tracker*
-                               :name name
-                               :type :METHOD
-                               :file file
-                               :package pkg-name
-                               :exported-p (eq (nth-value 1
-                                              (find-symbol (string name) (current-package parser)))
-                                             :external)
-                               :context context
-                               :qualifiers qualifiers
-                               :lambda-list lambda-list))))))))
+        (when (listp option)
+          (case (first option)
+            (:method 
+             ;; Handle method definition
+             (destructuring-bind (method-key &rest method-spec) option
+               (declare (ignore method-key))
+               (multiple-value-bind (qualifiers lambda-list body)
+                   (parse-defmethod-args method-spec)
+                 (declare (ignore body))
+                 ;; Record method definition
+                 (record-definition *current-tracker*
+                                  :name name
+                                  :type :METHOD
+                                  :file file
+                                  :package pkg-name
+                                  :context context
+                                  :qualifiers qualifiers
+                                  :lambda-list lambda-list))))
+            (:argument-precedence-order
+             ;; Track argument precedence for method combination
+             (dolist (arg (cdr option))
+               (when (symbolp arg)
+                 (analyze-definition-form parser arg))))
+            (:documentation
+             ;; Skip documentation strings
+             nil)
+            (otherwise
+             ;; Process any other option arguments 
+             (dolist (item (cdr option))
+               (when (and (symbolp item)
+                         (not (keywordp item)))
+                 (analyze-definition-form parser item))))))))))
 
 
 (defun analyze-defmethod (parser form)
   "Handle defmethod form. Analyzes:
-   - Method name, qualifiers, and lambda list.
+   - Method name, qualifiers, and lambda list
    Handles both ordinary methods and setf methods."
-  (declare (special log-stream))
-  (let* ((after-defmethod (cdr form))
-         ;; Handle (setf name) form properly 
-         (name-and-qualifiers (if (and (consp (car after-defmethod))
-                                     (eq (caar after-defmethod) 'setf))
-                                (cons (car after-defmethod) (cdr after-defmethod))
-                                after-defmethod))
-         ;; Split into name, qualifiers, lambda-list, body
-         (name (if (consp (car name-and-qualifiers))
-                  (cadr (car name-and-qualifiers))  ; (setf name) form
-                  (car name-and-qualifiers)))
-         (rest (if (consp (car name-and-qualifiers))
-                  (cdr name-and-qualifiers)  ; After (setf name)
-                  (cdr name-and-qualifiers)))
-         ;; Collect qualifiers until we hit the lambda-list
-         (qualifiers nil)
-         lambda-list
-         (remaining rest))
-    ;; Collect qualifiers until we hit a list that looks like a lambda list
-    (loop while remaining do
-          (let ((item (car remaining)))
-            (if (and (listp item) 
-                    (every (lambda (x) 
-                            (or (symbolp x) 
-                                (and (listp x) (= (length x) 2)))) ; var or (var type)
-                          item))
-                (progn 
-                  (setf lambda-list item)
-                  (return))
-                (push item qualifiers))
-            (setf remaining (cdr remaining))))
-    (setf qualifiers (nreverse qualifiers))
+  (multiple-value-bind (name qualifiers lambda-list body)
+      (destructure-method-form form)
     
-    (when lambda-list  ; Only process if we found a valid lambda list
+    ;; Verify we have valid components
+    (when (and name lambda-list)
       (let* ((pkg-name (current-package-name parser))
              (file (file parser))
-             (context (limit-form-size form pkg-name)))
+             (context (limit-form-size form pkg-name))
+             (gf-name (if (consp name)  ; Handle (setf x) names
+                         (second name)
+                         name)))
+
+        ;; Record method definition
         (record-definition *current-tracker*
-                          :name name
+                          :name gf-name
                           :type :METHOD
                           :file file
                           :package pkg-name
-                          :exported-p (eq (nth-value 1 
-                                         (find-symbol (string name) (current-package parser)))
-                                        :external)
                           :context context
                           :qualifiers qualifiers
-                          :lambda-list lambda-list)))))
+                          :lambda-list lambda-list)
+
+        ;; Analyze parameter specializers
+        (analyze-method-specializers parser lambda-list)
+
+        ;; Analyze method body forms
+        (dolist (form body)
+          (analyze-definition-form parser form))))))
 
 
 (defun analyze-defsetf (parser form)
- "Handle defsetf forms in both short and long forms. Analyzes:
-  - Access function name and exportedness
-  - Short form: update function reference
-  - Long form: lambda list, store vars, declarations, body
-  Returns the setf definition record."
-   (declare (special log-stream))
-   (let* ((name (second form))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (context (limit-form-size form pkg-name)))
-     ;; MODIFIED: Updated to use keyword args
-     (record-definition *current-tracker*
-                       :name name
-                       :type :SETF
-                       :file file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (symbol-name name) (current-package parser)))
-                                     :external)
-                       :context context)))
+  "Handle defsetf forms using runtime environment verification.
+   Distinguishes between short and long forms, verifying appropriate 
+   runtime constructs exist for each. Confirms setf expansion capability."
+  (declare (special log-stream))
+  (when (and (listp form)
+             (>= (length form) 3)              ; Minimum: defsetf, name, update/lambda
+             (eq (first form) 'defsetf))
+    (let* ((name (second form))
+           (update-or-lambda (third form))
+           (short-form-p (symbolp update-or-lambda))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name))
+           (name-sym (find-symbol (string name)
+                                (find-package pkg-name))))
+      
+      ;; Verify runtime existence based on form type
+      (when (and name-sym
+                 (fboundp name-sym)     ; Access function must exist
+                 (if short-form-p
+                     ;; Short form verification
+                     (let* ((update-name update-or-lambda)
+                            (update-sym (find-symbol (string update-name)
+                                                   (find-package pkg-name))))
+                       (and update-sym
+                            (fboundp update-sym)
+                            ;; Test basic setf expansion works
+                            (ignore-errors
+                              (get-setf-expansion `(,name-sym 'dummy))
+                              t)))
+                     ;; Long form verification
+                     (ignore-errors
+                       ;; Test expansion with dummy values
+                       (get-setf-expansion `(,name-sym 'dummy))
+                       t)))
+        
+        ;; Record definition with appropriate details
+        (record-definition *current-tracker*
+                          :name name
+                          :type :SETF
+                          :file file
+                          :package pkg-name
+                          :context context
+                          :lambda-list (unless short-form-p
+                                       update-or-lambda))))))
 
 
 (defun analyze-defclass (parser form)
@@ -625,10 +665,6 @@
                       :type :STRUCTURE/CLASS/CONDITION 
                       :file file
                       :package pkg-name
-                      :exported-p (eq (nth-value 1
-                                     (find-symbol (symbol-name name)
-                                                (current-package parser)))
-                                    :external)
                       :context context)
     
     (when class
@@ -644,7 +680,7 @@
       
       ;; Process slot definitions and their accessors
       (dolist (slot-form slots)
-        (let  ((slot-options (when (listp slot-form)
+        (let ((slot-options (when (listp slot-form)
                              (cdr slot-form))))
           
           ;; Handle reader methods
@@ -658,10 +694,6 @@
                                  :type :METHOD
                                  :file file
                                  :package pkg-name
-                                 :exported-p (eq (nth-value 1 
-                                                (find-symbol (symbol-name reader)
-                                                           (current-package parser)))
-                                               :external)
                                  :context context
                                  :lambda-list `((object ,name))))))
           
@@ -676,10 +708,6 @@
                                  :type :METHOD
                                  :file file
                                  :package pkg-name
-                                 :exported-p (eq (nth-value 1
-                                                (find-symbol (symbol-name writer)
-                                                           (current-package parser)))
-                                               :external)
                                  :context context
                                  :lambda-list `(new-value (object ,name))))))
           
@@ -695,10 +723,6 @@
                                  :type :METHOD
                                  :file file
                                  :package pkg-name
-                                 :exported-p (eq (nth-value 1
-                                                (find-symbol (symbol-name accessor)
-                                                           (current-package parser)))
-                                               :external)
                                  :context context
                                  :lambda-list `((object ,name)))
                 ;; Writer method
@@ -709,247 +733,393 @@
                                      :type :METHOD
                                      :file file
                                      :package pkg-name
-                                     :exported-p (eq (nth-value 1
-                                                    (find-symbol (symbol-name writer)
-                                                               (current-package parser)))
-                                                   :external)
                                      :context context
                                      :lambda-list `(new-value (object ,name)))))))))))))
 
 
 (defun analyze-deftype (parser form)
- "Handle deftype form. Analyzes:
-  - Type name and exportedness"
+  "Handle deftype form using runtime environment.
+   Verifies type exists and is usable by testing expansion and subtype
+   relationships. Validates type parameters and expansion capability."
   (declare (special log-stream))
- (let* ((name (second form))
-        (pkg-name (current-package-name parser))
-        (file (file parser))
-        (context (limit-form-size form pkg-name)))
-   ;; MODIFIED: Updated to use keyword args
-   (record-definition *current-tracker*
-                     :name name
-                     :type :TYPE 
-                     :file file
-                     :package pkg-name
-                     :exported-p (eq (nth-value 1 
-                                    (find-symbol (symbol-name name) (current-package parser)))
-                                   :external)
-                     :context context)))
+  (when (and (listp form)
+             (>= (length form) 3)              ; name and lambda-list required
+             (eq (first form) 'deftype))
+    (let* ((name (second form))
+           (lambda-list (third form))          ; Extract lambda list
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name))
+           (sym (find-symbol (string name) 
+                           (find-package pkg-name))))
+      
+      ;; Multi-step runtime verification:
+      (when (and sym
+                 ;; 1. Test type expansion works
+                 (ignore-errors
+                   (let ((expanded (eval `(type-expand-1 '(,sym)))))
+                     (and expanded t)))
+                 ;; 2. Verify it creates valid type
+                 (ignore-errors
+                   (eval `(typep nil '(,sym)))
+                   t)
+                 ;; 3. Verify subtype relationship exists
+                 (ignore-errors
+                   (multiple-value-bind (result valid)
+                       (subtypep `(,sym) t)
+                     (and result valid))))
+        
+        (record-definition *current-tracker*
+                          :name name
+                          :type :TYPE
+                          :file file
+                          :package pkg-name
+                          :context context
+                          :lambda-list (when (listp lambda-list)
+                                       lambda-list))))))
 
 
 (defun analyze-define-condition (parser form)
-  "Handle define-condition forms, recording condition definition and analyzing:
-   - Condition name and its exportedness
-   - Superclass relationships
-   - Slot definitions including reader/writer/accessor functions
-   - Special condition options like :report
-   - Non-CL symbols in slot types and initforms"
+  "Handle define-condition forms using runtime condition class information.
+   Analyzes both the condition class itself and associated methods."
   (declare (special log-stream))
   (destructuring-bind (def-op name superclasses &rest slots-and-options) form
-    (declare (ignore def-op superclasses))
+    (declare (ignore def-op))
     
     (let* ((pkg-name (current-package-name parser))
            (file (file parser))
-           (context (limit-form-size form pkg-name)))
-      ;; Record condition definition
-      (record-definition *current-tracker*
-                        :name name
-                        :type :STRUCTURE/CLASS/CONDITION
-                        :file file
-                        :package pkg-name
-                        :exported-p (eq (nth-value 1 
-                                       (find-symbol (symbol-name name) (current-package parser)))
-                                      :external)
-                        :context context)
-      ;; Process slot accessors
-      (dolist (slot slots-and-options)
-        (when (and (listp slot) (car slot))  ; Valid slot definition
-          (loop for (option value) on (cdr slot) by #'cddr
-                when (member option '(:reader :writer :accessor))
-                do (let ((func-context (limit-form-size slot pkg-name)))
-                     (case option
-                       (:reader 
-                        (record-definition *current-tracker*
-                                         :name value
-                                         :type :METHOD
-                                         :file file
-                                         :package pkg-name
-                                         :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
-                                         :context func-context
-                                         :qualifiers nil
-                                         :lambda-list `((condition ,name))))
-                       (:writer
-                        (record-definition *current-tracker*
-                                         :name value
-                                         :type :METHOD
-                                         :file file
-                                         :package pkg-name
-                                         :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
-                                         :context func-context
-                                         :qualifiers nil
-                                         :lambda-list `(new-value (condition ,name))))
-                       (:accessor
-                        (record-definition *current-tracker*
-                                         :name value
-                                         :type :METHOD
-                                         :file file
-                                         :package pkg-name
-                                         :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
-                                         :context func-context
-                                         :qualifiers nil
-                                         :lambda-list `((condition ,name)))
-                        (let ((setf-name value))
+           (context (limit-form-size form pkg-name))
+           (condition (find-class name nil)))  ; Get runtime condition class
+      
+      ;; Record condition definition if it exists at runtime
+      (when condition
+        (record-definition *current-tracker*
+                          :name name
+                          :type :STRUCTURE/CLASS/CONDITION
+                          :file file
+                          :package pkg-name
+                          :context context)
+
+        ;; Process superclasses via runtime hierarchy
+        (dolist (super superclasses)
+          (let ((super-class (find-class super nil)))
+            (when super-class  ; Only record existing superclasses
+              (record-reference *current-tracker*
+                              :name super
+                              :file file
+                              :package pkg-name
+                              :context context
+                              :visibility :LOCAL))))
+
+        ;; Process slot accessors verifying runtime existence
+        (dolist (slot slots-and-options)
+          (when (and (listp slot) (first slot))  ; Valid slot definition
+            (loop for (option value) on (cdr slot) by #'cddr
+                  when (and (member option '(:reader :writer :accessor))
+                           (fboundp value))     ; Only record existing functions
+                  do (let ((func-context (limit-form-size slot pkg-name)))
+                       (case option
+                         (:reader 
                           (record-definition *current-tracker*
-                                           :name setf-name
+                                           :name value
                                            :type :METHOD
                                            :file file
                                            :package pkg-name
-                                           :exported-p (eq (nth-value 1 (find-symbol (string value) (current-package parser))) :external)
                                            :context func-context
-                                           :qualifiers nil
-                                           :lambda-list `(new-value (condition ,name)))))))))))))
+                                           :lambda-list `((condition ,name))))
+                         (:writer
+                          (record-definition *current-tracker*
+                                           :name value
+                                           :type :METHOD
+                                           :file file
+                                           :package pkg-name
+                                           :context func-context
+                                           :lambda-list `(new-value (condition ,name))))
+                         (:accessor
+                          (record-definition *current-tracker*
+                                           :name value
+                                           :type :METHOD
+                                           :file file
+                                           :package pkg-name
+                                           :context func-context
+                                           :lambda-list `((condition ,name)))
+                          ;; Handle setf accessor - verify it exists
+                          (when (fboundp `(setf ,value))
+                            (let ((setf-name value))
+                              (record-definition *current-tracker*
+                                               :name setf-name
+                                               :type :METHOD
+                                               :file file
+                                               :package pkg-name
+                                               :context func-context
+                                               :lambda-list `(new-value (condition ,name)))))))))))))))
 
 
 (defun analyze-define-method-combination (parser form)
-  "Handle define-method-combination forms. Analyzes:
-   - Method combination name and exportedness"
+  "Handle define-method-combination forms using runtime environment.
+   Verifies the method combination exists and is usable.
+   Supports both long and short form combinations."
   (declare (special log-stream))
-  (let* ((name (second form))
-         (pkg-name (current-package-name parser))
-         (file (file parser))
-         (context (limit-form-size form pkg-name)))
-    ;; MODIFIED: Updated to use keyword args
-    (record-definition *current-tracker*
-                      :name name
-                      :type :FUNCTION
-                      :file file
-                      :package pkg-name
-                      :exported-p (eq (nth-value 1 
-                                    (find-symbol (string name) (current-package parser)))
-                                   :external)
-                      :context context)))
+  (when (and (listp form)
+             (>= (length form) 2)
+             (eq (first form) 'define-method-combination))
+    (let* ((name (second form))
+           (short-form-p (and (> (length form) 3)  ; Check for short form keys
+                             (member :operator (cddr form))))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name))
+           (sym (find-symbol (string name) 
+                           (find-package pkg-name))))
+      
+      ;; Runtime verification strategy:
+      ;; 1. Verify symbol exists
+      ;; 2. Try to find a generic function using this combination
+      ;; 3. For short form, verify operator exists
+      (when (and sym
+                 ;; Test if combination works in a generic function
+                 (ignore-errors
+                   (eval `(defgeneric test-combination (x)
+                           (:method-combination ,sym)
+                           (:method ((x t)) x)))
+                   t)
+                 ;; For short form, verify operator
+                 (or (not short-form-p)
+                     (let ((op (second (member :operator (cddr form)))))
+                       (and op (fboundp op)))))
+          
+        (record-definition *current-tracker*
+                          :name name
+                          :type :METHOD-COMBINATION  ; More specific type
+                          :file file
+                          :package pkg-name
+                          :context context
+                          :lambda-list (when (and (> (length form) 2)
+                                               (listp (third form)))
+                                       (third form)))))))
 
 
 (defun analyze-define-modify-macro (parser form)
- "Handle define-modify-macro forms. Analyzes:
-  - Macro name and exportedness
-  - Lambda list parameters and their types
-  - Underlying function reference
-  - Documentation string if present"
+  "Handle define-modify-macro forms using runtime environment.
+   Verifies macro exists and underlying update function is available.
+   Validates basic form structure and expansion capability."
   (declare (special log-stream))
-  (let* ((name (second form))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (context (limit-form-size form pkg-name)))
-     ;; MODIFIED: Updated to use keyword args
-     (record-definition *current-tracker*
-                       :name name
-                       :type :MACRO
-                       :file file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (string name) (current-package parser)))
-                                     :external)
-                       :context context)))
+  (when (and (listp form)
+             (>= (length form) 4)              ; name, lambda-list, fn required
+             (<= (length form) 5)              ; optional doc string
+             (eq (first form) 'define-modify-macro))
+    (destructuring-bind (op name lambda-list function-name &optional doc)
+        form
+      (declare (ignore op doc))
+      (when (and (symbolp name)               ; Verify name is symbol
+                 (listp lambda-list)          ; Verify lambda list exists
+                 (symbolp function-name))     ; Verify function name is symbol
+        (let* ((pkg-name (current-package-name parser))
+               (file (file parser))
+               (context (limit-form-size form pkg-name))
+               (name-sym (find-symbol (string name) 
+                                    (find-package pkg-name)))
+               (fn-sym (find-symbol (string function-name)
+                                  (find-package pkg-name))))
+          
+          ;; Verify using runtime environment:
+          ;; 1. Name exists and has macro expansion
+          ;; 2. Update function exists
+          ;; 3. Basic expansion works
+          (when (and name-sym
+                    fn-sym
+                    (macro-function name-sym)  ; Has macro definition
+                    (fboundp fn-sym)          ; Update function exists
+                    ;; Try basic expansion
+                    (ignore-errors
+                      (macroexpand-1 `(,name-sym some-place 1))
+                      t))
+            
+            ;; Record both the macro and its setf relationship
+            (record-definition *current-tracker*
+                             :name name
+                             :type :MODIFY-MACRO     ; More specific type
+                             :file file
+                             :package pkg-name
+                             :context context)))))))
 
 
 (defun analyze-define-compiler-macro (parser form)
- "Handle define-compiler-macro forms. Analyzes:
-  - Compiler macro name and exportedness"
+  "Handle define-compiler-macro forms using runtime environment.
+   Verifies compiler macro exists and has associated function.
+   Supports both direct function names and setf forms."
   (declare (special log-stream))
-   (let* ((name (second form))
-          (pkg-name (current-package-name parser))
-          (file (file parser))
-          (context (limit-form-size form pkg-name)))
-     ;; MODIFIED: Updated to use keyword args
-     (record-definition *current-tracker*
-                       :name name
-                       :type :MACRO
-                       :file file
-                       :package pkg-name
-                       :exported-p (eq (nth-value 1 
-                                      (find-symbol (string name) (current-package parser)))
-                                     :external)
-                       :context context)))
+  (when (and (listp form)
+             (>= (length form) 4)              ; name, lambda-list, body needed
+             (eq (first form) 'define-compiler-macro))
+    (let* ((name-form (second form))           ; Get raw name form
+           (setf-form-p (and (listp name-form) ; Check if setf form
+                            (eq (first name-form) 'setf)
+                            (= (length name-form) 2)))
+           (base-sym (if setf-form-p           ; Extract base symbol
+                        (second name-form)
+                        name-form))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name))
+           (sym (find-symbol (string base-sym) 
+                           (find-package pkg-name))))
+      
+      ;; Runtime verification differs for setf vs regular forms
+      (when (and sym
+                 (if setf-form-p
+                     ;; For setf forms, check both function and compiler macro
+                     (and (fboundp `(setf ,sym))
+                          (compiler-macro-function `(setf ,sym)))
+                     ;; For regular forms, check both base function and compiler macro
+                     (and (fboundp sym)
+                          (compiler-macro-function sym))))
+        
+        (record-definition *current-tracker*
+                          :name (if setf-form-p  ; Record full name form
+                                  name-form
+                                  base-sym)
+                          :type :COMPILER-MACRO
+                          :file file
+                          :package pkg-name
+                          :context context)))))
 
 
 (defun analyze-define-symbol-macro (parser form)
- "Handle define-symbol-macro form. Analyzes:
-  - Symbol name and exportedness"
+  "Handle define-symbol-macro form using runtime environment.
+   Verifies macro existence through macroexpand-1 and validates
+   symbol is appropriate for symbol-macro definition."
   (declare (special log-stream))
- (let* ((name (second form))
-        (pkg-name (current-package-name parser))
-        (file (file parser))
-        (context (limit-form-size form pkg-name)))
-   ;; MODIFIED: Fixed to use keyword args consistently
-   (record-definition *current-tracker*
-                     :name name
-                     :type :SYMBOL-MACRO
-                     :file file
-                     :package pkg-name
-                     :exported-p (eq (nth-value 1 
-                                    (find-symbol (symbol-name name) (current-package parser)))
-                                   :external)
-                     :context context)))
-
-
-(defun analyze-setf-symbol-value (parser form)
- "Handle (setf (symbol-value 'name) value-form) forms. Analyzes:
-  - Variable name and exportedness"
-  (declare (special log-stream))
- (let* ((name (second (second (second form)))) ; Extract quoted symbol
-        (pkg-name (current-package-name parser))
-        (file (file parser))
-        (context (limit-form-size form pkg-name)))
-   ;; MODIFIED: Fixed to use keyword args consistently
-   (record-definition *current-tracker*
-                     :name name
-                     :type :VARIABLE
-                     :file file
-                     :package pkg-name
-                     :exported-p (eq (nth-value 1 
-                                    (find-symbol (symbol-name name) (current-package parser)))
-                                   :external)
-                     :context context)))
-
-
-(defun analyze-setf-symbol-function-fdefinition-macro-function (parser form)
-  "Handle (setf (symbol-function|fdefinition|macro-function 'name) function-form) definitions."
-  (declare (special log-stream))
-  (let* ((accessor (caadr form))           ; Get symbol-function, fdefinition, or macro-function
-         (name (second (second (cadr form)))) ; Get the quoted symbol
-         (pkg-name (current-package-name parser))
-         (file (file parser))
-         (context (limit-form-size form pkg-name)))
-    ;; MODIFIED: Fixed to use keyword args consistently
-    (record-definition *current-tracker*
-                      :name name
-                      :type (if (eq accessor 'macro-function)
-                               :MACRO
-                               :FUNCTION)
-                      :file file
-                      :package pkg-name
-                      :exported-p (eq (nth-value 1 
-                                     (find-symbol (symbol-name name) (current-package parser)))
-                                    :external)
-                      :context context)))
-
-
-(defun analyze-define-setf-expander (parser form)
-  "Handle define-setf-expander forms. Analyzes:
-   - Access function name and exportedness"
-  (declare (special log-stream))
+  (when (and (listp form)                    ; Basic form validation
+             (= (length form) 3)             ; define-symbol-macro name expansion
+             (eq (first form) 'define-symbol-macro)
+             (symbolp (second form)))        ; Ensure name is a symbol
     (let* ((name (second form))
            (pkg-name (current-package-name parser))
            (file (file parser))
-           (context (limit-form-size form pkg-name)))
-      ;; MODIFIED: Fixed to use keyword args consistently
+           (context (limit-form-size form pkg-name))
+           (sym (find-symbol (string name) (find-package pkg-name))))
+      
+      ;; Verify using runtime environment:
+      ;; 1. Symbol exists
+      ;; 2. Has symbol-macro expansion
+      ;; 3. Not a constant/keyword
+      ;; 4. Expansion is available
+      (when (and sym
+                 (not (constantp sym))
+                 (not (keywordp sym))
+                 (multiple-value-bind (expansion exists-p)
+                     (ignore-errors 
+                       (macroexpand-1 sym))
+                   (declare (ignore expansion))
+                   exists-p))
+        
+        (record-definition *current-tracker*
+                          :name name
+                          :type :SYMBOL-MACRO
+                          :file file
+                          :package pkg-name
+                          :context context)))))
+
+
+(defun analyze-setf-symbol-value (parser form)
+  "Handle (setf (symbol-value 'name) value-form) forms by examining runtime env.
+   Verifies symbol exists and has appropriate binding. Records only if:
+   1. Symbol exists and is bound
+   2. Not a constant
+   3. Name suggests special/dynamic var (earmuffs convention)"
+  (declare (special log-stream))
+  (when (and (listp form)                    ; Verify basic form structure
+             (= (length form) 3)             ; setf form should have 3 parts
+             (listp (second form))           ; (symbol-value ...) part
+             (eq (caadr form) 'symbol-value) ; Verify it's symbol-value
+             (= (length (second form)) 2))   ; symbol-value should have 1 arg
+    (let* ((quoted-name (second (second form)))
+           (name (if (and (listp quoted-name)     ; Handle quoted symbol
+                         (eq (first quoted-name) 'quote))
+                    (second quoted-name)
+                    quoted-name))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name))
+           (sym (find-symbol (string name) (find-package pkg-name)))
+           (name-string (and sym (symbol-name sym))))
+      
+      ;; Only record if:
+      ;; 1. Symbol exists 
+      ;; 2. Is bound
+      ;; 3. Not constant
+      ;; 4. Follows special variable naming convention (earmuffs)
+      ;; 5. Not a keyword
+      (when (and sym
+                 (boundp sym)
+                 (not (constantp sym))
+                 (not (keywordp sym))
+                 name-string
+                 (> (length name-string) 2)
+                 (char= (char name-string 0) #\*)
+                 (char= (char name-string (1- (length name-string))) #\*))
+        
+        (record-definition *current-tracker*
+                          :name name
+                          :type :VARIABLE
+                          :file file
+                          :package pkg-name
+                          :context context)))))
+
+
+(defun analyze-setf-symbol-function-fdefinition-macro-function (parser form)
+  "Handle (setf (symbol-function|fdefinition|macro-function 'name) function-form) definitions.
+   Uses runtime environment to verify function/macro existence."
+  (declare (special log-stream))
+  (when (and (listp form)               ; Validate form structure
+             (= (length form) 3)        ; setf form should have 3 parts
+             (listp (second form))
+             (= (length (second form)) 2))
+    (let* ((accessor (caadr form))
+           (quoted-name (second (second form)))
+           (name (if (and (listp quoted-name)    ; Handle quoted symbol
+                         (eq (first quoted-name) 'quote))
+                    (second quoted-name)
+                    quoted-name))
+           (pkg-name (current-package-name parser))
+           (file (file parser))
+           (context (limit-form-size form pkg-name))
+           (sym (find-symbol (string name) (find-package pkg-name))))
+      
+      ;; Verify symbol exists and has appropriate binding
+      (when (and sym 
+                 (case accessor
+                   (macro-function (macro-function sym))
+                   ((symbol-function fdefinition) 
+                    (and (fboundp sym)
+                         (not (macro-function sym))))))
+        
+        (record-definition *current-tracker*
+                          :name name
+                          :type (if (macro-function sym) 
+                                   :MACRO
+                                   :FUNCTION)
+                          :file file
+                          :package pkg-name
+                          :context context)))))
+
+
+(defun analyze-define-setf-expander (parser form)
+  "Handle define-setf-expander forms using runtime environment.
+   Only records expander if it exists in the runtime environment."
+  (declare (special log-stream))
+  (let* ((name (second form))
+         (pkg-name (current-package-name parser))
+         (file (file parser))
+         (context (limit-form-size form pkg-name))
+         (sym (find-symbol (string name) (find-package pkg-name))))
+    ;; Only record if symbol exists and has a setf expander
+    (when (and sym
+               (ignore-errors (get-setf-expansion `(,sym) nil)))
       (record-definition *current-tracker*
                         :name name
                         :type :FUNCTION  ; Setf expanders are functions
                         :file file
                         :package pkg-name
-                        :exported-p (eq (nth-value 1 
-                                       (find-symbol (string name) (current-package parser)))
-                                      :external)
-                        :context context)))
+                        :context context))))

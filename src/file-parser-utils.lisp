@@ -28,6 +28,14 @@
     (t (error "Invalid designator for normalization: ~S" designator))))
 
 
+(defun symbol-status (sym pkg)
+  "Determines the status of a symbol in a package."
+  (let ((status (nth-value 1 (find-symbol (symbol-name sym) pkg))))
+    (if status
+      status
+      (intern (format nil "~A NOT FOUND IN ~A" sym pkg)))))
+
+
 (defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
   "Get all definitions in a file."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
@@ -61,20 +69,17 @@
                          (reference.arguments r)))))))
 
 
-(defun record-definition (tracker &key name type file package exported-p context qualifiers lambda-list)
+(defun record-definition (tracker &key name type file package status context qualifiers lambda-list)
   "Record a name definition in the tracker. Creates a single definition object and 
    stores it under both a base key (name+package+type) and, if qualifiers/lambda-list 
    are present, a specialized key that includes method details. Detects and records
    duplicate definitions of the same symbol."
-  (let* ((def-name (if (eq type :PACKAGE)
-                       (normalize-designator name)
-                       name))
-         (def (make-instance 'definition 
-                            :name def-name
+  (let* ((def (make-instance 'definition 
+                            :name name
                             :type type 
                             :file file
-                            :package package 
-                            :exported-p exported-p 
+                            :package package
+                            :status status
                             :context context
                             :qualifiers (when qualifiers (list qualifiers)) ; Ensure list
                             :lambda-list lambda-list))
@@ -110,8 +115,9 @@
       (push def (gethash specialized-key (slot-value tracker 'definitions))))
     ;; Add to file map and exports  
     (push def (gethash file (slot-value tracker 'file-map)))
-    (when exported-p
-      (record-export tracker package name))
+    (unless (eq type :package)
+      (when (eq (symbol-status name package) :exported)
+        (record-export tracker package name)))
     def))
 
 
@@ -1292,3 +1298,65 @@
              (append (lambda-bindings (car bindings))  ; Destructuring
                     (lambda-bindings (cdr bindings)))))
         (t nil)))
+
+
+(defun destructure-method-form (form)
+  "Parse defmethod form into components.
+   Returns (values name qualifiers lambda-list body)."
+  (destructuring-bind (def-op &rest after-defmethod) form
+    (declare (ignore def-op))
+    (let* ((name-and-quals (if (and (consp (car after-defmethod))
+                                   (eq (caar after-defmethod) 'setf))
+                              (cons (car after-defmethod) 
+                                    (cdr after-defmethod))
+                              after-defmethod))
+           (name (if (consp (car name-and-quals))
+                    (car name-and-quals)  ; (setf name)
+                    (car name-and-quals)))
+           (remaining (if (consp (car name-and-quals))
+                         (cdr name-and-quals)
+                         (cdr name-and-quals)))
+           (qualifiers nil)
+           lambda-list
+           body)
+      
+      ;; Collect qualifiers until lambda-list found
+      (loop while remaining do
+            (let ((item (car remaining)))
+              (if (lambda-list-p item)
+                  (progn
+                    (setf lambda-list item
+                          body (cdr remaining))
+                    (return))
+                  (push item qualifiers))
+              (setf remaining (cdr remaining))))
+      
+      (values name 
+              (nreverse qualifiers)
+              lambda-list 
+              body))))
+
+
+(defun lambda-list-p (form)
+  "Test if form appears to be a method lambda list."
+  (and (listp form)
+       (every (lambda (x)
+                (or (symbolp x)
+                    (and (listp x)
+                         (= (length x) 2)
+                         (symbolp (car x)))))
+              form)))
+
+
+(defun analyze-method-specializers (parser lambda-list)
+  "Analyze specializer types in method lambda list."
+  (dolist (param lambda-list)
+    (when (and (listp param)
+               (= (length param) 2))
+      (let ((specializer (second param)))
+        (typecase specializer
+          (cons  ; (eql value) specializer
+           (when (eq (car specializer) 'eql)
+             (analyze-definition-form parser (cadr specializer))))
+          (symbol  ; Class/type specializer
+           (analyze-definition-form parser specializer)))))))
