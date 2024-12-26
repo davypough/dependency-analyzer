@@ -7,7 +7,7 @@ DEFINITION>
     :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -15,7 +15,7 @@ DEFINITION>
     :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -23,7 +23,7 @@ DEFINITION>
     :Context (DEFVAR *DEFVAR-VARIABLE* 0)
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -31,7 +31,7 @@ DEFINITION>
     :Context (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -39,15 +39,15 @@ DEFINITION>
     :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
     :Type :VARIABLE
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
     :Name CIRCLE
-    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -56,18 +56,17 @@ DEFINITION>
                (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
     :Name COMPUTE-AREA
     :Context (DEFGENERIC COMPUTE-AREA
                  (SHAPE)
-               (:DOCUMENTATION
-                "Compute the area of different geometric shapes"))
+               (DOCUMENTATION Compute the area of different geometric shapes))
     :Type :GENERIC-FUNCTION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -77,7 +76,7 @@ DEFINITION>
                  NIL)
     :Type :STRUCTURE/CLASS/CONDITION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -85,7 +84,7 @@ DEFINITION>
     :Context (DEFMACRO DEFMACRO-NAME () 0)
     :Type :MACRO
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -93,7 +92,7 @@ DEFINITION>
     :Context (DEFUN DEFUN-NAME () 0)
     :Type :FUNCTION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -101,7 +100,7 @@ DEFINITION>
     :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
     :Type :FUNCTION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -109,7 +108,7 @@ DEFINITION>
     :Context (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
     :Type :FUNCTION
     :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -118,7 +117,7 @@ DEFINITION>
                      (LAMBDA (FORM ENV) FORM ENV 0))
     :Type :MACRO
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -126,15 +125,15 @@ DEFINITION>
     :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
     :Type :FUNCTION
     :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
     :Name PERSON
-    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+    :Context (DEFSTRUCT (PERSON (CONC-NAME PERSON.)) (AGE 0 TYPE FIXNUM))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -142,7 +141,7 @@ DEFINITION>
     :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -150,27 +149,27 @@ DEFINITION>
     :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
     :Name PROCESS-DATA
-    :Context (DEFMETHOD PROCESS-DATA :AFTER
-                        ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-               (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+    :Context (DEFMETHOD PROCESS-DATA AFTER
+                        ((DATA STRING) &KEY (LOG-LEVEL INFO))
+               (WHEN (EQ LOG-LEVEL INFO) (FORMAT NIL LOG: ~A DATA)))
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
     :Name PROCESS-DATA
     :Context (DEFGENERIC PROCESS-DATA
                  (DATA &KEY)
-               (:DOCUMENTATION "Process data with various methods"))
+               (DOCUMENTATION Process data with various methods))
     :Type :GENERIC-FUNCTION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
@@ -178,13 +177,13 @@ DEFINITION>
     :Context (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
     :Type :FUNCTION
     :File /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Package #<PACKAGE "COMMON-LISP-USER">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name #:USER-MAIN-PACKAGE
-    :Context (DEFPACKAGE #:USER-MAIN-PACKAGE
-               (:USE :CL))
+    :Name USER-MAIN-PACKAGE
+    :Context (DEFPACKAGE USER-MAIN-PACKAGE
+               (USE CL))
     :Type :PACKAGE
     :File /source/single-pkg-defs.lisp
 

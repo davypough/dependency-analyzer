@@ -39,6 +39,22 @@ WALK(ING):
             (:USE :CL))
   Depth: 2
 
+-------------------------------
+WALK(ING):
+  Expression: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+WALK(ING):
+  Expression: IN-PACKAGE
+  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: #:USER-MAIN-PACKAGE
+  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Parent: NIL
+  Depth: 1
 
 -------------------------------
 WALK(ING):
@@ -1087,6 +1103,22 @@ WALK(ING):
 
 Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
 
+-------------------------------
+WALK(ING):
+  Expression: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Context: NIL
+  Parent: NIL
+  Depth: 0
+WALK(ING):
+  Expression: IN-PACKAGE
+  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Parent: NIL
+  Depth: 1
+WALK(ING):
+  Expression: #:USER-MAIN-PACKAGE
+  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Parent: NIL
+  Depth: 1
 
 
 

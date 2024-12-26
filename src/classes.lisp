@@ -39,8 +39,8 @@
   "Print a definition object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
     (with-slots (name context type file package status qualifiers lambda-list) object
-      (format-if stream "    :Name ~S"       " " name)
-      (format-if stream "    :Context ~S"    " " context)
+      (format-if stream "    :Name ~A"       " " name)
+      (format-if stream "    :Context ~A"    " " context)
       (format-if stream "    :Type ~S"       " " type)
       (format-if stream "    :File ~A"       " " (and file (project-pathname file)))
       (format-if stream "    :Package ~S"    " " package)
@@ -54,8 +54,8 @@
    but typically used for logging to a file. Omit null slots."
   (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~ADEFINITION>" indent-str)
-    (format-if stream "    :Name ~S" indent-str (definition.name def))
-    (format-if stream "    :Context ~S" indent-str (definition.context def))
+    (format-if stream "    :Name ~A" indent-str (definition.name def))
+    (format-if stream "    :Context ~A" indent-str (definition.context def))
     (format-if stream "    :Type ~S" indent-str (definition.type def))
     (format-if stream "    :File ~A" indent-str (and (definition.file def)
                                                     (project-pathname (definition.file def))))

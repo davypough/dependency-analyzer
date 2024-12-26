@@ -22,24 +22,7 @@
     (with-open-file (stream file :direction :input)
       (loop for form = (read stream nil :eof)
             until (eq form :eof)
-            do (cond
-                 ;; Handle defpackage - eval and analyze
-                 ((and (consp form) (eq (first form) 'defpackage))
-                  (eval form)
-                  (analyze-definition-form parser form))
-                 
-                 ;; Handle in-package - eval and update context  
-                 ((and (consp form) (eq (first form) 'in-package))
-                  (eval form)
-                  (analyze-in-package parser form))
-                 
-                 ;; Handle other package forms - just eval
-                 ((and (consp form)
-                      (member (first form) '(use-package make-package rename-package delete-package)))
-                  (eval form))
-                 
-                 ;; All other forms
-                 (t (analyze-definition-form parser form)))
+            do (analyze-definition-form parser form)
                (terpri log-stream)))
     (pop parsing-files)))
 
