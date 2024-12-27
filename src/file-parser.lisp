@@ -14,7 +14,7 @@
    maintaining package context during traversal. Logs analysis progress to provided log-stream."
   (declare (special log-stream))
   (with-slots (file parsing-files) parser
-    ;; Initialize package context
+    ;; Reset to CL-USER before processing each file
     (setf (current-package parser) (find-package :common-lisp-user)
           (current-package-name parser) "COMMON-LISP-USER"
           *package* (find-package :common-lisp-user))
@@ -22,7 +22,10 @@
     (with-open-file (stream file :direction :input)
       (loop for form = (read stream nil :eof)
             until (eq form :eof)
-            do (analyze-definition-form parser form)
+            do (when (and (consp form) (eq (first form) 'in-package))
+                 (eval form)
+                 (analyze-in-package parser form))
+               (analyze-definition-form parser form)
                (terpri log-stream)))
     (pop parsing-files)))
 
@@ -62,7 +65,7 @@
                            :name name
                            :type :variable 
                            :file (file parser)
-                           :package (symbol-package name)
+                           :package (current-package parser)
                            :status (symbol-status name (symbol-package name))
                            :context (limit-form-size form name))))
       
@@ -81,7 +84,7 @@
                                   :name (second subform)
                                   :type (if (eq sub-op 'defun) :function :macro)
                                   :file (file parser)
-                                  :package (symbol-package (second subform))
+                                  :package (current-package parser)
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))
 
@@ -91,7 +94,7 @@
                                   :name (second subform)
                                   :type (if (eq sub-op 'defgeneric) :generic-function :method)
                                   :file (file parser)
-                                  :package (symbol-package (second subform))
+                                  :package (current-package parser)
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))
 
@@ -100,14 +103,15 @@
                    (let ((name (if (and (eq sub-op 'defstruct)    ; Handle defstruct options
                                         (consp (second subform)))
                                  (caadr subform)               
-                                 (second subform))))             
+                                 (second subform))))
                      (record-definition *current-tracker*
                                     :name name
                                     :type :structure/class/condition
                                     :file (file parser)
-                                    :package (symbol-package name)
+                                    :package (current-package parser)
                                     :status (symbol-status name (symbol-package name))
-                                    :context subform)))
+                                    :context subform)
+                     (analyze-defclass/defstruct/condition-form parser name subform)))
 
                 ;; Type system
                 ((eq sub-op 'deftype)
@@ -115,7 +119,7 @@
                                   :name (second subform)
                                   :type :type
                                   :file (file parser)
-                                  :package (symbol-package (second subform))
+                                  :package (current-package parser)
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))
 
@@ -142,7 +146,7 @@
                                        :name name
                                        :type :variable
                                        :file (file parser)
-                                       :package (symbol-package name)
+                                       :package (current-package parser)
                                        :status (symbol-status name (symbol-package name))
                                        :context subform))
                        ((symbol-function fdefinition)
@@ -150,7 +154,7 @@
                                        :name name
                                        :type :function
                                        :file (file parser)
-                                       :package (symbol-package name)
+                                       :package (current-package parser)
                                        :status (symbol-status name (symbol-package name))
                                        :context subform))
                        (macro-function
@@ -158,7 +162,7 @@
                                        :name name
                                        :type :macro
                                        :file (file parser)
-                                       :package (symbol-package name)
+                                       :package (current-package parser)
                                        :status (symbol-status name (symbol-package name))
                                        :context subform)))))
 
@@ -168,7 +172,7 @@
                                   :name (second subform)
                                   :type :setf
                                   :file (file parser) 
-                                  :package (symbol-package (second subform))
+                                  :package (current-package parser)
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))
 
@@ -177,7 +181,7 @@
                                   :name (second subform)
                                   :type :symbol-macro
                                   :file (file parser)
-                                  :package (symbol-package (second subform))
+                                  :package (current-package parser)
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))
 
@@ -186,7 +190,7 @@
                                   :name (second subform)
                                   :type :macro
                                   :file (file parser)
-                                  :package (symbol-package (second subform))
+                                  :package (current-package parser)
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))
 
@@ -195,7 +199,7 @@
                                   :name (second subform)
                                   :type :function
                                   :file (file parser)
-                                  :package (symbol-package (second subform))
+                                  :package (current-package parser)
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))))))))
   form))

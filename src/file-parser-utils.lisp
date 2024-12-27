@@ -1360,3 +1360,147 @@
              (analyze-definition-form parser (cadr specializer))))
           (symbol  ; Class/type specializer
            (analyze-definition-form parser specializer)))))))
+
+;;;;;;;;;;;;
+
+
+(defun get-struct-conc-name (name subform)
+  "Extract the :conc-name prefix for a defstruct.
+   Returns string to prepend to slot names."
+  (if (and (consp (second subform))           ; Has options list
+           (consp (cadr subform)))            ; Not just a name
+      (let ((options (cdadr subform)))        ; Skip struct name
+        (let ((conc-option (find :conc-name options :key #'car)))
+          (if conc-option
+              (let ((prefix (cadr conc-option)))
+                (cond ((null prefix) "")       ; (:conc-name nil)
+                      ((stringp prefix) prefix)
+                      (t (string prefix))))    ; Symbol case
+              (format nil "~A-" (string name)))))
+      (format nil "~A-" (string name))))      ; Default case
+
+
+(defun analyze-slot-accessors (parser name class subform)
+  "Record all slot accessor definitions for a class/struct/condition"
+  (declare (special log-stream))
+  (let ((pkg (current-package parser)))
+    (if (typep class 'structure-class)
+        ;; Structure slots use naming pattern with conc-name
+        (let ((prefix (get-struct-conc-name name subform)))
+          (dolist (slot (c2mop:class-slots class))
+            (let ((accessor-name 
+                   (intern (format nil "~A~A" 
+                                 prefix
+                                 (symbol-name (c2mop:slot-definition-name slot)))
+                           pkg)))
+              (when (fboundp accessor-name)
+                (record-definition *current-tracker*
+                                 :name accessor-name
+                                 :type :function
+                                 :file (file parser)
+                                 :package pkg
+                                 :status (symbol-status accessor-name pkg)
+                                 :context subform)))))
+        ;; CLOS class slots use MOP info
+        (progn 
+          (c2mop:finalize-inheritance class)
+          (dolist (slot (c2mop:class-slots class))
+            ;; Record reader methods
+            (dolist (reader (c2mop:slot-definition-readers slot))
+              (when (fboundp reader)
+                (record-definition *current-tracker*
+                                 :name reader
+                                 :type :function
+                                 :file (file parser)
+                                 :package pkg
+                                 :status (symbol-status reader pkg)
+                                 :context subform)))
+            ;; Record writer methods
+            (dolist (writer (c2mop:slot-definition-writers slot))
+              (when (fboundp `(setf ,writer))
+                (record-definition *current-tracker*
+                                 :name writer
+                                 :type :function
+                                 :file (file parser)
+                                 :package pkg
+                                 :status (symbol-status writer pkg)
+                                 :context subform))))))))
+
+(defun analyze-struct-functions (parser name class subform)
+  "Record constructor, copier, and predicate functions for structures"
+  (declare (special log-stream) (ignorable class))
+  (let ((pkg (current-package parser)))
+    ;; Constructor
+    (let ((make-name (intern (format nil "MAKE-~A" (symbol-name name)) pkg)))
+      (when (fboundp make-name)
+        (record-definition *current-tracker*
+                          :name make-name
+                          :type :function
+                          :file (file parser)
+                          :package pkg
+                          :status (symbol-status make-name pkg)
+                          :context subform)))
+    ;; Copier
+    (let ((copy-name (intern (format nil "COPY-~A" (symbol-name name)) pkg)))
+      (when (fboundp copy-name)
+        (record-definition *current-tracker*
+                          :name copy-name
+                          :type :function
+                          :file (file parser)
+                          :package pkg
+                          :status (symbol-status copy-name pkg)
+                          :context subform)))
+    ;; Predicate
+    (let ((pred-name (intern (format nil "~A-P" (symbol-name name)) pkg)))
+      (when (fboundp pred-name)
+        (record-definition *current-tracker*
+                          :name pred-name
+                          :type :function
+                          :file (file parser)
+                          :package pkg
+                          :status (symbol-status pred-name pkg)
+                          :context subform)))))
+
+(defun analyze-class-functions (parser name class subform)
+  "Record any class-specific generated functions"
+  (declare (special log-stream) (ignorable parser name class subform))
+  nil)
+
+(defun analyze-condition-functions (parser name class subform)
+  "Record any condition-specific generated functions"
+  (declare (special log-stream) (ignorable parser name class subform))
+  nil)
+
+(defun analyze-defclass/defstruct/condition-form (parser name subform)
+  "Analyze a defclass, defstruct, or define-condition form.
+   Records the primary type definition and all implicitly defined functions."
+  (declare (special log-stream))
+  (let* ((def-op (first subform))
+         #+ignore (raw-name (if (and (eq def-op 'defstruct)    
+                           (consp (second subform)))
+                      (caadr subform)               
+                      (second subform)))
+         (class (find-class name nil)))
+
+    ;; Record primary type definition 
+    #+ignore (record-definition *current-tracker*
+                      :name raw-name
+                      :type :structure/class/condition  
+                      :file (file parser)
+                      :package def-package
+                      :status (symbol-status raw-name def-package)
+                      :context subform)
+    
+    ;; Only analyze runtime objects if class exists
+    (when class
+      ;; Common accessor analysis
+      (analyze-slot-accessors parser name class subform)
+      
+      ;; Type-specific analysis
+      (case def-op
+        (defstruct 
+         (analyze-struct-functions parser name class subform))
+        (defclass
+         (analyze-class-functions parser name class subform))
+        (define-condition
+         (analyze-condition-functions parser name class subform))))))

@@ -6,6 +6,7 @@
   :depends-on (#:alexandria
                #:uiop
                #:asdf
+               #:closer-mop
                #:yason        ;JSON report generation
                #:local-time)  ;report timestamps
   :serial t

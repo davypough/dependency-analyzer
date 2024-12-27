@@ -1127,12 +1127,50 @@ WALK(ING):
   Parent: NIL
   Depth: 0
 
+#<REFERENCE 
+    :Name *DEFVAR-VARIABLE*
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
+
 -------------------------------
 WALK(ING):
   Expression: *DEFPARAMETER-VARIABLE*
   Context: NIL
   Parent: NIL
   Depth: 0
+
+#<REFERENCE 
+    :Name *DEFPARAMETER-VARIABLE*
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFPARAMETER-VARIABLE*
+                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 
 -------------------------------
 WALK(ING):
@@ -1141,12 +1179,43 @@ WALK(ING):
   Parent: NIL
   Depth: 0
 
+#<REFERENCE 
+    :Name +DEFCONSTANT-VARIABLE+
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name +DEFCONSTANT-VARIABLE+
+                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
+
 -------------------------------
 WALK(ING):
   Expression: *SYMBOL-VALUE-VARIABLE*
   Context: NIL
   Parent: NIL
   Depth: 0
+
+#<REFERENCE 
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name *SYMBOL-VALUE-VARIABLE*
+                        :Context (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
+                                         0)
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 
 -------------------------------
 WALK(ING):
@@ -1159,6 +1228,22 @@ WALK(ING):
   Context: (DEFUN-NAME)
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name DEFUN-NAME
+    :Context (DEFUN-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name DEFUN-NAME
+                        :Context (DEFUN DEFUN-NAME () 0)
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 
 -------------------------------
 WALK(ING):
@@ -1187,6 +1272,23 @@ WALK(ING):
   Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
   Depth: 2
 
+#<REFERENCE 
+    :Name SYMBOL-FUNCTION-NAME
+    :Context 'SYMBOL-FUNCTION-NAME
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name SYMBOL-FUNCTION-NAME
+                        :Context (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
+                                         (LAMBDA () 0))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
+
 -------------------------------
 WALK(ING):
   Expression: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
@@ -1214,6 +1316,23 @@ WALK(ING):
   Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
   Depth: 2
 
+#<REFERENCE 
+    :Name FDEFINITION-FUNCTION-NAME
+    :Context 'FDEFINITION-FUNCTION-NAME
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name FDEFINITION-FUNCTION-NAME
+                        :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
+                                         (LAMBDA () 0))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
+
 -------------------------------
 WALK(ING):
   Expression: (CIRCLE-RADIUS (MAKE-CIRCLE))
@@ -1225,6 +1344,22 @@ WALK(ING):
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name CIRCLE-RADIUS
+    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name CIRCLE-RADIUS
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: (MAKE-CIRCLE)
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
@@ -1235,6 +1370,22 @@ WALK(ING):
   Context: (MAKE-CIRCLE)
   Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
   Depth: 2
+
+#<REFERENCE 
+    :Name MAKE-CIRCLE
+    :Context (MAKE-CIRCLE)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-CIRCLE
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 
 -------------------------------
 WALK(ING):
@@ -1247,6 +1398,23 @@ WALK(ING):
   Context: (PERSON.AGE (MAKE-PERSON))
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name PERSON.AGE
+    :Context (PERSON.AGE (MAKE-PERSON))
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name PERSON.AGE
+                        :Context (DEFSTRUCT (PERSON (CONC-NAME PERSON.))
+                                   (AGE 0 TYPE FIXNUM))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: (MAKE-PERSON)
   Context: (PERSON.AGE (MAKE-PERSON))
@@ -1257,6 +1425,23 @@ WALK(ING):
   Context: (MAKE-PERSON)
   Parent: (PERSON.AGE (MAKE-PERSON))
   Depth: 2
+
+#<REFERENCE 
+    :Name MAKE-PERSON
+    :Context (MAKE-PERSON)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-PERSON
+                        :Context (DEFSTRUCT (PERSON (CONC-NAME PERSON.))
+                                   (AGE 0 TYPE FIXNUM))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 
 -------------------------------
 WALK(ING):
@@ -1284,6 +1469,33 @@ WALK(ING):
   Context: #'COMPUTE-AREA
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
   Depth: 2
+
+#<REFERENCE 
+    :Name COMPUTE-AREA
+    :Context #'COMPUTE-AREA
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name COMPUTE-AREA
+                        :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+                                   (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name COMPUTE-AREA
+                        :Context (DEFGENERIC COMPUTE-AREA
+                                     (SHAPE)
+                                   (DOCUMENTATION
+                                    Compute the area of different geometric shapes))
+                        :Type :GENERIC-FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: (MAKE-CIRCLE :RADIUS 1)
   Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
@@ -1294,6 +1506,22 @@ WALK(ING):
   Context: (MAKE-CIRCLE :RADIUS 1)
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
   Depth: 2
+
+#<REFERENCE 
+    :Name MAKE-CIRCLE
+    :Context (MAKE-CIRCLE :RADIUS 1)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-CIRCLE
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: :RADIUS
   Context: (MAKE-CIRCLE :RADIUS 1)
@@ -1316,6 +1544,80 @@ WALK(ING):
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name PROCESS-DATA
+    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Arguments ("test" STRING :LOG-LEVEL KEYWORD :WARN KEYWORD)
+    :Definitions
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFGENERIC PROCESS-DATA
+                                     (DATA &KEY)
+                                   (DOCUMENTATION
+                                    Process data with various methods))
+                        :Type :GENERIC-FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA AFTER
+                                            ((DATA STRING)
+                                             &KEY (LOG-LEVEL INFO))
+                                   (WHEN (EQ LOG-LEVEL INFO)
+                                     (FORMAT NIL LOG: ~A DATA)))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
+                                   (1+ DATA))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
+                                   (STRING-UPCASE DATA))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA AFTER
+                                            ((DATA STRING)
+                                             &KEY (LOG-LEVEL INFO))
+                                   (WHEN (EQ LOG-LEVEL INFO)
+                                     (FORMAT NIL LOG: ~A DATA)))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
+                                   (1+ DATA))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
+                                   (STRING-UPCASE DATA))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: "test"
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
@@ -1343,6 +1645,53 @@ WALK(ING):
   Context: (PROCESS-DATA 42)
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name PROCESS-DATA
+    :Context (PROCESS-DATA 42)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Arguments (42 NUMBER)
+    :Definitions
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFGENERIC PROCESS-DATA
+                                     (DATA &KEY)
+                                   (DOCUMENTATION
+                                    Process data with various methods))
+                        :Type :GENERIC-FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA AFTER
+                                            ((DATA STRING)
+                                             &KEY (LOG-LEVEL INFO))
+                                   (WHEN (EQ LOG-LEVEL INFO)
+                                     (FORMAT NIL LOG: ~A DATA)))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
+                                   (1+ DATA))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name PROCESS-DATA
+                        :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
+                                   (STRING-UPCASE DATA))
+                        :Type :METHOD
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: 42
   Context: (PROCESS-DATA 42)
@@ -1361,6 +1710,22 @@ WALK(ING):
   Parent: NIL
   Depth: 1
 
+#<REFERENCE 
+    :Name DEFMACRO-NAME
+    :Context (DEFMACRO-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name DEFMACRO-NAME
+                        :Context (DEFMACRO DEFMACRO-NAME () 0)
+                        :Type :MACRO
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
+
 -------------------------------
 WALK(ING):
   Expression: (MACRO-FUNCTION-NAME)
@@ -1372,6 +1737,23 @@ WALK(ING):
   Context: (MACRO-FUNCTION-NAME)
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name MACRO-FUNCTION-NAME
+    :Context (MACRO-FUNCTION-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name MACRO-FUNCTION-NAME
+                        :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                                         (LAMBDA (FORM ENV) FORM ENV 0))
+                        :Type :MACRO
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 
 -------------------------------
 WALK(ING):
@@ -1420,6 +1802,24 @@ WALK(ING):
   Parent: (ERROR 'CONDITION-NAME)
   Depth: 3
 
+#<REFERENCE 
+    :Name CONDITION-NAME
+    :Context 'CONDITION-NAME
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name CONDITION-NAME
+                        :Context (DEFINE-CONDITION CONDITION-NAME
+                                     NIL
+                                     NIL)
+                        :Type :STRUCTURE/CLASS/CONDITION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
+
 -------------------------------
 WALK(ING):
   Expression: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
@@ -1456,11 +1856,51 @@ WALK(ING):
   Context: (DEFUN-NAME)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Depth: 2
+
+#<REFERENCE 
+    :Name DEFUN-NAME
+    :Context (DEFUN-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name DEFUN-NAME
+                        :Context (DEFUN DEFUN-NAME () 0)
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: ARG
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
@@ -1532,6 +1972,22 @@ WALK(ING):
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
   Depth: 2
+
+#<REFERENCE 
+    :Name DEFUN-NAME
+    :Context (DEFUN-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name DEFUN-NAME
+                        :Context (DEFUN DEFUN-NAME () 0)
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (LET ((ARG 0))
@@ -1541,6 +1997,35 @@ WALK(ING):
              ARG)
   Parent: NIL
   Depth: 1
+
+#<REFERENCE 
+    :Name *DEFVAR-VARIABLE*
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE ...))
+               ARG
+               ...)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: (COMPUTE-AREA (MAKE-CIRCLE))
   Context: (LET ((ARG 0))
@@ -1573,6 +2058,22 @@ WALK(ING):
   Context: (MAKE-CIRCLE)
   Parent: (COMPUTE-AREA (MAKE-CIRCLE))
   Depth: 3
+
+#<REFERENCE 
+    :Name MAKE-CIRCLE
+    :Context (MAKE-CIRCLE)
+    :File /source/single-pkg-refs.lisp
+    :Package "USER-MAIN-PACKAGE"
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-CIRCLE
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+>
 WALK(ING):
   Expression: ARG
   Context: (LET ((ARG 0))

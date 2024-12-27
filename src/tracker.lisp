@@ -64,7 +64,7 @@
             (format log-stream "~%Definitions Analysis Trace for ~A~2%" file)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-definitions-in-file file-parser))))
-        
+
         ;; Third pass: analyze references  
         (format t "~%Third Pass - Analyzing References...~2%") 
         (with-open-file (log-stream (merge-pathnames "references-trace.log" logs-dir) 
@@ -75,7 +75,7 @@
            (dolist (file source-files)
              (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
              (let ((file-parser (make-instance 'file-parser :file file)))
-               (parse-references-in-file file-parser))))
+               (parse-references-in-file file-parser))))        
 
         ;; Log final definitions, references, anomalies
         (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output

@@ -87,39 +87,31 @@
   (format log-stream "Filename: DEFINITIONS.LOG")
   (format log-stream "~2%The list of all definitions identified in the ~A project.~2%"
                  (slot-value *current-tracker* 'project-name))
-  (let ((def-ht (slot-value *current-tracker* 'definitions))
-        (defs nil))
+  (let ((def-ht (slot-value *current-tracker* 'definitions)))
     (maphash (lambda (key val)
                (declare (ignore key))
-               (setf defs (union val defs :test #'equalp)))
-             def-ht)
-    (dolist (def (sort defs #'string< :key #'definition.name))
-      (print-definition def log-stream)
-      (format log-stream "~%"))))
+               (dolist (def val)
+                 (print-definition def log-stream)
+                 (format log-stream "~%")))
+             def-ht)))
 
 
 (defun log-references ()
-  "Log all references to external definitions to the specified stream.
-   Groups references by source and prints in sorted order."
   (declare (special log-stream))
   (format log-stream "Filename: REFERENCES.LOG")
   (format log-stream "~2%The list of all references to definitions in other files for the ~A project.~%"
                  (slot-value *current-tracker* 'project-name))
-  (let ((ref-ht (slot-value *current-tracker* 'references))
-        (refs nil))
-    ;; Collect all references
+  (let ((ref-ht (slot-value *current-tracker* 'references)))
     (maphash (lambda (key ref-list)
                (declare (ignore key))
-               (setf refs (union ref-list refs :test #'equalp)))
-             ref-ht)
-    ;; Sort and print each reference
-    (dolist (ref (sort refs #'string< 
-                       :key (lambda (r) 
-                             (format nil "~A:~A"
-                                     (reference.file r)
-                                     (reference.name r)))))
-      (terpri log-stream)
-      (print-reference ref log-stream))))
+               (dolist (ref (sort ref-list #'string< 
+                                 :key (lambda (r)
+                                       (format nil "~A:~A"
+                                               (reference.file r)
+                                               (reference.name r)))))
+                 (terpri log-stream)
+                 (print-reference ref log-stream)))
+             ref-ht)))
     
 
 (defun log-anomalies ()
