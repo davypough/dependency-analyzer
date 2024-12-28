@@ -428,23 +428,6 @@
                 (current-package parser)))))
 
 
-(defun determine-symbol-visibility (symbol parser)
-  "Determine how symbol is visible in current package context.
-   Returns :LOCAL, :INHERITED, or :IMPORTED."
-  (let ((sym-pkg (symbol-package symbol))
-        (cur-pkg (current-package parser)))
-    (cond 
-      ((null sym-pkg) :LOCAL)  ; Uninterned symbol
-      ((eq sym-pkg cur-pkg) :LOCAL)  ; In current package
-      (t (multiple-value-bind (sym status)
-             (find-symbol (symbol-name symbol) cur-pkg)
-           (declare (ignore sym))
-           (case status
-             (:inherited :INHERITED)
-             (:external :IMPORTED)
-             (otherwise :LOCAL)))))))
-
-
 (defun skip-item-p (item)
   "Return T if item should be skipped during reference analysis.
    Skips:
@@ -601,35 +584,6 @@
       (truncate-form form 0))))
 
 
-(defun parse-defmethod-args (args)
-  "Parse method specification arguments from a :method option in defgeneric.
-   Returns (values qualifiers lambda-list body).
-   ARGS is the list of arguments after the :method keyword.
-   Examples:
-   - (:before (x) ...) -> (:before), (x), ...
-   - ((x string) y) -> (), ((x string) y), ...
-   - (:after (x number) y) -> (:after), ((x number) y), ...
-   - (:around (x) &key k) -> (:around), (x &key k), ...
-   Method lambda lists can contain &optional, &rest, &key, &allow-other-keys
-   but not &aux."
-  (let ((qualifiers nil)
-        lambda-list)
-    ;; Collect qualifiers until we hit the lambda-list
-    (loop for arg = (car args)
-          while (and args 
-                    (or (keywordp arg) (symbolp arg))
-                    (not (member arg lambda-list-keywords))
-                    (not (and (listp arg) 
-                            (or (symbolp (car arg))  ; Regular param
-                                (and (listp (car arg))  ; Specialized param
-                                     (= (length (car arg)) 2))))))
-          do (push arg qualifiers)
-             (setf args (cdr args))
-          finally (setf lambda-list (car args)
-                       args (cdr args)))
-    (values (nreverse qualifiers) lambda-list args)))
-
-
 (defun package-context-p (context parent-context)
   "Return T if the context indicates a form that accepts package designator references.
    Such contexts include:
@@ -668,186 +622,6 @@
                                for method-key = (make-tracking-key name pkg-name :METHOD)
                                append (gethash method-key (slot-value *current-tracker* 'definitions)))))
         (values (car gf-defs) method-defs)))))
-
-
-(defun match-optional-arguments (lambda-list args key-start-pos parser)
-  "Match arguments against optional parameters in a lambda list.
-   Returns T if arguments could match the optional parameters.
-   Handles type declarations and nested destructuring patterns."
-  (labels ((find-section-end (start lambda-list)
-             "Find end of optional section"
-             (or (position-if #'lambda-list-keyword-p 
-                            lambda-list 
-                            :start (or start 0))
-                 (length lambda-list)))
-           
-           (lambda-list-keyword-p (item)
-             "Test for lambda-list section markers"
-             (member item '(&optional &rest &key &aux &allow-other-keys &whole &environment)))
-           
-           (extract-type-spec (param)
-             "Get type declaration from parameter"
-             (typecase param
-               (symbol t)  ; Simple parameter
-               (cons      ; Complex parameter
-                (if (listp (car param))
-                    ;; Destructuring or specializer
-                    (or (third (car param)) t)
-                    ;; Optional with default/supplied-p
-                    (or (third param) t)))))
-           
-           (valid-optional-param-p (param)
-             "Verify optional parameter syntax"
-             (typecase param
-               (symbol t)  ; Simple var
-               (cons      ; Complex form
-                (and (or (symbolp (car param))     ; (var default supplied-p)
-                        (and (listp (car param))   ; ((var type) default supplied-p)
-                             (<= (length (car param)) 3)
-                             (symbolp (caar param))))
-                     (<= (length param) 3)))))
-           
-           (count-required-params (lambda-list)
-             "Count required parameters before &optional"
-             (let ((opt-pos (position '&optional lambda-list)))
-               (if opt-pos
-                   opt-pos
-                   0))))
-    
-    (let* ((required-count (count-required-params lambda-list))
-           (opt-start (position '&optional lambda-list))
-           (opt-section-end (and opt-start
-                                (find-section-end opt-start lambda-list)))
-           (opt-params (when opt-start
-                        (subseq lambda-list 
-                                (1+ opt-start) 
-                                opt-section-end)))
-           (max-opt-args (length opt-params))
-           (provided-args (length args)))
-      
-      ;; Validate all optional parameters
-      (when (and opt-start opt-params)
-        (unless (every #'valid-optional-param-p opt-params)
-          (return-from match-optional-arguments nil)))
-      
-      (cond
-        ;; No optional parameters - must have zero args
-        ((null opt-start)
-         (zerop provided-args))
-        
-        ;; Key parameters present - check boundary
-        ((and key-start-pos 
-              (> provided-args (- key-start-pos required-count)))
-         nil)
-        
-        ;; Too many arguments
-        ((> provided-args max-opt-args)
-         nil)
-        
-        ;; Match each argument against its parameter
-        (t
-         (loop for arg in args
-               for param in opt-params
-               always (let ((type-spec (extract-type-spec param)))
-                       (or (eq type-spec t)
-                           (type-compatible-p type-spec arg parser)))))))))
-
-
-(defun lambda-list-accepts-keys-p (lambda-list key-args)
-  "Test if a lambda list can accept the given keyword arguments.
-   Handles complex parameter patterns and keyword normalization."
-  (labels ((find-section-start (section lambda-list)
-             "Find starting position of a lambda list section"
-             (position section lambda-list))
-           
-           (find-section-end (start lambda-list)
-             "Find end of current lambda list section"
-             (or (position-if (lambda (x) 
-                              (and (symbolp x)
-                                   (char= (char (symbol-name x) 0) #\&)))
-                            lambda-list
-                            :start (1+ start))
-                 (length lambda-list)))
-           
-           (extract-key-name (param-spec)
-             "Extract normalized keyword name from parameter spec"
-             (typecase param-spec
-               (symbol 
-                (intern (symbol-name param-spec) :keyword))
-               (cons
-                (if (listp (car param-spec))
-                    ;; ((keyword var) default supplied-p)
-                    (caar param-spec)
-                    ;; (var default supplied-p)
-                    (intern (symbol-name (car param-spec)) :keyword)))))
-           
-           (valid-key-param-p (param)
-             "Validate keyword parameter syntax"
-             (typecase param
-               (symbol 
-                (not (member param lambda-list-keywords)))
-               (cons
-                (and (or (symbolp (car param))     ; (var default supplied-p)
-                        (and (listp (car param))   ; ((key var) default supplied-p)
-                             (= (length (car param)) 2)
-                             (or (keywordp (caar param))
-                                 (symbolp (caar param)))
-                             (symbolp (cadar param))))
-                     (<= (length param) 3)))))
-           
-           (get-allowed-keys (key-params)
-             "Extract allowed keywords from parameters"
-             (loop for param in key-params
-                   when (valid-key-param-p param)
-                   collect (extract-key-name param))))
-    
-    (let* ((key-start (find-section-start '&key lambda-list))
-           (rest-start (find-section-start '&rest lambda-list))
-           (allow-others-p (and key-start
-                              (find '&allow-other-keys lambda-list 
-                                   :start key-start)))
-           (key-section-end (and key-start
-                                (find-section-end key-start lambda-list))))
-      
-      (cond
-        ;; No key args provided - always valid
-        ((null key-args)
-         t)
-        
-        ;; No &key in lambda list - check &rest
-        ((null key-start)
-         (and rest-start t))
-        
-        ;; Has &allow-other-keys - all keys valid
-        (allow-others-p
-         t)
-        
-        ;; Must validate against declared parameters
-        (t
-         (let* ((key-params (subseq lambda-list 
-                                   (1+ key-start)
-                                   key-section-end))
-                (allowed-keys (get-allowed-keys key-params)))
-           ;; Every provided key must be allowed
-           (every (lambda (key-arg)
-                   (member (car key-arg) allowed-keys))
-                 key-args)))))))
-
-
-(defun qualifier-match-p (call-quals method-quals)
-  "Test if method qualifiers match call qualifiers, following CLOS rules.
-   Handles method combination scenarios like :before/:after/:around."
-  (or (equal call-quals method-quals)  ; Exact match
-      ;; :around can wrap any other qualifier
-      (and (member :around call-quals)  
-           (member :around method-quals))
-      ;; :before/:after care about order
-      (and (member :before call-quals)
-           (equal (position :before call-quals)
-                  (position :before method-quals)))
-      (and (member :after call-quals)
-           (equal (position :after call-quals)
-                  (position :after method-quals)))))
 
 
 (defun type-compatible-p (specializer arg parser)
@@ -935,73 +709,6 @@
       
       ;; Unknown/complex specializer - conservative
       (t t))))
-
-
-(defun qualifiers-compatible-p (method-qualifiers call-qualifiers)
-  "Test if method qualifiers are compatible using method combination rules.
-   Handles standard, :before, :after, :around qualifier combinations."
-  (let ((method-quals (if (listp method-qualifiers)
-                         method-qualifiers
-                         (list method-qualifiers)))
-        (call-quals (if (listp call-qualifiers)
-                       call-qualifiers
-                       (list call-qualifiers))))
-    
-    (labels ((primary-method-p (quals)
-               "Test if quals indicate a primary method"
-               (null quals))
-             
-             (around-method-p (quals)
-               "Test if quals contain :around"
-               (member :around quals))
-             
-             (before-method-p (quals)
-               "Test if quals contain :before"
-               (member :before quals))
-             
-             (after-method-p (quals)
-               "Test if quals contain :after"
-               (member :after quals))
-             
-             (qualifiers-match (method-q call-q)
-               "Test if qualifier lists match exactly"
-               (equal method-q call-q))
-             
-             (qualifier-positions-match (quals1 quals2 qualifier)
-               "Test if qualifier appears at same position in both lists"
-               (= (or (position qualifier quals1) -1)
-                  (or (position qualifier quals2) -1))))
-      
-      (cond
-        ;; Unqualified call matches any primary method
-        ((null call-quals)
-         (primary-method-p method-quals))
-        
-        ;; Qualified call needs a non-primary method
-        ((primary-method-p method-quals)
-         nil)
-        
-        ;; Exact qualifier match
-        ((qualifiers-match method-quals call-quals)
-         t)
-        
-        ;; :around methods can wrap any method
-        ((and (around-method-p call-quals)
-              (around-method-p method-quals))
-         t)
-        
-        ;; :before methods must maintain order
-        ((and (before-method-p call-quals)
-              (before-method-p method-quals))
-         (qualifier-positions-match call-quals method-quals :before))
-        
-        ;; :after methods must maintain order
-        ((and (after-method-p call-quals)
-              (after-method-p method-quals))
-         (qualifier-positions-match call-quals method-quals :after))
-        
-        ;; No other combinations are valid
-        (t nil)))))
 
 
 (defun analyze-call-qualifiers (name-form)
@@ -1281,23 +988,6 @@
         collect (if (listp param)
                    (second param) 
                    t)))
-
-
-(defun lambda-bindings (bindings)
-  "Extract bound parameter names from a lambda list or binding form.
-   Handles simple parameters, destructuring patterns, and specializers.
-   Returns list of symbols that are bound by this binding form."
-  (cond ((null bindings) nil)
-        ((atom bindings) (list bindings))  ; &rest param
-        ((symbolp (car bindings)) 
-         (cons (car bindings) (lambda-bindings (cdr bindings))))
-        ((consp (car bindings))  ; Destructuring or specializer
-         (if (and (= (length (car bindings)) 2) 
-                 (symbolp (caar bindings)))
-             (cons (caar bindings) (lambda-bindings (cdr bindings))) ; (var type) specializer
-             (append (lambda-bindings (car bindings))  ; Destructuring
-                    (lambda-bindings (cdr bindings)))))
-        (t nil)))
 
 
 (defun destructure-method-form (form)
