@@ -1477,26 +1477,42 @@
         (record-defstruct-functions parser name class subform)))))
 
 
-(defun analyze-defpackage (parser name subform)
-  "Handle defpackage form recording nicknames and exports as definitions.
-   PARSER - The file parser providing context
-   NAME - The package name being defined
-   SUBFORM - The full defpackage form"
+(defun analyze-defpackage/make-package (parser name subform)
+  "Handle defpackage/make-package form recording nicknames as definitions.
+   Uses runtime package info when available, falls back to form parsing
+   for make-package when package doesn't yet exist."
   (declare (special log-stream))
   (let* ((file (file parser))
          (context subform)
+         (form-type (car subform))
          (package (find-package name)))
-    ;; Only proceed if package exists at runtime
+    
+    ;; Try runtime first for both forms
+    (if package
+        ;; Use runtime info when available
+        (dolist (nickname (package-nicknames package))
+          (record-definition *current-tracker*
+                           :name nickname
+                           :type :PACKAGE  
+                           :file file
+                           :context context))
+        
+        ;; Fall back to parsing for make-package only
+        (when (eq form-type 'make-package)
+          (loop for (key val) on (cddr subform) by #'cddr
+                when (eq key :nicknames)
+                do (dolist (nick (ensure-list (if (and (consp val)
+                                                      (eq (car val) 'quote))
+                                               (cadr val)
+                                               val)))
+                     (record-definition *current-tracker*
+                                      :name nick
+                                      :type :PACKAGE
+                                      :file file
+                                      :context context)))))
+    
+    ;; Process exports only when package exists
     (when package
-      ;; Record each nickname as a referenceable package designator 
-      (dolist (nickname (package-nicknames package))
-        (record-definition *current-tracker*
-                         :name nickname
-                         :type :PACKAGE  
-                         :file file
-                         :package package
-                         :context context))
-      ;; Record each exported symbol with its actual type(s)
       (do-external-symbols (sym package)
         (cond 
           ((boundp sym)  ; Variable binding

@@ -13,14 +13,6 @@ ANOMALY>
 
 
 ANOMALY>
-    :Name "COMMON-LISP-USER"
-    :Type :MISSING-IN-PACKAGE
-    :Severity :WARNING
-    :Files /source/single-pkg-refs.lisp
-    :Description File should begin with in-package form
-
-
-ANOMALY>
     :Name *DEFPARAMETER-VARIABLE*
     :Type :UNDEFINED-REFERENCE
     :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)

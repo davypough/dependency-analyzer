@@ -43,20 +43,11 @@
       (unless source-files
         (error "~2%There are no lisp source files in ~A." source-dir))
       (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
+
       (with-dependency-tracker ((make-instance 'dependency-tracker :project-name parent-dir-name
                                              :project-root parent-pathname))
-        ;; First pass: parse packages
-        (format t "~%First Pass - Parsing Packages...~%")
-        (with-open-file (log-stream (merge-pathnames "packages-trace.log" logs-dir) :direction :output
-                                   :if-exists :supersede :if-does-not-exist :create)
-          (declare (special log-stream))
-          (dolist (file source-files)
-            (format log-stream "~%Package Analysis Trace for ~A~2%" file)
-            (let ((file-parser (make-instance 'file-parser :file file)))
-              (parse-packages-in-file file-parser project-package))))
-        
-        ;; Second pass: analyze definitions
-        (format t "~%Second Pass - Collecting Definitions...~%")
+        ;; First pass: analyze definitions
+        (format t "~%First Pass - Collecting Definitions...~%")
         (with-open-file (log-stream (merge-pathnames "definitions-trace.log" logs-dir) :direction :output
                                    :if-exists :supersede :if-does-not-exist :create)
           (declare (special log-stream))
@@ -65,8 +56,8 @@
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-definitions-in-file file-parser))))
 
-        ;; Third pass: analyze references  
-        (format t "~%Third Pass - Analyzing References...~2%") 
+        ;; Second pass: analyze references  
+        (format t "~%Second Pass - Analyzing References...~2%") 
         (with-open-file (log-stream (merge-pathnames "references-trace.log" logs-dir) 
                            :direction :output
                            :if-exists :supersede 
@@ -75,7 +66,19 @@
            (dolist (file source-files)
              (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
              (let ((file-parser (make-instance 'file-parser :file file)))
-               (parse-references-in-file file-parser))))        
+               (parse-references-in-file file-parser))))
+
+        ;; Third pass: package-symbol analysis
+        (format t "~%Third Pass - Analyzing Package/Symbol Consistency...~2%")
+        (with-open-file (log-stream (merge-pathnames "package-symbols-trace.log" logs-dir)
+                                   :direction :output
+                                   :if-exists :supersede
+                                   :if-does-not-exist :create)
+          (declare (special log-stream))
+          (dolist (file source-files)
+            (format log-stream "~%Package/Symbol Analysis Trace for ~A~2%" file)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-package-symbols-in-file file-parser))))
 
         ;; Log final definitions, references, anomalies
         (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output
