@@ -1364,7 +1364,7 @@
 ;;;;;;;;;;;;
 
 
-(defun get-struct-conc-name (name subform)
+(defun get-defstruct-conc-name (name subform)
   "Extract the :conc-name prefix for a defstruct.
    Returns string to prepend to slot names."
   (if (and (consp (second subform))           ; Has options list
@@ -1380,13 +1380,13 @@
       (format nil "~A-" (string name))))      ; Default case
 
 
-(defun analyze-slot-accessors (parser name class subform)
+(defun record-slot-accessors (parser name class subform)
   "Record all slot accessor definitions for a class/struct/condition"
   (declare (special log-stream))
   (let ((pkg (current-package parser)))
     (if (typep class 'structure-class)
         ;; Structure slots use naming pattern with conc-name
-        (let ((prefix (get-struct-conc-name name subform)))
+        (let ((prefix (get-defstruct-conc-name name subform)))
           (dolist (slot (c2mop:class-slots class))
             (let ((accessor-name 
                    (intern (format nil "~A~A" 
@@ -1426,7 +1426,8 @@
                                  :status (symbol-status writer pkg)
                                  :context subform))))))))
 
-(defun analyze-struct-functions (parser name class subform)
+
+(defun record-defstruct-functions (parser name class subform)
   "Record constructor, copier, and predicate functions for structures"
   (declare (special log-stream) (ignorable class))
   (let ((pkg (current-package parser)))
@@ -1461,46 +1462,88 @@
                           :status (symbol-status pred-name pkg)
                           :context subform)))))
 
-(defun analyze-class-functions (parser name class subform)
-  "Record any class-specific generated functions"
-  (declare (special log-stream) (ignorable parser name class subform))
-  nil)
 
-(defun analyze-condition-functions (parser name class subform)
-  "Record any condition-specific generated functions"
-  (declare (special log-stream) (ignorable parser name class subform))
-  nil)
-
-(defun analyze-defclass/defstruct/condition-form (parser name subform)
+(defun analyze-defclass/defstruct/define-condition (parser name subform)
   "Analyze a defclass, defstruct, or define-condition form.
    Records the primary type definition and all implicitly defined functions."
   (declare (special log-stream))
-  (let* ((def-op (first subform))
-         #+ignore (raw-name (if (and (eq def-op 'defstruct)    
-                           (consp (second subform)))
-                      (caadr subform)               
-                      (second subform)))
-         (class (find-class name nil)))
-
-    ;; Record primary type definition 
-    #+ignore (record-definition *current-tracker*
-                      :name raw-name
-                      :type :structure/class/condition  
-                      :file (file parser)
-                      :package def-package
-                      :status (symbol-status raw-name def-package)
-                      :context subform)
-    
-    ;; Only analyze runtime objects if class exists
-    (when class
+  (let ((def-op (first subform))
+        (class (find-class name nil)))
+    (when class   ;only analyze runtime objects if class object exists
       ;; Common accessor analysis
-      (analyze-slot-accessors parser name class subform)
-      
-      ;; Type-specific analysis
-      (case def-op
-        (defstruct 
-         (analyze-struct-functions parser name class subform))
-        (defclass
-         (analyze-class-functions parser name class subform))
-        (define-condition
-         (analyze-condition-functions parser name class subform))))))
+      (record-slot-accessors parser name class subform)
+      ;; Only defstruct has additional implicit functions
+      (when (eq def-op 'defstruct)
+        (record-defstruct-functions parser name class subform)))))
+
+
+(defun analyze-defpackage (parser name subform)
+  "Handle defpackage form recording nicknames and exports as definitions.
+   PARSER - The file parser providing context
+   NAME - The package name being defined
+   SUBFORM - The full defpackage form"
+  (declare (special log-stream))
+  (let* ((file (file parser))
+         (context subform)
+         (package (find-package name)))
+    ;; Only proceed if package exists at runtime
+    (when package
+      ;; Record each nickname as a referenceable package designator 
+      (dolist (nickname (package-nicknames package))
+        (record-definition *current-tracker*
+                         :name nickname
+                         :type :PACKAGE  
+                         :file file
+                         :package package
+                         :context context))
+      ;; Record each exported symbol with its actual type(s)
+      (do-external-symbols (sym package)
+        (cond 
+          ((boundp sym)  ; Variable binding
+           (record-definition *current-tracker*
+                            :name sym
+                            :type :VARIABLE
+                            :file file
+                            :package package
+                            :status :EXTERNAL
+                            :context context))
+          ((macro-function sym)  ; Macro binding - check before fboundp
+           (record-definition *current-tracker*
+                            :name sym
+                            :type :MACRO
+                            :file file
+                            :package package
+                            :status :EXTERNAL
+                            :context context))
+          ((fboundp sym)  ; Function binding (not macro)
+           (if (typep (symbol-function sym) 'standard-generic-function)
+               (record-definition *current-tracker*
+                                :name sym
+                                :type :GENERIC-FUNCTION
+                                :file file
+                                :package package
+                                :status :EXTERNAL
+                                :context context)
+               (record-definition *current-tracker*
+                                :name sym
+                                :type :FUNCTION
+                                :file file
+                                :package package
+                                :status :EXTERNAL
+                                :context context)))
+          ((find-class sym nil)  ; Class definition
+           (record-definition *current-tracker*
+                            :name sym
+                            :type :STRUCTURE/CLASS/CONDITION
+                            :file file
+                            :package package
+                            :status :EXTERNAL
+                            :context context))
+          ((ignore-errors (subtypep nil sym))  ; Type definition
+           (record-definition *current-tracker*
+                            :name sym
+                            :type :TYPE
+                            :file file
+                            :package package
+                            :status :EXTERNAL
+                            :context context)))))))

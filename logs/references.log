@@ -302,6 +302,7 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((SHAPE CIRCLE))
                     DEFINITION>
                         :Name COMPUTE-AREA
                         :Context (DEFGENERIC COMPUTE-AREA
@@ -342,6 +343,8 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Qualifiers ((:AFTER))
+                        :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
@@ -350,6 +353,7 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA NUMBER) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
@@ -358,6 +362,7 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA STRING) &KEY)
 
 REFERENCE>
     :Name PROCESS-DATA
@@ -388,6 +393,8 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Qualifiers ((:AFTER))
+                        :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
@@ -396,6 +403,7 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA NUMBER) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
@@ -404,6 +412,7 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA STRING) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA AFTER
@@ -415,6 +424,8 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Qualifiers ((:AFTER))
+                        :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
@@ -423,6 +434,7 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA NUMBER) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
@@ -431,6 +443,7 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA STRING) &KEY)
 
 REFERENCE>
     :Name DEFMACRO-NAME

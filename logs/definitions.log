@@ -171,6 +171,17 @@ DEFINITION>
     :File /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Status :INTERNAL
+    :Lambda-list ((SHAPE CIRCLE))
+
+DEFINITION>
+    :Name COMPUTE-AREA
+    :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+               (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Status :INTERNAL
+    :Lambda-list ((SHAPE CIRCLE))
 
 DEFINITION>
     :Name PROCESS-DATA
@@ -191,6 +202,8 @@ DEFINITION>
     :File /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Status :INTERNAL
+    :Qualifiers ((:AFTER))
+    :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
 
 DEFINITION>
     :Name PROCESS-DATA
@@ -199,6 +212,7 @@ DEFINITION>
     :File /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Status :INTERNAL
+    :Lambda-list ((DATA NUMBER) &KEY)
 
 DEFINITION>
     :Name PROCESS-DATA
@@ -207,6 +221,37 @@ DEFINITION>
     :File /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Status :INTERNAL
+    :Lambda-list ((DATA STRING) &KEY)
+
+DEFINITION>
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Status :INTERNAL
+    :Lambda-list ((DATA STRING) &KEY)
+
+DEFINITION>
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Status :INTERNAL
+    :Lambda-list ((DATA NUMBER) &KEY)
+
+DEFINITION>
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA AFTER
+                        ((DATA STRING) &KEY (LOG-LEVEL INFO))
+               (WHEN (EQ LOG-LEVEL INFO) (FORMAT NIL LOG: ~A DATA)))
+    :Type :METHOD
+    :File /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Status :INTERNAL
+    :Qualifiers ((:AFTER))
+    :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
 
 DEFINITION>
     :Name DEFMACRO-NAME

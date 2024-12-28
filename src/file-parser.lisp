@@ -88,15 +88,31 @@
                                   :status (symbol-status (second subform) (symbol-package (second subform)))
                                   :context subform))
 
-                ;; Generic function system
-                ((member sub-op '(defgeneric defmethod))
+                ;; Proposed new section in the analyze-definition-form case form
+                ((eq sub-op 'defgeneric)
                    (record-definition *current-tracker*
-                                  :name (second subform)
-                                  :type (if (eq sub-op 'defgeneric) :generic-function :method)
-                                  :file (file parser)
-                                  :package (current-package parser)
-                                  :status (symbol-status (second subform) (symbol-package (second subform)))
-                                  :context subform))
+                       :name (second subform)
+                       :type :generic-function
+                       :file (file parser)
+                       :package (current-package parser)
+                       :status (symbol-status (second subform) 
+                                              (symbol-package (second subform)))
+                       :context subform))
+
+                ((eq sub-op 'defmethod)
+                   (multiple-value-bind (method-name qualifiers lambda-list body)
+                                 (destructure-method-form subform)
+                     (declare (ignore method-name body))
+                     (record-definition *current-tracker*
+                         :name (second subform)
+                         :type :method
+                         :file (file parser)
+                         :package (current-package parser)
+                         :status (symbol-status (second subform) 
+                                                (symbol-package (second subform)))
+                         :context subform
+                         :qualifiers qualifiers
+                         :lambda-list lambda-list)))
 
                 ;; Structure/class system
                 ((member sub-op '(defclass defstruct define-condition))
@@ -111,7 +127,7 @@
                                     :package (current-package parser)
                                     :status (symbol-status name (symbol-package name))
                                     :context subform)
-                     (analyze-defclass/defstruct/condition-form parser name subform)))
+                     (analyze-defclass/defstruct/define-condition parser name subform)))
 
                 ;; Type system
                 ((eq sub-op 'deftype)
@@ -270,7 +286,7 @@
                (project-pathname (file parser)) form name))))
 
 
-(defun analyze-defpackage (parser form)
+#+ignore (defun analyze-defpackage (parser form)
   "Handle defpackage form using runtime package information.
    Records package definition, use relationships, and exports."
   (declare (special log-stream))

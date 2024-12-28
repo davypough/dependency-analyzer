@@ -1485,6 +1485,7 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((SHAPE CIRCLE))
                     DEFINITION>
                         :Name COMPUTE-AREA
                         :Context (DEFGENERIC COMPUTE-AREA
@@ -1574,6 +1575,8 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Qualifiers ((:AFTER))
+                        :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
@@ -1582,6 +1585,7 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA NUMBER) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
@@ -1590,6 +1594,7 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA STRING) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA AFTER
@@ -1601,6 +1606,8 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Qualifiers ((:AFTER))
+                        :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
@@ -1609,6 +1616,7 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA NUMBER) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
@@ -1617,6 +1625,7 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA STRING) &KEY)
 >
 WALK(ING):
   Expression: "test"
@@ -1675,6 +1684,8 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Qualifiers ((:AFTER))
+                        :Lambda-list ((DATA STRING) &KEY (LOG-LEVEL :INFO))
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
@@ -1683,6 +1694,7 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA NUMBER) &KEY)
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
@@ -1691,6 +1703,7 @@ WALK(ING):
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                        :Lambda-list ((DATA STRING) &KEY)
 >
 WALK(ING):
   Expression: 42
