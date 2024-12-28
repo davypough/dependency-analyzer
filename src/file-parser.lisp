@@ -50,175 +50,175 @@
                (terpri log-stream)))))
 
 
-(defmethod analyze-definition-form ((parser file-parser) form)
+(defun analyze-definition-form (parser form)
   "Analyze form for definitions, recording location and basic info.
    Handles all standard definition forms, setf forms, and extended definitions."
   (declare (special log-stream))
   (when (and (consp form)
              (symbolp (first form))
              (not (quoted-form-p form)))
-    (let ((op (first form)))
-      ;; Record variable definition before walking initialization
-      (when (member op '(defvar defparameter defconstant))
-        (let ((name (second form)))
-          (record-definition *current-tracker*
-                           :name name
-                           :type :variable 
-                           :file (file parser)
-                           :package (current-package parser)
-                           :status (symbol-status name (symbol-package name))
-                           :context (limit-form-size form name))))
-      
-      ;; Handle all possible definition types
-      (walk-form form
-        (lambda (subform context parent-context depth)
-          (declare (ignore context parent-context depth))
-          (when (and (consp subform)
-                     (symbolp (first subform))
-                     (not (quoted-form-p subform)))
-            (let ((sub-op (first subform)))
-              (cond
-                ;; Function/macro definitions
-                ((member sub-op '(defun defmacro))
-                   (record-definition *current-tracker*
-                                  :name (second subform)
-                                  :type (if (eq sub-op 'defun) :function :macro)
+    (walk-form form
+      (lambda (current-form context parent-context depth)
+        (declare (ignore context parent-context depth))
+        (when (and (consp current-form)
+                   (symbolp (first current-form))
+                   (not (quoted-form-p current-form)))
+          (let ((head (first current-form)))
+            (cond
+
+              ;; Variable definitions 
+              ((member head '(defvar defparameter defconstant))
+               (let ((name (second current-form)))
+                 (record-definition *current-tracker*
+                                  :name name
+                                  :type :variable 
                                   :file (file parser)
                                   :package (current-package parser)
-                                  :status (symbol-status (second subform) (symbol-package (second subform)))
-                                  :context subform))
+                                  :status (symbol-status name (symbol-package name))
+                                  :context (limit-form-size current-form name))))
 
-                ;; Proposed new section in the analyze-definition-form case form
-                ((eq sub-op 'defgeneric)
-                   (record-definition *current-tracker*
-                       :name (second subform)
-                       :type :generic-function
-                       :file (file parser)
-                       :package (current-package parser)
-                       :status (symbol-status (second subform) 
-                                              (symbol-package (second subform)))
-                       :context subform))
+              ;; Function/macro definitions
+              ((member head '(defun defmacro))
+               (record-definition *current-tracker*
+                                :name (second current-form)
+                                :type (if (eq head 'defun) :function :macro)
+                                :file (file parser)
+                                :package (current-package parser)
+                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :context current-form))
 
-                ((eq sub-op 'defmethod)
-                   (multiple-value-bind (method-name qualifiers lambda-list body)
-                                 (destructure-method-form subform)
-                     (declare (ignore method-name body))
-                     (record-definition *current-tracker*
-                         :name (second subform)
-                         :type :method
-                         :file (file parser)
-                         :package (current-package parser)
-                         :status (symbol-status (second subform) 
-                                                (symbol-package (second subform)))
-                         :context subform
-                         :qualifiers qualifiers
-                         :lambda-list lambda-list)))
+              ;; Generic function
+              ((eq head 'defgeneric)
+               (record-definition *current-tracker*
+                   :name (second current-form)
+                   :type :generic-function
+                   :file (file parser)
+                   :package (current-package parser)
+                   :status (symbol-status (second current-form) 
+                                        (symbol-package (second current-form)))
+                   :context current-form))
 
-                ;; Structure/class system
-                ((member sub-op '(defclass defstruct define-condition))
-                   (let ((name (if (and (eq sub-op 'defstruct)    ; Handle defstruct options
-                                        (consp (second subform)))
-                                 (caadr subform)               
-                                 (second subform))))
-                     (record-definition *current-tracker*
-                                    :name name
-                                    :type :structure/class/condition
-                                    :file (file parser)
-                                    :package (current-package parser)
-                                    :status (symbol-status name (symbol-package name))
-                                    :context subform)
-                     (analyze-defclass/defstruct/define-condition parser name subform)))
+              ;; Method definitions
+              ((eq head 'defmethod)
+               (multiple-value-bind (method-name qualifiers lambda-list body)
+                   (destructure-method-form current-form)
+                 (declare (ignore method-name body))
+                 (record-definition *current-tracker*
+                     :name (second current-form)
+                     :type :method
+                     :file (file parser)
+                     :package (current-package parser)
+                     :status (symbol-status (second current-form) 
+                                          (symbol-package (second current-form)))
+                     :context current-form
+                     :qualifiers qualifiers
+                     :lambda-list lambda-list)))
 
-                ;; Type system
-                ((eq sub-op 'deftype)
-                   (record-definition *current-tracker*
-                                  :name (second subform)
-                                  :type :type
+              ;; Structure/class system
+              ((member head '(defclass defstruct define-condition))
+               (let ((name (if (and (eq head 'defstruct)    ; Handle defstruct options
+                                  (consp (second current-form)))
+                             (caadr current-form)               
+                             (second current-form))))
+                 (record-definition *current-tracker*
+                                  :name name
+                                  :type :structure/class/condition
                                   :file (file parser)
                                   :package (current-package parser)
-                                  :status (symbol-status (second subform) (symbol-package (second subform)))
-                                  :context subform))
+                                  :status (symbol-status name (symbol-package name))
+                                  :context current-form)
+                 (analyze-defclass/defstruct/define-condition parser name current-form)))
 
-                ;; Package system
-                ((eq sub-op 'defpackage)
-                   (record-definition *current-tracker*
-                                  :name (second subform)  ;string designator
-                                  :type :package
-                                  :file (file parser)
-                                  :context subform))
+              ;; Type system
+              ((eq head 'deftype)
+               (record-definition *current-tracker*
+                                :name (second current-form)
+                                :type :type
+                                :file (file parser)
+                                :package (current-package parser)
+                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :context current-form))
 
-                ;; Setf forms
-                ((and (eq sub-op 'setf) 
-                      (consp (second subform))
-                      (symbolp (caadr subform))
-                      (consp (cdadr subform))
-                      (consp (cadadr subform))
-                      (eq (first (cadadr subform)) 'quote))
-                   (let ((accessor (caadr subform))
-                         (name (second (cadadr subform))))
-                     (case accessor
-                       (symbol-value 
-                         (record-definition *current-tracker*
-                                       :name name
-                                       :type :variable
-                                       :file (file parser)
-                                       :package (current-package parser)
-                                       :status (symbol-status name (symbol-package name))
-                                       :context subform))
-                       ((symbol-function fdefinition)
-                         (record-definition *current-tracker*
-                                       :name name
-                                       :type :function
-                                       :file (file parser)
-                                       :package (current-package parser)
-                                       :status (symbol-status name (symbol-package name))
-                                       :context subform))
-                       (macro-function
-                         (record-definition *current-tracker*
-                                       :name name
-                                       :type :macro
-                                       :file (file parser)
-                                       :package (current-package parser)
-                                       :status (symbol-status name (symbol-package name))
-                                       :context subform)))))
+              ;; Package system
+              ((eq head 'defpackage)
+               (record-definition *current-tracker*
+                                :name (second current-form)  ;string designator
+                                :type :package
+                                :file (file parser)
+                                :context current-form))
 
-                ;; Extended definition forms
-                ((member sub-op '(defsetf define-setf-expander))
-                   (record-definition *current-tracker*
-                                  :name (second subform)
-                                  :type :setf
-                                  :file (file parser) 
-                                  :package (current-package parser)
-                                  :status (symbol-status (second subform) (symbol-package (second subform)))
-                                  :context subform))
+              ;; Setf forms
+              ((and (eq head 'setf) 
+                    (consp (second current-form))
+                    (symbolp (caadr current-form))
+                    (consp (cdadr current-form))
+                    (consp (cadadr current-form))
+                    (eq (first (cadadr current-form)) 'quote))
+               (let ((accessor (caadr current-form))
+                     (name (second (cadadr current-form))))
+                 (case accessor
+                   (symbol-value 
+                    (record-definition *current-tracker*
+                                   :name name
+                                   :type :variable
+                                   :file (file parser)
+                                   :package (current-package parser)
+                                   :status (symbol-status name (symbol-package name))
+                                   :context current-form))
+                   ((symbol-function fdefinition)
+                    (record-definition *current-tracker*
+                                   :name name
+                                   :type :function
+                                   :file (file parser)
+                                   :package (current-package parser)
+                                   :status (symbol-status name (symbol-package name))
+                                   :context current-form))
+                   (macro-function
+                    (record-definition *current-tracker*
+                                   :name name
+                                   :type :macro
+                                   :file (file parser)
+                                   :package (current-package parser)
+                                   :status (symbol-status name (symbol-package name))
+                                   :context current-form)))))
 
-                ((eq sub-op 'define-symbol-macro)
-                   (record-definition *current-tracker*
-                                  :name (second subform)
-                                  :type :symbol-macro
-                                  :file (file parser)
-                                  :package (current-package parser)
-                                  :status (symbol-status (second subform) (symbol-package (second subform)))
-                                  :context subform))
+              ;; Extended definition forms
+              ((member head '(defsetf define-setf-expander))
+               (record-definition *current-tracker*
+                                :name (second current-form)
+                                :type :setf
+                                :file (file parser) 
+                                :package (current-package parser)
+                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :context current-form))
 
-                ((member sub-op '(define-modify-macro define-compiler-macro))
-                   (record-definition *current-tracker*
-                                  :name (second subform)
-                                  :type :macro
-                                  :file (file parser)
-                                  :package (current-package parser)
-                                  :status (symbol-status (second subform) (symbol-package (second subform)))
-                                  :context subform))
+              ((eq head 'define-symbol-macro)
+               (record-definition *current-tracker*
+                                :name (second current-form)
+                                :type :symbol-macro
+                                :file (file parser)
+                                :package (current-package parser)
+                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :context current-form))
 
-                ((eq sub-op 'define-method-combination)
-                   (record-definition *current-tracker*
-                                  :name (second subform)
-                                  :type :function
-                                  :file (file parser)
-                                  :package (current-package parser)
-                                  :status (symbol-status (second subform) (symbol-package (second subform)))
-                                  :context subform))))))))
-  form))
+              ((member head '(define-modify-macro define-compiler-macro))
+               (record-definition *current-tracker*
+                                :name (second current-form)
+                                :type :macro
+                                :file (file parser)
+                                :package (current-package parser)
+                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :context current-form))
+
+              ((eq head 'define-method-combination)
+               (record-definition *current-tracker*
+                                :name (second current-form)
+                                :type :function
+                                :file (file parser)
+                                :package (current-package parser)
+                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :context current-form))))))))
+  form)
 
 
 (defmethod analyze-reference-form ((parser file-parser) form)

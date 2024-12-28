@@ -88,6 +88,13 @@ REFERENCE>
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFPARAMETER-VARIABLE*
+                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
 
 REFERENCE>
     :Name +DEFCONSTANT-VARIABLE+
