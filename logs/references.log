@@ -11,7 +11,7 @@ REFERENCE>
                ARG
                ...)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -34,7 +34,7 @@ REFERENCE>
     :Name *DEFVAR-VARIABLE*
     :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -56,7 +56,7 @@ REFERENCE>
 REFERENCE>
     :Name *DEFVAR-VARIABLE*
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -78,7 +78,7 @@ REFERENCE>
 REFERENCE>
     :Name *DEFPARAMETER-VARIABLE*
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -99,7 +99,7 @@ REFERENCE>
 REFERENCE>
     :Name +DEFCONSTANT-VARIABLE+
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -113,7 +113,7 @@ REFERENCE>
 REFERENCE>
     :Name *SYMBOL-VALUE-VARIABLE*
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -129,7 +129,7 @@ REFERENCE>
     :Name DEFUN-NAME
     :Context (DEFUN-NAME)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -144,7 +144,7 @@ REFERENCE>
     :Name DEFUN-NAME
     :Context (DEFUN-NAME)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -159,7 +159,7 @@ REFERENCE>
     :Name DEFUN-NAME
     :Context (DEFUN-NAME)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -174,7 +174,7 @@ REFERENCE>
     :Name SYMBOL-FUNCTION-NAME
     :Context 'SYMBOL-FUNCTION-NAME
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -190,7 +190,7 @@ REFERENCE>
     :Name FDEFINITION-FUNCTION-NAME
     :Context 'FDEFINITION-FUNCTION-NAME
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -206,7 +206,7 @@ REFERENCE>
     :Name CIRCLE-RADIUS
     :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -221,7 +221,7 @@ REFERENCE>
     :Name MAKE-CIRCLE
     :Context (MAKE-CIRCLE)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -236,7 +236,7 @@ REFERENCE>
     :Name MAKE-CIRCLE
     :Context (MAKE-CIRCLE :RADIUS 1)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -251,7 +251,7 @@ REFERENCE>
     :Name MAKE-CIRCLE
     :Context (MAKE-CIRCLE)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -266,7 +266,7 @@ REFERENCE>
     :Name PERSON.AGE
     :Context (PERSON.AGE (MAKE-PERSON))
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -282,7 +282,7 @@ REFERENCE>
     :Name MAKE-PERSON
     :Context (MAKE-PERSON)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -298,7 +298,7 @@ REFERENCE>
     :Name COMPUTE-AREA
     :Context #'COMPUTE-AREA
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -316,7 +316,7 @@ REFERENCE>
     :Name DEFMACRO-NAME
     :Context (DEFMACRO-NAME)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -331,7 +331,7 @@ REFERENCE>
     :Name MACRO-FUNCTION-NAME
     :Context (MACRO-FUNCTION-NAME)
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -347,7 +347,7 @@ REFERENCE>
     :Name CONDITION-NAME
     :Context 'CONDITION-NAME
     :File /source/single-pkg-refs.lisp
-    :Package "USER-MAIN-PACKAGE"
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>

@@ -186,11 +186,11 @@
   "Record a package dependency cycle."
   (pushnew cycle-chain (package-cycles tracker) :test #'string=))
 
-(defmethod get-file-cycles (&optional tracker)
+(defun get-file-cycles (&optional tracker)
   "Get all recorded file dependency cycles."
   (file-cycles (ensure-tracker tracker)))
 
-(defmethod get-package-cycles (&optional tracker)
+(defun get-package-cycles (&optional tracker)
   "Get all recorded package dependency cycles."
   (package-cycles (ensure-tracker tracker)))
 
@@ -213,7 +213,7 @@
       (record-reference *current-tracker*
                   :name from-sym
                   :file (file parser)
-                  :package from-pkg-name
+                  :package (current-package parser)  ;from-pkg-name
                   :visibility :IMPORTED))))
 
 
@@ -262,7 +262,7 @@
                 :context cycle)))))
 
 
-(defmethod analyze-subform ((parser file-parser) form)
+(defun analyze-subform (parser form)
   "Analyze a single form for symbol references, recording only references to
    symbols that have definition records. Recursively examines all subforms including
    array elements and hash tables."
@@ -290,7 +290,7 @@
          (record-reference *current-tracker*
                   :name form
                   :file current-file
-                  :package pkg-name
+                  :package (current-package parser)  ;pkg-name
                   :visibility visibility))))
     ;(cons
     ; (analyze-form parser form))
@@ -911,7 +911,7 @@
         (record-reference *current-tracker*
                   :name subform
                   :file (file parser)
-                  :package pkg-name
+                  :package (current-package parser)  ;pkg-name
                   :context (limit-form-size context pkg-name)
                   :visibility visibility
                   :definitions found-defs)
@@ -951,7 +951,7 @@
               (record-reference *current-tracker*
                               :name subform
                               :file (file parser)
-                              :package pkg-name 
+                              :package (current-package parser)  ;pkg-name 
                               :context (limit-form-size context pkg-name)
                               :visibility visibility
                               :definitions (cons gf-def method-defs)
@@ -1249,3 +1249,34 @@
                             :package package
                             :status :EXTERNAL
                             :context context)))))))
+
+
+(defun analyze-defmethod (parser name source-form)
+  "Verify runtime method state matches source definition.
+   Records anomalies for runtime/source mismatches."
+  (declare (special log-stream))
+  (multiple-value-bind (method-name qualifiers lambda-list body)
+      (destructure-method-form source-form)
+    (declare (ignore method-name body))
+    (let* ((specs (extract-specializers lambda-list))
+           (gf (and (fboundp name) 
+                    (fdefinition name)))
+           (runtime-method (and (typep gf 'standard-generic-function)
+                              (find-method gf qualifiers specs nil))))
+      (cond 
+        ((null gf)
+         (record-anomaly *current-tracker*
+           :name name
+           :type :method-runtime-mismatch
+           :severity :WARNING
+           :file (file parser)
+           :description "Method exists in source but generic function not found at runtime"
+           :context source-form))
+        ((null runtime-method)
+         (record-anomaly *current-tracker*
+           :name name
+           :type :method-runtime-mismatch 
+           :severity :WARNING
+           :file (file parser)
+           :description "Method exists in source but not found at runtime"
+           :context source-form))))))

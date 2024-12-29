@@ -128,15 +128,16 @@
                    (destructure-method-form current-form)
                  (declare (ignore method-name body))
                  (record-definition *current-tracker*
-                                      :name (second current-form)
-                                      :type :method
-                                      :file (file parser)
-                                      :package (current-package parser)
-                                      :status (symbol-status (second current-form) 
-                                                             (symbol-package (second current-form)))
-                                      :context current-form
-                                      :qualifiers qualifiers
-                                      :specializers (extract-specializers lambda-list))))
+                                 :name (second current-form)
+                                 :type :method
+                                 :file (file parser)
+                                 :package (current-package parser)
+                                 :status (symbol-status (second current-form) 
+                                                        (symbol-package (second current-form)))
+                                 :context current-form
+                                 :qualifiers qualifiers
+                                 :specializers (extract-specializers lambda-list))
+                 (analyze-defmethod parser (second current-form) current-form)))
 
               ;; Structure/class system
               ((member head '(defclass defstruct define-condition))
@@ -246,7 +247,7 @@
   form)
 
 
-(defmethod analyze-reference-form ((parser file-parser) form)
+(defun analyze-reference-form (parser form)
   "Analyze form recording references to definitions in different files.
    Handles references to packages (via string/keyword/uninterned-symbol) and 
    references to other defined symbols. Special handling for method calls to track
@@ -269,7 +270,7 @@
                          (record-reference *current-tracker*  ;record a package reference
                           :name norm-name
                           :file (file parser)
-                          :package norm-name 
+                          :package subform  ;norm-name 
                           :context (limit-form-size parent-context norm-name)
                           :visibility :LOCAL
                           :definitions other-file-defs))))))
