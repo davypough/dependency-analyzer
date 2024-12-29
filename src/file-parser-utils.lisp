@@ -69,11 +69,9 @@
                          (reference.arguments r)))))))
 
 
-(defun record-definition (tracker &key name type file package status context qualifiers lambda-list)
-  "Record a name definition in the tracker. Creates a single definition object and 
-   stores it under both a base key (name+package+type) and, if qualifiers/lambda-list 
-   are present, a specialized key that includes method details. Detects and records
-   duplicate definitions of the same symbol."
+(defun record-definition (tracker &key name type file package status context qualifiers specializers)
+  "Record a name definition in the tracker. For methods, qualifiers and specializers
+   are used to create a specialized lookup key. Records anomalies for duplicate definitions."
   (let* ((def (make-instance 'definition 
                             :name name
                             :type type 
@@ -81,21 +79,20 @@
                             :package package
                             :status status
                             :context context
-                            :qualifiers (when qualifiers (list qualifiers)) ; Ensure list
-                            :lambda-list lambda-list))
-         (base-key (make-tracking-key name package type))
-         (specialized-key (when (and (eq type :METHOD) lambda-list)
-                          (make-tracking-key name package type 
-                                           (ensure-list qualifiers)
-                                           (extract-specializers lambda-list))))
-         ;; For methods, use specialized key to find matches
-         (existing-defs (if specialized-key
-                           (gethash specialized-key (slot-value tracker 'definitions))
-                           (gethash base-key (slot-value tracker 'definitions))))
+                            :qualifiers qualifiers
+                            :specializers specializers))
+         ;; Generate appropriate key based on definition type
+         (key (if (eq type :METHOD)
+                 ;; Method key includes both qualifiers and specializers
+                 (make-tracking-key name package type qualifiers specializers)
+                 ;; Non-method key uses base form
+                 (make-tracking-key name package type)))
+         ;; Look for existing definitions with this key
+         (existing-defs (gethash key (slot-value tracker 'definitions)))
          ;; Filter out definitions from same file
          (other-file-defs (remove-if (lambda (d)
-                                      (equal (definition.file d) file))
-                                    existing-defs)))
+                                     (equal (definition.file d) file))
+                                   existing-defs)))
     
     ;; Check for duplicates and record anomaly if found in other files
     (when other-file-defs
@@ -109,12 +106,11 @@
                        :context (definition.context def)
                        :files (cons file def-files))))
     
-    ;; Store under both keys
-    (push def (gethash base-key (slot-value tracker 'definitions)))
-    (when specialized-key
-      (push def (gethash specialized-key (slot-value tracker 'definitions))))
-    ;; Add to file map and exports  
+    ;; Store definition under the computed key
+    (push def (gethash key (slot-value tracker 'definitions)))
+    ;; Add to file map
     (push def (gethash file (slot-value tracker 'file-map)))
+    ;; Record exports for non-package definitions
     (unless (eq type :package)
       (when (eq (symbol-status name package) :exported)
         (record-export tracker package name)))

@@ -29,16 +29,15 @@
    (package :initarg :package :reader definition.package :type (or string symbol))
    (status :initarg :status :reader definition.status :type (or keyword null))
    (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
-   (lambda-list :initarg :lambda-list :reader definition.lambda-list :type list))
+   (specializers :initarg :specializers :reader definition.specializers :type list))
   (:default-initargs :name nil :context nil :type nil :file nil :package nil
-                     :status nil :qualifiers nil :lambda-list nil)
-  (:documentation "Data structure holding info about a lisp definition; eg, defun, defvar, or package. For method definitions, lambda-list slot holds the full method lambda list."))
+                    :status nil :qualifiers nil :specializers nil)
+  (:documentation "Data structure holding info about a lisp definition. For methods, specializers slot holds the method's parameter specializer types."))
 
 
 (defmethod print-object ((object definition) stream)
-  "Print a definition object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
-    (with-slots (name context type file package status qualifiers lambda-list) object
+    (with-slots (name context type file package status qualifiers specializers) object
       (format-if stream "    :Name ~A"       " " name)
       (format-if stream "    :Context ~A"    " " context)
       (format-if stream "    :Type ~S"       " " type)
@@ -46,12 +45,13 @@
       (format-if stream "    :Package ~S"    " " package)
       (format-if stream "    :Status ~S"     " " status)
       (format-if stream "    :Qualifiers ~S" " " qualifiers)
-      (format-if stream "    :Lambda-list ~S" " " lambda-list))))
+      (format-if stream "    :Specializers ~S" " " specializers))))
 
 
 (defun print-definition (def &optional (stream *standard-output*) (indent 0))
   "Print a readable representation of a definition. Similar to print-object,
-   but typically used for logging to a file. Omit null slots."
+   but typically used for logging to a file. Omit null slots. For methods,
+   prints qualifiers and specializers."
   (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~ADEFINITION>" indent-str)
     (format-if stream "    :Name ~A" indent-str (definition.name def))
@@ -62,10 +62,7 @@
     (format-if stream "    :Package ~S" indent-str (definition.package def))
     (format-if stream "    :Status ~S" indent-str (definition.status def))
     (format-if stream "    :Qualifiers ~S" indent-str (definition.qualifiers def))
-    ;; Only print lambda list if the definition is a method
-    (format-if stream "    :Lambda-list ~S" indent-str
-               (and (eq (definition.type def) :METHOD)
-                    (definition.lambda-list def)))
+    (format-if stream "    :Specializers ~S" indent-str (definition.specializers def))
     (format stream "~%")))
 
 

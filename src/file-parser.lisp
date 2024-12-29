@@ -128,15 +128,15 @@
                    (destructure-method-form current-form)
                  (declare (ignore method-name body))
                  (record-definition *current-tracker*
-                     :name (second current-form)
-                     :type :method
-                     :file (file parser)
-                     :package (current-package parser)
-                     :status (symbol-status (second current-form) 
-                                          (symbol-package (second current-form)))
-                     :context current-form
-                     :qualifiers qualifiers
-                     :lambda-list lambda-list)))
+                                      :name (second current-form)
+                                      :type :method
+                                      :file (file parser)
+                                      :package (current-package parser)
+                                      :status (symbol-status (second current-form) 
+                                                             (symbol-package (second current-form)))
+                                      :context current-form
+                                      :qualifiers qualifiers
+                                      :specializers (extract-specializers lambda-list))))
 
               ;; Structure/class system
               ((member head '(defclass defstruct define-condition))
