@@ -533,7 +533,7 @@
           (*print-length* 10)      ; Limit list output
           (*print-level* 5))       ; Limit nesting output
       (format log-stream "~&-------------------------------~%")
-      (walk form nil nil 0))))
+      (walk form form form 0))))
 
 
 (defun limit-form-size (form pkg-name &key (max-depth 8) (max-elements 20))

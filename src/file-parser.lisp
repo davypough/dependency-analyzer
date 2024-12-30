@@ -289,9 +289,9 @@
                         (analyze-function-call-context subform context) ;operator?
                       (if call-p
                           ;; Check if method first & process
-                          (handle-method-call subform parser pkg-name context visibility name args)
+                          (handle-method-call subform parser pkg-name parent-context visibility name args)
                           ;; Not a method call - check all standard definition types
-                          (try-definition-types subform pkg-name parser context visibility)))))))))
+                          (try-definition-types subform pkg-name parser parent-context visibility)))))))))
     ;; Walk the form applying handler
     (walk-form form #'handle-reference)))
 
