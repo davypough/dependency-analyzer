@@ -1626,7 +1626,7 @@ WALK(ING):
                     DEFINITION>
                         :Name MACRO-FUNCTION-NAME
                         :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                                         (LAMBDA (FORM ENV) FORM ENV 0))
+                                         (LAMBDA (FORM ENV) FORM ENV 0 ...))
                         :Type :MACRO
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">

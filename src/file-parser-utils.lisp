@@ -1181,7 +1181,7 @@
                            :name nickname
                            :type :PACKAGE  
                            :file file
-                           :context context))
+                           :context (limit-form-size context name)))  ;context))
         
         ;; Fall back to parsing for make-package only
         (when (eq form-type 'make-package)
@@ -1195,7 +1195,7 @@
                                       :name nick
                                       :type :PACKAGE
                                       :file file
-                                      :context context)))))
+                                      :context (limit-form-size context name))))))  ;context)))))
     
     ;; Process exports only when package exists
     (when package
@@ -1208,7 +1208,7 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context context))
+                            :context (limit-form-size context name)))  ;context))
           ((macro-function sym)  ; Macro binding - check before fboundp
            (record-definition *current-tracker*
                             :name sym
@@ -1216,7 +1216,7 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context context))
+                            :context (limit-form-size context name)))  ;context))
           ((fboundp sym)  ; Function binding (not macro)
            (if (typep (symbol-function sym) 'standard-generic-function)
                (record-definition *current-tracker*
@@ -1225,14 +1225,14 @@
                                 :file file
                                 :package package
                                 :status :EXTERNAL
-                                :context context)
+                                :context (limit-form-size context name))  ;context)
                (record-definition *current-tracker*
                                 :name sym
                                 :type :FUNCTION
                                 :file file
                                 :package package
                                 :status :EXTERNAL
-                                :context context)))
+                                :context (limit-form-size context name))))  ;context)))
           ((find-class sym nil)  ; Class definition
            (record-definition *current-tracker*
                             :name sym
@@ -1240,7 +1240,7 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context context))
+                            :context (limit-form-size context name)))  ;context))
           ((ignore-errors (subtypep nil sym))  ; Type definition
            (record-definition *current-tracker*
                             :name sym
@@ -1248,7 +1248,7 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context context)))))))
+                            :context (limit-form-size context name))))))))  ;context)))))))
 
 
 (defun analyze-defmethod (parser name source-form)

@@ -109,7 +109,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))
+                                :context (limit-form-size current-form (second current-form))))
 
               ;; Generic function
               ((eq head 'defgeneric)
@@ -120,7 +120,7 @@
                    :package (current-package parser)
                    :status (symbol-status (second current-form) 
                                         (symbol-package (second current-form)))
-                   :context current-form))
+                   :context (limit-form-size current-form (second current-form))))
 
               ;; Method definitions
               ((eq head 'defmethod)
@@ -134,7 +134,7 @@
                                  :package (current-package parser)
                                  :status (symbol-status (second current-form) 
                                                         (symbol-package (second current-form)))
-                                 :context current-form
+                                 :context (limit-form-size current-form (second current-form))
                                  :qualifiers qualifiers
                                  :specializers (extract-specializers lambda-list))
                  (analyze-defmethod parser (second current-form) current-form)))
@@ -151,7 +151,7 @@
                                   :file (file parser)
                                   :package (current-package parser)
                                   :status (symbol-status name (symbol-package name))
-                                  :context current-form)
+                                  :context (limit-form-size current-form name))
                  (analyze-defclass/defstruct/define-condition parser name current-form)))
 
               ;; Type system
@@ -162,7 +162,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))
+                                :context (limit-form-size current-form (second current-form))))
 
               ;; Package system
               ((member head '(defpackage make-package))
@@ -170,7 +170,7 @@
                      :name (second current-form)  ;string/symbol designator
                      :type :package
                      :file (file parser)
-                     :context current-form)
+                     :context (limit-form-size current-form (second current-form)))
                (analyze-defpackage/make-package parser (second current-form) current-form))
 
               ;; Setf forms
@@ -190,7 +190,7 @@
                                    :file (file parser)
                                    :package (current-package parser)
                                    :status (symbol-status name (symbol-package name))
-                                   :context current-form))
+                                   :context (limit-form-size current-form name)))
                    ((symbol-function fdefinition)
                     (record-definition *current-tracker*
                                    :name name
@@ -198,7 +198,7 @@
                                    :file (file parser)
                                    :package (current-package parser)
                                    :status (symbol-status name (symbol-package name))
-                                   :context current-form))
+                                   :context (limit-form-size current-form name)))
                    (macro-function
                     (record-definition *current-tracker*
                                    :name name
@@ -206,7 +206,7 @@
                                    :file (file parser)
                                    :package (current-package parser)
                                    :status (symbol-status name (symbol-package name))
-                                   :context current-form)))))
+                                   :context (limit-form-size current-form name))))))
 
               ;; Extended definition forms
               ((member head '(defsetf define-setf-expander))
@@ -216,7 +216,7 @@
                                 :file (file parser) 
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))
+                                :context (limit-form-size current-form (second current-form))))
 
               ((eq head 'define-symbol-macro)
                (record-definition *current-tracker*
@@ -225,7 +225,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))
+                                :context (limit-form-size current-form (second current-form))))
 
               ((member head '(define-modify-macro define-compiler-macro))
                (record-definition *current-tracker*
@@ -234,7 +234,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))
+                                :context (limit-form-size current-form (second current-form))))
 
               ((eq head 'define-method-combination)
                (record-definition *current-tracker*
@@ -243,7 +243,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))))))))
+                                :context (limit-form-size current-form (second current-form))))))))))
   form)
 
 

@@ -174,7 +174,7 @@ DEFINITION>
 DEFINITION>
     :Name COMPUTE-AREA
     :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-               (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+               (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
@@ -212,8 +212,9 @@ DEFINITION>
 DEFINITION>
     :Name PROCESS-DATA
     :Context (DEFMETHOD PROCESS-DATA AFTER
-                        ((DATA STRING) &KEY (LOG-LEVEL INFO))
-               (WHEN (EQ LOG-LEVEL INFO) (FORMAT NIL LOG: ~A DATA)))
+                        ((DATA STRING) &KEY (LOG-LEVEL INFO ...))
+               (WHEN (EQ LOG-LEVEL INFO) (FORMAT NIL LOG: ~A DATA))
+               ...)
     :Type :METHOD
     :File /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
@@ -232,7 +233,7 @@ DEFINITION>
 DEFINITION>
     :Name MACRO-FUNCTION-NAME
     :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                     (LAMBDA (FORM ENV) FORM ENV 0))
+                     (LAMBDA (FORM ENV) FORM ENV 0 ...))
     :Type :MACRO
     :File /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
