@@ -94,6 +94,38 @@ REFERENCE>
                         :Status :INTERNAL
 
 REFERENCE>
+    :Name SYMBOL-FUNCTION-NAME
+    :Context (FUNCALL 'SYMBOL-FUNCTION-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name SYMBOL-FUNCTION-NAME
+                        :Context (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
+                                         (LAMBDA () 0))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name FDEFINITION-FUNCTION-NAME
+    :Context (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name FDEFINITION-FUNCTION-NAME
+                        :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
+                                         (LAMBDA () 0))
+                        :Type :FUNCTION
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
     :Name CIRCLE-RADIUS
     :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
     :File /source/single-pkg-refs.lisp
@@ -262,6 +294,23 @@ REFERENCE>
                         :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                                          (LAMBDA (FORM ENV) FORM ENV 0 ...))
                         :Type :MACRO
+                        :File /source/single-pkg-defs.lisp
+                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name CONDITION-NAME
+    :Context (ERROR 'CONDITION-NAME)
+    :File /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Visibility LOCAL
+    :Definitions
+                    DEFINITION>
+                        :Name CONDITION-NAME
+                        :Context (DEFINE-CONDITION CONDITION-NAME
+                                     NIL
+                                     NIL)
+                        :Type :STRUCTURE/CLASS/CONDITION
                         :File /source/single-pkg-defs.lisp
                         :Package #<PACKAGE "USER-MAIN-PACKAGE">
                         :Status :INTERNAL

@@ -428,26 +428,25 @@
 
 
 (defun skip-item-p (item)
-  "Return T if item should be skipped during reference analysis.
-   Skips:
-   - NIL and numbers and strings
-   - Keywords 
-   - Common Lisp package symbols
-   - Quoted forms ('x and #'x)
-   - No compound forms are skipped"
+  "Return T if item should be skipped during reference analysis."
   (or (null item)
       (numberp item) 
       (stringp item)
       (keywordp item)
       (cl-symbol-p item)
-      (quoted-form-p item)))
+      ;; Only skip quotes that aren't function names
+      (and (quoted-form-p item)
+           (not (and (consp item)
+                    (eq (car item) 'quote)
+                    (symbolp (cadr item)))))))
 
 
 (defun check-package-reference (symbol parser tracker context parent-context)
-  "Check symbol reference visibility using runtime package state.
-   Returns symbol visibility (:LOCAL :INHERITED :IMPORTED).
-   Records anomalies for unqualified cross-package references."
-  (let* ((sym-pkg (symbol-package symbol))
+  "Check symbol reference visibility using runtime package state."
+  (let* ((sym-pkg (symbol-package (if (and (consp symbol)
+                                         (eq (car symbol) 'quote))
+                                    (cadr symbol)
+                                    symbol)))
          (cur-pkg (current-package parser))
          (pkg-name (if sym-pkg 
                       (package-name sym-pkg)
@@ -911,14 +910,16 @@
 
 
 (defun try-definition-types (subform pkg-name parser context visibility)
-  "Records references for symbols defined in other files.
-   Since code is precompiled, all references are known to be valid.
-   Returns list of definitions from other files that were referenced."
-  (let ((found-defs nil))
+  "Records references for symbols defined in other files."
+  (let ((found-defs nil)
+        (name (if (and (consp subform) 
+                      (eq (car subform) 'quote))
+                 (cadr subform)  ; Get symbol from quote
+                 subform)))
     ;; Skip slot names which are defined in current file
-    (unless (slot-definition-p subform context)
+    (unless (slot-definition-p name context)
       (dolist (try-type +valid-definition-types+)
-        (let* ((key (make-tracking-key subform pkg-name try-type))
+        (let* ((key (make-tracking-key name pkg-name try-type))
                (defs (gethash key (slot-value *current-tracker* 'definitions))))
           (dolist (def defs)
             (unless (equal (definition.file def) (file parser))
@@ -926,13 +927,12 @@
     
     (when found-defs
       (record-reference *current-tracker*
-                       :name subform
+                       :name name
                        :file (file parser)
                        :package (current-package parser)
                        :context (limit-form-size context pkg-name)
                        :visibility visibility
                        :definitions found-defs))
-    
     found-defs))
 
 

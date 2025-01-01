@@ -81,11 +81,15 @@
               (parse-package-symbols-in-file file-parser))))
 
         ;; Post-pass analysis
-        (detect-unused-definitions *current-tracker*)
+        ;(detect-unused-definitions *current-tracker*)  ;maybe enhance later
         (detect-orphaned-methods *current-tracker*)
         (detect-redundant-package-uses *current-tracker*)
         (detect-shadowed-definitions *current-tracker*)
         (detect-qualified-internal-references *current-tracker*)
+        (detect-circular-type-dependencies *current-tracker*)
+        (detect-inline-package-references *current-tracker*)
+        (detect-indirect-slot-access *current-tracker*)
+        (detect-cross-file-internal-references *current-tracker*)
 
         ;; Log final definitions, references, anomalies
         (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output

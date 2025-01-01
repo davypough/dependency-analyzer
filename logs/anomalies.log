@@ -3,148 +3,290 @@ Filename: ANOMALIES.LOG
 The list of all anomalies detected during dependency analysis of the test-project project.
 
 ANOMALY>
-    :Name "::"
-    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
-    :Severity :ERROR
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description Method defined for nonexistent generic function ::
-
-ANOMALY>
-    :Name "::"
-    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
-    :Severity :ERROR
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description Method defined for nonexistent generic function ::
-
-ANOMALY>
-    :Name "::"
-    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
-    :Severity :ERROR
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description Method defined for nonexistent generic function ::
-
-ANOMALY>
-    :Name "::"
-    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
-    :Severity :ERROR
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description Method defined for nonexistent generic function ::
-
-
-ANOMALY>
-    :Name CIRCLE-P
-    :Type :UNUSED-DEFINITION
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION CIRCLE-P is never referenced
-
-ANOMALY>
-    :Name COPY-CIRCLE
-    :Type :UNUSED-DEFINITION
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION COPY-CIRCLE is never referenced
-
-ANOMALY>
-    :Name COPY-PERSON
-    :Type :UNUSED-DEFINITION
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION COPY-PERSON is never referenced
-
-ANOMALY>
-    :Name FDEFINITION-FUNCTION-NAME
-    :Type :UNUSED-DEFINITION
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION FDEFINITION-FUNCTION-NAME is never referenced
-
-ANOMALY>
-    :Name FUNCTION-WITH-CONDITION
-    :Type :UNUSED-DEFINITION
+    :Name *DEFPARAMETER-VARIABLE*
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context *DEFPARAMETER-VARIABLE*
     :Severity :WARNING
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION FUNCTION-WITH-CONDITION is never referenced
+    :Description Reference to internal symbol *DEFPARAMETER-VARIABLE* from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
 
 ANOMALY>
-    :Name MY-FUNCTION
-    :Type :UNUSED-DEFINITION
+    :Name *DEFPARAMETER-VARIABLE*
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context *DEFPARAMETER-VARIABLE*
     :Severity :WARNING
     :Location /source/single-pkg-refs.lisp
     :Files /source/single-pkg-refs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION MY-FUNCTION is never referenced
+    :Description Reference to internal symbol *DEFPARAMETER-VARIABLE* from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
 
 ANOMALY>
-    :Name PERSON-P
-    :Type :UNUSED-DEFINITION
+    :Name *DEFVAR-VARIABLE*
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context *DEFVAR-VARIABLE*
     :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION PERSON-P is never referenced
+    :Description Reference to internal symbol *DEFVAR-VARIABLE* from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
 
 ANOMALY>
-    :Name SYMBOL-FUNCTION-NAME
-    :Type :UNUSED-DEFINITION
+    :Name *DEFVAR-VARIABLE*
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context *DEFVAR-VARIABLE*
     :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description FUNCTION SYMBOL-FUNCTION-NAME is never referenced
+    :Description Reference to internal symbol *DEFVAR-VARIABLE* from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
 
 ANOMALY>
-    :Name PROCESS-DATA
-    :Type :UNUSED-DEFINITION
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context *SYMBOL-VALUE-VARIABLE*
     :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description METHOD PROCESS-DATA is never referenced
+    :Description Reference to internal symbol *SYMBOL-VALUE-VARIABLE* from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
 
 ANOMALY>
-    :Name CIRCLE
-    :Type :UNUSED-DEFINITION
+    :Name +DEFCONSTANT-VARIABLE+
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context +DEFCONSTANT-VARIABLE+
     :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description STRUCTURE/CLASS/CONDITION CIRCLE is never referenced
+    :Description Reference to internal symbol +DEFCONSTANT-VARIABLE+ from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name CIRCLE-RADIUS
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol CIRCLE-RADIUS from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name COMPUTE-AREA
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE ...))
+               ARG
+               ...)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol COMPUTE-AREA from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name COMPUTE-AREA
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE ...))
+               ARG
+               ...)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol COMPUTE-AREA from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
 
 ANOMALY>
     :Name CONDITION-NAME
-    :Type :UNUSED-DEFINITION
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (ERROR 'CONDITION-NAME)
     :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description STRUCTURE/CLASS/CONDITION CONDITION-NAME is never referenced
+    :Description Reference to internal symbol CONDITION-NAME from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
 
 ANOMALY>
-    :Name PERSON
-    :Type :UNUSED-DEFINITION
+    :Name DEFMACRO-NAME
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (DEFMACRO-NAME)
     :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol DEFMACRO-NAME from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name DEFUN-NAME
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (DEFUN-NAME)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol DEFUN-NAME from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name FDEFINITION-FUNCTION-NAME
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (FUNCALL 'FDEFINITION-FUNCTION-NAME)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol FDEFINITION-FUNCTION-NAME from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name MACRO-FUNCTION-NAME
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (MACRO-FUNCTION-NAME)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol MACRO-FUNCTION-NAME from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name MAKE-CIRCLE
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol MAKE-CIRCLE from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name MAKE-CIRCLE
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (COMPUTE-AREA (MAKE-CIRCLE))
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol MAKE-CIRCLE from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name MAKE-PERSON
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (PERSON.AGE (MAKE-PERSON))
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol MAKE-PERSON from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name PERSON.AGE
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (PERSON.AGE (MAKE-PERSON))
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol PERSON.AGE from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol PROCESS-DATA from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol PROCESS-DATA from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol PROCESS-DATA from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (PROCESS-DATA 42)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol PROCESS-DATA from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (PROCESS-DATA 42)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol PROCESS-DATA from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+ANOMALY>
+    :Name SYMBOL-FUNCTION-NAME
+    :Type :CROSS-FILE-INTERNAL-REFERENCE
+    :Context (FUNCALL 'SYMBOL-FUNCTION-NAME)
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Reference to internal symbol SYMBOL-FUNCTION-NAME from /source/single-pkg-defs.lisp. Consider exporting if intended for external use
+
+
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
     :Location /source/single-pkg-defs.lisp
     :Files /source/single-pkg-defs.lisp
     :Package #<PACKAGE "USER-MAIN-PACKAGE">
-    :Description STRUCTURE/CLASS/CONDITION PERSON is never referenced
+    :Description Method defined for nonexistent generic function ::
+
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Method defined for nonexistent generic function ::
+
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Method defined for nonexistent generic function ::
+
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Method defined for nonexistent generic function ::
 
 
