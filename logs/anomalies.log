@@ -2,3 +2,149 @@ Filename: ANOMALIES.LOG
 
 The list of all anomalies detected during dependency analysis of the test-project project.
 
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Method defined for nonexistent generic function ::
+
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Method defined for nonexistent generic function ::
+
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Method defined for nonexistent generic function ::
+
+ANOMALY>
+    :Name "::"
+    :Type :SPECIALIZED-METHOD-WITHOUT-GENERIC
+    :Severity :ERROR
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description Method defined for nonexistent generic function ::
+
+
+ANOMALY>
+    :Name CIRCLE-P
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION CIRCLE-P is never referenced
+
+ANOMALY>
+    :Name COPY-CIRCLE
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION COPY-CIRCLE is never referenced
+
+ANOMALY>
+    :Name COPY-PERSON
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION COPY-PERSON is never referenced
+
+ANOMALY>
+    :Name FDEFINITION-FUNCTION-NAME
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION FDEFINITION-FUNCTION-NAME is never referenced
+
+ANOMALY>
+    :Name FUNCTION-WITH-CONDITION
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION FUNCTION-WITH-CONDITION is never referenced
+
+ANOMALY>
+    :Name MY-FUNCTION
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-refs.lisp
+    :Files /source/single-pkg-refs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION MY-FUNCTION is never referenced
+
+ANOMALY>
+    :Name PERSON-P
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION PERSON-P is never referenced
+
+ANOMALY>
+    :Name SYMBOL-FUNCTION-NAME
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description FUNCTION SYMBOL-FUNCTION-NAME is never referenced
+
+ANOMALY>
+    :Name PROCESS-DATA
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description METHOD PROCESS-DATA is never referenced
+
+ANOMALY>
+    :Name CIRCLE
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description STRUCTURE/CLASS/CONDITION CIRCLE is never referenced
+
+ANOMALY>
+    :Name CONDITION-NAME
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description STRUCTURE/CLASS/CONDITION CONDITION-NAME is never referenced
+
+ANOMALY>
+    :Name PERSON
+    :Type :UNUSED-DEFINITION
+    :Severity :WARNING
+    :Location /source/single-pkg-defs.lisp
+    :Files /source/single-pkg-defs.lisp
+    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :Description STRUCTURE/CLASS/CONDITION PERSON is never referenced
+
+

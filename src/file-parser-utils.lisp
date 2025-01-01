@@ -936,40 +936,6 @@
     found-defs))
 
 
-#+ignore (defun try-definition-types (subform pkg-name parser context visibility)
-  "Attempts to find definitions for a given symbol in various definition types.
-   Only records references for inter-file dependencies."
-  (let ((found-defs nil)
-        (has-def-in-current-file nil))
-    (if (slot-definition-p subform context)  ; Add this check
-        (setf has-def-in-current-file t)     ; Treat slot names as defined locally
-        (dolist (try-type +valid-definition-types+)
-          (let* ((key (make-tracking-key subform pkg-name try-type))
-                 (defs (gethash key (slot-value *current-tracker* 'definitions))))
-            (dolist (def defs)
-              (if (equal (definition.file def) (file parser))
-                  (setf has-def-in-current-file t)
-                  (push def found-defs))))))
-    
-    (cond (found-defs
-           (record-reference *current-tracker*
-                           :name subform
-                           :file (file parser)
-                           :package (current-package parser)
-                           :context (limit-form-size context pkg-name)
-                           :visibility visibility
-                           :definitions found-defs))
-          ((not has-def-in-current-file)
-           (record-anomaly *current-tracker*
-                         :name subform
-                         :type :undefined-reference 
-                         :severity :ERROR
-                         :file (file parser)
-                         :package (current-package parser)
-                         :description (format nil "Reference to undefined symbol ~A" subform)
-                         :context (limit-form-size context pkg-name))))))
-
-
 (defun handle-method-call (subform parser pkg-name context visibility name args)
   "Handles analysis and recording of method calls.
    Creates reference record for verified method calls."

@@ -82,6 +82,135 @@
           namestring))))
 
 
+(defun detect-unused-definitions (tracker)
+  "Find definitions that are never referenced."
+  (let ((used-defs (make-hash-table :test 'equal)))
+    ;; Mark all referenced definitions
+    (maphash (lambda (key refs)
+               (declare (ignore key))
+               (dolist (ref refs)
+                 (dolist (def (reference.definitions ref))
+                   (setf (gethash def used-defs) t))))
+             (slot-value tracker 'references))
+    
+    ;; Find unused definitions
+    (maphash (lambda (key defs)
+               (declare (ignore key))
+               (dolist (def defs)
+                 (unless (or (gethash def used-defs)
+                           (eq (definition.type def) :package))
+                   (record-anomaly tracker
+                    :name (definition.name def)
+                    :type :unused-definition
+                    :severity :warning 
+                    :file (definition.file def)
+                    :package (definition.package def)
+                    :description (format nil "~A ~A is never referenced"
+                                      (definition.type def)
+                                      (definition.name def))))))
+             (slot-value tracker 'definitions))))
+
+
+(defun detect-orphaned-methods (tracker)
+  "Find methods defined without corresponding generic functions."
+  (maphash (lambda (key defs)
+             (let ((name (first (split-sequence:split-sequence key "::"))))
+               (dolist (def defs)
+                 (when (eq (definition.type def) :method)
+                   (let ((gf-key (make-tracking-key name 
+                                                  (definition.package def)
+                                                  :generic-function)))
+                     (unless (gethash gf-key (slot-value tracker 'definitions))
+                       (record-anomaly tracker
+                         :name name
+                         :type :specialized-method-without-generic
+                         :severity :error
+                         :file (definition.file def)
+                         :package (definition.package def)
+                         :description (format nil "Method defined for nonexistent generic function ~A"
+                                           name))))))))
+           (slot-value tracker 'definitions)))
+
+
+(defun detect-redundant-package-uses (tracker)
+  "Find packages that are used but none of their symbols are referenced."
+  (maphash (lambda (using-pkg used-pkgs)
+             (dolist (used used-pkgs)
+               (unless (eq used "CL") ; Skip common-lisp package
+                 (let ((used-symbols nil))
+                   ;; Check all references from using-pkg
+                   (maphash (lambda (key refs)
+                             (declare (ignore key))
+                             (dolist (ref refs)
+                               (when (and (eq (reference.package ref) 
+                                            (find-package using-pkg))
+                                        (equal (package-name 
+                                               (symbol-package (reference.name ref)))
+                                              used))
+                                 (setf used-symbols t))))
+                           (slot-value tracker 'references))
+                   (unless used-symbols
+                     (record-anomaly tracker
+                       :name using-pkg
+                       :type :redundant-package-use  
+                       :severity :warning
+                       :file using-pkg
+                       :package using-pkg
+                       :description (format nil "Package ~A uses but never references symbols from ~A"
+                                         using-pkg used)))))))
+           (slot-value tracker 'package-uses)))
+
+
+(defun detect-shadowed-definitions (tracker)
+  "Find definitions that shadow inherited symbols from other packages."
+  (maphash (lambda (key defs)
+             (declare (ignore key))
+             (dolist (def defs)
+               (let* ((sym-name (definition.name def))
+                     (pkg (definition.package def)))
+                 (when (and pkg (symbolp sym-name))
+                   (multiple-value-bind (inherited status)
+                       (find-symbol (string sym-name) pkg)
+                     (when (and inherited 
+                               (eq status :inherited)
+                               (not (eq (definition.type def) :package)))
+                       (record-anomaly tracker
+                         :name sym-name
+                         :type :shadowed-definition
+                         :severity :warning
+                         :file (definition.file def)
+                         :package pkg
+                         :description (format nil "Definition of ~A shadows inherited symbol from ~A"
+                                           sym-name 
+                                           (package-name (symbol-package inherited))))))))))
+           (slot-value tracker 'definitions)))
+
+
+(defun detect-qualified-internal-references (tracker)
+  "Find package-qualified references to internal symbols."
+  (maphash (lambda (key refs)
+             (declare (ignore key))
+             (dolist (ref refs)
+               (let ((sym (reference.name ref))
+                     (pkg (reference.package ref)))
+                 (when (and (symbolp sym) 
+                          pkg
+                          (not (eq pkg (symbol-package sym))) ; Different package = qualified
+                          (eq (nth-value 1 (find-symbol (string sym) 
+                                                      (symbol-package sym)))
+                              :internal))
+                   (record-anomaly tracker
+                     :name sym
+                     :type :qualified-internal-reference
+                     :severity :warning
+                     :file (reference.file ref)
+                     :package pkg
+                     :description (format nil "Package-qualified reference to internal symbol ~A:~A"
+                                       (package-name (symbol-package sym))
+                                       sym))))))
+           (slot-value tracker 'references)))
+
+
 (defun log-definitions ()
   (declare (special log-stream))
   (format log-stream "Filename: DEFINITIONS.LOG")

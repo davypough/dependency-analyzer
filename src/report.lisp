@@ -142,7 +142,7 @@
         ;; Definition-level anomalies
         (let ((def-anomalies nil))
           (maphash (lambda (type anomaly-list)
-                    (when (member type '(:undefined-reference :duplicate-definition
+                    (when (member type '(:duplicate-definition
                                        :shadowed-definition :unused-definition))
                       (setf def-anomalies 
                             (nconc def-anomalies
