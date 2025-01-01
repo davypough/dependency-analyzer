@@ -103,6 +103,7 @@
                        :severity :WARNING
                        :file file
                        :description (format nil "~A ~A defined multiple times" type name)
+                       :package package
                        :context (definition.context def)
                        :files (cons file def-files))))
     
@@ -144,7 +145,7 @@
    ref))
 
 
-(defun record-anomaly (tracker &key name type severity file description context files)
+(defun record-anomaly (tracker &key name type severity file description package context files)
   "Record a new anomaly in the dependency tracker.
    For :duplicate-definition type, files must be provided as list of all definition locations."
   (when (and (eq type :duplicate-definition)
@@ -155,7 +156,8 @@
                                :type type 
                                :severity severity 
                                :file file
-                               :description description 
+                               :description description
+                               :package package
                                :context context
                                :files (or files (list file)))))
     (push anomaly (gethash type (anomalies tracker)))
@@ -258,6 +260,7 @@
                 :type :package-cycle
                 :severity :ERROR
                 :file pkg-name
+                :package chain
                 :description (format nil "Package dependency cycle detected: ~A" chain)
                 :context cycle)))))
 
@@ -427,16 +430,17 @@
 (defun skip-item-p (item)
   "Return T if item should be skipped during reference analysis.
    Skips:
-   - NIL and keywords
-   - Common Lisp package symbols"
+   - NIL and numbers and strings
+   - Keywords 
+   - Common Lisp package symbols
+   - Quoted forms ('x and #'x)
+   - No compound forms are skipped"
   (or (null item)
-      (numberp item)
+      (numberp item) 
       (stringp item)
-      (keywordp item) 
-      (and (symbolp item)
-           (symbol-package item)
-           (eq (symbol-package item) 
-               (find-package :common-lisp)))))
+      (keywordp item)
+      (cl-symbol-p item)
+      (quoted-form-p item)))
 
 
 (defun check-package-reference (symbol parser tracker context parent-context)
@@ -497,6 +501,7 @@
                            :type :missing-in-package 
                            :severity :WARNING
                            :file (file parser)
+                           :package cur-pkg
                            :description (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
                                               symbol pkg-name)
                            :context (limit-form-size parent-context symbol))))
@@ -601,13 +606,11 @@
 
 
 (defun find-method-call-definitions (parser form)
-  "Find method and generic function definitions for a method call form.
-   Returns (values gf-def method-defs) where:
-   - gf-def is the generic function definition from our tables
-   - method-defs are the applicable method definitions from our tables
-   FORM is of form: (name . args)"
+  "Find method and generic function definitions for a method call form."
   (let* ((name (car form))
-         (args (cdr form))
+         (args (mapcar (lambda (arg)
+                        (ignore-errors (eval arg))) 
+                      (cdr form)))
          (gf (ignore-errors (fdefinition name))))
     (when (typep gf 'standard-generic-function)
       (let* ((methods (ignore-errors (compute-applicable-methods gf args)))
@@ -615,7 +618,11 @@
              (gf-key (make-tracking-key name pkg-name :GENERIC-FUNCTION))
              (gf-defs (gethash gf-key (slot-value *current-tracker* 'definitions)))
              (method-defs (loop for method in methods
-                               for method-key = (make-tracking-key name pkg-name :METHOD)
+                               for specs = (mapcar #'class-name 
+                                                 (closer-mop:method-specializers method))
+                               for method-key = (make-tracking-key name pkg-name :METHOD 
+                                                                 nil  ; qualifiers 
+                                                                 specs)
                                append (gethash method-key (slot-value *current-tracker* 'definitions)))))
         (values (car gf-defs) method-defs)))))
 
@@ -891,42 +898,111 @@
         (t (values nil nil nil nil))))))
 
 
-(defun try-definition-types (subform pkg-name parser context visibility)
-  "Attempts to find definitions for a given symbol in various definition types.
-  Records references or anomalies based on the results."
-  (declare (special log-stream))
-  (let ((found-defs nil))
-    ;; Try all valid definition types
-    (dolist (try-type +valid-definition-types+)
-      (let* ((key (make-tracking-key subform pkg-name try-type))
-             (defs (gethash key (slot-value *current-tracker* 'definitions))))
-        ;; Collect definitions from other files
-        (dolist (def defs)
-          (unless (equal (definition.file def) (file parser))
-            (push def found-defs)))))
-    
-    ;; Record the appropriate result
-    (if found-defs
-        ;; Record reference with all found definitions
-        (record-reference *current-tracker*
-                  :name subform
-                  :file (file parser)
-                  :package (current-package parser)  ;pkg-name
-                  :context (limit-form-size context pkg-name)
-                  :visibility visibility
-                  :definitions found-defs)
+(defun slot-definition-p (symbol context)
+  "Returns true if symbol appears as a struct/class slot definition."
+  (and (consp context)
+       (or (and (eq (car context) 'defstruct)
+                (consp (cdr context))
+                (or (symbolp (cadr context))
+                    (and (consp (cadr context))
+                         (symbolp (caadr context)))))
+       (member symbol (cddr context) :key (lambda (x)
+                                          (if (consp x) (car x) x))))))
 
-        ;; Record anomaly if no matching definition found
-        (record-anomaly *current-tracker*
-                :name subform
-                :type :undefined-reference 
-                :severity :WARNING
-                :file (file parser)
-                :description (format nil "Reference to undefined symbol ~A" subform)
-                :context (limit-form-size context pkg-name)))))
+
+(defun try-definition-types (subform pkg-name parser context visibility)
+  "Records references for symbols defined in other files.
+   Since code is precompiled, all references are known to be valid.
+   Returns list of definitions from other files that were referenced."
+  (let ((found-defs nil))
+    ;; Skip slot names which are defined in current file
+    (unless (slot-definition-p subform context)
+      (dolist (try-type +valid-definition-types+)
+        (let* ((key (make-tracking-key subform pkg-name try-type))
+               (defs (gethash key (slot-value *current-tracker* 'definitions))))
+          (dolist (def defs)
+            (unless (equal (definition.file def) (file parser))
+              (push def found-defs))))))
+    
+    (when found-defs
+      (record-reference *current-tracker*
+                       :name subform
+                       :file (file parser)
+                       :package (current-package parser)
+                       :context (limit-form-size context pkg-name)
+                       :visibility visibility
+                       :definitions found-defs))
+    
+    found-defs))
+
+
+#+ignore (defun try-definition-types (subform pkg-name parser context visibility)
+  "Attempts to find definitions for a given symbol in various definition types.
+   Only records references for inter-file dependencies."
+  (let ((found-defs nil)
+        (has-def-in-current-file nil))
+    (if (slot-definition-p subform context)  ; Add this check
+        (setf has-def-in-current-file t)     ; Treat slot names as defined locally
+        (dolist (try-type +valid-definition-types+)
+          (let* ((key (make-tracking-key subform pkg-name try-type))
+                 (defs (gethash key (slot-value *current-tracker* 'definitions))))
+            (dolist (def defs)
+              (if (equal (definition.file def) (file parser))
+                  (setf has-def-in-current-file t)
+                  (push def found-defs))))))
+    
+    (cond (found-defs
+           (record-reference *current-tracker*
+                           :name subform
+                           :file (file parser)
+                           :package (current-package parser)
+                           :context (limit-form-size context pkg-name)
+                           :visibility visibility
+                           :definitions found-defs))
+          ((not has-def-in-current-file)
+           (record-anomaly *current-tracker*
+                         :name subform
+                         :type :undefined-reference 
+                         :severity :ERROR
+                         :file (file parser)
+                         :package (current-package parser)
+                         :description (format nil "Reference to undefined symbol ~A" subform)
+                         :context (limit-form-size context pkg-name))))))
 
 
 (defun handle-method-call (subform parser pkg-name context visibility name args)
+  "Handles analysis and recording of method calls.
+   Creates reference record for verified method calls."
+  (declare (special log-stream))
+  (multiple-value-bind (gf-def method-defs)
+      (find-method-call-definitions parser (cons name args))
+    (if gf-def
+        ;; Have generic function - create reference with qualifiers and args
+        (let* ((name-and-quals (analyze-call-qualifiers name))
+               (qualifiers (cdr name-and-quals))
+               (typed-args (loop for arg in args
+                               collect arg
+                               collect (cond ((null arg) 'null)
+                                           ((stringp arg) 'string)
+                                           ((numberp arg) 'number)
+                                           ((keywordp arg) 'keyword)
+                                           ((symbolp arg) 'symbol)
+                                           ((consp arg) 'unanalyzed)
+                                           (t (type-of arg))))))
+          (record-reference *current-tracker*
+                          :name subform
+                          :file (file parser)
+                          :package (current-package parser)
+                          :context (limit-form-size context pkg-name)
+                          :visibility visibility
+                          :definitions (cons gf-def method-defs)
+                          :qualifiers qualifiers
+                          :arguments typed-args))
+        ;; No generic function found - try other definition types
+        (try-definition-types subform pkg-name parser context visibility))))
+
+
+#+ignore (defun handle-method-call (subform parser pkg-name context visibility name args)
   "Handles analysis and recording of method calls. Creates either:
    - A reference record if call matches an existing method 
    - An anomaly for no matching method"
@@ -963,6 +1039,7 @@
                           :type :invalid-method-call 
                           :severity :ERROR
                           :file (file parser)
+                          :package (current-package parser)
                           :description (format nil "No applicable method for ~A with arguments ~S" 
                                              name args)
                           :context (limit-form-size context pkg-name)))
@@ -1249,34 +1326,3 @@
                             :package package
                             :status :EXTERNAL
                             :context (limit-form-size context name))))))))  ;context)))))))
-
-
-(defun analyze-defmethod (parser name source-form)
-  "Verify runtime method state matches source definition.
-   Records anomalies for runtime/source mismatches."
-  (declare (special log-stream))
-  (multiple-value-bind (method-name qualifiers lambda-list body)
-      (destructure-method-form source-form)
-    (declare (ignore method-name body))
-    (let* ((specs (extract-specializers lambda-list))
-           (gf (and (fboundp name) 
-                    (fdefinition name)))
-           (runtime-method (and (typep gf 'standard-generic-function)
-                              (find-method gf qualifiers specs nil))))
-      (cond 
-        ((null gf)
-         (record-anomaly *current-tracker*
-           :name name
-           :type :method-runtime-mismatch
-           :severity :WARNING
-           :file (file parser)
-           :description "Method exists in source but generic function not found at runtime"
-           :context source-form))
-        ((null runtime-method)
-         (record-anomaly *current-tracker*
-           :name name
-           :type :method-runtime-mismatch 
-           :severity :WARNING
-           :file (file parser)
-           :description "Method exists in source but not found at runtime"
-           :context source-form))))))

@@ -121,23 +121,25 @@
    (primary-location :initarg :file :reader anomaly.location :type (or string pathname))
    (description :initarg :description :reader anomaly.description :type string)
    (context :initarg :context :reader anomaly.context :type (or symbol list))
-   (files :initarg :files :reader anomaly.files :type list))
+   (files :initarg :files :reader anomaly.files :type list)
+   (package :initarg :package :reader anomaly.package :type (or string symbol package null) :initform nil))
   (:default-initargs :name nil :type nil :severity nil :file nil :description nil
-                     :context nil :files nil)
+                    :context nil :files nil :package nil)
   (:documentation "Data structure for recording dependency analysis anomalies."))
 
 
 (defmethod print-object ((object anomaly) stream)
   "Print an anomaly object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
-    (with-slots (type name severity primary-location description context files) object
+    (with-slots (type name severity primary-location description context files package) object
       (format-if stream "    :Name ~S" "" name)
       (format-if stream "    :Type ~S" "" type)
-      (format-if stream "    :Context ~S" "" context)
+      (format-if stream "    :Context ~S" "" context) 
       (format-if stream "    :Severity ~S" "" severity)
       (format-if stream "    :Location ~A" "" (and primary-location (project-pathname primary-location)))
       (format-if stream "    :Files ~{~A~^, ~}" "" (let ((mapped (mapcar #'project-pathname files)))
                                                    (and mapped (not (null mapped)) mapped)))
+      (format-if stream "    :Package ~S" "" package)
       (format-if stream "    :Description ~S" "" description))))
 
 
@@ -153,6 +155,7 @@
                                                       (project-pathname (anomaly.location anom))))
     (format-if stream "    :Files ~{~A~^, ~}" indent-str (let ((mapped (mapcar #'project-pathname (anomaly.files anom))))
                                                         (and mapped (not (null mapped)) mapped)))
+    (format-if stream "    :Package ~A" indent-str (anomaly.package anom))
     (format-if stream "    :Description ~A" indent-str (anomaly.description anom))
     ;; Optional: a blank line after printing
     (format stream "~2%")))

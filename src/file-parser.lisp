@@ -136,8 +136,7 @@
                                                         (symbol-package (second current-form)))
                                  :context (limit-form-size current-form (second current-form))
                                  :qualifiers qualifiers
-                                 :specializers (extract-specializers lambda-list))
-                 (analyze-defmethod parser (second current-form) current-form)))
+                                 :specializers (extract-specializers lambda-list))))
 
               ;; Structure/class system
               ((member head '(defclass defstruct define-condition))
@@ -250,48 +249,44 @@
 (defun analyze-reference-form (parser form)
   "Analyze form recording references to definitions in different files.
    Handles references to packages (via string/keyword/uninterned-symbol) and 
-   references to other defined symbols. Special handling for method calls to track
-   both generic function and applicable method definitions."
+   references to other defined symbols."
   (declare (special log-stream))
   (labels ((handle-reference (subform context parent-context depth)
              (declare (ignorable subform context parent-context depth))
-             (typecase subform
-               ((or string keyword (and symbol (satisfies not-interned-p)))
-                 ;; Only process as package ref in package contexts
-                 (when (package-context-p context parent-context)
-                   (let* ((norm-name (normalize-designator subform))
-                          (key (make-tracking-key norm-name norm-name :PACKAGE))  ;; Changed from nil to norm-name
-                          (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                     ;; Collect all definitions from other files  
-                     (let ((other-file-defs (remove-if (lambda (def)  
+             (unless (skip-item-p subform)
+               (typecase subform
+                 ((or string keyword (and symbol (satisfies not-interned-p)))
+                   ;; Only process as package ref in package contexts
+                   (when (package-context-p context parent-context)
+                     (let* ((norm-name (normalize-designator subform))
+                            (key (make-tracking-key norm-name norm-name :PACKAGE))
+                            (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                       (let ((other-file-defs (remove-if (lambda (def)  
                                                          (equal (definition.file def) (file parser)))
-                                            defs)))
-                       (when other-file-defs
-                         (record-reference *current-tracker*  ;record a package reference
-                          :name norm-name
-                          :file (file parser)
-                          :package subform  ;norm-name 
-                          :context (limit-form-size parent-context norm-name)
-                          :visibility :LOCAL
-                          :definitions other-file-defs))))))
-               (symbol
-                (unless (or (null subform)           ; Skip NIL
-                            (cl-symbol-p subform)) ; Skip CL package symbols
-                  (let* ((sym-pkg (symbol-package subform))
-                         (pkg-name (if sym-pkg
-                                       (package-name sym-pkg)
-                                       (current-package-name parser)))
-                         (visibility (check-package-reference subform parser *current-tracker*
-                                                               context parent-context)))
-                    
-                    ;; Check if symbol is in function call context
-                    (multiple-value-bind (call-p name args)
-                        (analyze-function-call-context subform context) ;operator?
-                      (if call-p
-                          ;; Check if method first & process
-                          (handle-method-call subform parser pkg-name parent-context visibility name args)
-                          ;; Not a method call - check all standard definition types
-                          (try-definition-types subform pkg-name parser parent-context visibility)))))))))
+                                              defs)))
+                         (when other-file-defs
+                           (record-reference *current-tracker*
+                            :name norm-name
+                            :file (file parser)
+                            :package subform
+                            :context (limit-form-size parent-context norm-name)
+                            :visibility :LOCAL
+                            :definitions other-file-defs))))))
+                 (symbol
+                   (let* ((sym-pkg (symbol-package subform))
+                          (pkg-name (if sym-pkg
+                                      (package-name sym-pkg)
+                                      (current-package-name parser)))
+                          (visibility (check-package-reference subform parser *current-tracker*
+                                                            context parent-context)))
+                     ;; Check if symbol is in function call context
+                     (multiple-value-bind (call-p name args)
+                         (analyze-function-call-context subform context)
+                       (if call-p
+                           ;; Check if method first & process
+                           (handle-method-call subform parser pkg-name parent-context visibility name args)
+                           ;; Not a method call - check all standard definition types
+                           (try-definition-types subform pkg-name parser parent-context visibility)))))))))
     ;; Walk the form applying handler
     (walk-form form #'handle-reference)))
 
@@ -315,6 +310,7 @@
                       :type :late-package-declaration
                       :severity :ERROR
                       :file file
+                      :package (current-package parser)
                       :description "Package declaration after definitions")))
 
       ;; Analyze definitions for package consistency 
@@ -333,6 +329,7 @@
                          :type :missing-package-declaration
                          :severity :ERROR
                          :file file
+                         :package current-pkg
                          :description "Definition without package declaration"))
             
             ;; Definition in wrong package
@@ -343,6 +340,7 @@
                          :type :wrong-package-definition
                          :severity :ERROR
                          :file file
+                         :package runtime-pkg
                          :description (format nil "Symbol ~A defined in ~A but current package is ~A"
                                            def-name runtime-pkg current-pkg)))))))))
 
