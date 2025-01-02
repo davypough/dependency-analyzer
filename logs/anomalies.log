@@ -2,27 +2,3 @@ Filename: ANOMALIES.LOG
 
 The list of all anomalies detected during dependency analysis of the test-project project.
 
-ANOMALY>
-    :Name SB-IMPL::%DEFPACKAGE
-    :Type :MISSING-IN-PACKAGE
-    :Context (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
-               (SB-IMPL::%DEFPACKAGE "USER-MAIN-PACKAGE" 'NIL 'NIL 'NIL NIL
-                                     ...))
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "COMMON-LISP-USER">
-    :Description Unqualified reference to %DEFPACKAGE from package SB-IMPL without in-package declaration
-
-ANOMALY>
-    :Name SB-C:SOURCE-LOCATION
-    :Type :MISSING-IN-PACKAGE
-    :Context (SB-IMPL::%DEFPACKAGE "USER-MAIN-PACKAGE" 'NIL 'NIL 'NIL 'NIL
-                                   '("CL") 'NIL NIL ...)
-    :Severity :WARNING
-    :Location /source/single-pkg-defs.lisp
-    :Files /source/single-pkg-defs.lisp
-    :Package #<PACKAGE "COMMON-LISP-USER">
-    :Description Unqualified reference to SOURCE-LOCATION from package SB-C without in-package declaration
-
-

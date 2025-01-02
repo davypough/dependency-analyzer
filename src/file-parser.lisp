@@ -297,52 +297,58 @@
   (declare (special log-stream))
   (when (and (consp form) (symbolp (car form)))
     (let* ((head (car form))
-           (file (file parser))
-           (current-pkg (current-package parser)))
+           (current-file (file parser))
+           (current-pkg (current-package parser))
+           (current-pkg-name (current-package-name parser))
+           (project-pkg (project-package *current-tracker*)))
 
       (format log-stream "~&Form ~D: ~S~%" form-count form)
       
-      ;; Analyze package declarations
-      (when (member head '(defpackage make-package in-package))
-        (unless (<= form-count 2)
+      ;; Late in-package in file
+      (when (member head '(in-package))
+        (when (> form-count 2)
           (record-anomaly *current-tracker*
-                      :name "PACKAGE-DECLARATION"
-                      :type :late-package-declaration
-                      :severity :ERROR
-                      :file file
-                      :package (current-package parser)
-                      :description "Package declaration after definitions")))
+                       :name "IN-PACKAGE-LOCATION-ISSUE"
+                       :type :late-in-package
+                       :severity :WARNING
+                       :file current-file
+                       :package current-pkg
+                       :context (limit-form-size form current-pkg-name)
+                       :description (format nil "In-package occurs after initial forms in ~S" current-pkg))))
 
       ;; Analyze definitions for package consistency 
-      (when (member head '(defun defvar defparameter defmacro
-                          defclass defstruct defmethod defgeneric))
+      (when (member head '(defun defvar defparameter defmacro define-condition deftype define-method-combination
+                           defclass defstruct defmethod defgeneric defsetf define-setf-expander
+                           define-symbol-macro define-modify-macro define-compiler-macro))
         (let* ((def-name (second form))
-               (runtime-pkg (and (symbolp def-name)
-                               (symbol-package def-name))))
-          
+               (cl-user-pkg (find-package "COMMON-LISP-USER"))
+               (runtime-def-pkg (and (symbolp def-name) (symbol-package def-name))))
           ;; Check definition package consistency
           (cond 
             ;; No package context but defining symbols
-            ((eq current-pkg (find-package :common-lisp-user))
+            ((and (eq current-pkg cl-user-pkg)
+                  (not (eq project-pkg cl-user-pkg)))
              (record-anomaly *current-tracker*
                          :name def-name 
-                         :type :missing-package-declaration
-                         :severity :ERROR
-                         :file file
+                         :type :possible-missing-in-package
+                         :severity :WARNING
+                         :file current-file
                          :package current-pkg
-                         :description "Definition without package declaration"))
+                         :context (limit-form-size form current-pkg-name)
+                         :description (format nil "~A is defined in the default cl-user package" def-name)))
             
-            ;; Definition in wrong package
-            ((and runtime-pkg 
-                  (not (eq runtime-pkg current-pkg)))
+            ;; Definition possibly in wrong package
+            ((and runtime-def-pkg 
+                  (not (eq runtime-def-pkg current-pkg)))
              (record-anomaly *current-tracker*
                          :name def-name
-                         :type :wrong-package-definition
-                         :severity :ERROR
-                         :file file
-                         :package runtime-pkg
+                         :type :possible-definition-in-wrong-package
+                         :severity :WARNING
+                         :file current-file
+                         :package runtime-def-pkg
+                         :context (limit-form-size form current-pkg-name)
                          :description (format nil "Symbol ~A defined in ~A but current package is ~A"
-                                           def-name runtime-pkg current-pkg)))))))))
+                                              def-name runtime-def-pkg current-pkg)))))))))
 
 
 (defun analyze-in-package (parser form)

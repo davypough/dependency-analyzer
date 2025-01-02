@@ -102,7 +102,7 @@
                        :type :duplicate-definition
                        :severity :WARNING
                        :file file
-                       :description (format nil "~A ~A defined multiple times" type name)
+                       :description (format nil "~A defined multiple times" name)
                        :package package
                        :context (definition.context def)
                        :files (cons file def-files))))
@@ -508,7 +508,7 @@
         visibility))))
 
 
-(defun walk-form (form handler)
+#+ignore (defun walk-form (form handler)
   "Walk a form calling HANDLER on each subform with context and depth info.
    Expands macros encountered during walking.
    FORM - The form to analyze
@@ -551,7 +551,7 @@
       (walk form form form 0))))
 
 
-#+ignore (defun walk-form (form handler)
+(defun walk-form (form handler)
   "Walk a form calling HANDLER on each subform with context and depth info.
    FORM - The form to analyze
    HANDLER - Function taking (form context parent-context depth)"

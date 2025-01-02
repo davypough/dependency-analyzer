@@ -158,7 +158,7 @@
              (declare (ignore key))
              (dolist (def defs)
                (let* ((sym-name (definition.name def))
-                     (pkg (definition.package def)))
+                      (pkg (definition.package def)))
                  (when (and pkg (symbolp sym-name))
                    (multiple-value-bind (inherited status)
                        (find-symbol (string sym-name) pkg)

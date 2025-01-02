@@ -156,7 +156,7 @@
     (format-if stream "    :Files ~{~A~^, ~}" indent-str (let ((mapped (mapcar #'project-pathname (anomaly.files anom))))
                                                         (and mapped (not (null mapped)) mapped)))
     (format-if stream "    :Package ~A" indent-str (anomaly.package anom))
-    (format-if stream "    :Description ~A" indent-str (anomaly.description anom))
+    (format-if stream "    :Description ~S" indent-str (anomaly.description anom))
     ;; Optional: a blank line after printing
     (format stream "~2%")))
 
@@ -196,6 +196,10 @@
     :initarg :project-name
     :reader project.name
     :documentation "Name of the project being analyzed")
+   (project-package
+    :initarg :project-package 
+    :reader project-package
+    :documentation "Package being analyzed for dependencies")
    (project-root
     :initarg :project-root
     :reader project-root
