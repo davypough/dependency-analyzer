@@ -510,6 +510,49 @@
 
 (defun walk-form (form handler)
   "Walk a form calling HANDLER on each subform with context and depth info.
+   Expands macros encountered during walking.
+   FORM - The form to analyze
+   HANDLER - Function taking (form context parent-context depth)"
+  (declare (special log-stream))
+  (labels ((walk (x context parent-context depth)
+             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%  Depth: ~D~%" 
+                              x context parent-context depth)
+             (unless (skip-item-p x)  ;skip non-referring items
+               ;; Try macro expansion first
+               (let ((expanded-form
+                      (and (consp x)
+                           (symbolp (car x))
+                           (macro-function (car x))
+                           (macroexpand-1 x))))
+                 (if expanded-form
+                     ;; Walk the expansion
+                     (walk expanded-form context parent-context depth)
+                     ;; Process normally  
+                     (progn
+                       (funcall handler x context parent-context depth)
+                       ;; Recursively process subforms
+                       (typecase x
+                         (cons 
+                           (dolist (element x)
+                             (walk element x context (1+ depth))))
+                         (array 
+                           (dotimes (i (array-total-size x))
+                             (walk (row-major-aref x i) x context (1+ depth))))
+                         (hash-table 
+                           (maphash (lambda (k v)
+                                     (walk k x context (1+ depth))
+                                     (walk v x context (1+ depth)))
+                                   x)))))))))
+    
+    (let ((*print-circle* nil)
+          (*print-length* 10)
+          (*print-level* 5))
+      (format log-stream "~&-------------------------------~%")
+      (walk form form form 0))))
+
+
+#+ignore (defun walk-form (form handler)
+  "Walk a form calling HANDLER on each subform with context and depth info.
    FORM - The form to analyze
    HANDLER - Function taking (form context parent-context depth)"
   (declare (special log-stream))

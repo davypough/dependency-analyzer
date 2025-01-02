@@ -78,6 +78,21 @@
       (t t))))  ; Keep all other types of definitions
 
 
+(defun project-pathname (pathname)
+  "Convert a pathname to a string representation relative to project root.
+   Returns a path starting with / that is relative to the project root.
+   E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
+  (when pathname
+    (let* ((project-root (project-root *current-tracker*))
+           (namestring (namestring pathname)))
+      (if project-root
+          (let ((relative (enough-namestring pathname project-root)))
+            (if (char= (char relative 0) #\/)
+                relative
+                (concatenate 'string "/" relative)))
+          namestring))))
+
+
 #+ignore (defun detect-unused-definitions (tracker)  ;redo later, too many ways to reference a definition
   "Find user-created definitions that are never referenced."
   (let ((used-defs (make-hash-table :test 'equal)))
@@ -106,27 +121,6 @@
                                       (definition.type def)
                                       (definition.name def))))))
              (slot-value tracker 'definitions))))
-
-
-(defun detect-orphaned-methods (tracker)
-  "Find methods defined without corresponding generic functions."
-  (maphash (lambda (key defs)
-             (let ((name (first (split-sequence:split-sequence key "::"))))
-               (dolist (def defs)
-                 (when (eq (definition.type def) :method)
-                   (let ((gf-key (make-tracking-key name 
-                                                  (definition.package def)
-                                                  :generic-function)))
-                     (unless (gethash gf-key (slot-value tracker 'definitions))
-                       (record-anomaly tracker
-                         :name name
-                         :type :specialized-method-without-generic
-                         :severity :error
-                         :file (definition.file def)
-                         :package (definition.package def)
-                         :description (format nil "Method defined for nonexistent generic function ~A"
-                                           name))))))))
-           (slot-value tracker 'definitions)))
 
 
 (defun detect-redundant-package-uses (tracker)
@@ -325,39 +319,6 @@
                              "Indirect slot access (slot-value ~A '~A). Consider using accessor instead"
                              object slot-name)
                     :context (reference.context ref)))))))))
-    (slot-value tracker 'references)))
-
-
-(defun detect-cross-file-internal-references (tracker)
-  "Find references to internal (non-exported) symbols across different files."
-  (maphash 
-    (lambda (key refs)
-      (declare (ignore key))
-      (dolist (ref refs)
-        (let ((ref-sym (reference.name ref)))
-          (when (symbolp ref-sym)
-            ;; Check each definition this references
-            (dolist (def (reference.definitions ref))
-              ;; Only check across different files
-              (when (and (not (equal (reference.file ref)
-                                   (definition.file def)))
-                        ;; Check if symbol is internal
-                        (eq (nth-value 1 
-                              (find-symbol (symbol-name ref-sym)
-                                         (symbol-package ref-sym)))
-                            :internal))
-                (record-anomaly tracker
-                  :name ref-sym
-                  :type :cross-file-internal-reference
-                  :severity :warning
-                  :file (reference.file ref)
-                  :package (reference.package ref)
-                  :description 
-                    (format nil 
-                           "Reference to internal symbol ~A from ~A. Consider exporting if intended for external use"
-                           ref-sym
-                           (project-pathname (definition.file def)))
-                  :context (reference.context ref))))))))
     (slot-value tracker 'references)))
 
 
