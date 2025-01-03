@@ -102,10 +102,10 @@
                        :type :duplicate-definition
                        :severity :WARNING
                        :file file
-                       :description (format nil "~A defined multiple times" name)
+                       :description (format nil "~A also defined in ~A" name def-files)
                        :package package
-                       :context (definition.context def)
-                       :files (cons file def-files))))
+                       :context (definition.context def))))
+                       ;:files (cons file def-files))))
     
     ;; Store definition under the computed key
     (push def (gethash key (slot-value tracker 'definitions)))
@@ -158,9 +158,10 @@
                                :file file
                                :description description
                                :package package
-                               :context context
-                               :files (or files (list file)))))
-    (push anomaly (gethash type (anomalies tracker)))
+                               :context context)))
+                               ;:files (or files (list file)))))
+    (pushnew anomaly (gethash type (anomalies tracker))
+                     :test #'equal :key #'anomaly.file)
     anomaly))
 
 
@@ -475,7 +476,7 @@
 
         ;; Check for unqualified references from CL-USER
         (when (eq cur-pkg (find-package :common-lisp-user))
-          (when (and 
+          (when (and (not (eq (project-package *current-tracker*) cur-pkg))
                  ;; Not qualified with package
                  (not (eq sym-pkg (find-package :common-lisp-user)))
                  ;; Not a CL symbol
@@ -497,14 +498,13 @@
             
             (record-anomaly tracker
                            :name symbol
-                           :type :missing-in-package 
+                           :type :possible-missing-in-package-for-reference 
                            :severity :WARNING
                            :file (file parser)
                            :package cur-pkg
                            :description (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
                                               symbol pkg-name)
                            :context (limit-form-size parent-context symbol))))
-        
         visibility))))
 
 

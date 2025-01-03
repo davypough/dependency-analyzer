@@ -330,12 +330,12 @@
                   (not (eq project-pkg cl-user-pkg)))
              (record-anomaly *current-tracker*
                          :name def-name 
-                         :type :possible-missing-in-package
+                         :type :possible-missing-in-package-for-definition
                          :severity :WARNING
                          :file current-file
                          :package current-pkg
                          :context (limit-form-size form current-pkg-name)
-                         :description (format nil "~A is defined in the default cl-user package" def-name)))
+                         :description (format nil "~A is being defined in the default CL-USER package" def-name)))
             
             ;; Definition possibly in wrong package
             ((and runtime-def-pkg 
