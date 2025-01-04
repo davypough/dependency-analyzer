@@ -1,9 +1,9 @@
 
-Package/Symbol Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+Package/Symbol Analysis Trace for d:/quicklisp/local-projects/test-project/src/defs.lisp
 
-Form 1: (DEFPACKAGE #:USER-MAIN-PACKAGE
+Form 1: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
           (:USE :CL))
-Form 2: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+Form 2: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
 Form 3: (DEFVAR *DEFVAR-VARIABLE* 0)
 Form 4: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
 Form 5: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
@@ -33,12 +33,12 @@ Form 21: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
 Form 22: (DEFINE-CONDITION CONDITION-NAME
              NIL
              NIL)
-Package state for /source/single-pkg-defs.lisp:
-  Current package: #<PACKAGE "USER-MAIN-PACKAGE">
+Package state for /src/defs.lisp:
+  Current package: #<PACKAGE "TEST-PROJECT-PACKAGE">
 
-Package/Symbol Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+Package/Symbol Analysis Trace for d:/quicklisp/local-projects/test-project/src/refs.lisp
 
-Form 1: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+Form 1: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
 Form 6: (DEFUN-NAME)
 Form 7: (FUNCALL 'SYMBOL-FUNCTION-NAME)
 Form 8: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
@@ -56,5 +56,5 @@ Form 18: (LET ((ARG 0))
            *DEFVAR-VARIABLE*
            (COMPUTE-AREA (MAKE-CIRCLE))
            ARG)
-Package state for /source/single-pkg-refs.lisp:
-  Current package: #<PACKAGE "USER-MAIN-PACKAGE">
+Package state for /src/refs.lisp:
+  Current package: #<PACKAGE "TEST-PROJECT-PACKAGE">

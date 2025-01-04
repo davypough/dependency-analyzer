@@ -170,6 +170,22 @@
    (references
     :initform (make-hash-table :test 'equal)
     :documentation "Maps symbols to where they are used")
+   (anomalies
+    :initform (make-hash-table :test 'equal)
+    :accessor anomalies
+    :documentation "Maps anomaly types to lists of detected anomalies")
+   (project-name
+    :initarg :project-name
+    :reader project.name
+    :documentation "Name of the project being analyzed")
+   (project-package
+    :initarg :project-package 
+    :reader project-package
+    :documentation "Package being analyzed for dependencies")
+   (project-root
+    :initarg :project-root
+    :reader project-root
+    :documentation "Root directory of the project being analyzed")
    (file-map
     :initform (make-hash-table :test 'equal)
     :documentation "Maps files to their contained definitions")
@@ -189,23 +205,8 @@
    (package-cycles
     :initform nil
     :accessor package-cycles
-    :documentation "List of detected package dependency cycles")
-   (anomalies
-    :initform (make-hash-table :test 'equal)
-    :accessor anomalies
-    :documentation "Maps anomaly types to lists of detected anomalies")
-   (project-name
-    :initarg :project-name
-    :reader project.name
-    :documentation "Name of the project being analyzed")
-   (project-package
-    :initarg :project-package 
-    :reader project-package
-    :documentation "Package being analyzed for dependencies")
-   (project-root
-    :initarg :project-root
-    :reader project-root
-    :documentation "Root directory of the project being analyzed")))
+    :documentation "List of detected package dependency cycles"))
+  (:documentation "Tracker for analyzing a user's project files."))
 
 
 (defmethod print-object ((tracker dependency-tracker) stream)

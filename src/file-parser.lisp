@@ -99,7 +99,7 @@
                                   :file (file parser)
                                   :package (current-package parser)
                                   :status (symbol-status name (symbol-package name))
-                                  :context (limit-form-size current-form name))))
+                                  :context current-form)))
 
               ;; Function/macro definitions
               ((member head '(defun defmacro))
@@ -109,7 +109,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context (limit-form-size current-form (second current-form))))
+                                :context current-form))
 
               ;; Generic function
               ((eq head 'defgeneric)
@@ -120,7 +120,7 @@
                    :package (current-package parser)
                    :status (symbol-status (second current-form) 
                                         (symbol-package (second current-form)))
-                   :context (limit-form-size current-form (second current-form))))
+                   :context current-form))
 
               ;; Method definitions
               ((eq head 'defmethod)
@@ -134,7 +134,7 @@
                                  :package (current-package parser)
                                  :status (symbol-status (second current-form) 
                                                         (symbol-package (second current-form)))
-                                 :context (limit-form-size current-form (second current-form))
+                                 :context current-form
                                  :qualifiers qualifiers
                                  :specializers (extract-specializers lambda-list))))
 
@@ -150,7 +150,7 @@
                                   :file (file parser)
                                   :package (current-package parser)
                                   :status (symbol-status name (symbol-package name))
-                                  :context (limit-form-size current-form name))
+                                  :context current-form)
                  (analyze-defclass/defstruct/define-condition parser name current-form)))
 
               ;; Type system
@@ -161,7 +161,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context (limit-form-size current-form (second current-form))))
+                                :context current-form))
 
               ;; Package system
               ((member head '(defpackage make-package))
@@ -169,7 +169,7 @@
                      :name (second current-form)  ;string/symbol designator
                      :type :package
                      :file (file parser)
-                     :context (limit-form-size current-form (second current-form)))
+                     :context current-form)
                (analyze-defpackage/make-package parser (second current-form) current-form))
 
               ;; Setf forms
@@ -189,7 +189,7 @@
                                    :file (file parser)
                                    :package (current-package parser)
                                    :status (symbol-status name (symbol-package name))
-                                   :context (limit-form-size current-form name)))
+                                   :context current-form))
                    ((symbol-function fdefinition)
                     (record-definition *current-tracker*
                                    :name name
@@ -197,7 +197,7 @@
                                    :file (file parser)
                                    :package (current-package parser)
                                    :status (symbol-status name (symbol-package name))
-                                   :context (limit-form-size current-form name)))
+                                   :context current-form))
                    (macro-function
                     (record-definition *current-tracker*
                                    :name name
@@ -205,7 +205,7 @@
                                    :file (file parser)
                                    :package (current-package parser)
                                    :status (symbol-status name (symbol-package name))
-                                   :context (limit-form-size current-form name))))))
+                                   :context current-form)))))
 
               ;; Extended definition forms
               ((member head '(defsetf define-setf-expander))
@@ -215,7 +215,7 @@
                                 :file (file parser) 
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context (limit-form-size current-form (second current-form))))
+                                :context current-form))
 
               ((eq head 'define-symbol-macro)
                (record-definition *current-tracker*
@@ -224,7 +224,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context (limit-form-size current-form (second current-form))))
+                                :context current-form))
 
               ((member head '(define-modify-macro define-compiler-macro))
                (record-definition *current-tracker*
@@ -233,7 +233,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context (limit-form-size current-form (second current-form))))
+                                :context current-form))
 
               ((eq head 'define-method-combination)
                (record-definition *current-tracker*
@@ -242,7 +242,7 @@
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context (limit-form-size current-form (second current-form))))))))))
+                                :context current-form))))))))
   form)
 
 
@@ -269,7 +269,7 @@
                             :name norm-name
                             :file (file parser)
                             :package subform
-                            :context (limit-form-size parent-context norm-name)
+                            :context parent-context
                             :visibility :LOCAL
                             :definitions other-file-defs))))))
                  (symbol
@@ -299,7 +299,6 @@
     (let* ((head (car form))
            (current-file (file parser))
            (current-pkg (current-package parser))
-           (current-pkg-name (current-package-name parser))
            (project-pkg (project-package *current-tracker*)))
 
       (format log-stream "~&Form ~D: ~S~%" form-count form)
@@ -313,7 +312,7 @@
                        :severity :WARNING
                        :file current-file
                        :package current-pkg
-                       :context (limit-form-size form current-pkg-name)
+                       :context form
                        :description (format nil "In-package occurs after initial forms in ~S" current-pkg))))
 
       ;; Analyze definitions for package consistency 
@@ -334,7 +333,7 @@
                          :severity :WARNING
                          :file current-file
                          :package current-pkg
-                         :context (limit-form-size form current-pkg-name)
+                         :context form
                          :description (format nil "~A is being defined in the default CL-USER package" def-name)))
             
             ;; Definition possibly in wrong package
@@ -346,7 +345,7 @@
                          :severity :WARNING
                          :file current-file
                          :package runtime-def-pkg
-                         :context (limit-form-size form current-pkg-name)
+                         :context form
                          :description (format nil "Symbol ~A defined in ~A but current package is ~A"
                                               def-name runtime-def-pkg current-pkg)))))))))
 
@@ -354,14 +353,14 @@
 (defun analyze-in-package (parser form)
   "Handle in-package forms by updating the current package context.
    Signals an error if referenced package doesn't exist."
-  (let* ((name (normalize-designator (second form)))
-         (package (find-package name)))
-    (if package
-        (setf (current-package parser) package
-              (current-package-name parser) (package-name package))
+  (let* ((pkg-designator (second form))   ;(normalize-designator (second form)))
+         (pkg (find-package pkg-designator)))
+    (if pkg
+        (setf (current-package parser) pkg
+              (current-package-name parser) (package-name pkg))
         (error "~&Cannot accurately analyze dependencies:~%~
                 File: ~A~%~
                 Form: ~S~%~
-                References undefined package: ~A~%~%~
-                Please ensure all package definitions compile successfully before analysis."
-               (project-pathname (file parser)) form name))))
+                References undefined package: ~A~2%~
+                Please ensure all package definitions compile and load successfully before analysis."
+               (project-pathname (file parser)) form pkg-designator))))

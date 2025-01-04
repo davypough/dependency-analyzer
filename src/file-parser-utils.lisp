@@ -504,7 +504,7 @@
                            :package cur-pkg
                            :description (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
                                               symbol pkg-name)
-                           :context (limit-form-size parent-context symbol))))
+                           :context parent-context)))
         visibility))))
 
 
@@ -583,7 +583,7 @@
       (walk form form form 0))))
 
 
-(defun limit-form-size (form pkg-name &key (max-depth 8) (max-elements 20))
+#+ignore (defun limit-form-size (form pkg-name &key (max-depth 8) (max-elements 20))
   "Limit the size of a form for use as reference context.
    Returns form if within limits, otherwise returns truncated version.
    Strips package prefixes only when they match pkg-name."
@@ -973,7 +973,7 @@
                        :name name
                        :file (file parser)
                        :package (current-package parser)
-                       :context (limit-form-size context pkg-name)
+                       :context context
                        :visibility visibility
                        :definitions found-defs))
     found-defs))
@@ -1002,7 +1002,7 @@
                           :name subform
                           :file (file parser)
                           :package (current-package parser)
-                          :context (limit-form-size context pkg-name)
+                          :context context
                           :visibility visibility
                           :definitions (cons gf-def method-defs)
                           :qualifiers qualifiers
@@ -1037,7 +1037,7 @@
                               :name subform
                               :file (file parser)
                               :package (current-package parser)  ;pkg-name 
-                              :context (limit-form-size context pkg-name)
+                              :context context
                               :visibility visibility
                               :definitions (cons gf-def method-defs)
                               :qualifiers qualifiers
@@ -1051,7 +1051,7 @@
                           :package (current-package parser)
                           :description (format nil "No applicable method for ~A with arguments ~S" 
                                              name args)
-                          :context (limit-form-size context pkg-name)))
+                          :context context))
         ;; No generic function found
         (try-definition-types subform pkg-name parser context visibility))))
 
@@ -1267,7 +1267,7 @@
                            :name nickname
                            :type :PACKAGE  
                            :file file
-                           :context (limit-form-size context name)))  ;context))
+                           :context context))
         
         ;; Fall back to parsing for make-package only
         (when (eq form-type 'make-package)
@@ -1281,7 +1281,7 @@
                                       :name nick
                                       :type :PACKAGE
                                       :file file
-                                      :context (limit-form-size context name))))))  ;context)))))
+                                      :context context)))))
     
     ;; Process exports only when package exists
     (when package
@@ -1294,7 +1294,7 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context (limit-form-size context name)))  ;context))
+                            :context context))
           ((macro-function sym)  ; Macro binding - check before fboundp
            (record-definition *current-tracker*
                             :name sym
@@ -1302,7 +1302,7 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context (limit-form-size context name)))  ;context))
+                            :context context))
           ((fboundp sym)  ; Function binding (not macro)
            (if (typep (symbol-function sym) 'standard-generic-function)
                (record-definition *current-tracker*
@@ -1311,14 +1311,14 @@
                                 :file file
                                 :package package
                                 :status :EXTERNAL
-                                :context (limit-form-size context name))  ;context)
+                                :context context)
                (record-definition *current-tracker*
                                 :name sym
                                 :type :FUNCTION
                                 :file file
                                 :package package
                                 :status :EXTERNAL
-                                :context (limit-form-size context name))))  ;context)))
+                                :context context)))
           ((find-class sym nil)  ; Class definition
            (record-definition *current-tracker*
                             :name sym
@@ -1326,7 +1326,7 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context (limit-form-size context name)))  ;context))
+                            :context context))
           ((ignore-errors (subtypep nil sym))  ; Type definition
            (record-definition *current-tracker*
                             :name sym
@@ -1334,4 +1334,4 @@
                             :file file
                             :package package
                             :status :EXTERNAL
-                            :context (limit-form-size context name))))))))  ;context)))))))
+                            :context context)))))))

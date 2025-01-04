@@ -1,64 +1,64 @@
 
-Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-defs.lisp
+Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/src/defs.lisp
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Expression: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
                 (:USE :CL))
-  Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
              (:USE :CL))
-  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
   Depth: 0
 WALK(ING):
   Expression: DEFPACKAGE
-  Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
              (:USE :CL))
-  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
   Depth: 1
 WALK(ING):
-  Expression: #:USER-MAIN-PACKAGE
-  Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Expression: #:TEST-PROJECT-PACKAGE
+  Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
              (:USE :CL))
-  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
   Depth: 1
 WALK(ING):
   Expression: (:USE :CL)
-  Context: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
              (:USE :CL))
-  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
   Depth: 1
 WALK(ING):
   Expression: :USE
   Context: (:USE :CL)
-  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
   Depth: 2
 WALK(ING):
   Expression: :CL
   Context: (:USE :CL)
-  Parent: (DEFPACKAGE #:USER-MAIN-PACKAGE
+  Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
   Depth: 2
 
 -------------------------------
 WALK(ING):
-  Expression: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Parent: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Expression: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Depth: 0
 WALK(ING):
   Expression: IN-PACKAGE
-  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Parent: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Depth: 1
 WALK(ING):
-  Expression: #:USER-MAIN-PACKAGE
-  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Parent: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Expression: #:TEST-PROJECT-PACKAGE
+  Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Depth: 1
 
 -------------------------------
@@ -1161,23 +1161,23 @@ WALK(ING):
   Depth: 1
 
 
-Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/source/single-pkg-refs.lisp
+Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/src/refs.lisp
 
 -------------------------------
 WALK(ING):
-  Expression: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Parent: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Expression: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Depth: 0
 WALK(ING):
   Expression: IN-PACKAGE
-  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Parent: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Depth: 1
 WALK(ING):
-  Expression: #:USER-MAIN-PACKAGE
-  Context: (IN-PACKAGE #:USER-MAIN-PACKAGE)
-  Parent: (IN-PACKAGE #:USER-MAIN-PACKAGE)
+  Expression: #:TEST-PROJECT-PACKAGE
+  Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
+  Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Depth: 1
 
 

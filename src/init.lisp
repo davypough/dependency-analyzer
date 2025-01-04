@@ -134,8 +134,8 @@
     (progn (delete-fasl)
            (ql:quickload :dependency-analyzer :verbose t)
            (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
-                    "d:/quicklisp/local-projects/test-project/source"
-                    :user-main-package))
+                    "d:/quicklisp/local-projects/test-project/src"
+                    :test-project-package))
     (in-package :dep)))
 
 

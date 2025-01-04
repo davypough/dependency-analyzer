@@ -16,8 +16,8 @@
          (parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
                                                       (pathname-directory source-pathname)
                                                       (butlast (pathname-directory source-pathname)))
-                                       :name nil
-                                       :type nil))
+                                         :name nil
+                                         :type nil))
          (parent-dir-name (car (last (pathname-directory source-pathname))))
          (project-package (find-package package-designator))
          (logs-dir (merge-pathnames "logs/" (asdf:system-source-directory :dependency-analyzer))))
@@ -35,15 +35,16 @@
     (let ((source-files
             (mapcan (lambda (ext)
                      (directory (make-pathname :defaults source-pathname
-                                             :directory (append (pathname-directory source-pathname)
-                                                             '(:wild-inferiors))
-                                             :name :wild
-                                             :type ext)))
-                   '("lisp" "lsp" "cl"))))
+                                               :directory (append (pathname-directory source-pathname)
+                                                                  '(:wild-inferiors))
+                                               :name :wild
+                                               :type ext)))
+                    '("lisp" "lsp" "cl"))))
       (unless source-files
         (error "~2%There are no lisp source files in ~A." source-dir))
       (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
 
+      ;; Begin analysis
       (with-dependency-tracker ((make-instance 'dependency-tracker :project-name parent-dir-name
                                                :project-package project-package :project-root parent-pathname))
         ;; First pass: analyze definitions
@@ -90,18 +91,21 @@
         (detect-indirect-slot-access *current-tracker*)
 
         ;; Log final definitions, references, anomalies
-        (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output
-                                   :if-exists :supersede :if-does-not-exist :create)
-          (declare (special log-stream))
-          (log-definitions))
-        (with-open-file (log-stream (merge-pathnames "references.log" logs-dir) :direction :output 
-                                   :if-exists :supersede :if-does-not-exist :create)
-          (declare (special log-stream))
-          (log-references))
-        (with-open-file (log-stream (merge-pathnames "anomalies.log" logs-dir) :direction :output
-                                   :if-exists :supersede :if-does-not-exist :create)
-          (declare (special log-stream))
-          (log-anomalies))
+        (let ((*print-circle* nil) ;disable circular notation
+              (*print-length* 10)  ;limit list length
+              (*print-level* 5))  ;limit depth
+          (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir) :direction :output
+                                      :if-exists :supersede :if-does-not-exist :create)
+            (declare (special log-stream))
+            (log-definitions))
+          (with-open-file (log-stream (merge-pathnames "references.log" logs-dir) :direction :output 
+                                      :if-exists :supersede :if-does-not-exist :create)
+            (declare (special log-stream))
+            (log-references))
+          (with-open-file (log-stream (merge-pathnames "anomalies.log" logs-dir) :direction :output
+                                      :if-exists :supersede :if-does-not-exist :create)
+            (declare (special log-stream))
+            (log-anomalies)))
         (in-package :dep)
         *current-tracker*))))
 

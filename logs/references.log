@@ -5,68 +5,68 @@ The list of all references to definitions in other files for the test-project pr
 REFERENCE>
     :Name *DEFVAR-VARIABLE*
     :Context *DEFVAR-VARIABLE*
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
                         :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
                         :Context (DEFVAR *DEFVAR-VARIABLE*
                                    (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
                         :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name *DEFPARAMETER-VARIABLE*
     :Context *DEFPARAMETER-VARIABLE*
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name *DEFPARAMETER-VARIABLE*
                         :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
                         :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                     DEFINITION>
                         :Name *DEFPARAMETER-VARIABLE*
                         :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
                         :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name +DEFCONSTANT-VARIABLE+
     :Context +DEFCONSTANT-VARIABLE+
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name +DEFCONSTANT-VARIABLE+
                         :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
                         :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name *SYMBOL-VALUE-VARIABLE*
     :Context *SYMBOL-VALUE-VARIABLE*
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -74,30 +74,30 @@ REFERENCE>
                         :Context (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
                                          0)
                         :Type :VARIABLE
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name DEFUN-NAME
     :Context (DEFUN-NAME)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name DEFUN-NAME
                         :Context (DEFUN DEFUN-NAME () 0)
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name SYMBOL-FUNCTION-NAME
     :Context (FUNCALL 'SYMBOL-FUNCTION-NAME)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -105,15 +105,15 @@ REFERENCE>
                         :Context (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
                                          (LAMBDA () 0))
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name FDEFINITION-FUNCTION-NAME
     :Context (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -121,60 +121,60 @@ REFERENCE>
                         :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
                                          (LAMBDA () 0))
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name CIRCLE-RADIUS
     :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name CIRCLE-RADIUS
                         :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name MAKE-CIRCLE
     :Context (COMPUTE-AREA (MAKE-CIRCLE))
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE
                         :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name MAKE-CIRCLE
     :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE
                         :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name PERSON.AGE
     :Context (PERSON.AGE (MAKE-PERSON))
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -182,15 +182,15 @@ REFERENCE>
                         :Context (DEFSTRUCT (PERSON (CONC-NAME PERSON.))
                                    (AGE 0 TYPE FIXNUM))
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name MAKE-PERSON
     :Context (PERSON.AGE (MAKE-PERSON))
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -198,15 +198,15 @@ REFERENCE>
                         :Context (DEFSTRUCT (PERSON (CONC-NAME PERSON.))
                                    (AGE 0 TYPE FIXNUM))
                         :Type :FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name PROCESS-DATA
     :Context (PROCESS-DATA 42)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Arguments (42 NUMBER)
     :Definitions
@@ -217,24 +217,24 @@ REFERENCE>
                                    (DOCUMENTATION
                                     Process data with various methods))
                         :Type :GENERIC-FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY)
                                    (1+ DATA))
                         :Type :METHOD
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                         :Specializers (NUMBER)
 
 REFERENCE>
     :Name PROCESS-DATA
     :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Arguments ("test" STRING :LOG-LEVEL KEYWORD :WARN KEYWORD)
     :Definitions
@@ -245,16 +245,16 @@ REFERENCE>
                                    (DOCUMENTATION
                                     Process data with various methods))
                         :Type :GENERIC-FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                     DEFINITION>
                         :Name PROCESS-DATA
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
                                    (STRING-UPCASE DATA))
                         :Type :METHOD
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                         :Specializers (STRING)
                     DEFINITION>
@@ -262,47 +262,47 @@ REFERENCE>
                         :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY)
                                    (STRING-UPCASE DATA))
                         :Type :METHOD
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                         :Specializers (STRING)
 
 REFERENCE>
     :Name DEFMACRO-NAME
     :Context (DEFMACRO-NAME)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name DEFMACRO-NAME
                         :Context (DEFMACRO DEFMACRO-NAME () 0)
                         :Type :MACRO
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name MACRO-FUNCTION-NAME
     :Context (MACRO-FUNCTION-NAME)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
                         :Name MACRO-FUNCTION-NAME
                         :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                                         (LAMBDA (FORM ENV) FORM ENV 0 ...))
+                                         (LAMBDA (FORM ENV) FORM ENV 0))
                         :Type :MACRO
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
     :Name CONDITION-NAME
     :Context (ERROR 'CONDITION-NAME)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Definitions
                     DEFINITION>
@@ -311,8 +311,8 @@ REFERENCE>
                                      NIL
                                      NIL)
                         :Type :STRUCTURE/CLASS/CONDITION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
@@ -320,11 +320,10 @@ REFERENCE>
     :Context (LET ((ARG 0))
                (DEFUN-NAME)
                *DEFVAR-VARIABLE*
-               (COMPUTE-AREA (MAKE-CIRCLE ...))
-               ARG
-               ...)
-    :File /source/single-pkg-refs.lisp
-    :Package #<PACKAGE "USER-MAIN-PACKAGE">
+               (COMPUTE-AREA (MAKE-CIRCLE))
+               ARG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL
     :Arguments ((MAKE-CIRCLE) DEPENDENCY-ANALYZER::UNANALYZED)
     :Definitions
@@ -335,15 +334,15 @@ REFERENCE>
                                    (DOCUMENTATION
                                     Compute the area of different geometric shapes))
                         :Type :GENERIC-FUNCTION
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                     DEFINITION>
                         :Name COMPUTE-AREA
                         :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-                                   (* PI (EXPT (CIRCLE-RADIUS SHAPE) ...)))
+                                   (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
                         :Type :METHOD
-                        :File /source/single-pkg-defs.lisp
-                        :Package #<PACKAGE "USER-MAIN-PACKAGE">
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                         :Specializers (CIRCLE)
