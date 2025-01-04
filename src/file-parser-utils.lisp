@@ -127,9 +127,9 @@
    ARGUMENTS is alternating list of argument values and their types"
   (declare (special log-stream))
   (let* ((key (make-tracking-key name (etypecase name
-                                      (string name) 
-                                      (symbol (when (symbol-package name)
-                                              (package-name (symbol-package name)))))))
+                                        (string name) 
+                                        (symbol (when (symbol-package name)
+                                                  (package-name (symbol-package name)))))))
          (ref (make-instance 'reference 
                           :name name 
                           :file file 
@@ -145,12 +145,12 @@
    ref))
 
 
-(defun record-anomaly (tracker &key name type severity file description package context files)
+(defun record-anomaly (tracker &key name type severity file description package context)
   "Record a new anomaly in the dependency tracker.
    For :duplicate-definition type, files must be provided as list of all definition locations."
-  (when (and (eq type :duplicate-definition)
-             (not files))
-    (error "Files parameter required for duplicate definition anomalies"))
+  ;(when (and (eq type :duplicate-definition)
+  ;           (not files))
+  ;  (error "Files parameter required for duplicate definition anomalies"))
   (let ((anomaly (make-instance 'anomaly 
                                :name name
                                :type type 
@@ -159,7 +159,6 @@
                                :description description
                                :package package
                                :context context)))
-                               ;:files (or files (list file)))))
     (pushnew anomaly (gethash type (anomalies tracker))
                      :test #'equal :key #'anomaly.file)
     anomaly))

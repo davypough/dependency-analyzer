@@ -24,46 +24,42 @@
       (error "No tracker is currently bound. Please use 'with-dependency-tracker' to bind one.")))
 
 
-(defun make-tracking-key (designator &optional package type qualifiers specializers)
-  "Create a lookup key for a symbol or package name, with optional type/method info.
-   For methods and generic functions, always includes qualifiers and specializers parts.
-   DESIGNATOR can be string, symbol, or (setf name) form.
-   PACKAGE is package name string (optional).
-   TYPE is one of +valid-definition-types+ (optional).
-   QUALIFIERS is a list of method qualifiers (optional).
-   SPECIALIZERS is a list of specializer type names (optional).
-   Returns key like: name::package::type[::()::()].
+(defun make-tracking-key (designator &optional package-alias type qualifiers specializers)
+  "Create a lookup key for a designator with optional package name, type & method info.
+   For methods and generic functions, always includes qualifiers and specializers parts, even if nil.
+   DESIGNATOR can be symbol, package designator, or (setf symbol) form.
+   PACKAGE-ALIAS is a package designator--eg, \"FOO\", :foo, #:foo that converts to string.
+   TYPE is one of +valid-definition-types+ of DESIGNATOR.
+   QUALIFIERS is a list of method qualifiers.
+   SPECIALIZERS is a list of specializer types.
+   Returns key like: name|package-name|type[|()|()].
    Examples:
-     PROCESS-DATA::USER-MAIN-PACKAGE::METHOD::()::(STRING)
-     PROCESS-DATA::USER-MAIN-PACKAGE::METHOD::(AFTER)::(STRING)
-     PROCESS-DATA::USER-MAIN-PACKAGE::GENERIC-FUNCTION::()::()"
-  (let* ((name (etypecase designator
-                (string designator)
-                (symbol (string designator))
-                (cons (if (and (eq (car designator) 'setf) (= (length designator) 2))
-                         (format nil "(SETF ~A)" (string (cadr designator)))
-                         (error "Invalid designator form ~S in make-tracking-key~%  package: ~S~%  type: ~S" 
-                               designator package type)))))
-         (pkg (when package (or (package-name package) (string package)))))
+     *DEFVAR-VARIABLE*|USER-MAIN-PACKAGE|VARIABLE
+     PROCESS-DATA|USER-MAIN-PACKAGE|METHOD|()|(STRING)
+     PROCESS-DATA|USER-MAIN-PACKAGE|METHOD|(AFTER)|(STRING)
+     PROCESS-DATA|USER-MAIN-PACKAGE|GENERIC-FUNCTION|()|()
+     USER-MAIN-PACKAGE||PACKAGE ie, a package string, no package association, package type."
+  (let* ((name (format nil "~A" designator))
+               ;(etypecase designator
+               ;  (string designator)
+               ;  (symbol (string designator))
+               ; (cons (if (and (eq (car designator) 'setf) (= (length designator) 2))
+               ;          (format nil "(SETF ~A)" (string (cadr designator)))
+               ;          (error "Invalid designator form ~S in make-tracking-key~%  package-alias: ~S~%  type: ~S" 
+               ;                designator package-alias type)))))
+         (pkg-name (when package-alias
+                     (or (package-name package-alias) (string package-alias)))))
     
     (when (and type (not (member type +valid-definition-types+)))
-      (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package: ~S~%  type: ~S"
-             designator package type))
+      (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package-alias: ~S~%  type: ~S"
+             designator package-alias type))
     
-    (let ((key (format nil "~A::~A::~A" 
-                      name
-                      (or pkg "") 
-                      (or type ""))))
-      
-      (when (or (member type '(:METHOD :GENERIC-FUNCTION))
-                qualifiers 
-                specializers)
+    (let ((key (format nil "~A|~A|~A" name (or pkg-name "") (or type ""))))
+      (when (or (member type '(:METHOD :GENERIC-FUNCTION)) qualifiers specializers)
         (let* ((sorted-quals (sort (copy-list (or qualifiers nil)) #'string<)))
-          (setf key (format nil "~A::(~{~A~^ ~})" key sorted-quals)))
-        
+          (setf key (format nil "~A|(~{~A~^ ~})" key sorted-quals)))
         (let* ((sorted-specs (sort (copy-list (or specializers nil)) #'string<)))
-          (setf key (format nil "~A::(~{~A~^ ~})" key sorted-specs))))
-      
+          (setf key (format nil "~A|(~{~A~^ ~})" key sorted-specs))))
       key)))
 
 

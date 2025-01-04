@@ -1565,7 +1565,7 @@ WALK(ING):
 
 #<REFERENCE 
     :Name PROCESS-DATA
-    :Context (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+    :Context (PROCESS-DATA test LOG-LEVEL WARN)
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility LOCAL

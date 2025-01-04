@@ -84,8 +84,8 @@
   "Print a reference object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
     (with-slots (name context file package visibility definitions qualifiers arguments) object
-      (format-if stream "    :Name ~S" "" name)
-      (format-if stream "    :Context ~S" "" context)
+      (format-if stream "    :Name ~A" "" name)
+      (format-if stream "    :Context ~A" "" context)
       (format-if stream "    :File ~A" "" (and file (project-pathname file)))
       (format-if stream "    :Package ~S" "" package)
       (format-if stream "    :Visibility ~A" "" visibility)
@@ -101,8 +101,8 @@
    Shows method qualifiers and arguments when present."
   (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~AREFERENCE>" indent-str)
-    (format-if stream "    :Name ~S" indent-str (reference.name ref))
-    (format-if stream "    :Context ~S" indent-str (reference.context ref))
+    (format-if stream "    :Name ~A" indent-str (reference.name ref))
+    (format-if stream "    :Context ~A" indent-str (reference.context ref))
     (format-if stream "    :File ~A" indent-str (and (reference.file ref)
                                                   (project-pathname (reference.file ref))))
     (format-if stream "    :Package ~S" indent-str (reference.package ref))
@@ -132,9 +132,9 @@
   "Print an anomaly object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
     (with-slots (type name severity primary-location description context files package) object
-      (format-if stream "    :Name ~S" "" name)
+      (format-if stream "    :Name ~A" "" name)
       (format-if stream "    :Type ~S" "" type)
-      (format-if stream "    :Context ~S" "" context) 
+      (format-if stream "    :Context ~A" "" context) 
       (format-if stream "    :Severity ~S" "" severity)
       (format-if stream "    :File ~A" "" (and primary-location (project-pathname primary-location)))
       ;(format-if stream "    :Files ~{~A~^, ~}" "" (let ((mapped (mapcar #'project-pathname files)))
@@ -147,9 +147,9 @@
   "Print a readable representation of an anomaly record, skipping null slots."
   (let ((indent-str (make-string indent :initial-element #\Space)))
     (format stream "~&~AANOMALY>" indent-str)
-    (format-if stream "    :Name ~S" indent-str (anomaly.name anom))
+    (format-if stream "    :Name ~A" indent-str (anomaly.name anom))
     (format-if stream "    :Type ~S" indent-str (anomaly.type anom))
-    (format-if stream "    :Context ~S" indent-str (anomaly.context anom))
+    (format-if stream "    :Context ~A" indent-str (anomaly.context anom))
     (format-if stream "    :Severity ~S" indent-str (anomaly.severity anom))
     (format-if stream "    :File ~A" indent-str (and (anomaly.file anom)
                                                     (project-pathname (anomaly.file anom))))
@@ -244,12 +244,3 @@
     :accessor parsing-packages
     :documentation "Stack of packages being parsed for cycle detection"))
   (:documentation "Parser for analyzing a single Lisp source file."))
-
-
-(defclass dots-object () ())  ;special object that will always print as ...
-
-
-(defmethod print-object ((obj dots-object) stream)
-  "Prints ... without quotes, used in limit-form-size"
-  (write-string "..." stream))
-
