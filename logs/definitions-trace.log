@@ -9,133 +9,110 @@ WALK(ING):
              (:USE :CL))
   Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
-  Depth: 0
 WALK(ING):
   Expression: DEFPACKAGE
   Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
              (:USE :CL))
   Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
-  Depth: 1
 WALK(ING):
   Expression: #:TEST-PROJECT-PACKAGE
   Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
              (:USE :CL))
   Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
-  Depth: 1
 WALK(ING):
   Expression: (:USE :CL)
   Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
              (:USE :CL))
   Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
-  Depth: 1
 WALK(ING):
   Expression: :USE
   Context: (:USE :CL)
   Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
-  Depth: 2
 WALK(ING):
   Expression: :CL
   Context: (:USE :CL)
   Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
-  Depth: 0
 WALK(ING):
   Expression: IN-PACKAGE
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
-  Depth: 1
 WALK(ING):
   Expression: #:TEST-PROJECT-PACKAGE
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (DEFVAR *DEFVAR-VARIABLE* 0)
   Context: (DEFVAR *DEFVAR-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Depth: 0
 WALK(ING):
   Expression: DEFVAR
   Context: (DEFVAR *DEFVAR-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Depth: 1
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (DEFVAR *DEFVAR-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Depth: 1
 WALK(ING):
   Expression: 0
   Context: (DEFVAR *DEFVAR-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Depth: 0
 WALK(ING):
   Expression: DEFPARAMETER
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Depth: 1
 WALK(ING):
   Expression: *DEFPARAMETER-VARIABLE*
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Depth: 1
 WALK(ING):
   Expression: 0
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Depth: 0
 WALK(ING):
   Expression: DEFCONSTANT
   Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Depth: 1
 WALK(ING):
   Expression: +DEFCONSTANT-VARIABLE+
   Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Depth: 1
 WALK(ING):
   Expression: 'C
   Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Depth: 1
 WALK(ING):
   Expression: QUOTE
   Context: 'C
   Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Depth: 2
 WALK(ING):
   Expression: C
   Context: 'C
   Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Depth: 2
 
 -------------------------------
 WALK(ING):
@@ -143,351 +120,284 @@ WALK(ING):
                 (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Depth: 0
 WALK(ING):
   Expression: DEFVAR
   Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Depth: 1
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Depth: 1
 WALK(ING):
   Expression: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Depth: 1
 WALK(ING):
   Expression: DEFPARAMETER
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Depth: 2
 WALK(ING):
   Expression: *DEFPARAMETER-VARIABLE*
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Depth: 2
 WALK(ING):
   Expression: 0
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
   Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
   Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Depth: 0
 WALK(ING):
   Expression: DECLAIM
   Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
   Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Depth: 1
 WALK(ING):
   Expression: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
   Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
   Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Depth: 1
 WALK(ING):
   Expression: SPECIAL
   Context: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
   Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Depth: 2
 WALK(ING):
   Expression: *SYMBOL-VALUE-VARIABLE*
   Context: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
   Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
   Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
   Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Depth: 0
 WALK(ING):
   Expression: SETF
   Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
   Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Depth: 1
 WALK(ING):
   Expression: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
   Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
   Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Depth: 1
 WALK(ING):
   Expression: SYMBOL-VALUE
   Context: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
   Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Depth: 2
 WALK(ING):
   Expression: '*SYMBOL-VALUE-VARIABLE*
   Context: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
   Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Depth: 2
 WALK(ING):
   Expression: QUOTE
   Context: '*SYMBOL-VALUE-VARIABLE*
   Parent: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
-  Depth: 3
 WALK(ING):
   Expression: *SYMBOL-VALUE-VARIABLE*
   Context: '*SYMBOL-VALUE-VARIABLE*
   Parent: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
-  Depth: 3
 WALK(ING):
   Expression: 0
   Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
   Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (DEFUN DEFUN-NAME () 0)
   Context: (DEFUN DEFUN-NAME () 0)
   Parent: (DEFUN DEFUN-NAME () 0)
-  Depth: 0
 WALK(ING):
   Expression: DEFUN
   Context: (DEFUN DEFUN-NAME () 0)
   Parent: (DEFUN DEFUN-NAME () 0)
-  Depth: 1
 WALK(ING):
   Expression: DEFUN-NAME
   Context: (DEFUN DEFUN-NAME () 0)
   Parent: (DEFUN DEFUN-NAME () 0)
-  Depth: 1
 WALK(ING):
   Expression: NIL
   Context: (DEFUN DEFUN-NAME () 0)
   Parent: (DEFUN DEFUN-NAME () 0)
-  Depth: 1
 WALK(ING):
   Expression: 0
   Context: (DEFUN DEFUN-NAME () 0)
   Parent: (DEFUN DEFUN-NAME () 0)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
   Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 0
 WALK(ING):
   Expression: SETF
   Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 1
 WALK(ING):
   Expression: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
   Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 1
 WALK(ING):
   Expression: SYMBOL-FUNCTION
   Context: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: 'SYMBOL-FUNCTION-NAME
   Context: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: QUOTE
   Context: 'SYMBOL-FUNCTION-NAME
   Parent: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
-  Depth: 3
 WALK(ING):
   Expression: SYMBOL-FUNCTION-NAME
   Context: 'SYMBOL-FUNCTION-NAME
   Parent: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
-  Depth: 3
 WALK(ING):
   Expression: (LAMBDA () 0)
   Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 1
 WALK(ING):
   Expression: LAMBDA
   Context: (LAMBDA () 0)
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: NIL
   Context: (LAMBDA () 0)
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: 0
   Context: (LAMBDA () 0)
   Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
   Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 0
 WALK(ING):
   Expression: SETF
   Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 1
 WALK(ING):
   Expression: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
   Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 1
 WALK(ING):
   Expression: FDEFINITION
   Context: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: 'FDEFINITION-FUNCTION-NAME
   Context: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: QUOTE
   Context: 'FDEFINITION-FUNCTION-NAME
   Parent: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
-  Depth: 3
 WALK(ING):
   Expression: FDEFINITION-FUNCTION-NAME
   Context: 'FDEFINITION-FUNCTION-NAME
   Parent: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
-  Depth: 3
 WALK(ING):
   Expression: (LAMBDA () 0)
   Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 1
 WALK(ING):
   Expression: LAMBDA
   Context: (LAMBDA () 0)
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: NIL
   Context: (LAMBDA () 0)
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 WALK(ING):
   Expression: 0
   Context: (LAMBDA () 0)
   Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
   Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 0
 WALK(ING):
   Expression: DEFSTRUCT
   Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 1
 WALK(ING):
   Expression: CIRCLE
   Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 1
 WALK(ING):
   Expression: (RADIUS 1 :TYPE NUMBER)
   Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 1
 WALK(ING):
   Expression: RADIUS
   Context: (RADIUS 1 :TYPE NUMBER)
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 2
 WALK(ING):
   Expression: 1
   Context: (RADIUS 1 :TYPE NUMBER)
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 2
 WALK(ING):
   Expression: :TYPE
   Context: (RADIUS 1 :TYPE NUMBER)
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 2
 WALK(ING):
   Expression: NUMBER
   Context: (RADIUS 1 :TYPE NUMBER)
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
   Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 0
 WALK(ING):
   Expression: DEFSTRUCT
   Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 1
 WALK(ING):
   Expression: (PERSON (:CONC-NAME PERSON.))
   Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 1
 WALK(ING):
   Expression: PERSON
   Context: (PERSON (:CONC-NAME PERSON.))
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 2
 WALK(ING):
   Expression: (:CONC-NAME PERSON.)
   Context: (PERSON (:CONC-NAME PERSON.))
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 2
 WALK(ING):
   Expression: :CONC-NAME
   Context: (:CONC-NAME PERSON.)
   Parent: (PERSON (:CONC-NAME PERSON.))
-  Depth: 3
 WALK(ING):
   Expression: PERSON.
   Context: (:CONC-NAME PERSON.)
   Parent: (PERSON (:CONC-NAME PERSON.))
-  Depth: 3
 WALK(ING):
   Expression: (AGE 0 :TYPE FIXNUM)
   Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 1
 WALK(ING):
   Expression: AGE
   Context: (AGE 0 :TYPE FIXNUM)
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 2
 WALK(ING):
   Expression: 0
   Context: (AGE 0 :TYPE FIXNUM)
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 2
 WALK(ING):
   Expression: :TYPE
   Context: (AGE 0 :TYPE FIXNUM)
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 2
 WALK(ING):
   Expression: FIXNUM
   Context: (AGE 0 :TYPE FIXNUM)
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
@@ -501,7 +411,6 @@ WALK(ING):
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 0
 WALK(ING):
   Expression: DEFGENERIC
   Context: (DEFGENERIC COMPUTE-AREA
@@ -510,7 +419,6 @@ WALK(ING):
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 1
 WALK(ING):
   Expression: COMPUTE-AREA
   Context: (DEFGENERIC COMPUTE-AREA
@@ -519,7 +427,6 @@ WALK(ING):
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 1
 WALK(ING):
   Expression: (SHAPE)
   Context: (DEFGENERIC COMPUTE-AREA
@@ -528,14 +435,12 @@ WALK(ING):
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 1
 WALK(ING):
   Expression: SHAPE
   Context: (SHAPE)
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 2
 WALK(ING):
   Expression: (:DOCUMENTATION "Compute the area of different geometric shapes")
   Context: (DEFGENERIC COMPUTE-AREA
@@ -544,21 +449,18 @@ WALK(ING):
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 1
 WALK(ING):
   Expression: :DOCUMENTATION
   Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 2
 WALK(ING):
   Expression: "Compute the area of different geometric shapes"
   Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
@@ -568,94 +470,78 @@ WALK(ING):
              (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 0
 WALK(ING):
   Expression: DEFMETHOD
   Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
              (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 1
 WALK(ING):
   Expression: COMPUTE-AREA
   Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
              (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 1
 WALK(ING):
   Expression: ((SHAPE CIRCLE))
   Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
              (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 1
 WALK(ING):
   Expression: (SHAPE CIRCLE)
   Context: ((SHAPE CIRCLE))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 2
 WALK(ING):
   Expression: SHAPE
   Context: (SHAPE CIRCLE)
   Parent: ((SHAPE CIRCLE))
-  Depth: 3
 WALK(ING):
   Expression: CIRCLE
   Context: (SHAPE CIRCLE)
   Parent: ((SHAPE CIRCLE))
-  Depth: 3
 WALK(ING):
   Expression: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
   Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
              (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 1
 WALK(ING):
   Expression: *
   Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 2
 WALK(ING):
   Expression: PI
   Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 2
 WALK(ING):
   Expression: (EXPT (CIRCLE-RADIUS SHAPE) 2)
   Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Depth: 2
 WALK(ING):
   Expression: EXPT
   Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
   Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-  Depth: 3
 WALK(ING):
   Expression: (CIRCLE-RADIUS SHAPE)
   Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
   Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-  Depth: 3
 WALK(ING):
   Expression: CIRCLE-RADIUS
   Context: (CIRCLE-RADIUS SHAPE)
   Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
-  Depth: 4
 WALK(ING):
   Expression: SHAPE
   Context: (CIRCLE-RADIUS SHAPE)
   Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
-  Depth: 4
 WALK(ING):
   Expression: 2
   Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
   Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-  Depth: 3
 
 -------------------------------
 WALK(ING):
@@ -668,7 +554,6 @@ WALK(ING):
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 0
 WALK(ING):
   Expression: DEFGENERIC
   Context: (DEFGENERIC PROCESS-DATA
@@ -677,7 +562,6 @@ WALK(ING):
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 1
 WALK(ING):
   Expression: PROCESS-DATA
   Context: (DEFGENERIC PROCESS-DATA
@@ -686,7 +570,6 @@ WALK(ING):
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 1
 WALK(ING):
   Expression: (DATA &KEY)
   Context: (DEFGENERIC PROCESS-DATA
@@ -695,21 +578,18 @@ WALK(ING):
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 1
 WALK(ING):
   Expression: DATA
   Context: (DATA &KEY)
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 2
 WALK(ING):
   Expression: &KEY
   Context: (DATA &KEY)
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 2
 WALK(ING):
   Expression: (:DOCUMENTATION "Process data with various methods")
   Context: (DEFGENERIC PROCESS-DATA
@@ -718,135 +598,110 @@ WALK(ING):
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 1
 WALK(ING):
   Expression: :DOCUMENTATION
   Context: (:DOCUMENTATION "Process data with various methods")
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 2
 WALK(ING):
   Expression: "Process data with various methods"
   Context: (:DOCUMENTATION "Process data with various methods")
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 0
 WALK(ING):
   Expression: DEFMETHOD
   Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 1
 WALK(ING):
   Expression: PROCESS-DATA
   Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 1
 WALK(ING):
   Expression: ((DATA STRING) &KEY)
   Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 1
 WALK(ING):
   Expression: (DATA STRING)
   Context: ((DATA STRING) &KEY)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 2
 WALK(ING):
   Expression: DATA
   Context: (DATA STRING)
   Parent: ((DATA STRING) &KEY)
-  Depth: 3
 WALK(ING):
   Expression: STRING
   Context: (DATA STRING)
   Parent: ((DATA STRING) &KEY)
-  Depth: 3
 WALK(ING):
   Expression: &KEY
   Context: ((DATA STRING) &KEY)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 2
 WALK(ING):
   Expression: (STRING-UPCASE DATA)
   Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 1
 WALK(ING):
   Expression: STRING-UPCASE
   Context: (STRING-UPCASE DATA)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 2
 WALK(ING):
   Expression: DATA
   Context: (STRING-UPCASE DATA)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 0
 WALK(ING):
   Expression: DEFMETHOD
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 1
 WALK(ING):
   Expression: PROCESS-DATA
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 1
 WALK(ING):
   Expression: ((DATA NUMBER) &KEY)
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 1
 WALK(ING):
   Expression: (DATA NUMBER)
   Context: ((DATA NUMBER) &KEY)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
 WALK(ING):
   Expression: DATA
   Context: (DATA NUMBER)
   Parent: ((DATA NUMBER) &KEY)
-  Depth: 3
 WALK(ING):
   Expression: NUMBER
   Context: (DATA NUMBER)
   Parent: ((DATA NUMBER) &KEY)
-  Depth: 3
 WALK(ING):
   Expression: &KEY
   Context: ((DATA NUMBER) &KEY)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
 WALK(ING):
   Expression: (1+ DATA)
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 1
 WALK(ING):
   Expression: 1+
   Context: (1+ DATA)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
 WALK(ING):
   Expression: DATA
   Context: (1+ DATA)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
@@ -858,7 +713,6 @@ WALK(ING):
              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 0
 WALK(ING):
   Expression: DEFMETHOD
   Context: (DEFMETHOD PROCESS-DATA :AFTER
@@ -866,7 +720,6 @@ WALK(ING):
              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 1
 WALK(ING):
   Expression: PROCESS-DATA
   Context: (DEFMETHOD PROCESS-DATA :AFTER
@@ -874,7 +727,6 @@ WALK(ING):
              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 1
 WALK(ING):
   Expression: :AFTER
   Context: (DEFMETHOD PROCESS-DATA :AFTER
@@ -882,7 +734,6 @@ WALK(ING):
              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 1
 WALK(ING):
   Expression: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
   Context: (DEFMETHOD PROCESS-DATA :AFTER
@@ -890,45 +741,37 @@ WALK(ING):
              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 1
 WALK(ING):
   Expression: (DATA STRING)
   Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 2
 WALK(ING):
   Expression: DATA
   Context: (DATA STRING)
   Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Depth: 3
 WALK(ING):
   Expression: STRING
   Context: (DATA STRING)
   Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Depth: 3
 WALK(ING):
   Expression: &KEY
   Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 2
 WALK(ING):
   Expression: (LOG-LEVEL :INFO)
   Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 2
 WALK(ING):
   Expression: LOG-LEVEL
   Context: (LOG-LEVEL :INFO)
   Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Depth: 3
 WALK(ING):
   Expression: :INFO
   Context: (LOG-LEVEL :INFO)
   Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Depth: 3
 WALK(ING):
   Expression: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
   Context: (DEFMETHOD PROCESS-DATA :AFTER
@@ -936,87 +779,71 @@ WALK(ING):
              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 1
 WALK(ING):
   Expression: WHEN
   Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 2
 WALK(ING):
   Expression: (EQ LOG-LEVEL :INFO)
   Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 2
 WALK(ING):
   Expression: EQ
   Context: (EQ LOG-LEVEL :INFO)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Depth: 3
 WALK(ING):
   Expression: LOG-LEVEL
   Context: (EQ LOG-LEVEL :INFO)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Depth: 3
 WALK(ING):
   Expression: :INFO
   Context: (EQ LOG-LEVEL :INFO)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Depth: 3
 WALK(ING):
   Expression: (FORMAT NIL "LOG: ~A" DATA)
   Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Depth: 2
 WALK(ING):
   Expression: FORMAT
   Context: (FORMAT NIL "LOG: ~A" DATA)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Depth: 3
 WALK(ING):
   Expression: NIL
   Context: (FORMAT NIL "LOG: ~A" DATA)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Depth: 3
 WALK(ING):
   Expression: "LOG: ~A"
   Context: (FORMAT NIL "LOG: ~A" DATA)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Depth: 3
 WALK(ING):
   Expression: DATA
   Context: (FORMAT NIL "LOG: ~A" DATA)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Depth: 3
 
 -------------------------------
 WALK(ING):
   Expression: (DEFMACRO DEFMACRO-NAME () 0)
   Context: (DEFMACRO DEFMACRO-NAME () 0)
   Parent: (DEFMACRO DEFMACRO-NAME () 0)
-  Depth: 0
 WALK(ING):
   Expression: DEFMACRO
   Context: (DEFMACRO DEFMACRO-NAME () 0)
   Parent: (DEFMACRO DEFMACRO-NAME () 0)
-  Depth: 1
 WALK(ING):
   Expression: DEFMACRO-NAME
   Context: (DEFMACRO DEFMACRO-NAME () 0)
   Parent: (DEFMACRO DEFMACRO-NAME () 0)
-  Depth: 1
 WALK(ING):
   Expression: NIL
   Context: (DEFMACRO DEFMACRO-NAME () 0)
   Parent: (DEFMACRO DEFMACRO-NAME () 0)
-  Depth: 1
 WALK(ING):
   Expression: 0
   Context: (DEFMACRO DEFMACRO-NAME () 0)
   Parent: (DEFMACRO DEFMACRO-NAME () 0)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
@@ -1026,90 +853,75 @@ WALK(ING):
                    (LAMBDA (FORM ENV) FORM ENV 0))
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 0
 WALK(ING):
   Expression: SETF
   Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                    (LAMBDA (FORM ENV) FORM ENV 0))
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 1
 WALK(ING):
   Expression: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
   Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                    (LAMBDA (FORM ENV) FORM ENV 0))
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 1
 WALK(ING):
   Expression: MACRO-FUNCTION
   Context: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 2
 WALK(ING):
   Expression: 'MACRO-FUNCTION-NAME
   Context: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 2
 WALK(ING):
   Expression: QUOTE
   Context: 'MACRO-FUNCTION-NAME
   Parent: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-  Depth: 3
 WALK(ING):
   Expression: MACRO-FUNCTION-NAME
   Context: 'MACRO-FUNCTION-NAME
   Parent: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-  Depth: 3
 WALK(ING):
   Expression: (LAMBDA (FORM ENV) FORM ENV 0)
   Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                    (LAMBDA (FORM ENV) FORM ENV 0))
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 1
 WALK(ING):
   Expression: LAMBDA
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 2
 WALK(ING):
   Expression: (FORM ENV)
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 2
 WALK(ING):
   Expression: FORM
   Context: (FORM ENV)
   Parent: (LAMBDA (FORM ENV) FORM ENV 0)
-  Depth: 3
 WALK(ING):
   Expression: ENV
   Context: (FORM ENV)
   Parent: (LAMBDA (FORM ENV) FORM ENV 0)
-  Depth: 3
 WALK(ING):
   Expression: FORM
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 2
 WALK(ING):
   Expression: ENV
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 2
 WALK(ING):
   Expression: 0
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
@@ -1122,7 +934,6 @@ WALK(ING):
   Parent: (DEFINE-CONDITION CONDITION-NAME
               NIL
               NIL)
-  Depth: 0
 WALK(ING):
   Expression: DEFINE-CONDITION
   Context: (DEFINE-CONDITION CONDITION-NAME
@@ -1131,7 +942,6 @@ WALK(ING):
   Parent: (DEFINE-CONDITION CONDITION-NAME
               NIL
               NIL)
-  Depth: 1
 WALK(ING):
   Expression: CONDITION-NAME
   Context: (DEFINE-CONDITION CONDITION-NAME
@@ -1140,7 +950,6 @@ WALK(ING):
   Parent: (DEFINE-CONDITION CONDITION-NAME
               NIL
               NIL)
-  Depth: 1
 WALK(ING):
   Expression: NIL
   Context: (DEFINE-CONDITION CONDITION-NAME
@@ -1149,7 +958,6 @@ WALK(ING):
   Parent: (DEFINE-CONDITION CONDITION-NAME
               NIL
               NIL)
-  Depth: 1
 WALK(ING):
   Expression: NIL
   Context: (DEFINE-CONDITION CONDITION-NAME
@@ -1158,7 +966,6 @@ WALK(ING):
   Parent: (DEFINE-CONDITION CONDITION-NAME
               NIL
               NIL)
-  Depth: 1
 
 
 Definitions Analysis Trace for d:/quicklisp/local-projects/test-project/src/refs.lisp
@@ -1168,330 +975,290 @@ WALK(ING):
   Expression: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
-  Depth: 0
 WALK(ING):
   Expression: IN-PACKAGE
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
-  Depth: 1
 WALK(ING):
   Expression: #:TEST-PROJECT-PACKAGE
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
-  Depth: 1
 
+-------------------------------
+WALK(ING):
+  Expression: *DEFVAR-VARIABLE*
+  Context: *DEFVAR-VARIABLE*
+  Parent: *DEFVAR-VARIABLE*
 
+-------------------------------
+WALK(ING):
+  Expression: *DEFPARAMETER-VARIABLE*
+  Context: *DEFPARAMETER-VARIABLE*
+  Parent: *DEFPARAMETER-VARIABLE*
 
+-------------------------------
+WALK(ING):
+  Expression: +DEFCONSTANT-VARIABLE+
+  Context: +DEFCONSTANT-VARIABLE+
+  Parent: +DEFCONSTANT-VARIABLE+
 
+-------------------------------
+WALK(ING):
+  Expression: *SYMBOL-VALUE-VARIABLE*
+  Context: *SYMBOL-VALUE-VARIABLE*
+  Parent: *SYMBOL-VALUE-VARIABLE*
 
 -------------------------------
 WALK(ING):
   Expression: (DEFUN-NAME)
   Context: (DEFUN-NAME)
   Parent: (DEFUN-NAME)
-  Depth: 0
 WALK(ING):
   Expression: DEFUN-NAME
   Context: (DEFUN-NAME)
   Parent: (DEFUN-NAME)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (FUNCALL 'SYMBOL-FUNCTION-NAME)
   Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
   Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Depth: 0
 WALK(ING):
   Expression: FUNCALL
   Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
   Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Depth: 1
 WALK(ING):
   Expression: 'SYMBOL-FUNCTION-NAME
   Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
   Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Depth: 1
 WALK(ING):
   Expression: QUOTE
   Context: 'SYMBOL-FUNCTION-NAME
   Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Depth: 2
 WALK(ING):
   Expression: SYMBOL-FUNCTION-NAME
   Context: 'SYMBOL-FUNCTION-NAME
   Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
   Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
   Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Depth: 0
 WALK(ING):
   Expression: FUNCALL
   Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
   Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Depth: 1
 WALK(ING):
   Expression: 'FDEFINITION-FUNCTION-NAME
   Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
   Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Depth: 1
 WALK(ING):
   Expression: QUOTE
   Context: 'FDEFINITION-FUNCTION-NAME
   Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Depth: 2
 WALK(ING):
   Expression: FDEFINITION-FUNCTION-NAME
   Context: 'FDEFINITION-FUNCTION-NAME
   Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (CIRCLE-RADIUS (MAKE-CIRCLE))
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
   Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Depth: 0
 WALK(ING):
   Expression: CIRCLE-RADIUS
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
   Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Depth: 1
 WALK(ING):
   Expression: (MAKE-CIRCLE)
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
   Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Depth: 1
 WALK(ING):
   Expression: MAKE-CIRCLE
   Context: (MAKE-CIRCLE)
   Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (PERSON.AGE (MAKE-PERSON))
   Context: (PERSON.AGE (MAKE-PERSON))
   Parent: (PERSON.AGE (MAKE-PERSON))
-  Depth: 0
 WALK(ING):
   Expression: PERSON.AGE
   Context: (PERSON.AGE (MAKE-PERSON))
   Parent: (PERSON.AGE (MAKE-PERSON))
-  Depth: 1
 WALK(ING):
   Expression: (MAKE-PERSON)
   Context: (PERSON.AGE (MAKE-PERSON))
   Parent: (PERSON.AGE (MAKE-PERSON))
-  Depth: 1
 WALK(ING):
   Expression: MAKE-PERSON
   Context: (MAKE-PERSON)
   Parent: (PERSON.AGE (MAKE-PERSON))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
   Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Depth: 0
 WALK(ING):
   Expression: FUNCALL
   Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Depth: 1
 WALK(ING):
   Expression: #'COMPUTE-AREA
   Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Depth: 1
 WALK(ING):
   Expression: (MAKE-CIRCLE :RADIUS 1)
   Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Depth: 1
 WALK(ING):
   Expression: MAKE-CIRCLE
   Context: (MAKE-CIRCLE :RADIUS 1)
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Depth: 2
 WALK(ING):
   Expression: :RADIUS
   Context: (MAKE-CIRCLE :RADIUS 1)
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Depth: 2
 WALK(ING):
   Expression: 1
   Context: (MAKE-CIRCLE :RADIUS 1)
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Depth: 2
 
 -------------------------------
 WALK(ING):
   Expression: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Depth: 0
 WALK(ING):
   Expression: PROCESS-DATA
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Depth: 1
 WALK(ING):
   Expression: "test"
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Depth: 1
 WALK(ING):
   Expression: :LOG-LEVEL
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Depth: 1
 WALK(ING):
   Expression: :WARN
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (PROCESS-DATA 42)
   Context: (PROCESS-DATA 42)
   Parent: (PROCESS-DATA 42)
-  Depth: 0
 WALK(ING):
   Expression: PROCESS-DATA
   Context: (PROCESS-DATA 42)
   Parent: (PROCESS-DATA 42)
-  Depth: 1
 WALK(ING):
   Expression: 42
   Context: (PROCESS-DATA 42)
   Parent: (PROCESS-DATA 42)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (DEFMACRO-NAME)
   Context: (DEFMACRO-NAME)
   Parent: (DEFMACRO-NAME)
-  Depth: 0
 WALK(ING):
   Expression: DEFMACRO-NAME
   Context: (DEFMACRO-NAME)
   Parent: (DEFMACRO-NAME)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (MACRO-FUNCTION-NAME)
   Context: (MACRO-FUNCTION-NAME)
   Parent: (MACRO-FUNCTION-NAME)
-  Depth: 0
 WALK(ING):
   Expression: MACRO-FUNCTION-NAME
   Context: (MACRO-FUNCTION-NAME)
   Parent: (MACRO-FUNCTION-NAME)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
   Expression: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
   Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Depth: 0
 WALK(ING):
   Expression: DEFUN
   Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Depth: 1
 WALK(ING):
   Expression: FUNCTION-WITH-CONDITION
   Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Depth: 1
 WALK(ING):
   Expression: NIL
   Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Depth: 1
 WALK(ING):
   Expression: (ERROR 'CONDITION-NAME)
   Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Depth: 1
 WALK(ING):
   Expression: ERROR
   Context: (ERROR 'CONDITION-NAME)
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Depth: 2
 WALK(ING):
   Expression: 'CONDITION-NAME
   Context: (ERROR 'CONDITION-NAME)
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Depth: 2
 WALK(ING):
   Expression: QUOTE
   Context: 'CONDITION-NAME
   Parent: (ERROR 'CONDITION-NAME)
-  Depth: 3
 WALK(ING):
   Expression: CONDITION-NAME
   Context: 'CONDITION-NAME
   Parent: (ERROR 'CONDITION-NAME)
-  Depth: 3
 
 -------------------------------
 WALK(ING):
   Expression: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 0
 WALK(ING):
   Expression: DEFUN
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 1
 WALK(ING):
   Expression: MY-FUNCTION
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 1
 WALK(ING):
   Expression: (ARG)
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 1
 WALK(ING):
   Expression: ARG
   Context: (ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 2
 WALK(ING):
   Expression: (DEFUN-NAME)
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 1
 WALK(ING):
   Expression: DEFUN-NAME
   Context: (DEFUN-NAME)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 2
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 1
 WALK(ING):
   Expression: ARG
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Depth: 1
 
 -------------------------------
 WALK(ING):
@@ -1510,7 +1277,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 0
 WALK(ING):
   Expression: LET
   Context: (LET ((ARG 0))
@@ -1523,7 +1289,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 1
 WALK(ING):
   Expression: ((ARG 0))
   Context: (LET ((ARG 0))
@@ -1536,7 +1301,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 1
 WALK(ING):
   Expression: (ARG 0)
   Context: ((ARG 0))
@@ -1545,17 +1309,14 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 2
 WALK(ING):
   Expression: ARG
   Context: (ARG 0)
   Parent: ((ARG 0))
-  Depth: 3
 WALK(ING):
   Expression: 0
   Context: (ARG 0)
   Parent: ((ARG 0))
-  Depth: 3
 WALK(ING):
   Expression: (DEFUN-NAME)
   Context: (LET ((ARG 0))
@@ -1568,7 +1329,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 1
 WALK(ING):
   Expression: DEFUN-NAME
   Context: (DEFUN-NAME)
@@ -1577,7 +1337,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 2
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (LET ((ARG 0))
@@ -1590,7 +1349,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 1
 WALK(ING):
   Expression: (COMPUTE-AREA (MAKE-CIRCLE))
   Context: (LET ((ARG 0))
@@ -1603,7 +1361,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 1
 WALK(ING):
   Expression: COMPUTE-AREA
   Context: (COMPUTE-AREA (MAKE-CIRCLE))
@@ -1612,7 +1369,6 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 2
 WALK(ING):
   Expression: (MAKE-CIRCLE)
   Context: (COMPUTE-AREA (MAKE-CIRCLE))
@@ -1621,12 +1377,10 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 2
 WALK(ING):
   Expression: MAKE-CIRCLE
   Context: (MAKE-CIRCLE)
   Parent: (COMPUTE-AREA (MAKE-CIRCLE))
-  Depth: 3
 WALK(ING):
   Expression: ARG
   Context: (LET ((ARG 0))
@@ -1639,5 +1393,4 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
-  Depth: 1
 

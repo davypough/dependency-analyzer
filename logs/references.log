@@ -110,22 +110,6 @@ REFERENCE>
                         :Status :INTERNAL
 
 REFERENCE>
-    :Name FDEFINITION-FUNCTION-NAME
-    :Context (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
-    :Definitions
-                    DEFINITION>
-                        :Name FDEFINITION-FUNCTION-NAME
-                        :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
-                                         (LAMBDA () 0))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
     :Name CIRCLE-RADIUS
     :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
     :File /src/refs.lisp

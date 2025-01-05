@@ -75,104 +75,109 @@
 
 
 (defun analyze-definition-form (parser form)
-  "Analyze form for definitions, recording location and basic info.
+  "Analyze raw form from source file for definitions, recording location and basic info.
    Handles all standard definition forms, setf forms, and extended definitions."
-  (declare (special log-stream))
-  (when (and (consp form)
-             (symbolp (first form))
-             (not (quoted-form-p form)))
+    (declare (special log-stream))
     (walk-form form
-      (lambda (current-form context parent-context depth)
-        (declare (ignore context parent-context depth))
-        (when (and (consp current-form)
+      (lambda (current-form context parent-context)
+        (declare (ignorable context parent-context))
+        (when (and (consp current-form)  ;only analyze potential definition forms
                    (symbolp (first current-form))
                    (not (quoted-form-p current-form)))
           (let ((head (first current-form)))
             (cond
-
-              ;; Variable definitions 
+              ;; Variable definition 
               ((member head '(defvar defparameter defconstant))
                (let ((name (second current-form)))
                  (record-definition *current-tracker*
-                                  :name name
-                                  :type :variable 
+                                    :name name
+                                    :type :variable 
+                                    :file (file parser)
+                                    :package (current-package parser)  ;from last in-package, not runtime lookup--could be in several
+                                    :status (symbol-status name (current-package parser))  ;(symbol-package name))
+                                    :context current-form)))
+
+              ;; Function definition
+              ((eq head 'defun)
+               (record-definition *current-tracker*
+                                  :name (second current-form)
+                                  :type :function
                                   :file (file parser)
                                   :package (current-package parser)
-                                  :status (symbol-status name (symbol-package name))
-                                  :context current-form)))
+                                  :status (symbol-status (second current-form) (current-package parser))
+                                  :context current-form))
 
-              ;; Function/macro definitions
-              ((member head '(defun defmacro))
+              ;; Macro definition
+              ((eq head 'defmacro)
                (record-definition *current-tracker*
-                                :name (second current-form)
-                                :type (if (eq head 'defun) :function :macro)
-                                :file (file parser)
-                                :package (current-package parser)
-                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))
+                                  :name (second current-form)
+                                  :type :macro
+                                  :file (file parser)
+                                  :package (current-package parser)
+                                  :status (symbol-status (second current-form) (current-package parser))
+                                  :context current-form))
 
-              ;; Generic function
+              ;; Generic function definition
               ((eq head 'defgeneric)
                (record-definition *current-tracker*
-                   :name (second current-form)
-                   :type :generic-function
-                   :file (file parser)
-                   :package (current-package parser)
-                   :status (symbol-status (second current-form) 
-                                        (symbol-package (second current-form)))
-                   :context current-form))
+                                  :name (second current-form)
+                                  :type :generic-function
+                                  :file (file parser)
+                                  :package (current-package parser)
+                                  :status (symbol-status (second current-form) (current-package parser))
+                                  :context current-form))
 
-              ;; Method definitions
+              ;; Method definition
               ((eq head 'defmethod)
-               (multiple-value-bind (method-name qualifiers lambda-list body)
-                   (destructure-method-form current-form)
-                 (declare (ignore method-name body))
+               (let* ((rest (cddr current-form))  ; Skip defmethod and name
+                      (qualifiers (loop while (and rest (keywordp (car rest)))
+                                        collect (pop rest)))
+                      (lambda-list (car rest)))
                  (record-definition *current-tracker*
-                                 :name (second current-form)
-                                 :type :method
-                                 :file (file parser)
-                                 :package (current-package parser)
-                                 :status (symbol-status (second current-form) 
-                                                        (symbol-package (second current-form)))
-                                 :context current-form
-                                 :qualifiers qualifiers
-                                 :specializers (extract-specializers lambda-list))))
+                                    :name (second current-form)
+                                    :type :method
+                                    :file (file parser)
+                                    :package (current-package parser)
+                                    :status (symbol-status (second current-form) (current-package parser))
+                                    :context current-form
+                                    :qualifiers qualifiers 
+                                    :specializers (extract-specializers lambda-list))))
 
-              ;; Structure/class system
+              ;; Structure/class definition
               ((member head '(defclass defstruct define-condition))
-               (let ((name (if (and (eq head 'defstruct)    ; Handle defstruct options
-                                  (consp (second current-form)))
+               (let ((name (if (and (eq head 'defstruct)  ;handle defstruct options
+                                    (consp (second current-form)))
                              (caadr current-form)               
                              (second current-form))))
                  (record-definition *current-tracker*
-                                  :name name
-                                  :type :structure/class/condition
-                                  :file (file parser)
-                                  :package (current-package parser)
-                                  :status (symbol-status name (symbol-package name))
-                                  :context current-form)
+                                    :name name
+                                    :type :structure/class/condition
+                                    :file (file parser)
+                                    :package (current-package parser)
+                                    :status (symbol-status name (current-package parser))
+                                    :context current-form)
                  (analyze-defclass/defstruct/define-condition parser name current-form)))
 
-              ;; Type system
+              ;; Type definition
               ((eq head 'deftype)
                (record-definition *current-tracker*
-                                :name (second current-form)
-                                :type :type
-                                :file (file parser)
-                                :package (current-package parser)
-                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))
+                                  :name (second current-form)
+                                  :type :type
+                                  :file (file parser)
+                                  :package (current-package parser)
+                                  :status (symbol-status (second current-form) (current-package parser))
+                                  :context current-form))
 
               ;; Package system
               ((member head '(defpackage make-package))
                (record-definition *current-tracker*
-                     :name (second current-form)  ;string/symbol designator
-                     :type :package
-                     :file (file parser)
-                     :context current-form)
+                                  :name (second current-form)  ;eg, "FOO", :foo, #:foo
+                                  :type :package
+                                  :file (file parser)
+                                  :context current-form)
                (analyze-defpackage/make-package parser (second current-form) current-form))
 
-              ;; Setf forms
+              ;; Setf form definitions  eg, (setf (symbol-value 'sym-var) 0)
               ((and (eq head 'setf) 
                     (consp (second current-form))
                     (symbolp (caadr current-form))
@@ -181,31 +186,16 @@
                     (eq (first (cadadr current-form)) 'quote))
                (let ((accessor (caadr current-form))
                      (name (second (cadadr current-form))))
-                 (case accessor
-                   (symbol-value 
-                    (record-definition *current-tracker*
-                                   :name name
-                                   :type :variable
-                                   :file (file parser)
-                                   :package (current-package parser)
-                                   :status (symbol-status name (symbol-package name))
-                                   :context current-form))
-                   ((symbol-function fdefinition)
-                    (record-definition *current-tracker*
-                                   :name name
-                                   :type :function
-                                   :file (file parser)
-                                   :package (current-package parser)
-                                   :status (symbol-status name (symbol-package name))
-                                   :context current-form))
-                   (macro-function
-                    (record-definition *current-tracker*
-                                   :name name
-                                   :type :macro
-                                   :file (file parser)
-                                   :package (current-package parser)
-                                   :status (symbol-status name (symbol-package name))
-                                   :context current-form)))))
+                 (record-definition *current-tracker*
+                                    :name name
+                                    :type (case accessor
+                                            (symbol-value :variable)
+                                            (symbol-function :function)
+                                            (macro-function :macro))
+                                    :file (file parser)
+                                    :package (current-package parser)
+                                    :status (symbol-status name (current-package parser))
+                                    :context current-form)))
 
               ;; Extended definition forms
               ((member head '(defsetf define-setf-expander))
@@ -214,7 +204,7 @@
                                 :type :setf
                                 :file (file parser) 
                                 :package (current-package parser)
-                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :status (symbol-status (second current-form) (current-package parser))
                                 :context current-form))
 
               ((eq head 'define-symbol-macro)
@@ -223,7 +213,7 @@
                                 :type :symbol-macro
                                 :file (file parser)
                                 :package (current-package parser)
-                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :status (symbol-status (second current-form) (current-package parser))
                                 :context current-form))
 
               ((member head '(define-modify-macro define-compiler-macro))
@@ -232,7 +222,7 @@
                                 :type :macro
                                 :file (file parser)
                                 :package (current-package parser)
-                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
+                                :status (symbol-status (second current-form) (current-package parser))
                                 :context current-form))
 
               ((eq head 'define-method-combination)
@@ -241,8 +231,8 @@
                                 :type :function
                                 :file (file parser)
                                 :package (current-package parser)
-                                :status (symbol-status (second current-form) (symbol-package (second current-form)))
-                                :context current-form))))))))
+                                :status (symbol-status (second current-form) (current-package parser))
+                                :context current-form)))))))
   form)
 
 
@@ -251,8 +241,8 @@
    Handles references to packages (via string/keyword/uninterned-symbol) and 
    references to other defined symbols."
   (declare (special log-stream))
-  (labels ((handle-reference (subform context parent-context depth)
-             (declare (ignorable subform context parent-context depth))
+  (labels ((handle-reference (subform context parent-context)
+             (declare (ignorable subform context parent-context))
              (unless (skip-item-p subform)
                (typecase subform
                  ((or string keyword (and symbol (satisfies not-interned-p)))

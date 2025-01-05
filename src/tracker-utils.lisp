@@ -40,13 +40,6 @@
      PROCESS-DATA|USER-MAIN-PACKAGE|GENERIC-FUNCTION|()|()
      USER-MAIN-PACKAGE||PACKAGE ie, a package string, no package association, package type."
   (let* ((name (format nil "~A" designator))
-               ;(etypecase designator
-               ;  (string designator)
-               ;  (symbol (string designator))
-               ; (cons (if (and (eq (car designator) 'setf) (= (length designator) 2))
-               ;          (format nil "(SETF ~A)" (string (cadr designator)))
-               ;          (error "Invalid designator form ~S in make-tracking-key~%  package-alias: ~S~%  type: ~S" 
-               ;                designator package-alias type)))))
          (pkg-name (when package-alias
                      (or (package-name package-alias) (string package-alias)))))
     
@@ -63,7 +56,7 @@
       key)))
 
 
-(defun user-defined-p (def)
+#+ignore (defun user-defined-p (def)  ;keep to use later for detecting unused definitions
   "Check if definition appears to be explicitly defined by user rather than auto-generated."
   (let ((name (string (definition.name def))))
     (case (definition.type def)
@@ -82,11 +75,11 @@
     (let* ((project-root (project-root *current-tracker*))
            (namestring (namestring pathname)))
       (if project-root
-          (let ((relative (enough-namestring pathname project-root)))
-            (if (char= (char relative 0) #\/)
-                relative
-                (concatenate 'string "/" relative)))
-          namestring))))
+        (let ((relative (enough-namestring pathname project-root)))
+          (if (char= (char relative 0) #\/)
+            relative
+            (concatenate 'string "/" relative)))
+        namestring))))
 
 
 #+ignore (defun detect-unused-definitions (tracker)  ;redo later, too many ways to reference a definition
@@ -322,7 +315,7 @@
   (declare (special log-stream))
   (format log-stream "Filename: DEFINITIONS.LOG")
   (format log-stream "~2%The list of all definitions identified in the ~A project.~2%"
-                 (slot-value *current-tracker* 'project-name))
+          (slot-value *current-tracker* 'project-name))
   (let ((def-ht (slot-value *current-tracker* 'definitions)))
     (maphash (lambda (key val)
                (declare (ignore key))
@@ -336,15 +329,13 @@
   (declare (special log-stream))
   (format log-stream "Filename: REFERENCES.LOG")
   (format log-stream "~2%The list of all references to definitions in other files for the ~A project.~%"
-                 (slot-value *current-tracker* 'project-name))
+          (slot-value *current-tracker* 'project-name))
   (let ((ref-ht (slot-value *current-tracker* 'references)))
     (maphash (lambda (key ref-list)
                (declare (ignore key))
                (dolist (ref (sort ref-list #'string< 
                                  :key (lambda (r)
-                                       (format nil "~A:~A"
-                                               (reference.file r)
-                                               (reference.name r)))))
+                                        (format nil "~A:~A" (reference.file r) (reference.name r)))))
                  (terpri log-stream)
                  (print-reference ref log-stream)))
              ref-ht)))
@@ -355,7 +346,7 @@
   (declare (special log-stream))
   (format log-stream "Filename: ANOMALIES.LOG")
   (format log-stream "~2%The list of all anomalies detected during dependency analysis of the ~A project.~2%"
-                 (slot-value *current-tracker* 'project-name))
+          (slot-value *current-tracker* 'project-name))
   (let ((anomaly-types nil))
     ;; Collect all anomaly types
     (maphash (lambda (type anomaly-list)

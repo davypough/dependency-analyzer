@@ -29,7 +29,7 @@
 
 
 (defun symbol-status (sym pkg)
-  "Determines the status of a symbol in a package."
+  "Determines the status of a symbol in a package, :inherited, :external, :internal, or not found."
   (let ((status (nth-value 1 (find-symbol (symbol-name sym) pkg))))
     (if status
       status
@@ -507,123 +507,36 @@
         visibility))))
 
 
-#+ignore (defun walk-form (form handler)
-  "Walk a form calling HANDLER on each subform with context and depth info.
-   Expands macros encountered during walking.
-   FORM - The form to analyze
-   HANDLER - Function taking (form context parent-context depth)"
-  (declare (special log-stream))
-  (labels ((walk (x context parent-context depth)
-             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%  Depth: ~D~%" 
-                              x context parent-context depth)
-             (unless (skip-item-p x)  ;skip non-referring items
-               ;; Try macro expansion first
-               (let ((expanded-form
-                      (and (consp x)
-                           (symbolp (car x))
-                           (macro-function (car x))
-                           (macroexpand-1 x))))
-                 (if expanded-form
-                     ;; Walk the expansion
-                     (walk expanded-form context parent-context depth)
-                     ;; Process normally  
-                     (progn
-                       (funcall handler x context parent-context depth)
-                       ;; Recursively process subforms
-                       (typecase x
-                         (cons 
-                           (dolist (element x)
-                             (walk element x context (1+ depth))))
-                         (array 
-                           (dotimes (i (array-total-size x))
-                             (walk (row-major-aref x i) x context (1+ depth))))
-                         (hash-table 
-                           (maphash (lambda (k v)
-                                     (walk k x context (1+ depth))
-                                     (walk v x context (1+ depth)))
-                                   x)))))))))
-    
-    (let ((*print-circle* nil)
-          (*print-length* 10)
-          (*print-level* 5))
-      (format log-stream "~&-------------------------------~%")
-      (walk form form form 0))))
-
-
 (defun walk-form (form handler)
-  "Walk a form calling HANDLER on each subform with context and depth info.
+  "Walk a form calling HANDLER on each subform with context and parent context info.
    FORM - The form to analyze
-   HANDLER - Function taking (form context parent-context depth)"
+   HANDLER - Function taking (form context parent-context)"
   (declare (special log-stream))
-  (labels ((walk (x context parent-context depth)
-             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%  Depth: ~D~%" 
-                                x context parent-context depth)
+  (labels ((walk (x context parent-context)
+             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%" 
+                              x context parent-context)
              (unless (skip-item-p x)  ;skip non-referring items
-               (funcall handler x context parent-context depth)  
+               (funcall handler x context parent-context)  
                ;; Recursively process subforms
                (typecase x
                  (cons 
                    (dolist (element x)
-                     (walk element x context (1+ depth))))
+                     (walk element x context)))
                  (array 
                    (dotimes (i (array-total-size x))
-                     (walk (row-major-aref x i) x context (1+ depth))))
+                     (walk (row-major-aref x i) x context)))
                  (hash-table 
                    (maphash (lambda (k v)
-                             (walk k x context (1+ depth))
-                             (walk v x context (1+ depth)))
+                             (walk k x context)
+                             (walk v x context))
                            x))))))
     
     ;; Start walking at top level
     (let ((*print-circle* nil)     ; Prevent circular printing issues
-          (*print-length* 10)      ; Limit list output
+          (*print-length* 10)      ; Limit list length 
           (*print-level* 5))       ; Limit nesting output
       (format log-stream "~&-------------------------------~%")
-      (walk form form form 0))))
-
-
-#+ignore (defun limit-form-size (form pkg-name &key (max-depth 8) (max-elements 20))
-  "Limit the size of a form for use as reference context.
-   Returns form if within limits, otherwise returns truncated version.
-   Strips package prefixes only when they match pkg-name."
-  (let ((element-count 0))
-    (labels ((clean-symbol (sym)
-               (let* ((actual-sym (if (and (listp sym) 
-                                          (eq (car sym) 'quote))
-                                     (cadr sym)
-                                     sym))
-                      (pkg (and (symbolp actual-sym)
-                               (symbol-package actual-sym)))
-                      (sym-pkg-name (and pkg (package-name pkg))))
-                 (cond ((not (symbolp actual-sym)) actual-sym)
-                       ((null pkg) actual-sym)  ; Uninterned stays uninterned
-                       ((string= sym-pkg-name pkg-name) ; Package matches, strip qualifier 
-                        (intern (symbol-name actual-sym) 
-                               (find-package pkg-name)))
-                       (t actual-sym))))  ; Keep qualifier if different package
-             (truncate-form (f depth)
-               (when (> (incf element-count) max-elements)
-                 (return-from truncate-form
-                   (typecase f 
-                     (cons (if (member (car f) '(quote function))
-                             (list (car f) (clean-symbol (cadr f)))
-                             (list (clean-symbol (car f)) (make-instance 'dots-object))))
-                     (symbol (clean-symbol f))
-                     (t f))))
-               (typecase f
-                 (cons
-                  (cond ((>= depth max-depth)
-                         (if (member (car f) '(quote function))
-                             (list (car f) (clean-symbol (cadr f)))
-                             (list (clean-symbol (car f)) (make-instance 'dots-object))))
-                        ((member (car f) '(quote function))
-                         (list (car f) (clean-symbol (cadr f))))
-                        (t (let ((car (truncate-form (car f) (1+ depth)))
-                               (cdr (truncate-form (cdr f) (1+ depth))))
-                             (cons car cdr)))))
-                 (symbol (clean-symbol f))
-                 (t f))))
-      (truncate-form form 0))))
+      (walk form form form))))
 
 
 (defun package-context-p (context parent-context)
@@ -1071,7 +984,7 @@
                    t)))
 
 
-(defun destructure-method-form (form)
+#+ignore (defun destructure-method-form (form)
   "Parse defmethod form into components.
    Returns (values name qualifiers lambda-list body)."
   (destructuring-bind (def-op &rest after-defmethod) form
@@ -1102,10 +1015,7 @@
                   (push item qualifiers))
               (setf remaining (cdr remaining))))
       
-      (values name 
-              (nreverse qualifiers)
-              lambda-list 
-              body))))
+      (values name (nreverse qualifiers) lambda-list body))))
 
 
 (defun lambda-list-p (form)
@@ -1234,18 +1144,18 @@
                           :context subform)))))
 
 
-(defun analyze-defclass/defstruct/define-condition (parser name subform)
+(defun analyze-defclass/defstruct/define-condition (parser name form)
   "Analyze a defclass, defstruct, or define-condition form.
    Records the primary type definition and all implicitly defined functions."
   (declare (special log-stream))
-  (let ((def-op (first subform))
+  (let ((def-op (first form))
         (class (find-class name nil)))
     (when class   ;only analyze runtime objects if class object exists
       ;; Common accessor analysis
-      (record-slot-accessors parser name class subform)
+      (record-slot-accessors parser name class form)
       ;; Only defstruct has additional implicit functions
       (when (eq def-op 'defstruct)
-        (record-defstruct-functions parser name class subform)))))
+        (record-defstruct-functions parser name class form)))))
 
 
 (defun analyze-defpackage/make-package (parser name subform)
