@@ -28,20 +28,15 @@
   "Create a lookup key for a designator with optional package name, type & method info.
    For methods and generic functions, always includes qualifiers and specializers parts, even if nil.
    DESIGNATOR can be symbol, package designator, or (setf symbol) form.
-   PACKAGE-ALIAS is a package designator--eg, \"FOO\", :foo, #:foo that converts to string.
+   PACKAGE-ALIAS is a package designator--eg, \"FOO\", :foo, #:foo, or package object.
    TYPE is one of +valid-definition-types+ of DESIGNATOR.
-   QUALIFIERS is a list of method qualifiers.
-   SPECIALIZERS is a list of specializer types.
-   Returns key like: name|package-name|type[|()|()].
-   Examples:
-     *DEFVAR-VARIABLE*|USER-MAIN-PACKAGE|VARIABLE
-     PROCESS-DATA|USER-MAIN-PACKAGE|METHOD|()|(STRING)
-     PROCESS-DATA|USER-MAIN-PACKAGE|METHOD|(AFTER)|(STRING)
-     PROCESS-DATA|USER-MAIN-PACKAGE|GENERIC-FUNCTION|()|()
-     USER-MAIN-PACKAGE||PACKAGE ie, a package string, no package association, package type."
+   QUALIFIERS is a list of method qualifiers in their significant order.
+   SPECIALIZERS is a list of specializer types."
   (let* ((name (format nil "~A" designator))
-         (pkg-name (when package-alias
-                     (or (package-name package-alias) (string package-alias)))))
+         (pkg-name (typecase package-alias
+                    (package (package-name package-alias))
+                    (null nil)
+                    (t (or (package-name package-alias) (string package-alias))))))
     
     (when (and type (not (member type +valid-definition-types+)))
       (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package-alias: ~S~%  type: ~S"
@@ -49,9 +44,13 @@
     
     (let ((key (format nil "~A|~A|~A" name (or pkg-name "") (or type ""))))
       (when (or (member type '(:METHOD :GENERIC-FUNCTION)) qualifiers specializers)
-        (let* ((sorted-quals (sort (copy-list (or qualifiers nil)) #'string<)))
-          (setf key (format nil "~A|(~{~A~^ ~})" key sorted-quals)))
-        (let* ((sorted-specs (sort (copy-list (or specializers nil)) #'string<)))
+        ;; Preserve qualifier order as it is significant
+        (setf key (format nil "~A|(~{~A~^ ~})" key (or qualifiers nil)))
+        ;; Sort specializers using printed representation for comparison
+        (let* ((sorted-specs (sort (copy-list (or specializers nil)) 
+                                 #'string<
+                                 :key (lambda (spec)
+                                       (format nil "~S" spec)))))
           (setf key (format nil "~A|(~{~A~^ ~})" key sorted-specs))))
       key)))
 

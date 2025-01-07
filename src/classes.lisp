@@ -9,7 +9,7 @@
 
 (alexandria:define-constant +valid-definition-types+ 
   '(:STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
-    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :TYPE :PACKAGE)
+    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :TYPE :PACKAGE)  ;use :deftype instead of :type
   :test #'equal
   :documentation "Valid types for dependency definitions. Used for type checking and reference matching.")
 
@@ -70,22 +70,24 @@
   ((name :initarg :name :reader reference.name :type (or string symbol))
    (context :initarg :context :reader reference.context :type (or symbol list))
    (file :initarg :file :reader reference.file :type (or string pathname))
+   (type :initarg :type :reader reference.type :type (member . #.+valid-definition-types+))
    (package :initarg :package :reader reference.package :type (or string symbol))
-   (visibility :initarg :visibility :reader reference.visibility :type (member :LOCAL :INHERITED :IMPORTED)) 
+   (visibility :initarg :visibility :reader reference.visibility :type (member :LOCAL :INHERITED :IMPORTED))
    (definitions :initarg :definitions :reader reference.definitions :type cons)
    (qualifiers :initarg :qualifiers :initform nil :reader reference.qualifiers :type list)
    (arguments :initarg :arguments :initform nil :reader reference.arguments :type list))
-  (:default-initargs :name nil :context nil :file nil :package nil :visibility nil
-                    :definitions nil :qualifiers nil :arguments nil)
+  (:default-initargs :name nil :context nil :file nil :type nil :package nil :visibility nil
+                     :definitions nil :qualifiers nil :arguments nil)
   (:documentation "Data structure holding info about a lisp reference to a definition"))
 
 
 (defmethod print-object ((object reference) stream)
   "Print a reference object, omitting slots that are nil."
   (print-unreadable-object (object stream :type t)
-    (with-slots (name context file package visibility definitions qualifiers arguments) object
+    (with-slots (name context type file package visibility definitions qualifiers arguments) object
       (format-if stream "    :Name ~A" "" name)
       (format-if stream "    :Context ~A" "" context)
+      (format-if stream "    :Type ~S" "" type)
       (format-if stream "    :File ~A" "" (and file (project-pathname file)))
       (format-if stream "    :Package ~S" "" package)
       (format-if stream "    :Visibility ~A" "" visibility)
@@ -103,6 +105,7 @@
     (format stream "~&~AREFERENCE>" indent-str)
     (format-if stream "    :Name ~A" indent-str (reference.name ref))
     (format-if stream "    :Context ~A" indent-str (reference.context ref))
+    (format-if stream "    :Type ~S" indent-str (reference.type ref))
     (format-if stream "    :File ~A" indent-str (and (reference.file ref)
                                                   (project-pathname (reference.file ref))))
     (format-if stream "    :Package ~S" indent-str (reference.package ref))

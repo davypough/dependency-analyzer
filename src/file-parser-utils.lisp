@@ -83,16 +83,14 @@
                             :specializers specializers))
          ;; Generate appropriate key based on definition type
          (key (if (eq type :METHOD)
-                 ;; Method key includes both qualifiers and specializers
                  (make-tracking-key name package type qualifiers specializers)
-                 ;; Non-method key uses base form
                  (make-tracking-key name package type)))
          ;; Look for existing definitions with this key
          (existing-defs (gethash key (slot-value tracker 'definitions)))
          ;; Filter out definitions from same file
          (other-file-defs (remove-if (lambda (d)
-                                     (equal (definition.file d) file))
-                                   existing-defs)))
+                                       (equal (definition.file d) file))
+                                     existing-defs)))
     
     ;; Check for duplicates and record anomaly if found in other files
     (when other-file-defs
@@ -105,12 +103,14 @@
                        :description (format nil "~A also defined in ~A" name def-files)
                        :package package
                        :context (definition.context def))))
-                       ;:files (cons file def-files))))
     
     ;; Store definition under the computed key
-    (push def (gethash key (slot-value tracker 'definitions)))
+    (setf (gethash key (slot-value tracker 'definitions))
+      (cons def existing-defs))
     ;; Add to file map
-    (push def (gethash file (slot-value tracker 'file-map)))
+    (let ((file-defs (gethash file (slot-value tracker 'file-map))))
+      (setf (gethash file (slot-value tracker 'file-map))
+          (cons def file-defs)))
     ;; Record exports for non-package definitions
     (unless (eq type :package)
       (when (eq (symbol-status name package) :exported)
@@ -118,7 +118,7 @@
     def))
 
 
-(defun record-reference (tracker &key name file package context visibility definitions
+(defun record-reference (tracker &key name file type package context visibility definitions
                                      qualifiers arguments)
   "Record a name reference in the tracker.
    VISIBILITY is inherited, imported, or local (defaults to local)
@@ -132,7 +132,8 @@
                                                   (package-name (symbol-package name)))))))
          (ref (make-instance 'reference 
                           :name name 
-                          :file file 
+                          :file file
+                          :type type
                           :package package 
                           :context context 
                           :visibility (or visibility :LOCAL)
@@ -265,7 +266,7 @@
                 :context cycle)))))
 
 
-(defun analyze-subform (parser form)
+(defun analyze-current-form (parser form)
   "Analyze a single form for symbol references, recording only references to
    symbols that have definition records. Recursively examines all subforms including
    array elements and hash tables."
@@ -299,11 +300,11 @@
     ; (analyze-form parser form))
     (array
      (dotimes (i (array-total-size form))
-       (analyze-subform parser (row-major-aref form i))))
+       (analyze-current-form parser (row-major-aref form i))))
     (hash-table
      (maphash (lambda (k v)
-                (analyze-subform parser k)
-                (analyze-subform parser v))
+                (analyze-current-form parser k)
+                (analyze-current-form parser v))
               form))
     (t nil)))
 
@@ -405,18 +406,19 @@
                 (analyze-default-form (second item)))))))))))
 
 
-(defun cl-symbol-p (symbol)
- "Return true if symbol is from the common-lisp package."
- (and (symbolp symbol)
-      (eq (symbol-package symbol) 
+(defun cl-symbol-p (item)
+ "Return true if item is from the common-lisp package."
+ (and (symbolp item)
+      (eq (symbol-package item) 
           (find-package :common-lisp))))
 
 
-(defun quoted-form-p (form)
- "Return true if form is quoted with quote or function quote."
- (and (consp form)
-      (or (eq (car form) 'quote)
-          (eq (car form) 'function))))
+(defun quoted-symbol-p (item)
+ "Return true if item is quoted with quote or function quote;
+  eg, 'var, (quote var), #'foo, (function foo)."
+ (and (consp item)
+      (or (eq (car item) 'quote)
+          (eq (car item) 'function))))
 
 
 (defun symbol-qualified-p (symbol parser)
@@ -427,18 +429,25 @@
                 (current-package parser)))))
 
 
-(defun skip-item-p (item)
-  "Return T if item should be skipped during reference analysis."
-  (or (null item)
-      (numberp item) 
-      (stringp item)
-      (keywordp item)
-      (cl-symbol-p item)
-      ;; Only skip quotes that aren't function names
-      (and (quoted-form-p item)
-           (not (and (consp item)
-                    (eq (car item) 'quote)
-                    (symbolp (cadr item)))))))
+(defun skip-item-p (form)
+  "Return T if form should be skipped during definition and reference analysis."
+  (or (null form)
+      (numberp form) 
+      (stringp form)
+      (keywordp form)
+      (cl-symbol-p form)
+      (quoted-symbol-p form)))
+
+
+(defun skip-definition-form (form)
+  "Return T if form should be skipped during reference analysis."
+  (and (consp form)
+       (member (car form) '(defun defvar defparameter defconstant 
+                            defclass defstruct defmethod defgeneric 
+                            define-condition defmacro define-method-combination
+                            define-modify-macro define-compiler-macro
+                            define-symbol-macro defsetf define-setf-expander
+                            deftype))))
 
 
 (defun check-package-reference (symbol parser tracker context parent-context)
@@ -547,8 +556,8 @@
   (and (consp context)
        (or ;; Direct package forms
            (member (car context) '(defpackage in-package use-package 
-                                  make-package rename-package delete-package))
-           ;; Package options in defpackage
+                                   make-package rename-package delete-package))
+           ;; Package options
            (and (consp parent-context)
                 (eq (car parent-context) 'defpackage)
                 (keywordp (car context))
@@ -864,13 +873,13 @@
                                           (if (consp x) (car x) x))))))
 
 
-(defun try-definition-types (subform pkg-name parser context visibility)
+(defun try-definition-types (current-form pkg-name parser context visibility)
   "Records references for symbols defined in other files."
   (let ((found-defs nil)
-        (name (if (and (consp subform) 
-                      (eq (car subform) 'quote))
-                 (cadr subform)  ; Get symbol from quote
-                 subform)))
+        (name (if (and (consp current-form) 
+                      (eq (car current-form) 'quote))
+                 (cadr current-form)  ; Get symbol from quote
+                 current-form)))
     ;; Skip slot names which are defined in current file
     (unless (slot-definition-p name context)
       (dolist (try-type +valid-definition-types+)
@@ -891,7 +900,7 @@
     found-defs))
 
 
-(defun handle-method-call (subform parser pkg-name context visibility name args)
+(defun handle-method-call (current-form parser pkg-name context visibility name args)
   "Handles analysis and recording of method calls.
    Creates reference record for verified method calls."
   (declare (special log-stream))
@@ -911,7 +920,7 @@
                                            ((consp arg) 'unanalyzed)
                                            (t (type-of arg))))))
           (record-reference *current-tracker*
-                          :name subform
+                          :name current-form
                           :file (file parser)
                           :package (current-package parser)
                           :context context
@@ -920,7 +929,7 @@
                           :qualifiers qualifiers
                           :arguments typed-args))
         ;; No generic function found - try other definition types
-        (try-definition-types subform pkg-name parser context visibility))))
+        (try-definition-types current-form pkg-name parser context visibility))))
 
 
 #+ignore (defun handle-method-call (subform parser pkg-name context visibility name args)
@@ -1045,12 +1054,12 @@
 ;;;;;;;;;;;;
 
 
-(defun get-defstruct-conc-name (name subform)
+(defun get-defstruct-conc-name (name current-form)
   "Extract the :conc-name prefix for a defstruct.
    Returns string to prepend to slot names."
-  (if (and (consp (second subform))           ; Has options list
-           (consp (cadr subform)))            ; Not just a name
-      (let ((options (cdadr subform)))        ; Skip struct name
+  (if (and (consp (second current-form))           ; Has options list
+           (consp (cadr current-form)))            ; Not just a name
+      (let ((options (cdadr current-form)))        ; Skip struct name
         (let ((conc-option (find :conc-name options :key #'car)))
           (if conc-option
               (let ((prefix (cadr conc-option)))
@@ -1061,13 +1070,13 @@
       (format nil "~A-" (string name))))      ; Default case
 
 
-(defun record-slot-accessors (parser name class subform)
+(defun record-slot-accessors (parser name class current-form)
   "Record all slot accessor definitions for a class/struct/condition"
   (declare (special log-stream))
   (let ((pkg (current-package parser)))
     (if (typep class 'structure-class)
         ;; Structure slots use naming pattern with conc-name
-        (let ((prefix (get-defstruct-conc-name name subform)))
+        (let ((prefix (get-defstruct-conc-name name current-form)))
           (dolist (slot (c2mop:class-slots class))
             (let ((accessor-name 
                    (intern (format nil "~A~A" 
@@ -1081,7 +1090,7 @@
                                  :file (file parser)
                                  :package pkg
                                  :status (symbol-status accessor-name pkg)
-                                 :context subform)))))
+                                 :context current-form)))))
         ;; CLOS class slots use MOP info
         (progn 
           (c2mop:finalize-inheritance class)
@@ -1095,7 +1104,7 @@
                                  :file (file parser)
                                  :package pkg
                                  :status (symbol-status reader pkg)
-                                 :context subform)))
+                                 :context current-form)))
             ;; Record writer methods
             (dolist (writer (c2mop:slot-definition-writers slot))
               (when (fboundp `(setf ,writer))
@@ -1105,10 +1114,10 @@
                                  :file (file parser)
                                  :package pkg
                                  :status (symbol-status writer pkg)
-                                 :context subform))))))))
+                                 :context current-form))))))))
 
 
-(defun record-defstruct-functions (parser name class subform)
+(defun record-defstruct-functions (parser name class current-form)
   "Record constructor, copier, and predicate functions for structures"
   (declare (special log-stream) (ignorable class))
   (let ((pkg (current-package parser)))
@@ -1121,7 +1130,7 @@
                           :file (file parser)
                           :package pkg
                           :status (symbol-status make-name pkg)
-                          :context subform)))
+                          :context current-form)))
     ;; Copier
     (let ((copy-name (intern (format nil "COPY-~A" (symbol-name name)) pkg)))
       (when (fboundp copy-name)
@@ -1131,7 +1140,7 @@
                           :file (file parser)
                           :package pkg
                           :status (symbol-status copy-name pkg)
-                          :context subform)))
+                          :context current-form)))
     ;; Predicate
     (let ((pred-name (intern (format nil "~A-P" (symbol-name name)) pkg)))
       (when (fboundp pred-name)
@@ -1141,7 +1150,7 @@
                           :file (file parser)
                           :package pkg
                           :status (symbol-status pred-name pkg)
-                          :context subform)))))
+                          :context current-form)))))
 
 
 (defun analyze-defclass/defstruct/define-condition (parser name form)
@@ -1158,14 +1167,14 @@
         (record-defstruct-functions parser name class form)))))
 
 
-(defun analyze-defpackage/make-package (parser name subform)
+(defun analyze-defpackage/make-package (parser name current-form)
   "Handle defpackage/make-package form recording nicknames as definitions.
    Uses runtime package info when available, falls back to form parsing
    for make-package when package doesn't yet exist."
   (declare (special log-stream))
   (let* ((file (file parser))
-         (context subform)
-         (form-type (car subform))
+         (context current-form)
+         (form-type (car current-form))
          (package (find-package name)))
     
     ;; Try runtime first for both forms
@@ -1180,7 +1189,7 @@
         
         ;; Fall back to parsing for make-package only
         (when (eq form-type 'make-package)
-          (loop for (key val) on (cddr subform) by #'cddr
+          (loop for (key val) on (cddr current-form) by #'cddr
                 when (eq key :nicknames)
                 do (dolist (nick (ensure-list (if (and (consp val)
                                                       (eq (car val) 'quote))
@@ -1244,3 +1253,36 @@
                             :package package
                             :status :EXTERNAL
                             :context context)))))))
+
+
+(defun get-symbol-reference-type (sym context)
+  "Derive the reference type of a symbol."
+  (cond ((boundp sym) :variable)
+        ((macro-function sym) :macro) 
+        ((fboundp sym) 
+         (let ((fn (fdefinition sym)))
+           (cond ((compatible-method-p sym context) :method)
+                 ((c2mop:typep fn 'standard-generic-function) :generic-function)
+                 (t :function))))
+        ((ignore-errors (find-class sym)) :STRUCTURE/CLASS/CONDITION)
+        ((and (subtypep sym t)
+              (not (ignore-errors (find-class sym)))
+              (not (cl-symbol-p sym))) :type)
+        ((nth-value 1 (macroexpand-1 sym)) :symbol-macro)))
+
+
+(defun compatible-method-p (sym context)
+  (when (fboundp sym)
+    (let* ((fn (fdefinition sym))
+           (args (rest context))
+           (sym-pkg (symbol-package sym)))
+      (when (typep fn 'standard-generic-function)
+        (some (lambda (method)
+                (every (lambda (spec arg)
+                        (type-compatible-p 
+                          (class-name spec)  ; Convert class object to symbol name
+                          arg 
+                          sym-pkg))
+                      (c2mop:method-specializers method)
+                      args))
+              (c2mop:generic-function-methods fn))))))

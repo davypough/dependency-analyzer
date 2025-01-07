@@ -83,7 +83,7 @@
         (declare (ignorable context parent-context))
         (when (and (consp current-form)  ;only analyze potential definition forms
                    (symbolp (first current-form))
-                   (not (quoted-form-p current-form)))
+                   (not (quoted-symbol-p (first current-form))))
           (let ((head (first current-form)))
             (cond
               ;; Variable definition 
@@ -171,9 +171,10 @@
               ;; Package system
               ((member head '(defpackage make-package))
                (record-definition *current-tracker*
-                                  :name (second current-form)  ;eg, "FOO", :foo, #:foo
+                                  :name (second current-form)  ;eg, "PKG", :pkg, #:pkg
                                   :type :package
                                   :file (file parser)
+                                  :package (current-package parser)
                                   :context current-form)
                (analyze-defpackage/make-package parser (second current-form) current-form))
 
@@ -237,47 +238,70 @@
 
 
 (defun analyze-reference-form (parser form)
-  "Analyze form recording references to definitions in different files.
-   Handles references to packages (via string/keyword/uninterned-symbol) and 
-   references to other defined symbols."
+  "Analyze source forms, recording references to definitions in different files."
   (declare (special log-stream))
-  (labels ((handle-reference (subform context parent-context)
-             (declare (ignorable subform context parent-context))
-             (unless (skip-item-p subform)
-               (typecase subform
+  (labels ((handle-reference (current-form context parent-context)
+             (declare (ignorable context parent-context))
+             (unless (or (skip-item-p current-form) (skip-definition-form current-form))
+               (typecase current-form
                  ((or string keyword (and symbol (satisfies not-interned-p)))
-                   ;; Only process as package ref in package contexts
-                   (when (package-context-p context parent-context)
-                     (let* ((norm-name (normalize-designator subform))
-                            (key (make-tracking-key norm-name norm-name :PACKAGE))
-                            (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                       (let ((other-file-defs (remove-if (lambda (def)  
-                                                         (equal (definition.file def) (file parser)))
-                                              defs)))
-                         (when other-file-defs
-                           (record-reference *current-tracker*
-                            :name norm-name
-                            :file (file parser)
-                            :package subform
-                            :context parent-context
-                            :visibility :LOCAL
-                            :definitions other-file-defs))))))
+                  (let* ((key (make-tracking-key current-form (current-package parser) :package))  
+                         (defs (gethash key (slot-value *current-tracker* 'definitions)))
+                         (other-file-defs (remove-if (lambda (def)
+                                                       (equal (definition.file def) (file parser)))
+                                                     defs)))
+                    (cond 
+                      ;; Check if reference to package definition in a different file
+                      (other-file-defs (record-reference *current-tracker*
+                                                         :name current-form
+                                                         :file (file parser)
+                                                         :package (current-package parser)  
+                                                         :context parent-context
+                                                         :visibility :local
+                                                         :definitions other-file-defs))
+                      ;; Check if valid project or external package
+                      ((find-package current-form) t)
+                      ;; Package not found
+                      (t (record-anomaly *current-tracker*
+                                         :name current-form
+                                         :type :undefined-package
+                                         :severity :error
+                                         :file (file parser)
+                                         :package (current-package parser)
+                                         :context parent-context
+                                         :description (format nil "Reference to undefined package ~A" current-form))))))
                  (symbol
-                   (let* ((sym-pkg (symbol-package subform))
-                          (pkg-name (if sym-pkg
-                                      (package-name sym-pkg)
-                                      (current-package-name parser)))
-                          (visibility (check-package-reference subform parser *current-tracker*
-                                                            context parent-context)))
-                     ;; Check if symbol is in function call context
-                     (multiple-value-bind (call-p name args)
-                         (analyze-function-call-context subform context)
-                       (if call-p
-                           ;; Check if method first & process
-                           (handle-method-call subform parser pkg-name parent-context visibility name args)
-                           ;; Not a method call - check all standard definition types
-                           (try-definition-types subform pkg-name parser parent-context visibility)))))))))
-    ;; Walk the form applying handler
+                   (let* ((sym-pkg (symbol-package current-form))
+                          (sym-type (get-symbol-reference-type current-form parent-context))
+                          (key (if (eq sym-type :method)
+                                 (let* ((args (and (consp parent-context) (cdr parent-context)))
+                                        (qualifiers (loop for arg in args
+                                                          while (keywordp arg)
+                                                          collect arg))
+                                        (values (nthcdr (length qualifiers) args)))
+                                   (make-tracking-key current-form sym-pkg sym-type qualifiers (mapcar #'type-of values)))
+                                 (make-tracking-key current-form sym-pkg sym-type)))
+                          (defs (gethash key (slot-value *current-tracker* 'definitions)))
+                          (other-file-defs (remove-if (lambda (def)
+                                                        (equal (definition.file def) (file parser)))
+                                                      defs)))
+                     (cond 
+                       ;; Check if reference to definition in a different file
+                       (other-file-defs (record-reference *current-tracker*
+                                                          :name current-form
+                                                          :file (file parser)
+                                                          :type sym-type
+                                                          :package sym-pkg  
+                                                          :context parent-context
+                                                          :definitions other-file-defs))
+                       (t (record-anomaly *current-tracker*
+                                          :name current-form
+                                          :type :undefined-symbol
+                                          :severity :error
+                                          :file (file parser)
+                                          :context parent-context
+                                          :description (format nil "Reference to undefined symbol ~A" current-form))))))))))
+    ;; Walk the form breadth-first applying handler
     (walk-form form #'handle-reference)))
 
 

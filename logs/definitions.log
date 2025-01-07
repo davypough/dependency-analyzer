@@ -8,6 +8,7 @@ DEFINITION>
                (USE CL))
     :Type :PACKAGE
     :File /src/defs.lisp
+    :Package #<PACKAGE "COMMON-LISP-USER">
 
 DEFINITION>
     :Name *DEFVAR-VARIABLE*
