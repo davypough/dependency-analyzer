@@ -255,7 +255,7 @@
                       (other-file-defs (record-reference *current-tracker*
                                                          :name current-form
                                                          :file (file parser)
-                                                         :package (current-package parser)  
+                                                         ;:package (current-package parser)  
                                                          :context parent-context
                                                          :visibility :local
                                                          :definitions other-file-defs))

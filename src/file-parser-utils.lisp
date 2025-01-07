@@ -198,28 +198,6 @@
   (package-cycles (ensure-tracker tracker)))
 
 
-(defun process-package-import-option (package from-pkg-name pkg-name parser name)
-  "Process an :import-from package option for a single name.
-   Records dependencies between packages and the imported name reference.
-   
-   PACKAGE - The package object being defined
-   FROM-PKG-NAME - Package name to import from (string, already normalized)
-   PKG-NAME - Name of package being defined (string, already normalized)
-   PARSER - Current file parser for context
-   name - name to import (can be string, symbol, or uninterned symbol)"
-  (let* ((from-pkg (find-package from-pkg-name))
-         (sym-name (normalize-designator name))
-         (from-sym (and from-pkg (find-symbol sym-name from-pkg))))
-    (when (and from-pkg from-sym)
-      (import from-sym package)
-      (record-package-use *current-tracker* pkg-name from-pkg-name)
-      (record-reference *current-tracker*
-                  :name from-sym
-                  :file (file parser)
-                  :package (current-package parser)  ;from-pkg-name
-                  :visibility :IMPORTED))))
-
-
 (defun process-package-export-option (package pkg-name name)
   "Process an :export package option for a single name.
    Records the name as being exported from the package.
@@ -264,49 +242,6 @@
                 :package chain
                 :description (format nil "Package dependency cycle detected: ~A" chain)
                 :context cycle)))))
-
-
-(defun analyze-current-form (parser form)
-  "Analyze a single form for symbol references, recording only references to
-   symbols that have definition records. Recursively examines all subforms including
-   array elements and hash tables."
-  (declare (special log-stream))
-  (typecase form
-    (symbol 
-     (let* ((pkg (symbol-package form))
-            (current-pkg (current-package parser))
-            (pkg-name (if pkg 
-                       (package-name pkg) 
-                       (current-package-name parser)))
-            (current-file (file parser))
-            (visibility (cond 
-                       ((null pkg) :LOCAL)
-                       ((eq pkg current-pkg) :LOCAL)
-                       (t (multiple-value-bind (sym status)
-                            (find-symbol (symbol-name form) current-pkg)
-                          (declare (ignore sym))
-                          (case status
-                            (:inherited :INHERITED)
-                            (:external :IMPORTED) 
-                            (otherwise :LOCAL)))))))
-       (when (gethash (make-tracking-key form pkg-name) 
-                     (slot-value *current-tracker* 'definitions))
-         (record-reference *current-tracker*
-                  :name form
-                  :file current-file
-                  :package (current-package parser)  ;pkg-name
-                  :visibility visibility))))
-    ;(cons
-    ; (analyze-form parser form))
-    (array
-     (dotimes (i (array-total-size form))
-       (analyze-current-form parser (row-major-aref form i))))
-    (hash-table
-     (maphash (lambda (k v)
-                (analyze-current-form parser k)
-                (analyze-current-form parser v))
-              form))
-    (t nil)))
 
 
 (defun analyze-lambda-list (parser lambda-list)
@@ -873,110 +808,6 @@
                                           (if (consp x) (car x) x))))))
 
 
-(defun try-definition-types (current-form pkg-name parser context visibility)
-  "Records references for symbols defined in other files."
-  (let ((found-defs nil)
-        (name (if (and (consp current-form) 
-                      (eq (car current-form) 'quote))
-                 (cadr current-form)  ; Get symbol from quote
-                 current-form)))
-    ;; Skip slot names which are defined in current file
-    (unless (slot-definition-p name context)
-      (dolist (try-type +valid-definition-types+)
-        (let* ((key (make-tracking-key name pkg-name try-type))
-               (defs (gethash key (slot-value *current-tracker* 'definitions))))
-          (dolist (def defs)
-            (unless (equal (definition.file def) (file parser))
-              (push def found-defs))))))
-    
-    (when found-defs
-      (record-reference *current-tracker*
-                       :name name
-                       :file (file parser)
-                       :package (current-package parser)
-                       :context context
-                       :visibility visibility
-                       :definitions found-defs))
-    found-defs))
-
-
-(defun handle-method-call (current-form parser pkg-name context visibility name args)
-  "Handles analysis and recording of method calls.
-   Creates reference record for verified method calls."
-  (declare (special log-stream))
-  (multiple-value-bind (gf-def method-defs)
-      (find-method-call-definitions parser (cons name args))
-    (if gf-def
-        ;; Have generic function - create reference with qualifiers and args
-        (let* ((name-and-quals (analyze-call-qualifiers name))
-               (qualifiers (cdr name-and-quals))
-               (typed-args (loop for arg in args
-                               collect arg
-                               collect (cond ((null arg) 'null)
-                                           ((stringp arg) 'string)
-                                           ((numberp arg) 'number)
-                                           ((keywordp arg) 'keyword)
-                                           ((symbolp arg) 'symbol)
-                                           ((consp arg) 'unanalyzed)
-                                           (t (type-of arg))))))
-          (record-reference *current-tracker*
-                          :name current-form
-                          :file (file parser)
-                          :package (current-package parser)
-                          :context context
-                          :visibility visibility
-                          :definitions (cons gf-def method-defs)
-                          :qualifiers qualifiers
-                          :arguments typed-args))
-        ;; No generic function found - try other definition types
-        (try-definition-types current-form pkg-name parser context visibility))))
-
-
-#+ignore (defun handle-method-call (subform parser pkg-name context visibility name args)
-  "Handles analysis and recording of method calls. Creates either:
-   - A reference record if call matches an existing method 
-   - An anomaly for no matching method"
-  (declare (special log-stream))
-  (multiple-value-bind (gf-def method-defs)
-      (find-method-call-definitions parser (cons name args))
-    (if gf-def
-        ;; Have generic function - check method matches
-        (if method-defs
-            ;; Valid method call - record reference with all definitions
-            (let* ((name-and-quals (analyze-call-qualifiers name))
-                   (qualifiers (cdr name-and-quals))
-                   (typed-args (loop for arg in args
-                                   collect arg
-                                   collect (cond ((null arg) 'null)
-                                               ((stringp arg) 'string)
-                                               ((numberp arg) 'number)
-                                               ((keywordp arg) 'keyword)
-                                               ((symbolp arg) 'symbol)
-                                               ((consp arg) 'unanalyzed)
-                                               (t (type-of arg))))))
-              (record-reference *current-tracker*
-                              :name subform
-                              :file (file parser)
-                              :package (current-package parser)  ;pkg-name 
-                              :context context
-                              :visibility visibility
-                              :definitions (cons gf-def method-defs)
-                              :qualifiers qualifiers
-                              :arguments typed-args))
-            ;; No matching method - create anomaly
-            (record-anomaly *current-tracker*
-                          :name subform
-                          :type :invalid-method-call 
-                          :severity :ERROR
-                          :file (file parser)
-                          :package (current-package parser)
-                          :description (format nil "No applicable method for ~A with arguments ~S" 
-                                             name args)
-                          :context context))
-        ;; No generic function found
-        (try-definition-types subform pkg-name parser context visibility))))
-
-
 (defun extract-specializers (lambda-list)
   "Extract specializer types from a method lambda list.
    Returns list of type specializers as symbols or lists for (eql ...) forms.
@@ -991,40 +822,6 @@
         collect (if (listp param)
                    (second param) 
                    t)))
-
-
-#+ignore (defun destructure-method-form (form)
-  "Parse defmethod form into components.
-   Returns (values name qualifiers lambda-list body)."
-  (destructuring-bind (def-op &rest after-defmethod) form
-    (declare (ignore def-op))
-    (let* ((name-and-quals (if (and (consp (car after-defmethod))
-                                   (eq (caar after-defmethod) 'setf))
-                              (cons (car after-defmethod) 
-                                    (cdr after-defmethod))
-                              after-defmethod))
-           (name (if (consp (car name-and-quals))
-                    (car name-and-quals)  ; (setf name)
-                    (car name-and-quals)))
-           (remaining (if (consp (car name-and-quals))
-                         (cdr name-and-quals)
-                         (cdr name-and-quals)))
-           (qualifiers nil)
-           lambda-list
-           body)
-      
-      ;; Collect qualifiers until lambda-list found
-      (loop while remaining do
-            (let ((item (car remaining)))
-              (if (lambda-list-p item)
-                  (progn
-                    (setf lambda-list item
-                          body (cdr remaining))
-                    (return))
-                  (push item qualifiers))
-              (setf remaining (cdr remaining))))
-      
-      (values name (nreverse qualifiers) lambda-list body))))
 
 
 (defun lambda-list-p (form)
