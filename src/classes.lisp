@@ -27,7 +27,7 @@
    (type :initarg :type :reader definition.type :type (member . #.+valid-definition-types+))
    (file :initarg :file :reader definition.file :type (or string pathname))
    (package :initarg :package :reader definition.package :type package)
-   (status :initarg :status :reader definition.status :type (or keyword null))
+   (status :initarg :status :reader definition.status :type (member :internal :external :inherited :nil))
    (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
    (specializers :initarg :specializers :reader definition.specializers :type list))
   (:default-initargs :name nil :context nil :type nil :file nil :package nil

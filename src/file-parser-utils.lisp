@@ -29,11 +29,11 @@
 
 
 (defun symbol-status (sym pkg)
-  "Determines the status of a symbol in a package, :inherited, :external, :internal, or not found."
+  "Determines the status of a symbol in a package, :internal, :external, :inherited, :nil."
   (let ((status (nth-value 1 (find-symbol (symbol-name sym) pkg))))
     (if status
       status
-      (intern (format nil "~A NOT FOUND IN ~A" sym pkg)))))
+      :nil)))
 
 
 (defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
@@ -113,7 +113,7 @@
           (cons def file-defs)))
     ;; Record exports for non-package definitions
     (unless (eq type :package)
-      (when (eq (symbol-status name package) :exported)
+      (when (eq status :external)
         (record-export tracker package name)))
     def))
 
