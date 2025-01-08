@@ -9,7 +9,7 @@
 
 (alexandria:define-constant +valid-definition-types+ 
   '(:STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
-    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :TYPE :PACKAGE)  ;use :deftype instead of :type
+    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :DEFTYPE :PACKAGE)  ;use :deftype instead of :type
   :test #'equal
   :documentation "Valid types for dependency definitions. Used for type checking and reference matching.")
 
@@ -31,21 +31,12 @@
    (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
    (specializers :initarg :specializers :reader definition.specializers :type list))
   (:default-initargs :name nil :context nil :type nil :file nil :package nil
-                    :status nil :qualifiers nil :specializers nil)
+                     :status nil :qualifiers nil :specializers nil)
   (:documentation "Data structure holding info about a lisp definition. For methods, specializers slot holds the method's parameter specializer types."))
 
 
-(defmethod print-object ((object definition) stream)
-  (print-unreadable-object (object stream :type t)
-    (with-slots (name context type file package status qualifiers specializers) object
-      (format-if stream "    :Name ~A"       " " name)
-      (format-if stream "    :Context ~A"    " " context)
-      (format-if stream "    :Type ~S"       " " type)
-      (format-if stream "    :File ~A"       " " (and file (project-pathname file)))
-      (format-if stream "    :Package ~S"    " " package)
-      (format-if stream "    :Status ~S"     " " status)
-      (format-if stream "    :Qualifiers ~S" " " qualifiers)
-      (format-if stream "    :Specializers ~S" " " specializers))))
+(defmethod print-object ((def definition) stream)
+  (print-definition def stream))
 
 
 (defun print-definition (def &optional (stream *standard-output*) (indent 0))
@@ -53,17 +44,17 @@
    but typically used for logging to a file. Omit null slots. For methods,
    prints qualifiers and specializers."
   (let ((indent-str (make-string indent :initial-element #\Space)))
-    (format stream "~&~ADEFINITION>" indent-str)
-    (format-if stream "    :Name ~A" indent-str (definition.name def))
-    (format-if stream "    :Context ~A" indent-str (definition.context def))
-    (format-if stream "    :Type ~S" indent-str (definition.type def))
-    (format-if stream "    :File ~A" indent-str (and (definition.file def)
-                                                    (project-pathname (definition.file def))))
-    (format-if stream "    :Package ~S" indent-str (definition.package def))
-    (format-if stream "    :Status ~S" indent-str (definition.status def))
-    (format-if stream "    :Qualifiers ~S" indent-str (definition.qualifiers def))
-    (format-if stream "    :Specializers ~S" indent-str (definition.specializers def))
-    (format stream "~%")))
+    (with-slots (name context type file package status qualifiers specializers) def
+      (format stream "~&~ADEFINITION>" indent-str)
+      (format-if stream "    :Name ~A" indent-str name)
+      (format-if stream "    :Context ~A" indent-str context)
+      (format-if stream "    :Type ~S" indent-str type)
+      (format-if stream "    :File ~A" indent-str (and file (project-pathname file)))
+      (format-if stream "    :Package ~S" indent-str package)
+      (format-if stream "    :Status ~S" indent-str status)
+      (format-if stream "    :Qualifiers ~S" indent-str qualifiers)
+      (format-if stream "    :Specializers ~S" indent-str specializers)
+      (format stream "~%"))))
 
 
 (defclass reference ()
@@ -72,7 +63,7 @@
    (file :initarg :file :reader reference.file :type (or string pathname))
    (type :initarg :type :reader reference.type :type (member . #.+valid-definition-types+))
    (package :initarg :package :reader reference.package :type package)
-   (visibility :initarg :visibility :reader reference.visibility :type (member :LOCAL :INHERITED :IMPORTED))
+   (visibility :initarg :visibility :reader reference.visibility :type cons)  ;eg, (:inherited #<PACKAGE "PKG1">)
    (definitions :initarg :definitions :reader reference.definitions :type cons)
    (qualifiers :initarg :qualifiers :initform nil :reader reference.qualifiers :type list)
    (arguments :initarg :arguments :initform nil :reader reference.arguments :type list))
@@ -81,40 +72,27 @@
   (:documentation "Data structure holding info about a lisp reference to a definition"))
 
 
-(defmethod print-object ((object reference) stream)
-  "Print a reference object, omitting slots that are nil."
-  (print-unreadable-object (object stream :type t)
-    (with-slots (name context type file package visibility definitions qualifiers arguments) object
-      (format-if stream "    :Name ~A" "" name)
-      (format-if stream "    :Context ~A" "" context)
-      (format-if stream "    :Type ~S" "" type)
-      (format-if stream "    :File ~A" "" (and file (project-pathname file)))
-      (format-if stream "    :Package ~S" "" package)
-      (format-if stream "    :Visibility ~A" "" visibility)
-      (format-if stream "    :Qualifiers ~S" "" qualifiers)
-      (format-if stream "    :Arguments ~S" "" arguments)
-      (format-if stream "    :Definitions~A" "" "")
-      (dolist (def definitions)
-        (print-definition def stream 20)))))
+(defmethod print-object ((ref reference) stream)
+  (print-reference ref stream))
 
 
 (defun print-reference (ref &optional (stream *standard-output*) (indent 0))
   "Print a readable representation of a reference, omitting null slots.
    Shows method qualifiers and arguments when present."
   (let ((indent-str (make-string indent :initial-element #\Space)))
-    (format stream "~&~AREFERENCE>" indent-str)
-    (format-if stream "    :Name ~A" indent-str (reference.name ref))
-    (format-if stream "    :Context ~A" indent-str (reference.context ref))
-    (format-if stream "    :Type ~S" indent-str (reference.type ref))
-    (format-if stream "    :File ~A" indent-str (and (reference.file ref)
-                                                  (project-pathname (reference.file ref))))
-    (format-if stream "    :Package ~S" indent-str (reference.package ref))
-    (format-if stream "    :Visibility ~A" indent-str (reference.visibility ref))
-    (format-if stream "    :Qualifiers ~S" indent-str (reference.qualifiers ref))
-    (format-if stream "    :Arguments ~S" indent-str (reference.arguments ref))
-    (format-if stream "    :Definitions~A" indent-str "")
-    (dolist (def (reference.definitions ref))
-      (print-definition def stream (+ indent 20)))))
+    (with-slots (name context type file package visibility definitions qualifiers arguments) ref
+      (format stream "~&~AREFERENCE>" indent-str)
+      (format-if stream "    :Name ~A" indent-str name)
+      (format-if stream "    :Context ~A" indent-str context)
+      (format-if stream "    :Type ~S" indent-str type)
+      (format-if stream "    :File ~A" indent-str (and file (project-pathname file)))
+      (format-if stream "    :Package ~S" indent-str package)
+      (format-if stream "    :Visibility ~A" indent-str visibility)
+      (format-if stream "    :Qualifiers ~S" indent-str qualifiers)
+      (format-if stream "    :Arguments ~S" indent-str arguments)
+      (format-if stream "    :Definitions~A" indent-str "")
+      (dolist (def definitions)
+        (print-definition def stream (+ indent 20))))))
 
 
 (defclass anomaly ()

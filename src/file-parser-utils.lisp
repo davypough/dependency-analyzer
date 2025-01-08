@@ -119,7 +119,7 @@
 
 
 (defun record-reference (tracker &key name file type package context visibility definitions
-                                     qualifiers arguments)
+                                      qualifiers arguments)
   "Record a name reference in the tracker.
    VISIBILITY is inherited, imported, or local (defaults to local)
    DEFINITIONS is a non-empty list of definitions this reference depends on
@@ -136,7 +136,7 @@
                           :type type
                           :package package 
                           :context context 
-                          :visibility (or visibility :LOCAL)
+                          :visibility visibility
                           :definitions definitions
                           :qualifiers qualifiers
                           :arguments arguments)))
@@ -1045,7 +1045,7 @@
           ((ignore-errors (subtypep nil sym))  ; Type definition
            (record-definition *current-tracker*
                             :name sym
-                            :type :TYPE
+                            :type :DEFTYPE
                             :file file
                             :package package
                             :status :EXTERNAL
@@ -1064,7 +1064,7 @@
         ((ignore-errors (find-class sym)) :STRUCTURE/CLASS/CONDITION)
         ((and (subtypep sym t)
               (not (ignore-errors (find-class sym)))
-              (not (cl-symbol-p sym))) :type)
+              (not (cl-symbol-p sym))) :DEFTYPE)
         ((nth-value 1 (macroexpand-1 sym)) :symbol-macro)))
 
 
@@ -1083,3 +1083,44 @@
                       (c2mop:method-specializers method)
                       args))
               (c2mop:generic-function-methods fn))))))
+
+
+(defun get-visibility (sym current-pkg)
+  "Finds the visibility of a symbol--eg, (:inherited #<PACKAGE \"PKG1\">)"
+  (let ((sym-pkg (symbol-package sym)))
+    (if (eq sym-pkg current-pkg)
+      (list :local current-pkg))
+    (let ((usedp (member sym-pkg (package-use-list current-pkg)))
+          (importedp (or (member sym (package-internal-symbols current-pkg))
+                         (member sym (package-external-symbols current-pkg)))))
+      (cond ((and usedp (not importedp)) (list :inherited current-pkg))
+            ((and (not usedp) importedp) (list :imported current-pkg))
+            ((and usedp importedp)       (list :inherited :imported current-pkg))
+            (t                           (list :not-visible current-pkg))))))
+
+
+(defun package-external-symbols (pkg)
+  "Return a list of all external symbols in PKG."
+  (let (acc)
+    (do-external-symbols (sym pkg)
+      (push sym acc))
+    (nreverse acc)))
+
+
+(defun package-internal-symbols (pkg)
+  "Return a list of all internal symbols in PKG.
+By 'internal' here we mean symbols accessible from PKG but not exported.
+DO-SYMBOLS iterates over all symbols accessible from PKG, including inherited ones."
+  (let (acc)
+    (do-symbols (sym pkg)
+      ;; Check that the symbol is actually home to PKG (so we don't pick up inherited ones),
+      ;; and that it is not exported.
+      (when (and (eq (symbol-package sym) pkg)
+                 (not (symbol-exported-p sym pkg)))
+        (push sym acc)))
+    (nreverse acc)))
+
+
+(defun symbol-exported-p (sym pkg)
+  "Return T if SYM is exported from PKG; otherwise NIL."
+  (eq (nth-value 1 (find-symbol (symbol-name sym) pkg)) :external))

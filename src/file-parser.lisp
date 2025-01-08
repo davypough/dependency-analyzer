@@ -162,7 +162,7 @@
               ((eq head 'deftype)
                (record-definition *current-tracker*
                                   :name (second current-form)
-                                  :type :type
+                                  :type :deftype
                                   :file (file parser)
                                   :package (current-package parser)
                                   :status (symbol-status (second current-form) (current-package parser))
@@ -174,7 +174,6 @@
                                   :name (second current-form)  ;eg, "PKG", :pkg, #:pkg
                                   :type :package
                                   :file (file parser)
-                                  :package (current-package parser)
                                   :context current-form)
                (analyze-defpackage/make-package parser (second current-form) current-form))
 
@@ -255,9 +254,7 @@
                       (other-file-defs (record-reference *current-tracker*
                                                          :name current-form
                                                          :file (file parser)
-                                                         ;:package (current-package parser)  
                                                          :context parent-context
-                                                         :visibility :local
                                                          :definitions other-file-defs))
                       ;; Check if valid project or external package
                       ((find-package current-form) t)
@@ -293,6 +290,7 @@
                                                           :type sym-type
                                                           :package sym-pkg  
                                                           :context parent-context
+                                                          :visibility (get-visibility current-form (current-package parser))
                                                           :definitions other-file-defs))
                        (t (record-anomaly *current-tracker*
                                           :name current-form

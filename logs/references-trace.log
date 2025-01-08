@@ -950,13 +950,13 @@ WALK(ING):
   Context: *DEFVAR-VARIABLE*
   Parent: *DEFVAR-VARIABLE*
 
-#<REFERENCE 
+REFERENCE>
     :Name *DEFVAR-VARIABLE*
     :Context *DEFVAR-VARIABLE*
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
@@ -973,7 +973,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -981,13 +981,13 @@ WALK(ING):
   Context: *DEFPARAMETER-VARIABLE*
   Parent: *DEFPARAMETER-VARIABLE*
 
-#<REFERENCE 
+REFERENCE>
     :Name *DEFPARAMETER-VARIABLE*
     :Context *DEFPARAMETER-VARIABLE*
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFPARAMETER-VARIABLE*
@@ -1003,7 +1003,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1011,13 +1011,13 @@ WALK(ING):
   Context: +DEFCONSTANT-VARIABLE+
   Parent: +DEFCONSTANT-VARIABLE+
 
-#<REFERENCE 
+REFERENCE>
     :Name +DEFCONSTANT-VARIABLE+
     :Context +DEFCONSTANT-VARIABLE+
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name +DEFCONSTANT-VARIABLE+
@@ -1026,7 +1026,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1034,13 +1034,13 @@ WALK(ING):
   Context: *SYMBOL-VALUE-VARIABLE*
   Parent: *SYMBOL-VALUE-VARIABLE*
 
-#<REFERENCE 
+REFERENCE>
     :Name *SYMBOL-VALUE-VARIABLE*
     :Context *SYMBOL-VALUE-VARIABLE*
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *SYMBOL-VALUE-VARIABLE*
@@ -1050,7 +1050,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1062,13 +1062,13 @@ WALK(ING):
   Context: (DEFUN-NAME)
   Parent: (DEFUN-NAME)
 
-#<REFERENCE 
+REFERENCE>
     :Name DEFUN-NAME
     :Context (DEFUN-NAME)
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFUN-NAME
@@ -1077,7 +1077,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1117,13 +1117,13 @@ WALK(ING):
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
   Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
 
-#<REFERENCE 
+REFERENCE>
     :Name CIRCLE-RADIUS
     :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name CIRCLE-RADIUS
@@ -1132,7 +1132,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: (MAKE-CIRCLE)
   Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
@@ -1142,13 +1142,13 @@ WALK(ING):
   Context: (MAKE-CIRCLE)
   Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
 
-#<REFERENCE 
+REFERENCE>
     :Name MAKE-CIRCLE
     :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE
@@ -1157,7 +1157,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1169,13 +1169,13 @@ WALK(ING):
   Context: (PERSON.AGE (MAKE-PERSON))
   Parent: (PERSON.AGE (MAKE-PERSON))
 
-#<REFERENCE 
+REFERENCE>
     :Name PERSON.AGE
     :Context (PERSON.AGE (MAKE-PERSON))
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name PERSON.AGE
@@ -1185,7 +1185,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: (MAKE-PERSON)
   Context: (PERSON.AGE (MAKE-PERSON))
@@ -1195,13 +1195,13 @@ WALK(ING):
   Context: (MAKE-PERSON)
   Parent: (PERSON.AGE (MAKE-PERSON))
 
-#<REFERENCE 
+REFERENCE>
     :Name MAKE-PERSON
     :Context (PERSON.AGE (MAKE-PERSON))
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-PERSON
@@ -1211,7 +1211,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1235,13 +1235,13 @@ WALK(ING):
   Context: (MAKE-CIRCLE :RADIUS 1)
   Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
 
-#<REFERENCE 
+REFERENCE>
     :Name MAKE-CIRCLE
     :Context (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE RADIUS 1))
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE
@@ -1250,7 +1250,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: :RADIUS
   Context: (MAKE-CIRCLE :RADIUS 1)
@@ -1306,13 +1306,13 @@ WALK(ING):
   Context: (DEFMACRO-NAME)
   Parent: (DEFMACRO-NAME)
 
-#<REFERENCE 
+REFERENCE>
     :Name DEFMACRO-NAME
     :Context (DEFMACRO-NAME)
     :Type :MACRO
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFMACRO-NAME
@@ -1321,7 +1321,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1333,13 +1333,13 @@ WALK(ING):
   Context: (MACRO-FUNCTION-NAME)
   Parent: (MACRO-FUNCTION-NAME)
 
-#<REFERENCE 
+REFERENCE>
     :Name MACRO-FUNCTION-NAME
     :Context (MACRO-FUNCTION-NAME)
     :Type :MACRO
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MACRO-FUNCTION-NAME
@@ -1349,7 +1349,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 
 -------------------------------
 WALK(ING):
@@ -1411,13 +1411,13 @@ WALK(ING):
   Context: (DEFUN-NAME)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
 
-#<REFERENCE 
+REFERENCE>
     :Name DEFUN-NAME
     :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFUN-NAME
@@ -1426,19 +1426,19 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
 
-#<REFERENCE 
+REFERENCE>
     :Name *DEFVAR-VARIABLE*
     :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
@@ -1455,7 +1455,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: ARG
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
@@ -1539,7 +1539,7 @@ WALK(ING):
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
 
-#<REFERENCE 
+REFERENCE>
     :Name DEFUN-NAME
     :Context (LET ((ARG 0))
                (DEFUN-NAME)
@@ -1549,7 +1549,7 @@ WALK(ING):
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFUN-NAME
@@ -1558,7 +1558,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (LET ((ARG 0))
@@ -1572,7 +1572,7 @@ WALK(ING):
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
 
-#<REFERENCE 
+REFERENCE>
     :Name *DEFVAR-VARIABLE*
     :Context (LET ((ARG 0))
                (DEFUN-NAME)
@@ -1582,7 +1582,7 @@ WALK(ING):
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
@@ -1599,7 +1599,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: (COMPUTE-AREA (MAKE-CIRCLE))
   Context: (LET ((ARG 0))
@@ -1633,13 +1633,13 @@ WALK(ING):
   Context: (MAKE-CIRCLE)
   Parent: (COMPUTE-AREA (MAKE-CIRCLE))
 
-#<REFERENCE 
+REFERENCE>
     :Name MAKE-CIRCLE
     :Context (COMPUTE-AREA (MAKE-CIRCLE))
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility LOCAL
+    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE
@@ -1648,7 +1648,7 @@ WALK(ING):
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
->
+
 WALK(ING):
   Expression: ARG
   Context: (LET ((ARG 0))

@@ -319,7 +319,7 @@
     (maphash (lambda (key val)
                (declare (ignore key))
                (dolist (def val)
-                 (print-definition def log-stream)
+                 (print-object def log-stream)
                  (format log-stream "~%")))
              def-ht)))
 
@@ -336,7 +336,7 @@
                                  :key (lambda (r)
                                         (format nil "~A:~A" (reference.file r) (reference.name r)))))
                  (terpri log-stream)
-                 (print-reference ref log-stream)))
+                 (print-object ref log-stream)))
              ref-ht)))
     
 
