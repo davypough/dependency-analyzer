@@ -96,52 +96,34 @@
 
 
 (defclass anomaly ()
-  ((name :initarg :name :reader anomaly.name :type (or symbol string))
+  ((description :initarg :description :reader anomaly.description :type string)
    (type :initarg :type :reader anomaly.type :type keyword)
    (severity :initarg :severity :reader anomaly.severity :type (member :ERROR :WARNING :INFO))
-   (primary-location :initarg :file :reader anomaly.location :type (or string pathname))
-   (description :initarg :description :reader anomaly.description :type string)
    (context :initarg :context :reader anomaly.context :type (or symbol list))
    (file :initarg :file :reader anomaly.file :type list)
    (package :initarg :package :reader anomaly.package :type (or string symbol package null) :initform nil))
-  (:default-initargs :name nil :type nil :severity nil :file nil :description nil
-                    :context nil :package nil)
+  (:default-initargs :type nil :severity nil :file nil :description nil
+                     :context nil :package nil)
   (:documentation "Data structure for recording dependency analysis anomalies."))
 
 
-(defmethod print-object ((object anomaly) stream)
-  "Print an anomaly object, omitting slots that are nil."
-  (print-unreadable-object (object stream :type t)
-    (with-slots (type name severity primary-location description context files package) object
-      (format-if stream "    :Name ~A" "" name)
-      (format-if stream "    :Type ~S" "" type)
-      (format-if stream "    :Context ~A" "" context) 
-      (format-if stream "    :Severity ~S" "" severity)
-      (format-if stream "    :File ~A" "" (and primary-location (project-pathname primary-location)))
-      ;(format-if stream "    :Files ~{~A~^, ~}" "" (let ((mapped (mapcar #'project-pathname files)))
-      ;                                             (and mapped (not (null mapped)) mapped)))
-      (format-if stream "    :Package ~S" "" package)
-      (format-if stream "    :Description ~S" "" description))))
+(defmethod print-object ((anom anomaly) stream)
+  (print-anomaly anom stream))
 
 
 (defun print-anomaly (anom &optional (stream *standard-output*) (indent 0))
   "Print a readable representation of an anomaly record, skipping null slots."
   (let ((indent-str (make-string indent :initial-element #\Space)))
-    (format stream "~&~AANOMALY>" indent-str)
-    (format-if stream "    :Name ~A" indent-str (anomaly.name anom))
-    (format-if stream "    :Type ~S" indent-str (anomaly.type anom))
-    (format-if stream "    :Context ~A" indent-str (anomaly.context anom))
-    (format-if stream "    :Severity ~S" indent-str (anomaly.severity anom))
-    (format-if stream "    :File ~A" indent-str (and (anomaly.file anom)
-                                                    (project-pathname (anomaly.file anom))))
-    ;(format-if stream "    :Location ~A" indent-str (and (anomaly.location anom)
-    ;                                                  (project-pathname (anomaly.location anom))))
-    ;(format-if stream "    :Files ~{~A~^, ~}" indent-str (let ((mapped (mapcar #'project-pathname (anomaly.files anom))))
-    ;                                                    (and mapped (not (null mapped)) mapped)))
-    (format-if stream "    :Package ~S" indent-str (anomaly.package anom))
-    (format-if stream "    :Description ~S" indent-str (anomaly.description anom))
-    ;; Optional: a blank line after printing
-    (format stream "~2%")))
+    (with-slots (description type severity context file package) anom
+      (format stream "~&~AANOMALY>" indent-str)
+      (format-if stream "    :Description ~S" indent-str (anomaly.description anom))
+      (format-if stream "    :Type ~S" indent-str (anomaly.type anom))
+      (format-if stream "    :Severity ~S" indent-str (anomaly.severity anom))
+      (format-if stream "    :Context ~A" indent-str (anomaly.context anom))
+      (format-if stream "    :File ~A" indent-str (and (anomaly.file anom)
+                                                      (project-pathname (anomaly.file anom))))
+      (format-if stream "    :Package ~S" indent-str (anomaly.package anom))
+      (format stream "~2%"))))
 
 
 (defclass dependency-tracker ()

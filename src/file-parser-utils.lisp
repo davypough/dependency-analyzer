@@ -96,7 +96,6 @@
     (when other-file-defs
       (let ((def-files (mapcar #'definition.file other-file-defs)))
         (record-anomaly tracker
-                       :name name
                        :type :duplicate-definition
                        :severity :WARNING
                        :file file
@@ -146,14 +145,10 @@
    ref))
 
 
-(defun record-anomaly (tracker &key name type severity file description package context)
+(defun record-anomaly (tracker &key type severity file description package context)
   "Record a new anomaly in the dependency tracker.
    For :duplicate-definition type, files must be provided as list of all definition locations."
-  ;(when (and (eq type :duplicate-definition)
-  ;           (not files))
-  ;  (error "Files parameter required for duplicate definition anomalies"))
   (let ((anomaly (make-instance 'anomaly 
-                               :name name
                                :type type 
                                :severity severity 
                                :file file
@@ -235,7 +230,6 @@
         ;; Record as both a cycle and an anomaly
         (record-package-cycle *current-tracker* chain)
         (record-anomaly *current-tracker*
-                :name (first cycle)
                 :type :package-cycle
                 :severity :ERROR
                 :file pkg-name
@@ -440,7 +434,6 @@
                               (eq symbol (cadr parent-context))))))
             
             (record-anomaly tracker
-                           :name symbol
                            :type :possible-missing-in-package-for-reference 
                            :severity :WARNING
                            :file (file parser)

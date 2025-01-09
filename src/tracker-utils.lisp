@@ -100,7 +100,6 @@
                            (not (eq (definition.type def) :package))
                            (user-defined-p def))
                    (record-anomaly tracker
-                    :name (definition.name def)
                     :type :unused-definition
                     :severity :warning 
                     :file (definition.file def)
@@ -130,7 +129,6 @@
                            (slot-value tracker 'references))
                    (unless used-symbols
                      (record-anomaly tracker
-                       :name using-pkg
                        :type :redundant-package-use  
                        :severity :warning
                        :file using-pkg
@@ -154,7 +152,6 @@
                                (eq status :inherited)
                                (not (eq (definition.type def) :package)))
                        (record-anomaly tracker
-                         :name sym-name
                          :type :shadowed-definition
                          :severity :warning
                          :file (definition.file def)
@@ -179,7 +176,6 @@
                                                       (symbol-package sym)))
                               :internal))
                    (record-anomaly tracker
-                     :name sym
                      :type :qualified-internal-reference
                      :severity :warning
                      :file (reference.file ref)
@@ -214,7 +210,6 @@
                           (let* ((cycle-start (position class path))
                                 (cycle (subseq path cycle-start)))
                             (record-anomaly tracker
-                              :name class
                               :type :circular-type-dependency
                               :severity :warning
                               :file (car cycle)
@@ -254,7 +249,6 @@
                   (not (member (first (reference.context ref))
                              '(defpackage in-package make-package delete-package))))
           (record-anomaly tracker
-            :name (reference.name ref)
             :type :inline-package-reference
             :severity :warning
             :file (reference.file ref)
@@ -297,7 +291,6 @@
                                 (c2mop:class-slots (find-class class-name))
                                 :key #'c2mop:slot-definition-name)))
                   (record-anomaly tracker
-                    :name slot-name
                     :type :indirect-slot-access
                     :severity :warning
                     :file (reference.file ref)

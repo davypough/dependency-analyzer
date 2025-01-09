@@ -3,30 +3,27 @@ Filename: ANOMALIES.LOG
 The list of all anomalies detected during dependency analysis of the test-project project.
 
 ANOMALY>
-    :Name TEST-PROJECT-PACKAGE
+    :Description "Reference to undefined package TEST-PROJECT-PACKAGE"
     :Type :UNDEFINED-PACKAGE
+    :Severity :ERROR
     :Context (DEFPACKAGE TEST-PROJECT-PACKAGE
                (USE CL))
-    :Severity :ERROR
     :File /src/defs.lisp
     :Package #<PACKAGE "COMMON-LISP-USER">
-    :Description "Reference to undefined package TEST-PROJECT-PACKAGE"
 
 
 ANOMALY>
-    :Name *DEFVAR-VARIABLE*
-    :Type :UNDEFINED-SYMBOL
-    :Context (DEFVAR *DEFVAR-VARIABLE* 0)
-    :Severity :ERROR
-    :File /src/defs.lisp
     :Description "Reference to undefined symbol *DEFVAR-VARIABLE*"
+    :Type :UNDEFINED-SYMBOL
+    :Severity :ERROR
+    :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+    :File /src/defs.lisp
 
 ANOMALY>
-    :Name PROCESS-DATA
-    :Type :UNDEFINED-SYMBOL
-    :Context (PROCESS-DATA test LOG-LEVEL WARN)
-    :Severity :ERROR
-    :File /src/refs.lisp
     :Description "Reference to undefined symbol PROCESS-DATA"
+    :Type :UNDEFINED-SYMBOL
+    :Severity :ERROR
+    :Context (PROCESS-DATA test LOG-LEVEL WARN)
+    :File /src/refs.lisp
 
 

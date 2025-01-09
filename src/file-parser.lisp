@@ -256,7 +256,6 @@
                                      :context parent-context
                                      :definitions other-file-defs)
                    (record-anomaly *current-tracker*
-                                         :name current-form
                                          :type :undefined-package
                                          :severity :error
                                          :file (file parser)
@@ -289,7 +288,6 @@
                                                           :visibility (get-visibility current-form (current-package parser))
                                                           :definitions other-file-defs)
                        (record-anomaly *current-tracker*
-                                          :name current-form
                                           :type :undefined-symbol
                                           :severity :error
                                           :file (file parser)
@@ -315,7 +313,6 @@
       (when (member head '(in-package))
         (when (> form-count 2)
           (record-anomaly *current-tracker*
-                       :name "IN-PACKAGE-LOCATION-ISSUE"
                        :type :late-in-package
                        :severity :WARNING
                        :file current-file
@@ -336,7 +333,6 @@
             ((and (eq current-pkg cl-user-pkg)
                   (not (eq project-pkg cl-user-pkg)))
              (record-anomaly *current-tracker*
-                         :name def-name 
                          :type :possible-missing-in-package-for-definition
                          :severity :WARNING
                          :file current-file
@@ -348,7 +344,6 @@
             ((and runtime-def-pkg 
                   (not (eq runtime-def-pkg current-pkg)))
              (record-anomaly *current-tracker*
-                         :name def-name
                          :type :possible-definition-in-wrong-package
                          :severity :WARNING
                          :file current-file

@@ -45,8 +45,10 @@
       (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
 
       ;; Begin analysis
-      (with-dependency-tracker ((make-instance 'dependency-tracker :project-name parent-dir-name
-                                               :project-package project-package :project-root parent-pathname))
+      (with-dependency-tracker ((make-instance 'dependency-tracker
+                                               :project-name parent-dir-name
+                                               :project-package project-package
+                                               :project-root parent-pathname))
         ;; First pass: analyze definitions
         (format t "~%First Pass - Collecting Definitions...~%")
         (with-open-file (log-stream (merge-pathnames "definitions-trace.log" logs-dir) :direction :output

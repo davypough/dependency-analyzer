@@ -29,8 +29,7 @@
                        when severity-anomalies do
                          (format stream "  ~A:~%" (string-upcase (symbol-name severity)))
                          (dolist (a (reverse severity-anomalies)) ; Reverse to show in detection order
-                           (format stream "    ~A~%" (anomaly.description a))
-                           (format stream "      Location: ~A~%" (anomaly.location a))))))
+                           (format stream "    ~A~%" (anomaly.description a))))))
              (anomalies tracker))
     ;; Return whether we found any anomalies
     found-anomalies))

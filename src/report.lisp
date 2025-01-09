@@ -81,7 +81,6 @@
  (format stream "~V,,,'-<~A~>~%" 30 "")
  (flet ((print-anomaly (a indent)
         (format stream "~A~A~%" indent (anomaly.description a))
-        (format stream "~A  Location: ~A~%" indent (anomaly.location a))
         (when (anomaly.context a)
           (format stream "~A  Context: ~A~%" indent (anomaly.context a)))
         (format stream "~%")))
@@ -240,11 +239,6 @@
                                 (yason:encode-object-element "type" 
                                                           (string-downcase (symbol-name type)))
                                 ;; Convert pathname locations to strings before encoding
-                                (yason:encode-object-element "location" 
-                                                          (let ((loc (anomaly.location a)))
-                                                            (if (pathnamep loc)
-                                                                (project-pathname loc)
-                                                                loc)))
                                 (yason:encode-object-element "description" 
                                                           (anomaly.description a))
                                 (when (anomaly.context a)
@@ -327,7 +321,7 @@
                                   (maphash (lambda (type anomaly-list)
                                            (declare (ignore type))
                                            (when (find file anomaly-list 
-                                                     :key #'anomaly.location 
+                                                     :key #'anomaly.file 
                                                      :test #'equal)
                                              (return-from check-errors t)))
                                           (anomalies tracker))
