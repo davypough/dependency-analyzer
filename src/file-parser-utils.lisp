@@ -1,5 +1,5 @@
 ;;;; Filename: file-parser-utils.lisp
-;;;
+
 ;;; Utility functions for parsing, package handling, and cycle detection.
 ;;; Contains pure functions for name normalization, symbol lookup,
 ;;; package option processing, and dependency cycle detection.
@@ -45,11 +45,10 @@
 (defun collect-file-references (tracker source-file target-file)
   "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
    Returns a list of reference objects."
-  (let ((refs ())
-        (target-defs (get-file-definitions tracker target-file)))
+  (let ((refs nil))
     ;; Build hash table of symbols defined in target file for quick lookup
     (let ((target-symbols (make-hash-table :test 'equal)))
-      (dolist (def target-defs)
+      (dolist (def (get-file-definitions tracker target-file))
         (push def (gethash (definition.name def) target-symbols)))
       ;; Check all references in source file to see if they reference target symbols
       (maphash (lambda (key refs-list)
@@ -107,9 +106,8 @@
     (setf (gethash key (slot-value tracker 'definitions))
       (cons def existing-defs))
     ;; Add to file map
-    (let ((file-defs (gethash file (slot-value tracker 'file-map))))
-      (setf (gethash file (slot-value tracker 'file-map))
-          (cons def file-defs)))
+    (setf (gethash file (slot-value tracker 'file-map))
+      (cons def (gethash file (slot-value tracker 'file-map))))
     ;; Record exports for non-package definitions
     (unless (eq type :package)
       (when (eq status :external)
@@ -125,11 +123,11 @@
    QUALIFIERS tracks method qualifiers in the call 
    ARGUMENTS is alternating list of argument values and their types"
   (declare (special log-stream))
-  (let* ((key (make-tracking-key name (etypecase name
+  (let ((key (make-tracking-key name (etypecase name
                                         (string name) 
                                         (symbol (when (symbol-package name)
                                                   (package-name (symbol-package name)))))))
-         (ref (make-instance 'reference 
+        (ref (make-instance 'reference 
                           :name name 
                           :file file
                           :type type
@@ -184,9 +182,11 @@
   "Record a package dependency cycle."
   (pushnew cycle-chain (package-cycles tracker) :test #'string=))
 
+
 (defun get-file-cycles (&optional tracker)
   "Get all recorded file dependency cycles."
   (file-cycles (ensure-tracker tracker)))
+
 
 (defun get-package-cycles (&optional tracker)
   "Get all recorded package dependency cycles."
@@ -318,13 +318,11 @@
               (typecase item
                 (symbol nil) ; Simple keyword
                 (cons
-                 (let* ((key-part (car item))
-                        (has-key-name (consp key-part)))
-                   ;; ((key var) default supplied-p)
+                 (let* ((key-part (car item)))
                    (when (cddr item)
                      (analyze-default-form (third item)))
                    ;; Check for type declaration
-                   (when (and has-key-name
+                   (when (and (consp key-part)
                             (cddr key-part))
                      (validate-type-spec (third key-part)))))))
              
@@ -602,13 +600,12 @@
            (and (stringp specializer)
                 (> (length specializer) 5)
                 (string= (subseq specializer 0 5) "(EQL ")))
-       (let ((eql-val (parse-eql-spec specializer)))
-         (cond
+       (cond
            ;; Constant value comparison
            ((constant-value-p arg)
-            (equal eql-val arg))
+            (equal (parse-eql-spec specializer) arg))
            ;; Variable or complex form - assume potentially compatible
-           (t t))))
+           (t t)))
       
       ;; Constructor form for class
       ((and (consp arg)
@@ -769,7 +766,7 @@
                (= (length param) 2))
       (let ((specializer (second param)))
         (typecase specializer
-          (cons  ; (eql value) specializer
+          (cons
            (when (eq (car specializer) 'eql)
              (analyze-definition-form parser (cadr specializer))))
           (symbol  ; Class/type specializer
@@ -896,10 +893,10 @@
    Uses runtime package info when available, falls back to form parsing
    for make-package when package doesn't yet exist."
   (declare (special log-stream))
-  (let* ((file (file parser))
-         (context current-form)
-         (form-type (car current-form))
-         (package (find-package name)))
+  (let ((file (file parser))
+        (context current-form)
+        (form-type (car current-form))
+        (package (find-package name)))
     
     ;; Try runtime first for both forms
     (if package
@@ -997,9 +994,9 @@
 
 (defun compatible-method-p (sym context)
   (when (fboundp sym)
-    (let* ((fn (fdefinition sym))
-           (args (rest context))
-           (sym-pkg (symbol-package sym)))
+    (let ((fn (fdefinition sym))
+          (args (rest context))
+          (sym-pkg (symbol-package sym)))
       (when (typep fn 'standard-generic-function)
         (some (lambda (method)
                 (every (lambda (spec arg)

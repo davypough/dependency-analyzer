@@ -1,5 +1,5 @@
 ;;;; Filename: report-utils.lisp
-;;;
+
 ;;; Utility functions for report generation and formatting.
 ;;; Contains helper functions for path handling, tree building,
 ;;; and other report-related operations.
@@ -192,8 +192,8 @@
    (maphash (lambda (file def-list)
               (declare (ignore def-list)) 
               (unless (gethash file is-dependency)
-                (let* ((file-str (project-pathname file))
-                       (deps (file-dependencies tracker file)))
+                (let ((file-str (project-pathname file))
+                      (deps (file-dependencies tracker file)))
                   (when deps
                     (let ((deps-with-refs 
                            (mapcar (lambda (dep)
@@ -259,9 +259,9 @@
    FILE - The source file to analyze dependencies for
    
    A file A depends on file B if A contains references to symbols defined in B."
-  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
-         (deps ())
-         (refs-seen (make-hash-table :test 'equal)))
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+        (deps ())
+        (refs-seen (make-hash-table :test 'equal)))
     ;; First collect all references in this file
     (maphash (lambda (key refs)
                (declare (ignore key))

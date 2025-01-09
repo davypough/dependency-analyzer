@@ -248,12 +248,13 @@
                       (other-file-defs (remove-if (lambda (def)
                                                        (equal (definition.file def) (file parser)))
                                                      defs)))
-                 (record-reference *current-tracker*
+                 (when other-file-defs
+                   (record-reference *current-tracker*
                                      :name current-form
                                      :type :package
                                      :file (file parser)
                                      :context parent-context
-                                     :definitions other-file-defs))
+                                     :definitions other-file-defs)))
                (unless (or (skip-item-p current-form) (skip-definition-form current-form))
                  (when (symbolp current-form)
                    (let* ((sym-pkg (symbol-package current-form))
@@ -270,14 +271,15 @@
                           (other-file-defs (remove-if (lambda (def)
                                                         (equal (definition.file def) (file parser)))
                                                       defs)))
-                     (record-reference *current-tracker*
+                     (when other-file-defs
+                       (record-reference *current-tracker*
                                                           :name current-form
                                                           :file (file parser)
                                                           :type sym-type
                                                           :package sym-pkg  
                                                           :context parent-context
                                                           :visibility (get-visibility current-form (current-package parser))
-                                                          :definitions other-file-defs)))))))
+                                                          :definitions other-file-defs))))))))
     ;; Walk the form breadth-first applying handler
     (walk-form form #'handle-reference)))
 
@@ -287,10 +289,10 @@
    Records anomalies for package declaration and symbol binding issues."
   (declare (special log-stream))
   (when (and (consp form) (symbolp (car form)))
-    (let* ((head (car form))
-           (current-file (file parser))
-           (current-pkg (current-package parser))
-           (project-pkg (project-package *current-tracker*)))
+    (let ((head (car form))
+          (current-file (file parser))
+          (current-pkg (current-package parser))
+          (project-pkg (project-package *current-tracker*)))
 
       (format log-stream "~&Form ~D: ~S~%" form-count form)
       
@@ -341,7 +343,7 @@
 (defun analyze-in-package (parser form)
   "Handle in-package forms by updating the current package context.
    Signals an error if referenced package doesn't exist."
-  (let* ((pkg-designator (second form))   ;(normalize-designator (second form)))
+  (let* ((pkg-designator (second form))
          (pkg (find-package pkg-designator)))
     (if pkg
         (setf (current-package parser) pkg

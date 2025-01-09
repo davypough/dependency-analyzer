@@ -32,8 +32,8 @@
    TYPE is one of +valid-definition-types+ of DESIGNATOR.
    QUALIFIERS is a list of method qualifiers in their significant order.
    SPECIALIZERS is a list of specializer types."
-  (let* ((name (format nil "~A" designator))
-         (pkg-name (typecase package-alias
+  (let ((name (format nil "~A" designator))
+        (pkg-name (typecase package-alias
                     (package (package-name package-alias))
                     (null nil)
                     (t (or (package-name package-alias) (string package-alias))))))
@@ -47,10 +47,10 @@
         ;; Preserve qualifier order as it is significant
         (setf key (format nil "~A|(~{~A~^ ~})" key (or qualifiers nil)))
         ;; Sort specializers using printed representation for comparison
-        (let* ((sorted-specs (sort (copy-list (or specializers nil)) 
-                                 #'string<
-                                 :key (lambda (spec)
-                                       (format nil "~S" spec)))))
+        (let ((sorted-specs (sort (copy-list (or specializers nil)) 
+                                  #'string<
+                                  :key (lambda (spec)
+                                         (format nil "~S" spec)))))
           (setf key (format nil "~A|(~{~A~^ ~})" key sorted-specs))))
       key)))
 
@@ -71,14 +71,13 @@
    Returns a path starting with / that is relative to the project root.
    E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
   (when pathname
-    (let* ((project-root (project-root *current-tracker*))
-           (namestring (namestring pathname)))
+    (let ((project-root (project-root *current-tracker*)))
       (if project-root
         (let ((relative (enough-namestring pathname project-root)))
           (if (char= (char relative 0) #\/)
             relative
             (concatenate 'string "/" relative)))
-        namestring))))
+        (namestring pathname)))))
 
 
 #+ignore (defun detect-unused-definitions (tracker)  ;redo later, too many ways to reference a definition
@@ -143,8 +142,8 @@
   (maphash (lambda (key defs)
              (declare (ignore key))
              (dolist (def defs)
-               (let* ((sym-name (definition.name def))
-                      (pkg (definition.package def)))
+               (let ((sym-name (definition.name def))
+                     (pkg (definition.package def)))
                  (when (and pkg (symbolp sym-name))
                    (multiple-value-bind (inherited status)
                        (find-symbol (string sym-name) pkg)
@@ -208,7 +207,7 @@
                         (when (eq status :in-progress)
                           ;; Found cycle - record the path
                           (let* ((cycle-start (position class path))
-                                (cycle (subseq path cycle-start)))
+                                 (cycle (subseq path cycle-start)))
                             (record-anomaly tracker
                               :type :circular-type-dependency
                               :severity :warning
@@ -275,14 +274,14 @@
                       (symbolp slot-name)
                       object)
               ;; Try to determine object's class
-              (let* ((class-name (cond
-                                 ((symbolp object) 
-                                  (ignore-errors 
-                                    (type-of (symbol-value object))))
-                                 ((and (consp object)
-                                      (eq (car object) 'make-instance))
-                                  (second object))
-                                 (t nil))))
+              (let ((class-name (cond
+                                  ((symbolp object) 
+                                   (ignore-errors 
+                                     (type-of (symbol-value object))))
+                                  ((and (consp object)
+                                        (eq (car object) 'make-instance))
+                                        (second object))
+                                  (t nil))))
                 ;; Check if accessor exists for this slot
                 (when (and class-name
                          (find-class class-name nil)
@@ -308,13 +307,12 @@
   (format log-stream "Filename: DEFINITIONS.LOG")
   (format log-stream "~2%The list of all definitions identified in the ~A project.~2%"
           (slot-value *current-tracker* 'project-name))
-  (let ((def-ht (slot-value *current-tracker* 'definitions)))
-    (maphash (lambda (key val)
-               (declare (ignore key))
-               (dolist (def val)
-                 (print-object def log-stream)
-                 (format log-stream "~%")))
-             def-ht)))
+  (maphash (lambda (key val)
+             (declare (ignore key))
+             (dolist (def val)
+               (print-object def log-stream)
+               (format log-stream "~%")))
+           (slot-value *current-tracker* 'definitions)))
 
 
 (defun log-references ()
@@ -322,15 +320,14 @@
   (format log-stream "Filename: REFERENCES.LOG")
   (format log-stream "~2%The list of all references to definitions in other files for the ~A project.~%"
           (slot-value *current-tracker* 'project-name))
-  (let ((ref-ht (slot-value *current-tracker* 'references)))
-    (maphash (lambda (key ref-list)
-               (declare (ignore key))
-               (dolist (ref (sort ref-list #'string< 
-                                 :key (lambda (r)
-                                        (format nil "~A:~A" (reference.file r) (reference.name r)))))
-                 (terpri log-stream)
-                 (print-object ref log-stream)))
-             ref-ht)))
+  (maphash (lambda (key ref-list)
+             (declare (ignore key))
+             (dolist (ref (sort ref-list #'string< 
+                               :key (lambda (r)
+                                      (format nil "~A:~A" (reference.file r) (reference.name r)))))
+               (terpri log-stream)
+               (print-object ref log-stream)))
+           (slot-value *current-tracker* 'references)))
     
 
 (defun log-anomalies ()
