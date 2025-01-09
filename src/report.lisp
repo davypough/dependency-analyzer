@@ -71,10 +71,9 @@
      (format stream "~%Note: Package relationships contain cyclical dependencies.~%
                   This may be intentional but could affect maintainability.~%")))
  (format stream "~%File Hierarchy:~%")
- (let ((file-roots (build-file-dependency-tree tracker)))
-   (if file-roots
-       (print-ascii-tree stream file-roots)
-       (format stream "  No file dependencies found.~%")))
+ (if-let (file-roots (build-file-dependency-tree tracker))
+   (print-ascii-tree stream file-roots)
+   (format stream "  No file dependencies found.~%"))
  (format stream "~2%")
  ;; 3. Anomalies and Analysis
  (format stream "ANOMALIES AND ANALYSIS~%")
@@ -157,13 +156,13 @@
  (format stream "MAINTENANCE CONSIDERATIONS~%")
  (format stream "~V,,,'-<~A~>~%" 30 "")
  ;; Display any cycles detected
- (alexandria:when-let ((cycles (get-file-cycles tracker)))
+ (when-let (cycles (get-file-cycles tracker))
    (format stream "~%File Dependencies with Cycles:~%")
    (format stream "The following files have circular dependencies.~%")
    (format stream "This may indicate tightly coupled components:~%~%")
    (dolist (cycle cycles)
      (format stream "  ~A~%" cycle)))
- (alexandria:when-let ((cycles (get-package-cycles tracker)))
+ (when-let (cycles (get-package-cycles tracker))
    (format stream "~%Package Dependencies with Cycles:~%")
    (format stream "The following packages have mutual dependencies.~%")
    (format stream "While sometimes necessary, this can make the system harder to understand:~%~%")
@@ -184,34 +183,32 @@
              (format stream "uses")
              (dolist (used used-pkgs)
                (format stream " ~A" used)))
-           (let ((exports (get-package-exports tracker pkg)))
-             (when exports
-               (format stream "  Exports:~%")
-               (dolist (sym (sort exports #'string< :key #'symbol-name))
-                 (format stream "    ~A~%" sym)))))
+           (when-let (exports (get-package-exports tracker pkg))
+             (format stream "  Exports:~%")
+             (dolist (sym (sort exports #'string< :key #'symbol-name))
+               (format stream "    ~A~%" sym))))
          (slot-value tracker 'package-uses))
  (format stream "~2%")
   ;; File Dependencies
-        (format stream "File Dependencies:~%")
-        (maphash (lambda (file definitions)
-                 (declare (ignore definitions))
-                 (let ((deps (file-dependencies tracker file)))
-                   (when deps
-                     (dolist (dep deps)
-                       (let* ((dep-line (format nil "~A depends on ~A" 
-                                              (project-pathname file)
-                                              (project-pathname dep)))
-                             (refs (collect-file-references tracker file dep)))
-                         (format stream "~A~%" dep-line)
-                         (when refs
-                           (dolist (ref refs)
-                             (let ((name (reference.name ref))
-                                   (quals (reference.qualifiers ref))
-                                   (args (reference.arguments ref)))
-                               (format stream "    ~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]~%" 
-                                     name quals args))))
-                         (format stream "~%"))))))
-               (slot-value tracker 'file-map)))
+ (format stream "File Dependencies:~%")
+ (maphash (lambda (file definitions)
+            (declare (ignore definitions))
+            (when-let (deps (file-dependencies tracker file))
+              (dolist (dep deps)
+                (let* ((dep-line (format nil "~A depends on ~A" 
+                                         (project-pathname file)
+                                         (project-pathname dep)))
+                       (refs (collect-file-references tracker file dep)))
+                  (format stream "~A~%" dep-line)
+                  (when refs
+                    (dolist (ref refs)
+                      (let ((name (reference.name ref))
+                            (quals (reference.qualifiers ref))
+                            (args (reference.arguments ref)))
+                        (format stream "    ~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]~%" 
+                                name quals args))))
+                  (format stream "~%")))))
+          (slot-value tracker 'file-map)))
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
@@ -226,44 +223,37 @@
         (yason:encode-object-element "project" (project.name tracker))
           (yason:encode (slot-value tracker 'subsystems)))
         ;; Anomalies
-        (yason:with-object-element ("anomalies")
-          (yason:with-object ()
-            (dolist (severity '(:ERROR :WARNING :INFO))
-              (yason:with-object-element ((string-downcase (symbol-name severity)))
-                (yason:with-array ()
-                  (maphash (lambda (type anomaly-list)
-                            (dolist (a (remove severity anomaly-list 
-                                             :key #'anomaly.severity 
-                                             :test-not #'eq))
-                              (yason:with-object ()
-                                (yason:encode-object-element "type" 
-                                                          (string-downcase (symbol-name type)))
-                                ;; Convert pathname locations to strings before encoding
-                                (yason:encode-object-element "description" 
-                                                          (anomaly.description a))
-                                (when (anomaly.context a)
-                                  (yason:encode-object-element "context" 
-                                                            (anomaly.context a))))))
-                          (anomalies tracker)))))))
-        ;; System dependencies
-          (let ((systems (make-hash-table :test 'equal)))
-            (maphash (lambda (sys-name deps)
-                      (setf (gethash sys-name systems)
-                            (alexandria:alist-hash-table
-                             `(("depends_on" . ,deps))
-                             :test 'equal)))
-                    (slot-value tracker 'subsystems))
-            (yason:encode systems)))
-        ;; File dependencies with references
-        (let ((files (build-file-dependency-json tracker)))
-          (when files
-            (yason:with-object-element ("files")
-              (yason:encode files))))
-        ;; Package dependencies
-        (let ((packages (build-package-dependency-json tracker)))
-          (when packages
-            (yason:with-object-element ("packages")
-              (yason:encode packages))))))
+      (yason:with-object-element ("anomalies")
+        (yason:with-object ()
+          (dolist (severity '(:ERROR :WARNING :INFO))
+            (yason:with-object-element ((string-downcase (symbol-name severity)))
+              (yason:with-array ()
+                (maphash (lambda (type anomaly-list)
+                           (dolist (a (remove severity anomaly-list 
+                                              :key #'anomaly.severity 
+                                              :test-not #'eq))
+                             (yason:with-object ()
+                               (yason:encode-object-element "type" (string-downcase (symbol-name type)))
+                               ;; Convert pathname locations to strings before encoding
+                               (yason:encode-object-element "description" (anomaly.description a))
+                               (when (anomaly.context a)
+                                 (yason:encode-object-element "context" (anomaly.context a))))))
+                         (anomalies tracker)))))))
+      ;; System dependencies
+      (let ((systems (make-hash-table :test 'equal)))
+        (maphash (lambda (sys-name deps)
+                   (setf (gethash sys-name systems)
+                     (alist-hash-table `(("depends_on" . ,deps)) :test 'equal)))
+                 (slot-value tracker 'subsystems))
+        (yason:encode systems)))
+    ;; File dependencies with references
+    (when-let (files (build-file-dependency-json tracker))
+      (yason:with-object-element ("files")
+        (yason:encode files)))
+    ;; Package dependencies
+    (when-let (packages (build-package-dependency-json tracker))
+      (yason:with-object-element ("packages")
+        (yason:encode packages)))))
 
 
 (defmethod generate-report ((format (eql :dot)) tracker &key (stream *standard-output*))

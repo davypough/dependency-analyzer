@@ -192,11 +192,10 @@
    (maphash (lambda (file def-list)
               (declare (ignore def-list)) 
               (unless (gethash file is-dependency)
-                (let ((file-str (project-pathname file))
-                      (deps (file-dependencies tracker file)))
-                  (when deps
-                    (let ((deps-with-refs 
-                           (mapcar (lambda (dep)
+                (when-let ((file-str (project-pathname file))
+                           (deps (file-dependencies tracker file)))
+                  (let ((deps-with-refs 
+                          (mapcar (lambda (dep)
                                    (let ((refs (collect-file-references tracker file dep)))
                                      (alexandria:alist-hash-table
                                       `(("file" . ,(project-pathname dep))
@@ -210,10 +209,8 @@
                                                   refs)))
                                       :test 'equal)))
                                  deps)))
-                      (setf (gethash file-str result)
-                            (alexandria:alist-hash-table
-                             `(("depends_on" . ,deps-with-refs))
-                             :test 'equal)))))))
+                    (setf (gethash file-str result)
+                      (alist-hash-table `(("depends_on" . ,deps-with-refs)) :test #'equal))))))
             (slot-value tracker 'file-map))
    result))
 
@@ -244,10 +241,9 @@
   "Get all symbols exported by a package."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
     (mapcar #'(lambda (sym)
-                (let ((pkg (find-package (string package-name))))
-                  (if pkg
-                      (intern (symbol-name sym) pkg)
-                      sym)))
+                (if-let (pkg (find-package (string package-name)))
+                  (intern (symbol-name sym) pkg)
+                  sym))
             (gethash (string package-name) (slot-value actual-tracker 'package-exports)))))
 
 
@@ -260,7 +256,7 @@
    
    A file A depends on file B if A contains references to symbols defined in B."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
-        (deps ())
+        (deps nil)
         (refs-seen (make-hash-table :test 'equal)))
     ;; First collect all references in this file
     (maphash (lambda (key refs)

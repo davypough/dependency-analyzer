@@ -71,13 +71,12 @@
    Returns a path starting with / that is relative to the project root.
    E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
   (when pathname
-    (let ((project-root (project-root *current-tracker*)))
-      (if project-root
-        (let ((relative (enough-namestring pathname project-root)))
-          (if (char= (char relative 0) #\/)
-            relative
-            (concatenate 'string "/" relative)))
-        (namestring pathname)))))
+    (if-let (project-root (project-root *current-tracker*))
+      (let ((relative (enough-namestring pathname project-root)))
+        (if (char= (char relative 0) #\/)
+          relative
+          (concatenate 'string "/" relative)))
+      (namestring pathname))))
 
 
 #+ignore (defun detect-unused-definitions (tracker)  ;redo later, too many ways to reference a definition
@@ -344,10 +343,8 @@
              (anomalies *current-tracker*))
     ;; Process each type in sorted order
     (dolist (type (sort anomaly-types #'string< :key #'symbol-name))
-      (let ((anomalies-of-type (gethash type (anomalies *current-tracker*))))
-        (when anomalies-of-type
-          ;(format stream "~&~A Anomalies:" (string-upcase (symbol-name type)))
-          (dolist (anomaly (sort anomalies-of-type #'string< 
-                                :key #'anomaly.description))
-            (print-anomaly anomaly log-stream 0))
-          (terpri log-stream))))))
+      (when-let (anomalies-of-type (gethash type (anomalies *current-tracker*)))
+        (dolist (anomaly (sort anomalies-of-type #'string< 
+                               :key #'anomaly.description))
+          (print-anomaly anomaly log-stream 0))
+        (terpri log-stream)))))

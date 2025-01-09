@@ -30,10 +30,9 @@
 
 (defun symbol-status (sym pkg)
   "Determines the status of a symbol in a package, :internal, :external, :inherited, :nil."
-  (let ((status (nth-value 1 (find-symbol (symbol-name sym) pkg))))
-    (if status
-      status
-      :nil)))
+  (if-let ((status (nth-value 1 (find-symbol (symbol-name sym) pkg))))
+     status
+     :nil))
 
 
 (defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
@@ -168,14 +167,12 @@
 (defun record-export (tracker package-name name)
   "Record a name as being exported from a package.
    Both package-name and name can be either strings or symbols."
-  (let ((pkg (find-package (string package-name))))
-    (when pkg
-      (let ((exported-sym (etypecase name
-                           (string (intern name pkg))
-                           (symbol (intern (symbol-name name) pkg)))))
-        (pushnew exported-sym 
-                 (gethash (string package-name) (slot-value tracker 'package-exports))
-                 :test #'eq)))))
+  (when-let* ((pkg (find-package (string package-name)))
+              (exported-sym (etypecase name
+                              (string (intern name pkg))
+                              (symbol (intern (symbol-name name) pkg)))))
+    (pushnew exported-sym (gethash (string package-name) (slot-value tracker 'package-exports))
+             :test #'eq)))
 
 
 (defun record-package-cycle (tracker cycle-chain)
@@ -202,13 +199,11 @@
    name - name to export (can be string, symbol, or uninterned symbol)
    
    Returns the exported name if successful."
-  (let* ((sym-name (normalize-designator name))
-         (exported-sym (and sym-name 
-                           (intern sym-name package))))
-    (when exported-sym
-      (export exported-sym package)
-      (record-export *current-tracker* pkg-name exported-sym)
-      exported-sym)))
+  (when-let* ((sym-name (normalize-designator name))
+              (exported-sym (and sym-name (intern sym-name package))))
+    (export exported-sym package)
+    (record-export *current-tracker* pkg-name exported-sym)
+    exported-sym))
 
 
 (defun detect-package-cycle (pkg-name current-packages)
@@ -223,113 +218,17 @@
    Records both:
    1. The cycle chain in the tracker's package-cycles list
    2. An anomaly record with severity ERROR"
-  (let ((position (member pkg-name current-packages :test #'string=)))
-    (when position
-      (let* ((cycle (cons pkg-name (ldiff current-packages position)))
-             (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
-        ;; Record as both a cycle and an anomaly
-        (record-package-cycle *current-tracker* chain)
-        (record-anomaly *current-tracker*
+  (when-let* ((position (member pkg-name current-packages :test #'string=))
+              (cycle (cons pkg-name (ldiff current-packages position)))
+              (chain (format nil "~{~A~^ -> ~}" (reverse cycle))))
+    ;; Record as both a cycle and an anomaly
+    (record-package-cycle *current-tracker* chain)
+    (record-anomaly *current-tracker*
                 :type :package-cycle
                 :severity :WARNING
                 :package chain
                 :description (format nil "Package dependency cycle detected: ~A" chain)
-                :context cycle)))))
-
-
-(defun analyze-lambda-list (parser lambda-list)
-  "Analyze lambda list using runtime validation where possible.
-   Records type dependencies and validates parameter patterns."
-  (labels ((validate-type-spec (type-spec)
-             "Validate and record type specifier dependency"
-             (when type-spec
-               (cond
-                 ;; Class name
-                 ((and (symbolp type-spec)
-                       (find-class type-spec nil))
-                  (analyze-definition-form parser type-spec))
-                 ;; Type specifier
-                 ((ignore-errors (subtypep type-spec t))
-                  (analyze-definition-form parser type-spec)))))
-           
-           (analyze-default-form (form)
-             "Analyze potential dependencies in default value form"
-             (when form
-               (analyze-definition-form parser form)))
-           
-           (analyze-destructuring-pattern (pattern)
-             "Analyze nested destructuring pattern"
-             (when (consp pattern)
-               (dolist (elem pattern)
-                 (typecase elem
-                   (cons 
-                    (if (and (= (length elem) 2)
-                            (symbolp (car elem)))
-                        ;; Type declaration
-                        (validate-type-spec (cadr elem))
-                        ;; Nested pattern
-                        (analyze-destructuring-pattern elem)))
-                   (symbol nil))))) ; Simple var
-           
-           (analyze-specialized-parameter (param)
-             "Analyze method parameter specializer"
-             (when (and (consp param)
-                       (= (length param) 2)
-                       (symbolp (car param)))
-               (let ((specializer (cadr param)))
-                 (typecase specializer
-                   ;; EQL specializer
-                   ((cons (eql eql))
-                    (analyze-definition-form parser (cadr specializer)))
-                   ;; Class/type specializer
-                   (symbol
-                    (validate-type-spec specializer)))))))
-    
-    (let ((state :required))
-      (dolist (item lambda-list)
-        (cond
-          ;; Lambda list keywords change state
-          ((member item lambda-list-keywords)
-           (setf state item))
-          
-          ;; Process parameter based on current state
-          (t
-           (case state
-             (:required
-              (typecase item
-                (symbol nil) ; Simple parameter
-                (cons
-                 (if (and (= (length item) 2)
-                         (symbolp (car item)))
-                     ;; Method specializer
-                     (analyze-specialized-parameter item)
-                     ;; Destructuring pattern
-                     (analyze-destructuring-pattern item)))))
-             
-             (&optional
-              (typecase item
-                (symbol nil) ; Simple optional
-                (cons
-                 ;; (param default supplied-p)
-                 (when (cddr item)
-                   (analyze-default-form (third item))))))
-             
-             (&key
-              (typecase item
-                (symbol nil) ; Simple keyword
-                (cons
-                 (let* ((key-part (car item)))
-                   (when (cddr item)
-                     (analyze-default-form (third item)))
-                   ;; Check for type declaration
-                   (when (and (consp key-part)
-                            (cddr key-part))
-                     (validate-type-spec (third key-part)))))))
-             
-             (&aux
-              (when (and (consp item)
-                         (cdr item))
-                (analyze-default-form (second item)))))))))))
+                :context cycle)))
 
 
 (defun cl-symbol-p (item)
@@ -780,15 +679,15 @@
    Returns string to prepend to slot names."
   (if (and (consp (second current-form))           ; Has options list
            (consp (cadr current-form)))            ; Not just a name
-      (let ((options (cdadr current-form)))        ; Skip struct name
-        (let ((conc-option (find :conc-name options :key #'car)))
-          (if conc-option
-              (let ((prefix (cadr conc-option)))
-                (cond ((null prefix) "")       ; (:conc-name nil)
-                      ((stringp prefix) prefix)
-                      (t (string prefix))))    ; Symbol case
-              (format nil "~A-" (string name)))))
-      (format nil "~A-" (string name))))      ; Default case
+    (let* ((options (cdadr current-form))        ; Skip struct name
+           (conc-option (find :conc-name options :key #'car)))
+      (if conc-option
+        (let ((prefix (cadr conc-option)))
+          (cond ((null prefix) "")       ; (:conc-name nil)
+                ((stringp prefix) prefix)
+                (t (string prefix))))    ; Symbol case
+        (format nil "~A-" (string name))))
+    (format nil "~A-" (string name))))      ; Default case
 
 
 (defun record-slot-accessors (parser name class current-form)
@@ -878,14 +777,14 @@
   "Analyze a defclass, defstruct, or define-condition form.
    Records the primary type definition and all implicitly defined functions."
   (declare (special log-stream))
-  (let ((def-op (first form))
-        (class (find-class name nil)))
-    (when class   ;only analyze runtime objects if class object exists
-      ;; Common accessor analysis
-      (record-slot-accessors parser name class form)
-      ;; Only defstruct has additional implicit functions
-      (when (eq def-op 'defstruct)
-        (record-defstruct-functions parser name class form)))))
+  (when-let ((def-op (first form))
+             (class (find-class name nil)))
+    ;only analyze runtime objects if class object exists
+    ;; Common accessor analysis
+    (record-slot-accessors parser name class form)
+    ;; Only defstruct has additional implicit functions
+    (when (eq def-op 'defstruct)
+      (record-defstruct-functions parser name class form))))
 
 
 (defun analyze-defpackage/make-package (parser name current-form)
