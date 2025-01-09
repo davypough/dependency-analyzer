@@ -944,6 +944,20 @@ WALK(ING):
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
 
+REFERENCE>
+    :Name TEST-PROJECT-PACKAGE
+    :Context (IN-PACKAGE TEST-PROJECT-PACKAGE)
+    :Type :PACKAGE
+    :File /src/refs.lisp
+    :Definitions
+                    DEFINITION>
+                        :Name TEST-PROJECT-PACKAGE
+                        :Context (DEFPACKAGE TEST-PROJECT-PACKAGE
+                                   (USE CL))
+                        :Type :PACKAGE
+                        :File /src/defs.lisp
+
+
 -------------------------------
 WALK(ING):
   Expression: *DEFVAR-VARIABLE*
@@ -956,7 +970,7 @@ REFERENCE>
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
@@ -987,7 +1001,7 @@ REFERENCE>
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFPARAMETER-VARIABLE*
@@ -1017,7 +1031,7 @@ REFERENCE>
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name +DEFCONSTANT-VARIABLE+
@@ -1040,7 +1054,7 @@ REFERENCE>
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *SYMBOL-VALUE-VARIABLE*
@@ -1068,7 +1082,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFUN-NAME
@@ -1123,7 +1137,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name CIRCLE-RADIUS
@@ -1148,7 +1162,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE
@@ -1175,7 +1189,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name PERSON.AGE
@@ -1201,7 +1215,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-PERSON
@@ -1241,7 +1255,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE
@@ -1312,7 +1326,7 @@ REFERENCE>
     :Type :MACRO
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFMACRO-NAME
@@ -1339,7 +1353,7 @@ REFERENCE>
     :Type :MACRO
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MACRO-FUNCTION-NAME
@@ -1417,7 +1431,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFUN-NAME
@@ -1438,7 +1452,7 @@ REFERENCE>
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
@@ -1549,7 +1563,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name DEFUN-NAME
@@ -1582,7 +1596,7 @@ REFERENCE>
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name *DEFVAR-VARIABLE*
@@ -1639,7 +1653,7 @@ REFERENCE>
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (IMPORTED #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
                         :Name MAKE-CIRCLE

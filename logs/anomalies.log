@@ -3,6 +3,17 @@ Filename: ANOMALIES.LOG
 The list of all anomalies detected during dependency analysis of the test-project project.
 
 ANOMALY>
+    :Name TEST-PROJECT-PACKAGE
+    :Type :UNDEFINED-PACKAGE
+    :Context (DEFPACKAGE TEST-PROJECT-PACKAGE
+               (USE CL))
+    :Severity :ERROR
+    :File /src/defs.lisp
+    :Package #<PACKAGE "COMMON-LISP-USER">
+    :Description "Reference to undefined package TEST-PROJECT-PACKAGE"
+
+
+ANOMALY>
     :Name *DEFVAR-VARIABLE*
     :Type :UNDEFINED-SYMBOL
     :Context (DEFVAR *DEFVAR-VARIABLE* 0)

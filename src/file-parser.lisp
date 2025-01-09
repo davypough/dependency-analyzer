@@ -241,33 +241,30 @@
   (declare (special log-stream))
   (labels ((handle-reference (current-form context parent-context)
              (declare (ignorable context parent-context))
-             (unless (or (skip-item-p current-form) (skip-definition-form current-form))
-               (typecase current-form
-                 ((or string keyword (and symbol (satisfies not-interned-p)))
-                  (let* ((key (make-tracking-key current-form (current-package parser) :package))  
-                         (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                         (other-file-defs (remove-if (lambda (def)
+             (if (and (typep current-form '(or character package string symbol))
+                      (find-package current-form))  ;process a package designator
+               (let* ((key (make-tracking-key current-form nil :package))  
+                      (defs (gethash key (slot-value *current-tracker* 'definitions)))
+                      (other-file-defs (remove-if (lambda (def)
                                                        (equal (definition.file def) (file parser)))
                                                      defs)))
-                    (cond 
-                      ;; Check if reference to package definition in a different file
-                      (other-file-defs (record-reference *current-tracker*
-                                                         :name current-form
-                                                         :file (file parser)
-                                                         :context parent-context
-                                                         :definitions other-file-defs))
-                      ;; Check if valid project or external package
-                      ((find-package current-form) t)
-                      ;; Package not found
-                      (t (record-anomaly *current-tracker*
+                 (if other-file-defs
+                   (record-reference *current-tracker*
+                                     :name current-form
+                                     :type :package
+                                     :file (file parser)
+                                     :context parent-context
+                                     :definitions other-file-defs)
+                   (record-anomaly *current-tracker*
                                          :name current-form
                                          :type :undefined-package
                                          :severity :error
                                          :file (file parser)
                                          :package (current-package parser)
                                          :context parent-context
-                                         :description (format nil "Reference to undefined package ~A" current-form))))))
-                 (symbol
+                                         :description (format nil "Reference to undefined package ~A" current-form))))
+               (unless (or (skip-item-p current-form) (skip-definition-form current-form))
+                 (when (symbolp current-form)
                    (let* ((sym-pkg (symbol-package current-form))
                           (sym-type (get-symbol-reference-type current-form parent-context))
                           (key (if (eq sym-type :method)
@@ -282,23 +279,22 @@
                           (other-file-defs (remove-if (lambda (def)
                                                         (equal (definition.file def) (file parser)))
                                                       defs)))
-                     (cond 
-                       ;; Check if reference to definition in a different file
-                       (other-file-defs (record-reference *current-tracker*
+                     (if other-file-defs
+                       (record-reference *current-tracker*
                                                           :name current-form
                                                           :file (file parser)
                                                           :type sym-type
                                                           :package sym-pkg  
                                                           :context parent-context
                                                           :visibility (get-visibility current-form (current-package parser))
-                                                          :definitions other-file-defs))
-                       (t (record-anomaly *current-tracker*
+                                                          :definitions other-file-defs)
+                       (record-anomaly *current-tracker*
                                           :name current-form
                                           :type :undefined-symbol
                                           :severity :error
                                           :file (file parser)
                                           :context parent-context
-                                          :description (format nil "Reference to undefined symbol ~A" current-form))))))))))
+                                          :description (format nil "Reference to undefined symbol ~A" current-form)))))))))
     ;; Walk the form breadth-first applying handler
     (walk-form form #'handle-reference)))
 
