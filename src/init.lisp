@@ -11,23 +11,11 @@
 (defpackage #:dependency-analyzer
   (:use #:cl #:alexandria)
   (:nicknames #:dep)
-  (:export 
-    ;; Main analysis function
-    #:analyze
-    ;; Report generation
-    #:report  
-    #:generate-report
-    ;; Cycle detection
-    #:get-package-cycles
-    #:get-project-cycles  
-    #:get-file-cycles
-    ;; Development
-    #:prt
-    #:delete-fasl
-    #:dep
-    #:defs
-    #:refs
-    #:anoms))
+  (:export #:analyze
+     ;; Development
+     #:prt
+     #:delete-fasl
+     #:dep))
 
 
 (in-package :dep)
