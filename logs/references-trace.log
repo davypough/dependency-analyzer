@@ -21,6 +21,14 @@ WALK(ING):
              (:USE :CL))
   Parent: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
             (:USE :CL))
+
+REFERENCE>
+    :Name TEST-PROJECT-PACKAGE
+    :Context (DEFPACKAGE TEST-PROJECT-PACKAGE
+               (USE CL))
+    :Type :PACKAGE
+    :File /src/defs.lisp
+    :Definitions
 WALK(ING):
   Expression: (:USE :CL)
   Context: (DEFPACKAGE #:TEST-PROJECT-PACKAGE
@@ -52,6 +60,13 @@ WALK(ING):
   Context: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
   Parent: (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
 
+REFERENCE>
+    :Name TEST-PROJECT-PACKAGE
+    :Context (IN-PACKAGE TEST-PROJECT-PACKAGE)
+    :Type :PACKAGE
+    :File /src/defs.lisp
+    :Definitions
+
 -------------------------------
 WALK(ING):
   Expression: (DEFVAR *DEFVAR-VARIABLE* 0)
@@ -65,6 +80,15 @@ WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (DEFVAR *DEFVAR-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
+
+REFERENCE>
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 0
   Context: (DEFVAR *DEFVAR-VARIABLE* 0)
@@ -83,6 +107,15 @@ WALK(ING):
   Expression: *DEFPARAMETER-VARIABLE*
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+
+REFERENCE>
+    :Name *DEFPARAMETER-VARIABLE*
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 0
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
@@ -101,6 +134,15 @@ WALK(ING):
   Expression: +DEFCONSTANT-VARIABLE+
   Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
   Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
+
+REFERENCE>
+    :Name +DEFCONSTANT-VARIABLE+
+    :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 'C
   Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
@@ -120,6 +162,15 @@ WALK(ING):
   Expression: *DEFVAR-VARIABLE*
   Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+
+REFERENCE>
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
@@ -132,6 +183,15 @@ WALK(ING):
   Expression: *DEFPARAMETER-VARIABLE*
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
   Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+
+REFERENCE>
+    :Name *DEFPARAMETER-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 0
   Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
@@ -158,6 +218,15 @@ WALK(ING):
   Expression: *SYMBOL-VALUE-VARIABLE*
   Context: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
   Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
+
+REFERENCE>
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :Context (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 
 -------------------------------
 WALK(ING):
@@ -198,6 +267,15 @@ WALK(ING):
   Expression: DEFUN-NAME
   Context: (DEFUN DEFUN-NAME () 0)
   Parent: (DEFUN DEFUN-NAME () 0)
+
+REFERENCE>
+    :Name DEFUN-NAME
+    :Context (DEFUN DEFUN-NAME () 0)
+    :Type :FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: NIL
   Context: (DEFUN DEFUN-NAME () 0)
@@ -296,6 +374,15 @@ WALK(ING):
   Expression: CIRCLE
   Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+
+REFERENCE>
+    :Name CIRCLE
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (RADIUS 1 :TYPE NUMBER)
   Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
@@ -304,6 +391,15 @@ WALK(ING):
   Expression: RADIUS
   Context: (RADIUS 1 :TYPE NUMBER)
   Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+
+REFERENCE>
+    :Name RADIUS
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 TYPE NUMBER))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 1
   Context: (RADIUS 1 :TYPE NUMBER)
@@ -334,6 +430,15 @@ WALK(ING):
   Expression: PERSON
   Context: (PERSON (:CONC-NAME PERSON.))
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+
+REFERENCE>
+    :Name PERSON
+    :Context (DEFSTRUCT (PERSON (CONC-NAME PERSON.)) (AGE 0 TYPE FIXNUM))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (:CONC-NAME PERSON.)
   Context: (PERSON (:CONC-NAME PERSON.))
@@ -346,6 +451,15 @@ WALK(ING):
   Expression: PERSON.
   Context: (:CONC-NAME PERSON.)
   Parent: (PERSON (:CONC-NAME PERSON.))
+
+REFERENCE>
+    :Name PERSON.
+    :Context (PERSON (CONC-NAME PERSON.))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (AGE 0 :TYPE FIXNUM)
   Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
@@ -354,6 +468,15 @@ WALK(ING):
   Expression: AGE
   Context: (AGE 0 :TYPE FIXNUM)
   Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+
+REFERENCE>
+    :Name AGE
+    :Context (DEFSTRUCT (PERSON (CONC-NAME PERSON.)) (AGE 0 TYPE FIXNUM))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 0
   Context: (AGE 0 :TYPE FIXNUM)
@@ -395,6 +518,17 @@ WALK(ING):
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
+
+REFERENCE>
+    :Name COMPUTE-AREA
+    :Context (DEFGENERIC COMPUTE-AREA
+                 (SHAPE)
+               (DOCUMENTATION Compute the area of different geometric shapes))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (SHAPE)
   Context: (DEFGENERIC COMPUTE-AREA
@@ -409,6 +543,17 @@ WALK(ING):
   Parent: (DEFGENERIC COMPUTE-AREA
               (SHAPE)
             (:DOCUMENTATION "Compute the area of different geometric shapes"))
+
+REFERENCE>
+    :Name SHAPE
+    :Context (DEFGENERIC COMPUTE-AREA
+                 (SHAPE)
+               (DOCUMENTATION Compute the area of different geometric shapes))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (:DOCUMENTATION "Compute the area of different geometric shapes")
   Context: (DEFGENERIC COMPUTE-AREA
@@ -450,6 +595,16 @@ WALK(ING):
              (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
   Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+
+REFERENCE>
+    :Name COMPUTE-AREA
+    :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+               (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: ((SHAPE CIRCLE))
   Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
@@ -465,10 +620,28 @@ WALK(ING):
   Expression: SHAPE
   Context: (SHAPE CIRCLE)
   Parent: ((SHAPE CIRCLE))
+
+REFERENCE>
+    :Name SHAPE
+    :Context ((SHAPE CIRCLE))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: CIRCLE
   Context: (SHAPE CIRCLE)
   Parent: ((SHAPE CIRCLE))
+
+REFERENCE>
+    :Name CIRCLE
+    :Context ((SHAPE CIRCLE))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
   Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
@@ -502,10 +675,28 @@ WALK(ING):
   Expression: CIRCLE-RADIUS
   Context: (CIRCLE-RADIUS SHAPE)
   Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+
+REFERENCE>
+    :Name CIRCLE-RADIUS
+    :Context (EXPT (CIRCLE-RADIUS SHAPE) 2)
+    :Type :FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: SHAPE
   Context: (CIRCLE-RADIUS SHAPE)
   Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+
+REFERENCE>
+    :Name SHAPE
+    :Context (EXPT (CIRCLE-RADIUS SHAPE) 2)
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 2
   Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
@@ -538,6 +729,17 @@ WALK(ING):
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
+
+REFERENCE>
+    :Name PROCESS-DATA
+    :Context (DEFGENERIC PROCESS-DATA
+                 (DATA &KEY)
+               (DOCUMENTATION Process data with various methods))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (DATA &KEY)
   Context: (DEFGENERIC PROCESS-DATA
@@ -552,6 +754,17 @@ WALK(ING):
   Parent: (DEFGENERIC PROCESS-DATA
               (DATA &KEY)
             (:DOCUMENTATION "Process data with various methods"))
+
+REFERENCE>
+    :Name DATA
+    :Context (DEFGENERIC PROCESS-DATA
+                 (DATA &KEY)
+               (DOCUMENTATION Process data with various methods))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: &KEY
   Context: (DATA &KEY)
@@ -592,6 +805,15 @@ WALK(ING):
   Expression: PROCESS-DATA
   Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+
+REFERENCE>
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: ((DATA STRING) &KEY)
   Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
@@ -604,6 +826,15 @@ WALK(ING):
   Expression: DATA
   Context: (DATA STRING)
   Parent: ((DATA STRING) &KEY)
+
+REFERENCE>
+    :Name DATA
+    :Context ((DATA STRING) &KEY)
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: STRING
   Context: (DATA STRING)
@@ -625,6 +856,15 @@ WALK(ING):
   Context: (STRING-UPCASE DATA)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
 
+REFERENCE>
+    :Name DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+
 -------------------------------
 WALK(ING):
   Expression: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
@@ -638,6 +878,15 @@ WALK(ING):
   Expression: PROCESS-DATA
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+
+REFERENCE>
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: ((DATA NUMBER) &KEY)
   Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
@@ -650,6 +899,15 @@ WALK(ING):
   Expression: DATA
   Context: (DATA NUMBER)
   Parent: ((DATA NUMBER) &KEY)
+
+REFERENCE>
+    :Name DATA
+    :Context ((DATA NUMBER) &KEY)
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: NUMBER
   Context: (DATA NUMBER)
@@ -670,6 +928,15 @@ WALK(ING):
   Expression: DATA
   Context: (1+ DATA)
   Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+
+REFERENCE>
+    :Name DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 
 -------------------------------
 WALK(ING):
@@ -695,6 +962,17 @@ WALK(ING):
              (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
   Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+
+REFERENCE>
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA AFTER
+                        ((DATA STRING) &KEY (LOG-LEVEL INFO))
+               (WHEN (EQ LOG-LEVEL INFO) (FORMAT NIL LOG: ~A DATA)))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: :AFTER
   Context: (DEFMETHOD PROCESS-DATA :AFTER
@@ -718,6 +996,15 @@ WALK(ING):
   Expression: DATA
   Context: (DATA STRING)
   Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+
+REFERENCE>
+    :Name DATA
+    :Context ((DATA STRING) &KEY (LOG-LEVEL INFO))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: STRING
   Context: (DATA STRING)
@@ -736,6 +1023,15 @@ WALK(ING):
   Expression: LOG-LEVEL
   Context: (LOG-LEVEL :INFO)
   Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+
+REFERENCE>
+    :Name LOG-LEVEL
+    :Context ((DATA STRING) &KEY (LOG-LEVEL INFO))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: :INFO
   Context: (LOG-LEVEL :INFO)
@@ -765,6 +1061,15 @@ WALK(ING):
   Expression: LOG-LEVEL
   Context: (EQ LOG-LEVEL :INFO)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
+
+REFERENCE>
+    :Name LOG-LEVEL
+    :Context (WHEN (EQ LOG-LEVEL INFO) (FORMAT NIL LOG: ~A DATA))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: :INFO
   Context: (EQ LOG-LEVEL :INFO)
@@ -791,6 +1096,15 @@ WALK(ING):
   Context: (FORMAT NIL "LOG: ~A" DATA)
   Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
 
+REFERENCE>
+    :Name DATA
+    :Context (WHEN (EQ LOG-LEVEL INFO) (FORMAT NIL LOG: ~A DATA))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+
 -------------------------------
 WALK(ING):
   Expression: (DEFMACRO DEFMACRO-NAME () 0)
@@ -804,6 +1118,15 @@ WALK(ING):
   Expression: DEFMACRO-NAME
   Context: (DEFMACRO DEFMACRO-NAME () 0)
   Parent: (DEFMACRO DEFMACRO-NAME () 0)
+
+REFERENCE>
+    :Name DEFMACRO-NAME
+    :Context (DEFMACRO DEFMACRO-NAME () 0)
+    :Type :MACRO
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: NIL
   Context: (DEFMACRO DEFMACRO-NAME () 0)
@@ -863,20 +1186,58 @@ WALK(ING):
   Expression: FORM
   Context: (FORM ENV)
   Parent: (LAMBDA (FORM ENV) FORM ENV 0)
+
+REFERENCE>
+    :Name FORM
+    :Context (LAMBDA (FORM ENV) FORM ENV 0)
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: ENV
   Context: (FORM ENV)
   Parent: (LAMBDA (FORM ENV) FORM ENV 0)
+
+REFERENCE>
+    :Name ENV
+    :Context (LAMBDA (FORM ENV) FORM ENV 0)
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: FORM
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
+
+REFERENCE>
+    :Name FORM
+    :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                     (LAMBDA (FORM ENV) FORM ENV 0))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: ENV
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
   Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
                   (LAMBDA (FORM ENV) FORM ENV 0))
+
+REFERENCE>
+    :Name ENV
+    :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                     (LAMBDA (FORM ENV) FORM ENV 0))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 0
   Context: (LAMBDA (FORM ENV) FORM ENV 0)
@@ -910,6 +1271,17 @@ WALK(ING):
   Parent: (DEFINE-CONDITION CONDITION-NAME
               NIL
               NIL)
+
+REFERENCE>
+    :Name CONDITION-NAME
+    :Context (DEFINE-CONDITION CONDITION-NAME
+                 NIL
+                 NIL)
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: NIL
   Context: (DEFINE-CONDITION CONDITION-NAME
@@ -1283,6 +1655,15 @@ WALK(ING):
   Expression: PROCESS-DATA
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
   Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
+
+REFERENCE>
+    :Name PROCESS-DATA
+    :Context (PROCESS-DATA test LOG-LEVEL WARN)
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: "test"
   Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
@@ -1305,6 +1686,15 @@ WALK(ING):
   Expression: PROCESS-DATA
   Context: (PROCESS-DATA 42)
   Parent: (PROCESS-DATA 42)
+
+REFERENCE>
+    :Name PROCESS-DATA
+    :Context (PROCESS-DATA 42)
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 42
   Context: (PROCESS-DATA 42)
@@ -1378,6 +1768,15 @@ WALK(ING):
   Expression: FUNCTION-WITH-CONDITION
   Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
   Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+
+REFERENCE>
+    :Name FUNCTION-WITH-CONDITION
+    :Context (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: NIL
   Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
@@ -1408,6 +1807,15 @@ WALK(ING):
   Expression: MY-FUNCTION
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+
+REFERENCE>
+    :Name MY-FUNCTION
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (ARG)
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
@@ -1416,6 +1824,15 @@ WALK(ING):
   Expression: ARG
   Context: (ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+
+REFERENCE>
+    :Name ARG
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :Type :DEFTYPE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (DEFUN-NAME)
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
@@ -1475,6 +1892,15 @@ WALK(ING):
   Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
   Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
 
+REFERENCE>
+    :Name ARG
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :Type :DEFTYPE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+
 -------------------------------
 WALK(ING):
   Expression: (LET ((ARG 0))
@@ -1528,6 +1954,15 @@ WALK(ING):
   Expression: ARG
   Context: (ARG 0)
   Parent: ((ARG 0))
+
+REFERENCE>
+    :Name ARG
+    :Context ((ARG 0))
+    :Type :DEFTYPE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: 0
   Context: (ARG 0)
@@ -1634,6 +2069,19 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
+
+REFERENCE>
+    :Name COMPUTE-AREA
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE))
+               ARG)
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 WALK(ING):
   Expression: (MAKE-CIRCLE)
   Context: (COMPUTE-AREA (MAKE-CIRCLE))
@@ -1675,4 +2123,17 @@ WALK(ING):
             *DEFVAR-VARIABLE*
             (COMPUTE-AREA (MAKE-CIRCLE))
             ARG)
+
+REFERENCE>
+    :Name ARG
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE))
+               ARG)
+    :Type :DEFTYPE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
 

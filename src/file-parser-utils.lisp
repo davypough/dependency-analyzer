@@ -231,8 +231,7 @@
         (record-package-cycle *current-tracker* chain)
         (record-anomaly *current-tracker*
                 :type :package-cycle
-                :severity :ERROR
-                :file pkg-name
+                :severity :WARNING
                 :package chain
                 :description (format nil "Package dependency cycle detected: ~A" chain)
                 :context cycle)))))
@@ -377,71 +376,6 @@
                             define-modify-macro define-compiler-macro
                             define-symbol-macro defsetf define-setf-expander
                             deftype))))
-
-
-(defun check-package-reference (symbol parser tracker context parent-context)
-  "Check symbol reference visibility using runtime package state."
-  (let* ((sym-pkg (symbol-package (if (and (consp symbol)
-                                         (eq (car symbol) 'quote))
-                                    (cadr symbol)
-                                    symbol)))
-         (cur-pkg (current-package parser))
-         (pkg-name (if sym-pkg 
-                      (package-name sym-pkg)
-                      (current-package-name parser)))
-         (package-ops '(defpackage in-package use-package make-package 
-                       rename-package delete-package)))
-
-    ;; Determine visibility using runtime package state
-    (multiple-value-bind (found-sym status)
-        (when cur-pkg
-          (find-symbol (string symbol) cur-pkg))
-      (let ((visibility 
-             (cond
-               ;; Uninterned symbol
-               ((null sym-pkg) :LOCAL)
-               ;; Symbol in current package
-               ((eq sym-pkg cur-pkg) :LOCAL)
-               ;; Found in current package
-               (found-sym
-                (case status
-                  (:inherited :INHERITED)
-                  (:external :IMPORTED)
-                  (t :LOCAL)))
-               ;; Not found
-               (t :LOCAL))))
-
-        ;; Check for unqualified references from CL-USER
-        (when (eq cur-pkg (find-package :common-lisp-user))
-          (when (and (not (eq (project-package *current-tracker*) cur-pkg))
-                 ;; Not qualified with package
-                 (not (eq sym-pkg (find-package :common-lisp-user)))
-                 ;; Not a CL symbol
-                 (not (eq sym-pkg (find-package :common-lisp)))
-                 ;; Not a package operation keyword
-                 (not (member symbol '(:use cl common-lisp)))
-                 ;; Not in a package operation form
-                 (not (or (and (consp context)
-                              (member (car context) package-ops))
-                         (and (consp parent-context)
-                              (member (car parent-context) package-ops))))
-                 ;; Not a package being defined
-                 (not (or (and (consp context)
-                              (eq (car context) 'defpackage)
-                              (eq symbol (cadr context)))
-                         (and (consp parent-context)
-                              (eq (car parent-context) 'defpackage)
-                              (eq symbol (cadr parent-context))))))
-            
-            (record-anomaly tracker
-                           :type :possible-missing-in-package-for-reference 
-                           :severity :WARNING
-                           :file (file parser)
-                           :package cur-pkg
-                           :description (format nil "Unqualified reference to ~A from package ~A without in-package declaration"
-                                              symbol pkg-name)
-                           :context parent-context)))
-        visibility))))
 
 
 (defun walk-form (form handler)

@@ -248,20 +248,12 @@
                       (other-file-defs (remove-if (lambda (def)
                                                        (equal (definition.file def) (file parser)))
                                                      defs)))
-                 (if other-file-defs
-                   (record-reference *current-tracker*
+                 (record-reference *current-tracker*
                                      :name current-form
                                      :type :package
                                      :file (file parser)
                                      :context parent-context
-                                     :definitions other-file-defs)
-                   (record-anomaly *current-tracker*
-                                         :type :undefined-package
-                                         :severity :error
-                                         :file (file parser)
-                                         :package (current-package parser)
-                                         :context parent-context
-                                         :description (format nil "Reference to undefined package ~A" current-form))))
+                                     :definitions other-file-defs))
                (unless (or (skip-item-p current-form) (skip-definition-form current-form))
                  (when (symbolp current-form)
                    (let* ((sym-pkg (symbol-package current-form))
@@ -278,21 +270,14 @@
                           (other-file-defs (remove-if (lambda (def)
                                                         (equal (definition.file def) (file parser)))
                                                       defs)))
-                     (if other-file-defs
-                       (record-reference *current-tracker*
+                     (record-reference *current-tracker*
                                                           :name current-form
                                                           :file (file parser)
                                                           :type sym-type
                                                           :package sym-pkg  
                                                           :context parent-context
                                                           :visibility (get-visibility current-form (current-package parser))
-                                                          :definitions other-file-defs)
-                       (record-anomaly *current-tracker*
-                                          :type :undefined-symbol
-                                          :severity :error
-                                          :file (file parser)
-                                          :context parent-context
-                                          :description (format nil "Reference to undefined symbol ~A" current-form)))))))))
+                                                          :definitions other-file-defs)))))))
     ;; Walk the form breadth-first applying handler
     (walk-form form #'handle-reference)))
 
@@ -361,9 +346,9 @@
     (if pkg
         (setf (current-package parser) pkg
               (current-package-name parser) (package-name pkg))
-        (error "~&Cannot accurately analyze dependencies:~%~
+        (format t "~2%Cannot accurately analyze dependencies:~%~
                 File: ~A~%~
                 Form: ~S~%~
                 References undefined package: ~A~2%~
-                Please ensure all package definitions compile and load successfully before analysis."
+                Please ensure all package definitions compile and load successfully before analysis.~2%"
                (project-pathname (file parser)) form pkg-designator))))

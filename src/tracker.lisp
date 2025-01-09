@@ -24,12 +24,13 @@
     
     ;; Verify source directory exists  
     (unless (ignore-errors (truename source-pathname))
-      (error "~2%Error: The directory ~A does not exist.~%" source-dir))
+      (format t "~2%The provided source directory ~A does not exist." source-dir)
+      (format t "~%Please verify the directory containing the source files for the project.~2%"))
 
     ;; Verify package exists
     (unless project-package
-      (error "~2%Error: The project package ~A was not found. Project must be loaded before analysis.~%" 
-             package-designator))
+      (format t "~2%The project package ~A was not found." package-designator)
+      (format t "~%Note that the project's source files must be successfully compiled & loaded before analysis.~2%"))
 
     ;; Collect all source files
     (let ((source-files
@@ -41,7 +42,8 @@
                                                :type ext)))
                     '("lisp" "lsp" "cl"))))
       (unless source-files
-        (error "~2%There are no lisp source files in ~A." source-dir))
+        (format t "~2%Can't find lisp source files (with extension .lisp, .lsp, or .cl) in ~A." source-dir)
+        (format t "~%Please verify the source directory and valid file extensions for analysis.~2%"))
       (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
 
       ;; Begin analysis
