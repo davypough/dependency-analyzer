@@ -54,878 +54,764 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Context: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-WALK(ING):
-  Expression: DEFVAR
-  Context: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-WALK(ING):
-  Expression: *DEFVAR-VARIABLE*
-  Context: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-WALK(ING):
-  Expression: 0
-  Context: (DEFVAR *DEFVAR-VARIABLE* 0)
-  Parent: (DEFVAR *DEFVAR-VARIABLE* 0)
-
--------------------------------
-WALK(ING):
-  Expression: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-WALK(ING):
-  Expression: DEFPARAMETER
-  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-WALK(ING):
-  Expression: *DEFPARAMETER-VARIABLE*
-  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-WALK(ING):
-  Expression: 0
-  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Parent: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-
--------------------------------
-WALK(ING):
-  Expression: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-WALK(ING):
-  Expression: DEFCONSTANT
-  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-WALK(ING):
-  Expression: +DEFCONSTANT-VARIABLE+
-  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-WALK(ING):
-  Expression: 'C
-  Context: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-  Parent: (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-
--------------------------------
-WALK(ING):
-  Expression: (DEFVAR *DEFVAR-VARIABLE*
-                (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-WALK(ING):
-  Expression: DEFVAR
-  Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-WALK(ING):
-  Expression: *DEFVAR-VARIABLE*
-  Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-WALK(ING):
-  Expression: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Context: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-WALK(ING):
-  Expression: DEFPARAMETER
-  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-WALK(ING):
-  Expression: *DEFPARAMETER-VARIABLE*
-  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-WALK(ING):
-  Expression: 0
-  Context: (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-  Parent: (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-
--------------------------------
-WALK(ING):
-  Expression: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-WALK(ING):
-  Expression: DECLAIM
-  Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-WALK(ING):
-  Expression: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
-  Context: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-  Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-WALK(ING):
-  Expression: SPECIAL
-  Context: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
-  Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-WALK(ING):
-  Expression: *SYMBOL-VALUE-VARIABLE*
-  Context: (SPECIAL *SYMBOL-VALUE-VARIABLE*)
-  Parent: (DECLAIM (SPECIAL *SYMBOL-VALUE-VARIABLE*))
-
--------------------------------
-WALK(ING):
-  Expression: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-WALK(ING):
-  Expression: SETF
-  Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-WALK(ING):
-  Expression: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
-  Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-WALK(ING):
-  Expression: SYMBOL-VALUE
-  Context: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
-  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-WALK(ING):
-  Expression: '*SYMBOL-VALUE-VARIABLE*
-  Context: (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
-  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-WALK(ING):
-  Expression: 0
-  Context: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-  Parent: (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
-
--------------------------------
-WALK(ING):
-  Expression: (DEFUN DEFUN-NAME () 0)
-  Context: (DEFUN DEFUN-NAME () 0)
-  Parent: (DEFUN DEFUN-NAME () 0)
-WALK(ING):
-  Expression: DEFUN
-  Context: (DEFUN DEFUN-NAME () 0)
-  Parent: (DEFUN DEFUN-NAME () 0)
-WALK(ING):
-  Expression: DEFUN-NAME
-  Context: (DEFUN DEFUN-NAME () 0)
-  Parent: (DEFUN DEFUN-NAME () 0)
-WALK(ING):
-  Expression: NIL
-  Context: (DEFUN DEFUN-NAME () 0)
-  Parent: (DEFUN DEFUN-NAME () 0)
-WALK(ING):
-  Expression: 0
-  Context: (DEFUN DEFUN-NAME () 0)
-  Parent: (DEFUN DEFUN-NAME () 0)
-
--------------------------------
-WALK(ING):
-  Expression: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: SETF
-  Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
-  Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: SYMBOL-FUNCTION
-  Context: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: 'SYMBOL-FUNCTION-NAME
-  Context: (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME)
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: (LAMBDA () 0)
-  Context: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: LAMBDA
-  Context: (LAMBDA () 0)
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: NIL
-  Context: (LAMBDA () 0)
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: 0
-  Context: (LAMBDA () 0)
-  Parent: (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
-
--------------------------------
-WALK(ING):
-  Expression: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: SETF
-  Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
-  Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: FDEFINITION
-  Context: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: 'FDEFINITION-FUNCTION-NAME
-  Context: (FDEFINITION 'FDEFINITION-FUNCTION-NAME)
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: (LAMBDA () 0)
-  Context: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: LAMBDA
-  Context: (LAMBDA () 0)
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: NIL
-  Context: (LAMBDA () 0)
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-WALK(ING):
-  Expression: 0
-  Context: (LAMBDA () 0)
-  Parent: (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
-
--------------------------------
-WALK(ING):
-  Expression: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Expression: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+                (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+                (MAX-SIZE 100 :TYPE FIXNUM))
+  Context: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+             (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+             (MAX-SIZE 100 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
   Expression: DEFSTRUCT
-  Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Context: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+             (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+             (MAX-SIZE 100 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
-  Expression: CIRCLE
-  Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Expression: (CACHE (:CONC-NAME CACHE.))
+  Context: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+             (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+             (MAX-SIZE 100 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
-  Expression: (RADIUS 1 :TYPE NUMBER)
-  Context: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+  Expression: CACHE
+  Context: (CACHE (:CONC-NAME CACHE.))
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
-  Expression: RADIUS
-  Context: (RADIUS 1 :TYPE NUMBER)
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-WALK(ING):
-  Expression: 1
-  Context: (RADIUS 1 :TYPE NUMBER)
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-WALK(ING):
-  Expression: :TYPE
-  Context: (RADIUS 1 :TYPE NUMBER)
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-WALK(ING):
-  Expression: NUMBER
-  Context: (RADIUS 1 :TYPE NUMBER)
-  Parent: (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-
--------------------------------
-WALK(ING):
-  Expression: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-WALK(ING):
-  Expression: DEFSTRUCT
-  Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-WALK(ING):
-  Expression: (PERSON (:CONC-NAME PERSON.))
-  Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-WALK(ING):
-  Expression: PERSON
-  Context: (PERSON (:CONC-NAME PERSON.))
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-WALK(ING):
-  Expression: (:CONC-NAME PERSON.)
-  Context: (PERSON (:CONC-NAME PERSON.))
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Expression: (:CONC-NAME CACHE.)
+  Context: (CACHE (:CONC-NAME CACHE.))
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
   Expression: :CONC-NAME
-  Context: (:CONC-NAME PERSON.)
-  Parent: (PERSON (:CONC-NAME PERSON.))
+  Context: (:CONC-NAME CACHE.)
+  Parent: (CACHE (:CONC-NAME CACHE.))
 WALK(ING):
-  Expression: PERSON.
-  Context: (:CONC-NAME PERSON.)
-  Parent: (PERSON (:CONC-NAME PERSON.))
+  Expression: CACHE.
+  Context: (:CONC-NAME CACHE.)
+  Parent: (CACHE (:CONC-NAME CACHE.))
 WALK(ING):
-  Expression: (AGE 0 :TYPE FIXNUM)
-  Context: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Expression: (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+  Context: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+             (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+             (MAX-SIZE 100 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
-  Expression: AGE
-  Context: (AGE 0 :TYPE FIXNUM)
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Expression: TABLE
+  Context: (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
-  Expression: 0
-  Context: (AGE 0 :TYPE FIXNUM)
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Expression: (MAKE-HASH-TABLE)
+  Context: (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
+WALK(ING):
+  Expression: MAKE-HASH-TABLE
+  Context: (MAKE-HASH-TABLE)
+  Parent: (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
 WALK(ING):
   Expression: :TYPE
-  Context: (AGE 0 :TYPE FIXNUM)
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Context: (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
+WALK(ING):
+  Expression: HASH-TABLE
+  Context: (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
+WALK(ING):
+  Expression: (MAX-SIZE 100 :TYPE FIXNUM)
+  Context: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+             (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+             (MAX-SIZE 100 :TYPE FIXNUM))
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
+WALK(ING):
+  Expression: MAX-SIZE
+  Context: (MAX-SIZE 100 :TYPE FIXNUM)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
+WALK(ING):
+  Expression: 100
+  Context: (MAX-SIZE 100 :TYPE FIXNUM)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
+WALK(ING):
+  Expression: :TYPE
+  Context: (MAX-SIZE 100 :TYPE FIXNUM)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 WALK(ING):
   Expression: FIXNUM
-  Context: (AGE 0 :TYPE FIXNUM)
-  Parent: (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+  Context: (MAX-SIZE 100 :TYPE FIXNUM)
+  Parent: (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+            (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+            (MAX-SIZE 100 :TYPE FIXNUM))
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFGENERIC COMPUTE-AREA
-                  (SHAPE)
-                (:DOCUMENTATION
-                 "Compute the area of different geometric shapes"))
-  Context: (DEFGENERIC COMPUTE-AREA
-               (SHAPE)
-             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Expression: (DEFCLASS VECTOR2D NIL
+                        ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                         (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+  Context: (DEFCLASS VECTOR2D NIL
+                     ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                      (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+  Parent: (DEFCLASS VECTOR2D NIL
+                    ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                     (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+WALK(ING):
+  Expression: DEFCLASS
+  Context: (DEFCLASS VECTOR2D NIL
+                     ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                      (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+  Parent: (DEFCLASS VECTOR2D NIL
+                    ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                     (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+WALK(ING):
+  Expression: VECTOR2D
+  Context: (DEFCLASS VECTOR2D NIL
+                     ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                      (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+  Parent: (DEFCLASS VECTOR2D NIL
+                    ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                     (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+WALK(ING):
+  Expression: NIL
+  Context: (DEFCLASS VECTOR2D NIL
+                     ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                      (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+  Parent: (DEFCLASS VECTOR2D NIL
+                    ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                     (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+WALK(ING):
+  Expression: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+               (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+  Context: (DEFCLASS VECTOR2D NIL
+                     ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                      (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+  Parent: (DEFCLASS VECTOR2D NIL
+                    ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                     (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+WALK(ING):
+  Expression: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Context: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+            (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+  Parent: (DEFCLASS VECTOR2D NIL
+                    ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                     (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+WALK(ING):
+  Expression: X
+  Context: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :INITARG
+  Context: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :X
+  Context: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :INITFORM
+  Context: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: 0.0
+  Context: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :ACCESSOR
+  Context: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: V2D-X
+  Context: (X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Context: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+            (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+  Parent: (DEFCLASS VECTOR2D NIL
+                    ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+                     (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+WALK(ING):
+  Expression: Y
+  Context: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :INITARG
+  Context: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :Y
+  Context: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :INITFORM
+  Context: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: 0.0
+  Context: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: :ACCESSOR
+  Context: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+WALK(ING):
+  Expression: V2D-Y
+  Context: (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)
+  Parent: ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
+           (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y))
+
+-------------------------------
+WALK(ING):
+  Expression: (DEFGENERIC MAGNITUDE
+                  (VECTOR)
+                (:DOCUMENTATION "Calculate vector magnitude"))
+  Context: (DEFGENERIC MAGNITUDE
+               (VECTOR)
+             (:DOCUMENTATION "Calculate vector magnitude"))
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 WALK(ING):
   Expression: DEFGENERIC
-  Context: (DEFGENERIC COMPUTE-AREA
-               (SHAPE)
-             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Context: (DEFGENERIC MAGNITUDE
+               (VECTOR)
+             (:DOCUMENTATION "Calculate vector magnitude"))
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 WALK(ING):
-  Expression: COMPUTE-AREA
-  Context: (DEFGENERIC COMPUTE-AREA
-               (SHAPE)
-             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Expression: MAGNITUDE
+  Context: (DEFGENERIC MAGNITUDE
+               (VECTOR)
+             (:DOCUMENTATION "Calculate vector magnitude"))
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 WALK(ING):
-  Expression: (SHAPE)
-  Context: (DEFGENERIC COMPUTE-AREA
-               (SHAPE)
-             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Expression: (VECTOR)
+  Context: (DEFGENERIC MAGNITUDE
+               (VECTOR)
+             (:DOCUMENTATION "Calculate vector magnitude"))
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 WALK(ING):
-  Expression: SHAPE
-  Context: (SHAPE)
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Expression: VECTOR
+  Context: (VECTOR)
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 WALK(ING):
-  Expression: (:DOCUMENTATION "Compute the area of different geometric shapes")
-  Context: (DEFGENERIC COMPUTE-AREA
-               (SHAPE)
-             (:DOCUMENTATION "Compute the area of different geometric shapes"))
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Expression: (:DOCUMENTATION "Calculate vector magnitude")
+  Context: (DEFGENERIC MAGNITUDE
+               (VECTOR)
+             (:DOCUMENTATION "Calculate vector magnitude"))
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 WALK(ING):
   Expression: :DOCUMENTATION
-  Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Context: (:DOCUMENTATION "Calculate vector magnitude")
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 WALK(ING):
-  Expression: "Compute the area of different geometric shapes"
-  Context: (:DOCUMENTATION "Compute the area of different geometric shapes")
-  Parent: (DEFGENERIC COMPUTE-AREA
-              (SHAPE)
-            (:DOCUMENTATION "Compute the area of different geometric shapes"))
+  Expression: "Calculate vector magnitude"
+  Context: (:DOCUMENTATION "Calculate vector magnitude")
+  Parent: (DEFGENERIC MAGNITUDE
+              (VECTOR)
+            (:DOCUMENTATION "Calculate vector magnitude"))
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-                (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+                (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
   Expression: DEFMETHOD
-  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
-  Expression: COMPUTE-AREA
-  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: MAGNITUDE
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
-  Expression: ((SHAPE CIRCLE))
-  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: ((V VECTOR2D))
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
-  Expression: (SHAPE CIRCLE)
-  Context: ((SHAPE CIRCLE))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: (V VECTOR2D)
+  Context: ((V VECTOR2D))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
-  Expression: SHAPE
-  Context: (SHAPE CIRCLE)
-  Parent: ((SHAPE CIRCLE))
+  Expression: V
+  Context: (V VECTOR2D)
+  Parent: ((V VECTOR2D))
 WALK(ING):
-  Expression: CIRCLE
-  Context: (SHAPE CIRCLE)
-  Parent: ((SHAPE CIRCLE))
+  Expression: VECTOR2D
+  Context: (V VECTOR2D)
+  Parent: ((V VECTOR2D))
 WALK(ING):
-  Expression: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-  Context: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-             (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
-  Expression: *
-  Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: SQRT
+  Context: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
-  Expression: PI
-  Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Context: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
 WALK(ING):
-  Expression: (EXPT (CIRCLE-RADIUS SHAPE) 2)
-  Context: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
-  Parent: (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
-            (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
+  Expression: +
+  Context: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Parent: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+WALK(ING):
+  Expression: (EXPT (V2D-X V) 2)
+  Context: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Parent: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
 WALK(ING):
   Expression: EXPT
-  Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
-  Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Context: (EXPT (V2D-X V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
 WALK(ING):
-  Expression: (CIRCLE-RADIUS SHAPE)
-  Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
-  Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Expression: (V2D-X V)
+  Context: (EXPT (V2D-X V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
 WALK(ING):
-  Expression: CIRCLE-RADIUS
-  Context: (CIRCLE-RADIUS SHAPE)
-  Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+  Expression: V2D-X
+  Context: (V2D-X V)
+  Parent: (EXPT (V2D-X V) 2)
 WALK(ING):
-  Expression: SHAPE
-  Context: (CIRCLE-RADIUS SHAPE)
-  Parent: (EXPT (CIRCLE-RADIUS SHAPE) 2)
+  Expression: V
+  Context: (V2D-X V)
+  Parent: (EXPT (V2D-X V) 2)
 WALK(ING):
   Expression: 2
-  Context: (EXPT (CIRCLE-RADIUS SHAPE) 2)
-  Parent: (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2))
+  Context: (EXPT (V2D-X V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: (EXPT (V2D-Y V) 2)
+  Context: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Parent: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+WALK(ING):
+  Expression: EXPT
+  Context: (EXPT (V2D-Y V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: (V2D-Y V)
+  Context: (EXPT (V2D-Y V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: V2D-Y
+  Context: (V2D-Y V)
+  Parent: (EXPT (V2D-Y V) 2)
+WALK(ING):
+  Expression: V
+  Context: (V2D-Y V)
+  Parent: (EXPT (V2D-Y V) 2)
+WALK(ING):
+  Expression: 2
+  Context: (EXPT (V2D-Y V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFGENERIC PROCESS-DATA
-                  (DATA &KEY)
-                (:DOCUMENTATION "Process data with various methods"))
-  Context: (DEFGENERIC PROCESS-DATA
-               (DATA &KEY)
-             (:DOCUMENTATION "Process data with various methods"))
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
+  Expression: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+  Context: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+  Parent: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
 WALK(ING):
-  Expression: DEFGENERIC
-  Context: (DEFGENERIC PROCESS-DATA
-               (DATA &KEY)
-             (:DOCUMENTATION "Process data with various methods"))
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
+  Expression: DEFVAR
+  Context: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+  Parent: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
 WALK(ING):
-  Expression: PROCESS-DATA
-  Context: (DEFGENERIC PROCESS-DATA
-               (DATA &KEY)
-             (:DOCUMENTATION "Process data with various methods"))
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
+  Expression: *DEFAULT-CACHE*
+  Context: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+  Parent: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
 WALK(ING):
-  Expression: (DATA &KEY)
-  Context: (DEFGENERIC PROCESS-DATA
-               (DATA &KEY)
-             (:DOCUMENTATION "Process data with various methods"))
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
+  Expression: (MAKE-CACHE)
+  Context: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+  Parent: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
 WALK(ING):
-  Expression: DATA
-  Context: (DATA &KEY)
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
-WALK(ING):
-  Expression: &KEY
-  Context: (DATA &KEY)
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
-WALK(ING):
-  Expression: (:DOCUMENTATION "Process data with various methods")
-  Context: (DEFGENERIC PROCESS-DATA
-               (DATA &KEY)
-             (:DOCUMENTATION "Process data with various methods"))
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
-WALK(ING):
-  Expression: :DOCUMENTATION
-  Context: (:DOCUMENTATION "Process data with various methods")
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
-WALK(ING):
-  Expression: "Process data with various methods"
-  Context: (:DOCUMENTATION "Process data with various methods")
-  Parent: (DEFGENERIC PROCESS-DATA
-              (DATA &KEY)
-            (:DOCUMENTATION "Process data with various methods"))
+  Expression: MAKE-CACHE
+  Context: (MAKE-CACHE)
+  Parent: (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Expression: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
+  Context: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
+  Parent: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
 WALK(ING):
-  Expression: DEFMETHOD
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Expression: DEFPARAMETER
+  Context: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
+  Parent: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
 WALK(ING):
-  Expression: PROCESS-DATA
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Expression: *ORIGIN*
+  Context: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
+  Parent: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
 WALK(ING):
-  Expression: ((DATA STRING) &KEY)
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Expression: (MAKE-INSTANCE 'VECTOR2D)
+  Context: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
+  Parent: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
 WALK(ING):
-  Expression: (DATA STRING)
-  Context: ((DATA STRING) &KEY)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Expression: MAKE-INSTANCE
+  Context: (MAKE-INSTANCE 'VECTOR2D)
+  Parent: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
 WALK(ING):
-  Expression: DATA
-  Context: (DATA STRING)
-  Parent: ((DATA STRING) &KEY)
-WALK(ING):
-  Expression: STRING
-  Context: (DATA STRING)
-  Parent: ((DATA STRING) &KEY)
-WALK(ING):
-  Expression: &KEY
-  Context: ((DATA STRING) &KEY)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-WALK(ING):
-  Expression: (STRING-UPCASE DATA)
-  Context: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-WALK(ING):
-  Expression: STRING-UPCASE
-  Context: (STRING-UPCASE DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
-WALK(ING):
-  Expression: DATA
-  Context: (STRING-UPCASE DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+  Expression: 'VECTOR2D
+  Context: (MAKE-INSTANCE 'VECTOR2D)
+  Parent: (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: (DEFUN CACHE-ENTRY (KEY)
+                (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+  Context: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: DEFMETHOD
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: DEFUN
+  Context: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: PROCESS-DATA
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: CACHE-ENTRY
+  Context: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: ((DATA NUMBER) &KEY)
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: (KEY)
+  Context: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: (DATA NUMBER)
-  Context: ((DATA NUMBER) &KEY)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: KEY
+  Context: (KEY)
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: DATA
-  Context: (DATA NUMBER)
-  Parent: ((DATA NUMBER) &KEY)
+  Expression: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Context: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: NUMBER
-  Context: (DATA NUMBER)
-  Parent: ((DATA NUMBER) &KEY)
+  Expression: GETHASH
+  Context: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: &KEY
-  Context: ((DATA NUMBER) &KEY)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: KEY
+  Context: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: (1+ DATA)
-  Context: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: (CACHE.TABLE *DEFAULT-CACHE*)
+  Context: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Parent: (DEFUN CACHE-ENTRY (KEY) (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
 WALK(ING):
-  Expression: 1+
-  Context: (1+ DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: CACHE.TABLE
+  Context: (CACHE.TABLE *DEFAULT-CACHE*)
+  Parent: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
 WALK(ING):
-  Expression: DATA
-  Context: (1+ DATA)
-  Parent: (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+  Expression: *DEFAULT-CACHE*
+  Context: (CACHE.TABLE *DEFAULT-CACHE*)
+  Parent: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFMETHOD PROCESS-DATA :AFTER
-                         ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-                (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Context: (DEFMETHOD PROCESS-DATA :AFTER
-                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Expression: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+                (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
+  Context: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+             (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: DEFMETHOD
-  Context: (DEFMETHOD PROCESS-DATA :AFTER
-                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+  Expression: DEFUN
+  Context: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+             (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: PROCESS-DATA
-  Context: (DEFMETHOD PROCESS-DATA :AFTER
-                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: :AFTER
-  Context: (DEFMETHOD PROCESS-DATA :AFTER
-                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Context: (DEFMETHOD PROCESS-DATA :AFTER
-                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: (DATA STRING)
-  Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: DATA
-  Context: (DATA STRING)
-  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-WALK(ING):
-  Expression: STRING
-  Context: (DATA STRING)
-  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-WALK(ING):
-  Expression: &KEY
-  Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: (LOG-LEVEL :INFO)
-  Context: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: LOG-LEVEL
-  Context: (LOG-LEVEL :INFO)
-  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-WALK(ING):
-  Expression: :INFO
-  Context: (LOG-LEVEL :INFO)
-  Parent: ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-WALK(ING):
-  Expression: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Context: (DEFMETHOD PROCESS-DATA :AFTER
-                      ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-             (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: WHEN
-  Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: (EQ LOG-LEVEL :INFO)
-  Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: EQ
-  Context: (EQ LOG-LEVEL :INFO)
-  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-WALK(ING):
-  Expression: LOG-LEVEL
-  Context: (EQ LOG-LEVEL :INFO)
-  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-WALK(ING):
-  Expression: :INFO
-  Context: (EQ LOG-LEVEL :INFO)
-  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-WALK(ING):
-  Expression: (FORMAT NIL "LOG: ~A" DATA)
-  Context: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-  Parent: (DEFMETHOD PROCESS-DATA :AFTER ((DATA STRING) &KEY (LOG-LEVEL :INFO))
-            (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
-WALK(ING):
-  Expression: FORMAT
-  Context: (FORMAT NIL "LOG: ~A" DATA)
-  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-WALK(ING):
-  Expression: NIL
-  Context: (FORMAT NIL "LOG: ~A" DATA)
-  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-WALK(ING):
-  Expression: "LOG: ~A"
-  Context: (FORMAT NIL "LOG: ~A" DATA)
-  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-WALK(ING):
-  Expression: DATA
-  Context: (FORMAT NIL "LOG: ~A" DATA)
-  Parent: (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA))
-
--------------------------------
-WALK(ING):
-  Expression: (DEFMACRO DEFMACRO-NAME () 0)
-  Context: (DEFMACRO DEFMACRO-NAME () 0)
-  Parent: (DEFMACRO DEFMACRO-NAME () 0)
-WALK(ING):
-  Expression: DEFMACRO
-  Context: (DEFMACRO DEFMACRO-NAME () 0)
-  Parent: (DEFMACRO DEFMACRO-NAME () 0)
-WALK(ING):
-  Expression: DEFMACRO-NAME
-  Context: (DEFMACRO DEFMACRO-NAME () 0)
-  Parent: (DEFMACRO DEFMACRO-NAME () 0)
-WALK(ING):
-  Expression: NIL
-  Context: (DEFMACRO DEFMACRO-NAME () 0)
-  Parent: (DEFMACRO DEFMACRO-NAME () 0)
-WALK(ING):
-  Expression: 0
-  Context: (DEFMACRO DEFMACRO-NAME () 0)
-  Parent: (DEFMACRO DEFMACRO-NAME () 0)
-
--------------------------------
-WALK(ING):
-  Expression: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                      (LAMBDA (FORM ENV) FORM ENV 0))
-  Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: (SETF CACHE-ENTRY)
+  Context: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+             (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
   Expression: SETF
-  Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Context: (SETF CACHE-ENTRY)
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-  Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: CACHE-ENTRY
+  Context: (SETF CACHE-ENTRY)
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: MACRO-FUNCTION
-  Context: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: (VALUE KEY)
+  Context: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+             (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: 'MACRO-FUNCTION-NAME
-  Context: (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: VALUE
+  Context: (VALUE KEY)
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: (LAMBDA (FORM ENV) FORM ENV 0)
-  Context: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                   (LAMBDA (FORM ENV) FORM ENV 0))
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: KEY
+  Context: (VALUE KEY)
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: LAMBDA
-  Context: (LAMBDA (FORM ENV) FORM ENV 0)
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE)
+  Context: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+             (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: (FORM ENV)
-  Context: (LAMBDA (FORM ENV) FORM ENV 0)
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: SETF
+  Context: (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE)
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: FORM
-  Context: (FORM ENV)
-  Parent: (LAMBDA (FORM ENV) FORM ENV 0)
+  Expression: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Context: (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE)
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 WALK(ING):
-  Expression: ENV
-  Context: (FORM ENV)
-  Parent: (LAMBDA (FORM ENV) FORM ENV 0)
+  Expression: GETHASH
+  Context: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Parent: (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE)
 WALK(ING):
-  Expression: FORM
-  Context: (LAMBDA (FORM ENV) FORM ENV 0)
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: KEY
+  Context: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Parent: (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE)
 WALK(ING):
-  Expression: ENV
-  Context: (LAMBDA (FORM ENV) FORM ENV 0)
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: (CACHE.TABLE *DEFAULT-CACHE*)
+  Context: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+  Parent: (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE)
 WALK(ING):
-  Expression: 0
-  Context: (LAMBDA (FORM ENV) FORM ENV 0)
-  Parent: (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                  (LAMBDA (FORM ENV) FORM ENV 0))
+  Expression: CACHE.TABLE
+  Context: (CACHE.TABLE *DEFAULT-CACHE*)
+  Parent: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+WALK(ING):
+  Expression: *DEFAULT-CACHE*
+  Context: (CACHE.TABLE *DEFAULT-CACHE*)
+  Parent: (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*))
+WALK(ING):
+  Expression: VALUE
+  Context: (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE)
+  Parent: (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
+            (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFINE-CONDITION CONDITION-NAME
-                  NIL
-                  NIL)
-  Context: (DEFINE-CONDITION CONDITION-NAME
-               NIL
-               NIL)
-  Parent: (DEFINE-CONDITION CONDITION-NAME
-              NIL
-              NIL)
+  Expression: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+                `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                   ,@BODY))
+  Context: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+             `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                ,@BODY))
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
 WALK(ING):
-  Expression: DEFINE-CONDITION
-  Context: (DEFINE-CONDITION CONDITION-NAME
-               NIL
-               NIL)
-  Parent: (DEFINE-CONDITION CONDITION-NAME
-              NIL
-              NIL)
+  Expression: DEFMACRO
+  Context: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+             `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                ,@BODY))
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
 WALK(ING):
-  Expression: CONDITION-NAME
-  Context: (DEFINE-CONDITION CONDITION-NAME
-               NIL
-               NIL)
-  Parent: (DEFINE-CONDITION CONDITION-NAME
-              NIL
-              NIL)
+  Expression: WITH-VECTOR
+  Context: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+             `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                ,@BODY))
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
 WALK(ING):
-  Expression: NIL
-  Context: (DEFINE-CONDITION CONDITION-NAME
-               NIL
-               NIL)
-  Parent: (DEFINE-CONDITION CONDITION-NAME
-              NIL
-              NIL)
+  Expression: ((VAR X Y) &BODY BODY)
+  Context: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+             `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                ,@BODY))
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
 WALK(ING):
-  Expression: NIL
-  Context: (DEFINE-CONDITION CONDITION-NAME
-               NIL
-               NIL)
-  Parent: (DEFINE-CONDITION CONDITION-NAME
-              NIL
-              NIL)
+  Expression: (VAR X Y)
+  Context: ((VAR X Y) &BODY BODY)
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
+WALK(ING):
+  Expression: VAR
+  Context: (VAR X Y)
+  Parent: ((VAR X Y) &BODY BODY)
+WALK(ING):
+  Expression: X
+  Context: (VAR X Y)
+  Parent: ((VAR X Y) &BODY BODY)
+WALK(ING):
+  Expression: Y
+  Context: (VAR X Y)
+  Parent: ((VAR X Y) &BODY BODY)
+WALK(ING):
+  Expression: &BODY
+  Context: ((VAR X Y) &BODY BODY)
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
+WALK(ING):
+  Expression: BODY
+  Context: ((VAR X Y) &BODY BODY)
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
+WALK(ING):
+  Expression: `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                 ,@BODY)
+  Context: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+             `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                ,@BODY))
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
+WALK(ING):
+  Expression: SB-INT:QUASIQUOTE
+  Context: `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+              ,@BODY)
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
+WALK(ING):
+  Expression: (LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+                ,@BODY)
+  Context: `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+              ,@BODY)
+  Parent: (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+            `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+               ,@BODY))
+WALK(ING):
+  Expression: LET
+  Context: (LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+             ,@BODY)
+  Parent: `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+             ,@BODY)
+WALK(ING):
+  Expression: ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+  Context: (LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+             ,@BODY)
+  Parent: `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+             ,@BODY)
+WALK(ING):
+  Expression: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+  Context: ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+  Parent: (LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+            ,@BODY)
+WALK(ING):
+  Expression: ,VAR
+  Context: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+  Parent: ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+WALK(ING):
+  Expression: (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)
+  Context: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+  Parent: ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+WALK(ING):
+  Expression: MAKE-INSTANCE
+  Context: (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)
+  Parent: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+WALK(ING):
+  Expression: 'VECTOR2D
+  Context: (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)
+  Parent: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+WALK(ING):
+  Expression: :X
+  Context: (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)
+  Parent: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+WALK(ING):
+  Expression: ,X
+  Context: (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)
+  Parent: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+WALK(ING):
+  Expression: :Y
+  Context: (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)
+  Parent: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+WALK(ING):
+  Expression: ,Y
+  Context: (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)
+  Parent: (,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y))
+WALK(ING):
+  Expression: ,@BODY
+  Context: (LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+             ,@BODY)
+  Parent: `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
+             ,@BODY)
+
+-------------------------------
+WALK(ING):
+  Expression: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+  Context: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+  Parent: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+WALK(ING):
+  Expression: DEFCONSTANT
+  Context: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+  Parent: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+WALK(ING):
+  Expression: +UNIT-DISTANCE+
+  Context: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+  Parent: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+WALK(ING):
+  Expression: 1.0
+  Context: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+  Parent: (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
 
 
 Reference Analysis Trace for d:/quicklisp/local-projects/test-project/src/refs.lisp
@@ -960,719 +846,430 @@ REFERENCE>
 
 -------------------------------
 WALK(ING):
-  Expression: *DEFVAR-VARIABLE*
-  Context: *DEFVAR-VARIABLE*
-  Parent: *DEFVAR-VARIABLE*
-
-REFERENCE>
-    :Name *DEFVAR-VARIABLE*
-    :Context *DEFVAR-VARIABLE*
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *DEFVAR-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE*
-                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-                    DEFINITION>
-                        :Name *DEFVAR-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: *DEFPARAMETER-VARIABLE*
-  Context: *DEFPARAMETER-VARIABLE*
-  Parent: *DEFPARAMETER-VARIABLE*
-
-REFERENCE>
-    :Name *DEFPARAMETER-VARIABLE*
-    :Context *DEFPARAMETER-VARIABLE*
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *DEFPARAMETER-VARIABLE*
-                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-                    DEFINITION>
-                        :Name *DEFPARAMETER-VARIABLE*
-                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: +DEFCONSTANT-VARIABLE+
-  Context: +DEFCONSTANT-VARIABLE+
-  Parent: +DEFCONSTANT-VARIABLE+
-
-REFERENCE>
-    :Name +DEFCONSTANT-VARIABLE+
-    :Context +DEFCONSTANT-VARIABLE+
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name +DEFCONSTANT-VARIABLE+
-                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: *SYMBOL-VALUE-VARIABLE*
-  Context: *SYMBOL-VALUE-VARIABLE*
-  Parent: *SYMBOL-VALUE-VARIABLE*
-
-REFERENCE>
-    :Name *SYMBOL-VALUE-VARIABLE*
-    :Context *SYMBOL-VALUE-VARIABLE*
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *SYMBOL-VALUE-VARIABLE*
-                        :Context (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
-                                         0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: (DEFUN-NAME)
-  Context: (DEFUN-NAME)
-  Parent: (DEFUN-NAME)
-WALK(ING):
-  Expression: DEFUN-NAME
-  Context: (DEFUN-NAME)
-  Parent: (DEFUN-NAME)
-
-REFERENCE>
-    :Name DEFUN-NAME
-    :Context (DEFUN-NAME)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name DEFUN-NAME
-                        :Context (DEFUN DEFUN-NAME () 0)
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-WALK(ING):
-  Expression: FUNCALL
-  Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-WALK(ING):
-  Expression: 'SYMBOL-FUNCTION-NAME
-  Context: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-  Parent: (FUNCALL 'SYMBOL-FUNCTION-NAME)
-
--------------------------------
-WALK(ING):
-  Expression: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-WALK(ING):
-  Expression: FUNCALL
-  Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-WALK(ING):
-  Expression: 'FDEFINITION-FUNCTION-NAME
-  Context: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-  Parent: (FUNCALL 'FDEFINITION-FUNCTION-NAME)
-
--------------------------------
-WALK(ING):
-  Expression: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-WALK(ING):
-  Expression: CIRCLE-RADIUS
-  Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-
-REFERENCE>
-    :Name CIRCLE-RADIUS
-    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name CIRCLE-RADIUS
-                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-WALK(ING):
-  Expression: (MAKE-CIRCLE)
-  Context: (CIRCLE-RADIUS (MAKE-CIRCLE))
-  Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-WALK(ING):
-  Expression: MAKE-CIRCLE
-  Context: (MAKE-CIRCLE)
-  Parent: (CIRCLE-RADIUS (MAKE-CIRCLE))
-
-REFERENCE>
-    :Name MAKE-CIRCLE
-    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name MAKE-CIRCLE
-                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: (PERSON.AGE (MAKE-PERSON))
-  Context: (PERSON.AGE (MAKE-PERSON))
-  Parent: (PERSON.AGE (MAKE-PERSON))
-WALK(ING):
-  Expression: PERSON.AGE
-  Context: (PERSON.AGE (MAKE-PERSON))
-  Parent: (PERSON.AGE (MAKE-PERSON))
-
-REFERENCE>
-    :Name PERSON.AGE
-    :Context (PERSON.AGE (MAKE-PERSON))
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name PERSON.AGE
-                        :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.))
-                                   (AGE 0 :TYPE FIXNUM))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-WALK(ING):
-  Expression: (MAKE-PERSON)
-  Context: (PERSON.AGE (MAKE-PERSON))
-  Parent: (PERSON.AGE (MAKE-PERSON))
-WALK(ING):
-  Expression: MAKE-PERSON
-  Context: (MAKE-PERSON)
-  Parent: (PERSON.AGE (MAKE-PERSON))
-
-REFERENCE>
-    :Name MAKE-PERSON
-    :Context (PERSON.AGE (MAKE-PERSON))
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name MAKE-PERSON
-                        :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.))
-                                   (AGE 0 :TYPE FIXNUM))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-WALK(ING):
-  Expression: FUNCALL
-  Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-WALK(ING):
-  Expression: #'COMPUTE-AREA
-  Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-WALK(ING):
-  Expression: (MAKE-CIRCLE :RADIUS 1)
-  Context: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-WALK(ING):
-  Expression: MAKE-CIRCLE
-  Context: (MAKE-CIRCLE :RADIUS 1)
-  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-
-REFERENCE>
-    :Name MAKE-CIRCLE
-    :Context (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name MAKE-CIRCLE
-                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-WALK(ING):
-  Expression: :RADIUS
-  Context: (MAKE-CIRCLE :RADIUS 1)
-  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-WALK(ING):
-  Expression: 1
-  Context: (MAKE-CIRCLE :RADIUS 1)
-  Parent: (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
-
--------------------------------
-WALK(ING):
-  Expression: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-WALK(ING):
-  Expression: PROCESS-DATA
-  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-WALK(ING):
-  Expression: "test"
-  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-WALK(ING):
-  Expression: :LOG-LEVEL
-  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-WALK(ING):
-  Expression: :WARN
-  Context: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-  Parent: (PROCESS-DATA "test" :LOG-LEVEL :WARN)
-
--------------------------------
-WALK(ING):
-  Expression: (PROCESS-DATA 42)
-  Context: (PROCESS-DATA 42)
-  Parent: (PROCESS-DATA 42)
-WALK(ING):
-  Expression: PROCESS-DATA
-  Context: (PROCESS-DATA 42)
-  Parent: (PROCESS-DATA 42)
-WALK(ING):
-  Expression: 42
-  Context: (PROCESS-DATA 42)
-  Parent: (PROCESS-DATA 42)
-
--------------------------------
-WALK(ING):
-  Expression: (DEFMACRO-NAME)
-  Context: (DEFMACRO-NAME)
-  Parent: (DEFMACRO-NAME)
-WALK(ING):
-  Expression: DEFMACRO-NAME
-  Context: (DEFMACRO-NAME)
-  Parent: (DEFMACRO-NAME)
-
-REFERENCE>
-    :Name DEFMACRO-NAME
-    :Context (DEFMACRO-NAME)
-    :Type :MACRO
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name DEFMACRO-NAME
-                        :Context (DEFMACRO DEFMACRO-NAME () 0)
-                        :Type :MACRO
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: (MACRO-FUNCTION-NAME)
-  Context: (MACRO-FUNCTION-NAME)
-  Parent: (MACRO-FUNCTION-NAME)
-WALK(ING):
-  Expression: MACRO-FUNCTION-NAME
-  Context: (MACRO-FUNCTION-NAME)
-  Parent: (MACRO-FUNCTION-NAME)
-
-REFERENCE>
-    :Name MACRO-FUNCTION-NAME
-    :Context (MACRO-FUNCTION-NAME)
-    :Type :MACRO
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name MACRO-FUNCTION-NAME
-                        :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
-                                         (LAMBDA (FORM ENV) FORM ENV 0))
-                        :Type :MACRO
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-
--------------------------------
-WALK(ING):
-  Expression: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-WALK(ING):
-  Expression: DEFUN
-  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-WALK(ING):
-  Expression: FUNCTION-WITH-CONDITION
-  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-WALK(ING):
-  Expression: NIL
-  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-WALK(ING):
-  Expression: (ERROR 'CONDITION-NAME)
-  Context: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-WALK(ING):
-  Expression: ERROR
-  Context: (ERROR 'CONDITION-NAME)
-  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-WALK(ING):
-  Expression: 'CONDITION-NAME
-  Context: (ERROR 'CONDITION-NAME)
-  Parent: (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
-
--------------------------------
-WALK(ING):
-  Expression: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-WALK(ING):
-  Expression: DEFUN
-  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-WALK(ING):
-  Expression: MY-FUNCTION
-  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-WALK(ING):
-  Expression: (ARG)
-  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-WALK(ING):
-  Expression: ARG
-  Context: (ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-WALK(ING):
-  Expression: (DEFUN-NAME)
-  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-WALK(ING):
-  Expression: DEFUN-NAME
-  Context: (DEFUN-NAME)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-
-REFERENCE>
-    :Name DEFUN-NAME
-    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name DEFUN-NAME
-                        :Context (DEFUN DEFUN-NAME () 0)
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-WALK(ING):
-  Expression: *DEFVAR-VARIABLE*
-  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-
-REFERENCE>
-    :Name *DEFVAR-VARIABLE*
-    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *DEFVAR-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE*
-                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-                    DEFINITION>
-                        :Name *DEFVAR-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-WALK(ING):
-  Expression: ARG
-  Context: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-  Parent: (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
-
--------------------------------
-WALK(ING):
-  Expression: (LET ((ARG 0))
-                (DEFUN-NAME)
-                *DEFVAR-VARIABLE*
-                (COMPUTE-AREA (MAKE-CIRCLE))
-                ARG)
-  Context: (LET ((ARG 0))
-             (DEFUN-NAME)
-             *DEFVAR-VARIABLE*
-             (COMPUTE-AREA (MAKE-CIRCLE))
-             ARG)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+                (MAGNITUDE V)
+                (V2D-X V)
+                (V2D-Y V))
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+             (MAGNITUDE V)
+             (V2D-X V)
+             (V2D-Y V))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
 WALK(ING):
   Expression: LET
-  Context: (LET ((ARG 0))
-             (DEFUN-NAME)
-             *DEFVAR-VARIABLE*
-             (COMPUTE-AREA (MAKE-CIRCLE))
-             ARG)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+             (MAGNITUDE V)
+             (V2D-X V)
+             (V2D-Y V))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
 WALK(ING):
-  Expression: ((ARG 0))
-  Context: (LET ((ARG 0))
-             (DEFUN-NAME)
-             *DEFVAR-VARIABLE*
-             (COMPUTE-AREA (MAKE-CIRCLE))
-             ARG)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+             (MAGNITUDE V)
+             (V2D-X V)
+             (V2D-Y V))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
 WALK(ING):
-  Expression: (ARG 0)
-  Context: ((ARG 0))
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+  Context: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
 WALK(ING):
-  Expression: ARG
-  Context: (ARG 0)
-  Parent: ((ARG 0))
+  Expression: V
+  Context: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+  Parent: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
 WALK(ING):
-  Expression: 0
-  Context: (ARG 0)
-  Parent: ((ARG 0))
+  Expression: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
+  Context: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+  Parent: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
 WALK(ING):
-  Expression: (DEFUN-NAME)
-  Context: (LET ((ARG 0))
-             (DEFUN-NAME)
-             *DEFVAR-VARIABLE*
-             (COMPUTE-AREA (MAKE-CIRCLE))
-             ARG)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: MAKE-INSTANCE
+  Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
+  Parent: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
 WALK(ING):
-  Expression: DEFUN-NAME
-  Context: (DEFUN-NAME)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: 'VECTOR2D
+  Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
+  Parent: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+WALK(ING):
+  Expression: :X
+  Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
+  Parent: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+WALK(ING):
+  Expression: 3.0
+  Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
+  Parent: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+WALK(ING):
+  Expression: :Y
+  Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
+  Parent: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+WALK(ING):
+  Expression: 4.0
+  Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
+  Parent: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+WALK(ING):
+  Expression: (MAGNITUDE V)
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+             (MAGNITUDE V)
+             (V2D-X V)
+             (V2D-Y V))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: MAGNITUDE
+  Context: (MAGNITUDE V)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: V
+  Context: (MAGNITUDE V)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: (V2D-X V)
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+             (MAGNITUDE V)
+             (V2D-X V)
+             (V2D-Y V))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: V2D-X
+  Context: (V2D-X V)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: V
+  Context: (V2D-X V)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: (V2D-Y V)
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+             (MAGNITUDE V)
+             (V2D-X V)
+             (V2D-Y V))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: V2D-Y
+  Context: (V2D-Y V)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+WALK(ING):
+  Expression: V
+  Context: (V2D-Y V)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+            (MAGNITUDE V)
+            (V2D-X V)
+            (V2D-Y V))
+
+-------------------------------
+WALK(ING):
+  Expression: (CACHE-ENTRY 'KEY)
+  Context: (CACHE-ENTRY 'KEY)
+  Parent: (CACHE-ENTRY 'KEY)
+WALK(ING):
+  Expression: CACHE-ENTRY
+  Context: (CACHE-ENTRY 'KEY)
+  Parent: (CACHE-ENTRY 'KEY)
 
 REFERENCE>
-    :Name DEFUN-NAME
-    :Context (LET ((ARG 0))
-               (DEFUN-NAME)
-               *DEFVAR-VARIABLE*
-               (COMPUTE-AREA (MAKE-CIRCLE))
-               ARG)
+    :Name CACHE-ENTRY
+    :Context (CACHE-ENTRY 'KEY)
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name DEFUN-NAME
-                        :Context (DEFUN DEFUN-NAME () 0)
+                        :Name CACHE-ENTRY
+                        :Context (DEFUN CACHE-ENTRY (KEY)
+                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
                         :Type :FUNCTION
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 WALK(ING):
-  Expression: *DEFVAR-VARIABLE*
-  Context: (LET ((ARG 0))
-             (DEFUN-NAME)
-             *DEFVAR-VARIABLE*
-             (COMPUTE-AREA (MAKE-CIRCLE))
-             ARG)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: 'KEY
+  Context: (CACHE-ENTRY 'KEY)
+  Parent: (CACHE-ENTRY 'KEY)
+
+-------------------------------
+WALK(ING):
+  Expression: (SETF (CACHE-ENTRY 'TEST) 42)
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: SETF
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: (CACHE-ENTRY 'TEST)
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: CACHE-ENTRY
+  Context: (CACHE-ENTRY 'TEST)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
 
 REFERENCE>
-    :Name *DEFVAR-VARIABLE*
-    :Context (LET ((ARG 0))
-               (DEFUN-NAME)
-               *DEFVAR-VARIABLE*
-               (COMPUTE-AREA (MAKE-CIRCLE))
-               ARG)
+    :Name CACHE-ENTRY
+    :Context (SETF (CACHE-ENTRY 'TEST) 42)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name CACHE-ENTRY
+                        :Context (DEFUN CACHE-ENTRY (KEY)
+                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: 'TEST
+  Context: (CACHE-ENTRY 'TEST)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: 42
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+
+-------------------------------
+WALK(ING):
+  Expression: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Context: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Parent: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+WALK(ING):
+  Expression: CACHE.MAX-SIZE
+  Context: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Parent: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+
+REFERENCE>
+    :Name CACHE.MAX-SIZE
+    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name CACHE.MAX-SIZE
+                        :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+                                   (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+                                   (MAX-SIZE 100 :TYPE FIXNUM))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: *DEFAULT-CACHE*
+  Context: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Parent: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+
+REFERENCE>
+    :Name *DEFAULT-CACHE*
+    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name *DEFVAR-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE*
-                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-                    DEFINITION>
-                        :Name *DEFVAR-VARIABLE*
-                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+                        :Name *DEFAULT-CACHE*
+                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
                         :Type :VARIABLE
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
+
+-------------------------------
 WALK(ING):
-  Expression: (COMPUTE-AREA (MAKE-CIRCLE))
-  Context: (LET ((ARG 0))
-             (DEFUN-NAME)
-             *DEFVAR-VARIABLE*
-             (COMPUTE-AREA (MAKE-CIRCLE))
-             ARG)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+                (MAGNITUDE V))
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
 WALK(ING):
-  Expression: COMPUTE-AREA
-  Context: (COMPUTE-AREA (MAKE-CIRCLE))
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
-WALK(ING):
-  Expression: (MAKE-CIRCLE)
-  Context: (COMPUTE-AREA (MAKE-CIRCLE))
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
-WALK(ING):
-  Expression: MAKE-CIRCLE
-  Context: (MAKE-CIRCLE)
-  Parent: (COMPUTE-AREA (MAKE-CIRCLE))
+  Expression: WITH-VECTOR
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
 
 REFERENCE>
-    :Name MAKE-CIRCLE
-    :Context (COMPUTE-AREA (MAKE-CIRCLE))
-    :Type :FUNCTION
+    :Name WITH-VECTOR
+    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+               (MAGNITUDE V))
+    :Type :MACRO
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name MAKE-CIRCLE
-                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
-                        :Type :FUNCTION
+                        :Name WITH-VECTOR
+                        :Context (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+                                   `(LET ((,VAR
+                                           (MAKE-INSTANCE 'VECTOR2D :X ,X :Y
+                                                          ,Y)))
+                                      ,@BODY))
+                        :Type :MACRO
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 WALK(ING):
-  Expression: ARG
-  Context: (LET ((ARG 0))
-             (DEFUN-NAME)
-             *DEFVAR-VARIABLE*
-             (COMPUTE-AREA (MAKE-CIRCLE))
-             ARG)
-  Parent: (LET ((ARG 0))
-            (DEFUN-NAME)
-            *DEFVAR-VARIABLE*
-            (COMPUTE-AREA (MAKE-CIRCLE))
-            ARG)
+  Expression: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: V
+  Context: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: +UNIT-DISTANCE+
+  Context: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+
+REFERENCE>
+    :Name +UNIT-DISTANCE+
+    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+               (MAGNITUDE V))
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name +UNIT-DISTANCE+
+                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: +UNIT-DISTANCE+
+  Context: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+
+REFERENCE>
+    :Name +UNIT-DISTANCE+
+    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+               (MAGNITUDE V))
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name +UNIT-DISTANCE+
+                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: (MAGNITUDE V)
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: MAGNITUDE
+  Context: (MAGNITUDE V)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: V
+  Context: (MAGNITUDE V)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+
+-------------------------------
+WALK(ING):
+  Expression: *ORIGIN*
+  Context: *ORIGIN*
+  Parent: *ORIGIN*
+
+REFERENCE>
+    :Name *ORIGIN*
+    :Context *ORIGIN*
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *ORIGIN*
+                        :Context (DEFPARAMETER *ORIGIN*
+                                   (MAKE-INSTANCE 'VECTOR2D))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+
+-------------------------------
+WALK(ING):
+  Expression: *DEFAULT-CACHE*
+  Context: *DEFAULT-CACHE*
+  Parent: *DEFAULT-CACHE*
+
+REFERENCE>
+    :Name *DEFAULT-CACHE*
+    :Context *DEFAULT-CACHE*
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFAULT-CACHE*
+                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
 

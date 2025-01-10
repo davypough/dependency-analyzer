@@ -7,32 +7,14 @@
 (in-package #:dep)
 
 
-;;; Name and Symbol Utils
-
-
-(defun normalize-designator (designator)
-  "Convert a package or symbol designator to a normalized string form.
-   Handles package objects, symbols (interned or uninterned), and strings uniformly.
-   Returns uppercase string representation.
-   Examples:
-     'my-package  -> \"MY-PACKAGE\"  
-     #:my-package -> \"MY-PACKAGE\"
-     \"MY-PACKAGE\" -> \"MY-PACKAGE\"
-     #<PACKAGE MY-PACKAGE> -> \"MY-PACKAGE\"
-     'my-symbol -> \"MY-SYMBOL\"
-     #:my-symbol -> \"MY-SYMBOL\""
-  (typecase designator
-    (package  (package-name designator))
-    (string (string-upcase designator))
-    (symbol (string-upcase (symbol-name designator))) ; Works for both interned and uninterned
-    (t (error "Invalid designator for normalization: ~S" designator))))
-
-
 (defun symbol-status (sym pkg)
   "Determines the status of a symbol in a package, :internal, :external, :inherited, :nil."
-  (if-let ((status (nth-value 1 (find-symbol (symbol-name sym) pkg))))
-     status
-     :nil))
+  (let ((name (if (and (listp sym) (eq (car sym) 'setf))
+                  (format nil "(SETF ~A)" (symbol-name (cadr sym)))
+                  (symbol-name sym))))
+    (if-let (status (nth-value 1 (find-symbol name pkg)))
+       status
+       :nil)))
 
 
 (defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
@@ -188,22 +170,6 @@
 (defun get-package-cycles (&optional tracker)
   "Get all recorded package dependency cycles."
   (package-cycles (ensure-tracker tracker)))
-
-
-(defun process-package-export-option (package pkg-name name)
-  "Process an :export package option for a single name.
-   Records the name as being exported from the package.
-   
-   PACKAGE - The package object being defined  
-   PKG-NAME - Name of package being defined (string, already normalized)
-   name - name to export (can be string, symbol, or uninterned symbol)
-   
-   Returns the exported name if successful."
-  (when-let* ((sym-name (normalize-designator name))
-              (exported-sym (and sym-name (intern sym-name package))))
-    (export exported-sym package)
-    (record-export *current-tracker* pkg-name exported-sym)
-    exported-sym))
 
 
 (defun detect-package-cycle (pkg-name current-packages)
@@ -671,8 +637,6 @@
           (symbol  ; Class/type specializer
            (analyze-definition-form parser specializer)))))))
 
-;;;;;;;;;;;;
-
 
 (defun get-defstruct-conc-name (name current-form)
   "Extract the :conc-name prefix for a defstruct.
@@ -714,7 +678,7 @@
         ;; CLOS class slots use MOP info
         (progn 
           (c2mop:finalize-inheritance class)
-          (dolist (slot (c2mop:class-slots class))
+          (dolist (slot (c2mop:class-direct-slots class))
             ;; Record reader methods
             (dolist (reader (c2mop:slot-definition-readers slot))
               (when (fboundp reader)
@@ -727,7 +691,7 @@
                                  :context current-form)))
             ;; Record writer methods
             (dolist (writer (c2mop:slot-definition-writers slot))
-              (when (fboundp `(setf ,writer))
+              (when (fboundp writer)  ; Changed: Don't wrap in SETF
                 (record-definition *current-tracker*
                                  :name writer
                                  :type :function
