@@ -23,15 +23,13 @@
 
 (defclass definition ()
   ((name :initarg :name :reader definition.name :type (or symbol string))
-   (context :initarg :context :reader definition.context :type cons)
+   (context :initarg :context :reader definition.context :type (or symbol list))
    (type :initarg :type :reader definition.type :type (member . #.+valid-definition-types+))
    (file :initarg :file :reader definition.file :type (or string pathname))
    (package :initarg :package :reader definition.package :type package)
    (status :initarg :status :reader definition.status :type (member :internal :external :inherited :nil))
    (qualifiers :initarg :qualifiers :reader definition.qualifiers :type list)
    (specializers :initarg :specializers :reader definition.specializers :type list))
-  (:default-initargs :name nil :context nil :type nil :file nil :package nil
-                     :status nil :qualifiers nil :specializers nil)
   (:documentation "Data structure holding info about a lisp definition. For methods, specializers slot holds the method's parameter specializer types."))
 
 
@@ -67,8 +65,6 @@
    (definitions :initarg :definitions :reader reference.definitions :type cons)
    (qualifiers :initarg :qualifiers :initform nil :reader reference.qualifiers :type list)
    (arguments :initarg :arguments :initform nil :reader reference.arguments :type list))
-  (:default-initargs :name nil :context nil :file nil :type nil :package nil :visibility nil
-                     :definitions nil :qualifiers nil :arguments nil)
   (:documentation "Data structure holding info about a lisp reference to a definition"))
 
 
@@ -102,8 +98,6 @@
    (context :initarg :context :reader anomaly.context :type (or symbol list))
    (file :initarg :file :reader anomaly.file :type list)
    (package :initarg :package :reader anomaly.package :type (or string symbol package null) :initform nil))
-  (:default-initargs :type nil :severity nil :file nil :description nil
-                     :context nil :package nil)
   (:documentation "Data structure for recording dependency analysis anomalies."))
 
 

@@ -10,190 +10,256 @@ DEFINITION>
     :File /src/defs.lisp
 
 DEFINITION>
-    :Name CACHE
-    :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-               (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-               (MAX-SIZE 100 :TYPE FIXNUM))
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *DEFPARAMETER-VARIABLE*
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *DEFPARAMETER-VARIABLE*
+    :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name +DEFCONSTANT-VARIABLE+
+    :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :Context (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*) 0)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name DEFUN-NAME
+    :Context (DEFUN DEFUN-NAME () 0)
+    :Type :FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name SYMBOL-FUNCTION-NAME
+    :Context (SETF (SYMBOL-FUNCTION 'SYMBOL-FUNCTION-NAME) (LAMBDA () 0))
+    :Type :FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name FDEFINITION-FUNCTION-NAME
+    :Context (SETF (FDEFINITION 'FDEFINITION-FUNCTION-NAME) (LAMBDA () 0))
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name CIRCLE
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name CACHE.TABLE
-    :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-               (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-               (MAX-SIZE 100 :TYPE FIXNUM))
+    :Name CIRCLE-RADIUS
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name CACHE.MAX-SIZE
-    :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-               (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-               (MAX-SIZE 100 :TYPE FIXNUM))
+    :Name MAKE-CIRCLE
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MAKE-CACHE
-    :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-               (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-               (MAX-SIZE 100 :TYPE FIXNUM))
+    :Name COPY-CIRCLE
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name COPY-CACHE
-    :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-               (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-               (MAX-SIZE 100 :TYPE FIXNUM))
+    :Name CIRCLE-P
+    :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name CACHE-P
-    :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-               (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-               (MAX-SIZE 100 :TYPE FIXNUM))
-    :Type :FUNCTION
-    :File /src/defs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name VECTOR2D
-    :Context (DEFCLASS VECTOR2D NIL
-                       ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
-                        (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+    :Name PERSON
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name V2D-X
-    :Context (DEFCLASS VECTOR2D NIL
-                       ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
-                        (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+    :Name PERSON.AGE
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name (SETF V2D-X)
-    :Context (DEFCLASS VECTOR2D NIL
-                       ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
-                        (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
-    :Type :FUNCTION
-    :File /src/defs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Status :NIL
-
-DEFINITION>
-    :Name V2D-Y
-    :Context (DEFCLASS VECTOR2D NIL
-                       ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
-                        (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+    :Name MAKE-PERSON
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name (SETF V2D-Y)
-    :Context (DEFCLASS VECTOR2D NIL
-                       ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
-                        (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
+    :Name COPY-PERSON
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Status :NIL
+    :Status :INTERNAL
 
 DEFINITION>
-    :Name MAGNITUDE
-    :Context (DEFGENERIC MAGNITUDE
-                 (VECTOR)
-               (:DOCUMENTATION "Calculate vector magnitude"))
+    :Name PERSON-P
+    :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.)) (AGE 0 :TYPE FIXNUM))
+    :Type :FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name COMPUTE-AREA
+    :Context (DEFGENERIC COMPUTE-AREA
+                 (SHAPE)
+               (:DOCUMENTATION
+                "Compute the area of different geometric shapes"))
     :Type :GENERIC-FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MAGNITUDE
-    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
-               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+    :Name COMPUTE-AREA
+    :Context (DEFMETHOD COMPUTE-AREA ((SHAPE CIRCLE))
+               (* PI (EXPT (CIRCLE-RADIUS SHAPE) 2)))
     :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
-    :Specializers (VECTOR2D)
+    :Specializers (CIRCLE)
 
 DEFINITION>
-    :Name *DEFAULT-CACHE*
-    :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
-    :Type :VARIABLE
+    :Name PROCESS-DATA
+    :Context (DEFGENERIC PROCESS-DATA
+                 (DATA &KEY)
+               (:DOCUMENTATION "Process data with various methods"))
+    :Type :GENERIC-FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *ORIGIN*
-    :Context (DEFPARAMETER *ORIGIN* (MAKE-INSTANCE 'VECTOR2D))
-    :Type :VARIABLE
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA STRING) &KEY) (STRING-UPCASE DATA))
+    :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
+    :Specializers (STRING)
 
 DEFINITION>
-    :Name CACHE-ENTRY
-    :Context (DEFUN CACHE-ENTRY (KEY)
-               (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
-    :Type :FUNCTION
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA ((DATA NUMBER) &KEY) (1+ DATA))
+    :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
+    :Specializers (NUMBER)
 
 DEFINITION>
-    :Name (SETF CACHE-ENTRY)
-    :Context (DEFUN (SETF CACHE-ENTRY) (VALUE KEY)
-               (SETF (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)) VALUE))
-    :Type :FUNCTION
+    :Name PROCESS-DATA
+    :Context (DEFMETHOD PROCESS-DATA :AFTER
+                        ((DATA STRING) &KEY (LOG-LEVEL :INFO))
+               (WHEN (EQ LOG-LEVEL :INFO) (FORMAT NIL "LOG: ~A" DATA)))
+    :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Status :NIL
+    :Status :INTERNAL
+    :Qualifiers (:AFTER)
+    :Specializers (STRING)
 
 DEFINITION>
-    :Name WITH-VECTOR
-    :Context (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
-               `(LET ((,VAR (MAKE-INSTANCE 'VECTOR2D :X ,X :Y ,Y)))
-                  ,@BODY))
+    :Name DEFMACRO-NAME
+    :Context (DEFMACRO DEFMACRO-NAME () 0)
     :Type :MACRO
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name +UNIT-DISTANCE+
-    :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
-    :Type :VARIABLE
+    :Name MACRO-FUNCTION-NAME
+    :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                     (LAMBDA (FORM ENV) FORM ENV 0))
+    :Type :MACRO
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name TEST
-    :Context (SETF (CACHE-ENTRY 'TEST) 42)
+    :Name CONDITION-NAME
+    :Context (DEFINE-CONDITION CONDITION-NAME
+                 NIL
+                 NIL)
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name FUNCTION-WITH-CONDITION
+    :Context (DEFUN FUNCTION-WITH-CONDITION () (ERROR 'CONDITION-NAME))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name MY-FUNCTION
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL

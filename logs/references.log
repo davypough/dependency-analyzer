@@ -16,157 +16,316 @@ REFERENCE>
                         :File /src/defs.lisp
 
 REFERENCE>
-    :Name CACHE-ENTRY
-    :Context (SETF (CACHE-ENTRY 'TEST) 42)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name CACHE-ENTRY
-                        :Context (DEFUN CACHE-ENTRY (KEY)
-                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name CACHE-ENTRY
-    :Context (CACHE-ENTRY 'KEY)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name CACHE-ENTRY
-                        :Context (DEFUN CACHE-ENTRY (KEY)
-                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name CACHE.MAX-SIZE
-    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name CACHE.MAX-SIZE
-                        :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-                                   (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-                                   (MAX-SIZE 100 :TYPE FIXNUM))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name *DEFAULT-CACHE*
-    :Context *DEFAULT-CACHE*
+    :Name *DEFVAR-VARIABLE*
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE))
+               ARG)
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name *DEFAULT-CACHE*
-                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
-    :Name *DEFAULT-CACHE*
-    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+    :Name *DEFVAR-VARIABLE*
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name *DEFAULT-CACHE*
-                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
                         :Type :VARIABLE
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
-    :Name WITH-VECTOR
-    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
-               (MAGNITUDE V))
+    :Name *DEFVAR-VARIABLE*
+    :Context *DEFVAR-VARIABLE*
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE*
+                                   (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFVAR-VARIABLE*
+                        :Context (DEFVAR *DEFVAR-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name *DEFPARAMETER-VARIABLE*
+    :Context *DEFPARAMETER-VARIABLE*
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFPARAMETER-VARIABLE*
+                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                    DEFINITION>
+                        :Name *DEFPARAMETER-VARIABLE*
+                        :Context (DEFPARAMETER *DEFPARAMETER-VARIABLE* 0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name +DEFCONSTANT-VARIABLE+
+    :Context +DEFCONSTANT-VARIABLE+
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name +DEFCONSTANT-VARIABLE+
+                        :Context (DEFCONSTANT +DEFCONSTANT-VARIABLE+ 'C)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name *SYMBOL-VALUE-VARIABLE*
+    :Context *SYMBOL-VALUE-VARIABLE*
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *SYMBOL-VALUE-VARIABLE*
+                        :Context (SETF (SYMBOL-VALUE '*SYMBOL-VALUE-VARIABLE*)
+                                         0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name DEFUN-NAME
+    :Context (LET ((ARG 0))
+               (DEFUN-NAME)
+               *DEFVAR-VARIABLE*
+               (COMPUTE-AREA (MAKE-CIRCLE))
+               ARG)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name DEFUN-NAME
+                        :Context (DEFUN DEFUN-NAME () 0)
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name DEFUN-NAME
+    :Context (DEFUN MY-FUNCTION (ARG) (DEFUN-NAME) *DEFVAR-VARIABLE* ARG)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name DEFUN-NAME
+                        :Context (DEFUN DEFUN-NAME () 0)
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name DEFUN-NAME
+    :Context (DEFUN-NAME)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name DEFUN-NAME
+                        :Context (DEFUN DEFUN-NAME () 0)
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name CIRCLE-RADIUS
+    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name CIRCLE-RADIUS
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name MAKE-CIRCLE
+    :Context (COMPUTE-AREA (MAKE-CIRCLE))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-CIRCLE
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name MAKE-CIRCLE
+    :Context (FUNCALL #'COMPUTE-AREA (MAKE-CIRCLE :RADIUS 1))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-CIRCLE
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name MAKE-CIRCLE
+    :Context (CIRCLE-RADIUS (MAKE-CIRCLE))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-CIRCLE
+                        :Context (DEFSTRUCT CIRCLE (RADIUS 1 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name PERSON.AGE
+    :Context (PERSON.AGE (MAKE-PERSON))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name PERSON.AGE
+                        :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.))
+                                   (AGE 0 :TYPE FIXNUM))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name MAKE-PERSON
+    :Context (PERSON.AGE (MAKE-PERSON))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-PERSON
+                        :Context (DEFSTRUCT (PERSON (:CONC-NAME PERSON.))
+                                   (AGE 0 :TYPE FIXNUM))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name DEFMACRO-NAME
+    :Context (DEFMACRO-NAME)
     :Type :MACRO
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name WITH-VECTOR
-                        :Context (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
-                                   `(LET ((,VAR
-                                           (MAKE-INSTANCE 'VECTOR2D :X ,X :Y
-                                                          ,Y)))
-                                      ,@BODY))
+                        :Name DEFMACRO-NAME
+                        :Context (DEFMACRO DEFMACRO-NAME () 0)
                         :Type :MACRO
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
 REFERENCE>
-    :Name +UNIT-DISTANCE+
-    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
-               (MAGNITUDE V))
-    :Type :VARIABLE
+    :Name MACRO-FUNCTION-NAME
+    :Context (MACRO-FUNCTION-NAME)
+    :Type :MACRO
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name +UNIT-DISTANCE+
-                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name +UNIT-DISTANCE+
-    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
-               (MAGNITUDE V))
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name +UNIT-DISTANCE+
-                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name *ORIGIN*
-    :Context *ORIGIN*
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *ORIGIN*
-                        :Context (DEFPARAMETER *ORIGIN*
-                                   (MAKE-INSTANCE 'VECTOR2D))
-                        :Type :VARIABLE
+                        :Name MACRO-FUNCTION-NAME
+                        :Context (SETF (MACRO-FUNCTION 'MACRO-FUNCTION-NAME)
+                                         (LAMBDA (FORM ENV) FORM ENV 0))
+                        :Type :MACRO
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
