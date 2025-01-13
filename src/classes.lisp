@@ -139,6 +139,10 @@
     :initarg :project-package 
     :reader project-package
     :documentation "Package being analyzed for dependencies")
+   (project-packages
+    :initform nil
+    :accessor project-packages
+    :documentation "List of all packages defined or used by the project")
    (project-root
     :initarg :project-root
     :reader project-root

@@ -66,8 +66,8 @@
             until (eq form :eof)
             do (when (and (consp form) (eq (car form) 'in-package))
                  (eval form)
-                 (analyze-in-package parser form))
-               (analyze-package-symbols-form parser form form-count)))
+                 (analyze-in-package parser form))))
+               ;(analyze-package-symbols-form parser form form-count)))    re-enable this later, 3rd pass analysis
 
     ;; Print analysis trace info
     (format log-stream "~&Package state for ~A:~%" (project-pathname file))

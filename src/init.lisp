@@ -117,13 +117,13 @@
 
 (defun dep ()
   "Fresh reloads the dependency-analyzer system to continue testing."
-  (asdf:load-system :test-project)
+  ;(asdf:load-system :test-project)
   (unwind-protect 
     (progn (delete-fasl)
            (ql:quickload :dependency-analyzer :verbose t)
            (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
-                    "d:/quicklisp/local-projects/test-project/src"
-                    :test-project-package))
+                    "d:/quicklisp/local-projects/test-project/src"))
+                    ;:test-project-package))
     (in-package :dep)))
 
 
