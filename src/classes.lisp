@@ -135,14 +135,14 @@
     :initarg :project-name
     :reader project.name
     :documentation "Name of the project being analyzed")
-   (project-package
-    :initarg :project-package 
-    :reader project-package
-    :documentation "Package being analyzed for dependencies")
    (project-packages
     :initform nil
     :accessor project-packages
-    :documentation "List of all packages defined or used by the project")
+    :documentation "List of all packages defined, used, or imported from by the project")
+   (project-owned-packages
+    :initform nil
+    :accessor project-owned-packages 
+    :documentation "List of packages newly created by the project")
    (project-root
     :initarg :project-root
     :reader project-root

@@ -741,9 +741,8 @@
   "Analyze a defclass, defstruct, or define-condition form.
    Records the primary type definition and all implicitly defined functions."
   (declare (special log-stream))
-  (when-let ((def-op (first form))
-             (class (find-class name nil)))
-    ;only analyze runtime objects if class object exists
+  (let ((def-op (first form))
+        (class (find-class name nil)))
     ;; Common accessor analysis
     (record-slot-accessors parser name class form)
     ;; Only defstruct has additional implicit functions

@@ -61,13 +61,15 @@
           *package* (find-package :common-lisp-user))
 
     (with-open-file (stream file :direction :input)
-      (loop for form = (read stream nil :eof)
-            for form-count from 1
-            until (eq form :eof)
-            do (when (and (consp form) (eq (car form) 'in-package))
-                 (eval form)
-                 (analyze-in-package parser form))))
-               ;(analyze-package-symbols-form parser form form-count)))    re-enable this later, 3rd pass analysis
+      (let ((previous nil))
+        (loop for form = (read stream nil :eof)
+              for form-count from 1
+              until (eq form :eof)
+              do (detect-package-symbol-inconsistency parser form previous)
+                 (when (and (consp form) (eq (car form) 'in-package))
+                   (eval form)
+                   (analyze-in-package parser form))
+                 (setf previous form))))
 
     ;; Print analysis trace info
     (format log-stream "~&Package state for ~A:~%" (project-pathname file))
@@ -99,13 +101,17 @@
 
               ;; Function definition
               ((eq head 'defun)
-               (record-definition *current-tracker*
-                                  :name (second current-form)
-                                  :type :function
-                                  :file (file parser)
-                                  :package (current-package parser)
-                                  :status (symbol-status (second current-form) (current-package parser))
-                                  :context current-form))
+               (let* ((full-name (second current-form))
+                      (base-name (if (and (listp full-name) (eq (car full-name) 'setf))
+                                   (cadr full-name)
+                                   full-name)))
+                 (record-definition *current-tracker*
+                                    :name full-name
+                                    :type :function
+                                    :file (file parser)
+                                    :package (current-package parser)
+                                    :status (symbol-status base-name (current-package parser))
+                                    :context current-form)))
 
               ;; Macro definition
               ((eq head 'defmacro)
@@ -181,6 +187,7 @@
               ((and (eq head 'setf) 
                     (consp (second current-form))
                     (symbolp (caadr current-form))
+                    (member (caadr current-form) '(symbol-value symbol-function macro-function))
                     (consp (cdadr current-form))
                     (consp (cadadr current-form))
                     (eq (first (cadadr current-form)) 'quote))
@@ -284,7 +291,7 @@
     (walk-form form #'handle-reference)))
 
 
-(defun analyze-package-symbols-form (parser form form-count)
+(defun detect-package-symbol-inconsistency (parser form previous)
   "Analyze a form for package/symbol consistency.
    Records anomalies for package declaration and symbol binding issues."
   (declare (special log-stream))
@@ -292,33 +299,35 @@
     (let ((head (car form))
           (current-file (file parser))
           (current-pkg (current-package parser))
-          (project-pkg (project-package *current-tracker*)))
-
-      (format log-stream "~&Form ~D: ~S~%" form-count form)
+          (cl-user-pkg (find-package "COMMON-LISP-USER")))
       
       ;; Late in-package in file
       (when (member head '(in-package))
-        (when (> form-count 2)
+        (when (and previous  ; Not first form
+                   (not (and (consp previous)  ; Previous form must be package definition
+                            (member (car previous) '(defpackage make-package)))))
+          (when (consp previous)
+                    (member (car previous) '(defpackage make-package))))
           (record-anomaly *current-tracker*
                        :type :late-in-package
-                       :severity :WARNING
+                       :severity :INFO
                        :file current-file
                        :package current-pkg
                        :context form
-                       :description (format nil "In-package occurs after initial forms in ~S" current-pkg))))
+                       :description (format nil "In-package occurs after non-package form in ~A"
+                                            (project-pathname current-file))))
 
       ;; Analyze definitions for package consistency 
       (when (member head '(defun defvar defparameter defmacro define-condition deftype define-method-combination
                            defclass defstruct defmethod defgeneric defsetf define-setf-expander
                            define-symbol-macro define-modify-macro define-compiler-macro))
         (let* ((def-name (second form))
-               (cl-user-pkg (find-package "COMMON-LISP-USER"))
                (runtime-def-pkg (and (symbolp def-name) (symbol-package def-name))))
           ;; Check definition package consistency
           (cond 
             ;; No package context but defining symbols
             ((and (eq current-pkg cl-user-pkg)
-                  (not (eq project-pkg cl-user-pkg)))
+                  (member current-pkg (project-owned-packages *current-tracker*)))
              (record-anomaly *current-tracker*
                          :type :possible-missing-in-package-for-definition
                          :severity :WARNING

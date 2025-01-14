@@ -52,7 +52,7 @@
           (format t "~%Please verify the source directory and valid file extensions for analysis.~2%")
           (return-from analyze))
 
-        (format t "~2%Found source files:~%~{  ~A~%~}" source-files)
+        (format t "~2%Found source files:~%~{  ~A~%~}~%" source-files)
 
         ;; Begin analysis
         (with-dependency-tracker ((make-instance 'dependency-tracker
@@ -200,12 +200,15 @@
    5) Gather the transitive closure of dependencies from those packages.
    Returns a list of all 'project-related' packages."
   (let ((before (list-all-packages)))
-    ;; Execute the user-supplied loader, e.g., (funcall loader-fn)
+    ;; Delete FASL files before loading to ensure fresh compilation of user's project files
+    (delete-project-fasls :test-project)
     (asdf:load-system :test-project)
     (let ((after (list-all-packages))
           ;; We’ll store all project-related packages in PROJECT-PACKAGES
           (project-packages '()))
       (let ((new-packages (set-difference after before :test #'eq)))
+        ;; Store just the new packages
+        (setf (project-owned-packages *current-tracker*) new-packages)
         ;; For each newly introduced package, gather its full dependency closure.
         (dolist (pkg new-packages)
           (setq project-packages
