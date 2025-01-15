@@ -241,6 +241,34 @@
                             deftype))))
 
 
+#+ignore-1 (defun walk-form (form handler &optional (path nil))
+  "Walk a form calling HANDLER on each subform with context, parent-context and path."
+  (declare (special log-stream))
+  (labels ((walk (x context parent-context path)
+             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%" 
+                              x context parent-context)
+             (unless (skip-item-p x)  ;skip non-referring items
+               (funcall handler x context parent-context form path)  
+               (typecase x
+                 (cons 
+                   (loop for element in x
+                         for i from 0
+                         do (walk element x context (cons i path))))
+                 (array 
+                   (dotimes (i (array-total-size x))
+                     (walk (row-major-aref x i) x context (cons i path))))
+                 (hash-table 
+                   (maphash (lambda (k v)
+                             (walk k x context (cons k path))
+                             (walk v x context (cons v path)))
+                           x))))))
+    (let ((*print-circle* nil)    
+          (*print-length* 10)     
+          (*print-level* 5))      
+      (format log-stream "~&-------------------------------~%")
+      (walk form form form path))))
+
+
 (defun walk-form (form handler)
   "Walk a form calling HANDLER on each subform with context and parent context info.
    FORM - The form to analyze
@@ -838,13 +866,13 @@
                             :context context)))))))
 
 
-(defun get-symbol-reference-type (sym context)
+(defun get-symbol-reference-type (sym context &optional top-level-form)
   "Derive the reference type of a symbol."
   (cond ((boundp sym) :variable)
         ((macro-function sym) :macro) 
         ((fboundp sym) 
          (let ((fn (fdefinition sym)))
-           (cond ((compatible-method-p sym context) :method)
+           (cond ((compatible-method-p sym context top-level-form) :method)
                  ((c2mop:typep fn 'standard-generic-function) :generic-function)
                  (t :function))))
         ((ignore-errors (find-class sym)) :STRUCTURE/CLASS/CONDITION)
@@ -854,7 +882,27 @@
         ((nth-value 1 (macroexpand-1 sym)) :symbol-macro)))
 
 
-(defun compatible-method-p (sym context)
+(defun compatible-method-p (sym context top-level-form)
+ "Test if symbol is being called as a method. Returns matching method if found."
+ (when (fboundp sym) 
+   (let ((fn (fdefinition sym)))
+     (when (typep fn 'standard-generic-function)
+       (let* ((args (rest context))
+              ;; Evaluate whole form but wrap target expr in type-of
+              (type-form (subst `(list (type-of ,(car args)) ,(car args))
+                               (car args)
+                               (copy-tree top-level-form)))
+              (type-result (handler-case (eval type-form)
+                            (error () nil))))
+         ;; If we got the type, find matching method
+         (when type-result  
+           (let ((arg-type (car type-result)))
+             (when arg-type
+               (first (compute-applicable-methods 
+                       fn (list arg-type)))))))))))
+
+
+#+ignore-1 (defun compatible-method-p (sym context)
   (when (fboundp sym)
     (let ((fn (fdefinition sym))
           (args (rest context))

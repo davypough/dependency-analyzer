@@ -306,11 +306,11 @@
   (format log-stream "Filename: DEFINITIONS.LOG")
   (format log-stream "~2%The list of all definitions identified in the ~A project.~2%"
           (slot-value *current-tracker* 'project-name))
-  (maphash (lambda (key val)
+  (maphash (lambda (key def-list)
              (declare (ignore key))
-             (dolist (def val)
+             (dolist (def def-list)
                (print-object def log-stream)
-               (format log-stream "~%")))
+               (terpri log-stream)))
            (slot-value *current-tracker* 'definitions)))
 
 
@@ -321,11 +321,11 @@
           (slot-value *current-tracker* 'project-name))
   (maphash (lambda (key ref-list)
              (declare (ignore key))
-             (dolist (ref (sort ref-list #'string< 
-                               :key (lambda (r)
-                                      (format nil "~A:~A" (reference.file r) (reference.name r)))))
-               (terpri log-stream)
-               (print-object ref log-stream)))
+             (dolist (ref ref-list)  ;(sort ref-list #'string< 
+                                     ;   :key (lambda (r)
+                                     ;           (format nil "~A:~A" (reference.file r) (reference.name r)))))
+               (print-object ref log-stream)
+               (terpri log-stream)))
            (slot-value *current-tracker* 'references)))
     
 

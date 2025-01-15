@@ -1,7 +1,6 @@
 Filename: REFERENCES.LOG
 
 The list of all references to definitions in other files for the test-project project.
-
 REFERENCE>
     :Name #:TEST-PROJECT-PACKAGE
     :Context (IN-PACKAGE #:TEST-PROJECT-PACKAGE)
@@ -16,157 +15,24 @@ REFERENCE>
                         :File /src/defs.lisp
 
 REFERENCE>
-    :Name CACHE-ENTRY
-    :Context (SETF (CACHE-ENTRY 'TEST) 42)
-    :Type :FUNCTION
+    :Name MAGNITUDE
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+               (MAGNITUDE V)
+               (V2D-X V)
+               (V2D-Y V))
+    :Type :GENERIC-FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
     :Definitions
                     DEFINITION>
-                        :Name CACHE-ENTRY
-                        :Context (DEFUN CACHE-ENTRY (KEY)
-                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
-                        :Type :FUNCTION
+                        :Name MAGNITUDE
+                        :Context (DEFGENERIC MAGNITUDE
+                                     (VECTOR)
+                                   (:DOCUMENTATION
+                                    "Calculate vector magnitude"))
+                        :Type :GENERIC-FUNCTION
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
 
-REFERENCE>
-    :Name CACHE-ENTRY
-    :Context (CACHE-ENTRY 'KEY)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name CACHE-ENTRY
-                        :Context (DEFUN CACHE-ENTRY (KEY)
-                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name CACHE.MAX-SIZE
-    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name CACHE.MAX-SIZE
-                        :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
-                                   (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
-                                   (MAX-SIZE 100 :TYPE FIXNUM))
-                        :Type :FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name *DEFAULT-CACHE*
-    :Context *DEFAULT-CACHE*
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *DEFAULT-CACHE*
-                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name *DEFAULT-CACHE*
-    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *DEFAULT-CACHE*
-                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name WITH-VECTOR
-    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
-               (MAGNITUDE V))
-    :Type :MACRO
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name WITH-VECTOR
-                        :Context (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
-                                   `(LET ((,VAR
-                                           (MAKE-INSTANCE 'VECTOR2D :X ,X :Y
-                                                          ,Y)))
-                                      ,@BODY))
-                        :Type :MACRO
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name +UNIT-DISTANCE+
-    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
-               (MAGNITUDE V))
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name +UNIT-DISTANCE+
-                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name +UNIT-DISTANCE+
-    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
-               (MAGNITUDE V))
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name +UNIT-DISTANCE+
-                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name *ORIGIN*
-    :Context *ORIGIN*
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name *ORIGIN*
-                        :Context (DEFPARAMETER *ORIGIN*
-                                   (MAKE-INSTANCE 'VECTOR2D))
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
