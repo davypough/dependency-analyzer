@@ -20,6 +20,28 @@ REFERENCE>
                (MAGNITUDE V)
                (V2D-X V)
                (V2D-Y V))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {1104E83263}>)
+    :Definitions
+                    DEFINITION>
+                        :Name MAGNITUDE
+                        :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+                                   (SQRT
+                                    (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (VECTOR2D)
+
+REFERENCE>
+    :Name MAGNITUDE
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+               (MAGNITUDE V)
+               (V2D-X V)
+               (V2D-Y V))
     :Type :GENERIC-FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">

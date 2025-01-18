@@ -242,152 +242,124 @@
   form)
 
 
-(defun analyze-reference-form (parser form)
-  "Analyze source forms, recording references to definitions in different files."
+(defun analyze-reference-form (parser top-level-form)
+  "Analyze source top-level-forms, recording references to definitions in different files."
   (declare (special log-stream))
-  (labels ((handle-reference (current-form context parent-context &optional top-level-form)
-             (declare (ignorable context parent-context))
-             (if (and (typep current-form '(or character package string symbol))
-                      (find-package current-form))  ;process a package designator
-               (let* ((key (make-tracking-key current-form nil :package))  
-                      (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                      (other-file-defs (remove-if (lambda (def)
-                                                   (equal (definition.file def) (file parser)))
-                                                defs)))
-                 (when other-file-defs
-                   (record-reference *current-tracker*
-                                   :name current-form
-                                   :type :package
-                                   :file (file parser)
-                                   :context parent-context
-                                   :definitions other-file-defs)))
-               (unless (or (skip-item-p current-form) (skip-definition-form current-form))
-                 (when (symbolp current-form)
-                   (let* ((sym-pkg (symbol-package current-form))
-                          (method (compatible-method-p current-form parent-context top-level-form))
-                          (sym-type (if method :method 
-                                    (get-symbol-reference-type current-form parent-context)))
-                          (key (if method
-                                (make-tracking-key 
-                                  current-form 
-                                  sym-pkg 
-                                  :method
-                                  (method-qualifiers method)
-                                  (mapcar #'class-name (c2mop:method-specializers method)))
-                                (make-tracking-key current-form sym-pkg sym-type)))
+  (let ((gf-top-level-form (copy-list top-level-form))  ;revised top-level-form if there are generic function calls
+        (gf-p nil))  ;is there a generic function call in the top-level-form
+    (labels ((handle-reference (current-form context parent-context)
+               ;(declare (ignorable context))
+               (if (and (typep current-form '(or character package string symbol))
+                        (find-package current-form))
+                   ;; Process a package designator
+                   (let* ((key (make-tracking-key current-form nil :package))  
                           (defs (gethash key (slot-value *current-tracker* 'definitions)))
                           (other-file-defs (remove-if (lambda (def)
-                                                        (equal (definition.file def) (file parser)))
-                                                      defs)))
+                                                      (equal (definition.file def) (file parser)))
+                                                    defs)))
                      (when other-file-defs
                        (record-reference *current-tracker*
                                        :name current-form
+                                       :type :package
                                        :file (file parser)
-                                       :type sym-type
-                                       :package sym-pkg  
                                        :context parent-context
-                                       :visibility (get-visibility current-form (current-package parser))
-                                       :definitions other-file-defs))))))))
-    ;; Walk the form applying handler
-    (walk-form form #'handle-reference)))
+                                       :definitions other-file-defs)))
+                   ;; Process a symbol reference
+                   (unless (skip-item-p current-form)  ; (skip-definition-form current-form))
+                     (when (symbolp current-form)
+                       (let* ((sym-pkg (symbol-package current-form))
+                              (sym-type (get-symbol-reference-type current-form))
+                              (key (make-tracking-key current-form sym-pkg sym-type)))
+                         ;; If this is a GF call, save it for later analysis
+                         (when (and (eq sym-type :generic-function)
+                                    (consp context)
+                                    (eq (first context) current-form))
+                           (setf gf-p t))  ;the context is a generic function call
+                         ;; Record the basic reference
+                         (let* ((defs (gethash key (slot-value *current-tracker* 'definitions)))
+                                (other-file-defs (remove-if (lambda (def)
+                                                           (equal (definition.file def) (file parser)))
+                                                         defs)))
+                           (when other-file-defs
+                             (record-reference *current-tracker*
+                                             :name current-form
+                                             :file (file parser)
+                                             :type sym-type
+                                             :package sym-pkg
+                                             :context parent-context
+                                             :visibility (get-visibility current-form (current-package parser))
+                                             :definitions other-file-defs)))))))))
+      ;; Walk the top-level-form first
+      (walk-form top-level-form #'handle-reference)
+      ;; Then analyze any method calls found
+      (when gf-p
+        (analyze-method-references parser gf-top-level-form)))))
 
 
-#+ignore-1 (defun analyze-reference-form (parser form)
-  "Analyze source forms, recording references to definitions in different files."
-  (declare (special log-stream))
-  (labels ((handle-reference (current-form context parent-context)
-             (declare (ignorable context parent-context))
-             (if (and (typep current-form '(or character package string symbol))
-                      (find-package current-form))  ;process a package designator
-               (let* ((key (make-tracking-key current-form nil :package))  
-                      (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                      (other-file-defs (remove-if (lambda (def)
-                                                       (equal (definition.file def) (file parser)))
-                                                     defs)))
-                 (when other-file-defs
-                   (record-reference *current-tracker*
-                                     :name current-form
-                                     :type :package
-                                     :file (file parser)
-                                     :context parent-context
-                                     :definitions other-file-defs)))
-               (unless (or (skip-item-p current-form) (skip-definition-form current-form))
-                 (when (symbolp current-form)
-                   (let* ((sym-pkg (symbol-package current-form))
-                          (method (compatible-method-p current-form parent-context))
-                          (sym-type (if method :method 
-                                    (get-symbol-reference-type current-form parent-context)))
-                          (key (if method
-                                (make-tracking-key 
-                                  current-form 
-                                  sym-pkg 
-                                  :method
-                                  (method-qualifiers method)
-                                  (mapcar #'class-name (c2mop:method-specializers method)))
-                                (make-tracking-key current-form sym-pkg sym-type)))
-                          (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                          (other-file-defs (remove-if (lambda (def)
-                                                        (equal (definition.file def) (file parser)))
-                                                      defs)))
-                     (when other-file-defs
-                       (record-reference *current-tracker*
-                                       :name current-form
-                                       :file (file parser)
-                                       :type sym-type
-                                       :package sym-pkg  
-                                       :context parent-context
-                                       :visibility (get-visibility current-form (current-package parser))
-                                       :definitions other-file-defs))))))))
-    ;; Walk the form breadth-first applying handler
-    (walk-form form #'handle-reference)))
+(defun analyze-method-references (parser gf-top-level-form)
+  "Analyze generic function calls to track method references."
+  (let* ((pushit-top-level-form (pushit-transform gf-top-level-form #'generic-function-p))
+         (pre-eval-form `(let (result) ,pushit-top-level-form result))
+         (method-calls (eval pre-eval-form)))
+    ;; Debug print
+    ;(let ((*package* (find-package :common-lisp-user)))
+    ;  (prt gf-top-level-form pushit-top-level-form pre-eval-form method-calls))
+    ;; Process each captured call
+    (dolist (call method-calls)
+      (when (and (consp call)          ; Must be a cons
+                 (symbolp (car call))   ; With symbol in car position
+                 (fboundp (car call))   ; That's bound
+                 (typep (fdefinition (car call)) 'standard-generic-function)) ; To a generic function
+        (let* ((name (car call))
+               (args (cdr call))
+               ;; Get generic function and applicable methods  
+               (methods (compute-applicable-methods (fdefinition name) args)))
+          ;; Record references to matching method definitions
+          (dolist (method methods)
+            (let ((specs (mapcar #'class-name 
+                                (closer-mop:method-specializers method)))
+                  (quals (method-qualifiers method)))
+              ;; Look up and record reference to this specific method
+              (let* ((key (make-tracking-key name 
+                                           (symbol-package name)
+                                           :method 
+                                           quals 
+                                           specs))
+                     (defs (gethash key (slot-value *current-tracker* 'definitions))))
+                (when defs
+                  (record-reference *current-tracker*
+                                  :name name
+                                  :type :method
+                                  :file (file parser)
+                                  :context gf-top-level-form
+                                  :package (symbol-package name)
+                                  :qualifiers quals
+                                  :arguments args
+                                  :definitions defs))))))))))      
 
 
-#+ignore-1 (defun analyze-reference-form (parser form)
-  "Analyze source forms, recording references to definitions in different files."
-  (declare (special log-stream))
-  (labels ((handle-reference (current-form context parent-context)
-             (declare (ignorable context parent-context))
-             (if (and (typep current-form '(or character package string symbol))
-                      (find-package current-form))  ;process a package designator
-               (let* ((key (make-tracking-key current-form nil :package))  
-                      (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                      (other-file-defs (remove-if (lambda (def)
-                                                       (equal (definition.file def) (file parser)))
-                                                     defs)))
-                 (when other-file-defs
-                   (record-reference *current-tracker*
-                                     :name current-form
-                                     :type :package
-                                     :file (file parser)
-                                     :context parent-context
-                                     :definitions other-file-defs)))
-               (unless (or (skip-item-p current-form) (skip-definition-form current-form))
-                 (when (symbolp current-form)
-                   (let* ((sym-pkg (symbol-package current-form))
-                          (sym-type (get-symbol-reference-type current-form parent-context))
-                          (key (if (eq sym-type :method)
-                                 (let* ((args (and (consp parent-context) (cdr parent-context)))
-                                        (qualifiers (loop for arg in args
-                                                          while (keywordp arg)
-                                                          collect arg))
-                                        (values (nthcdr (length qualifiers) args)))
-                                   (make-tracking-key current-form sym-pkg sym-type qualifiers (mapcar #'type-of values)))
-                                 (make-tracking-key current-form sym-pkg sym-type)))
-                          (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                          (other-file-defs (remove-if (lambda (def)
-                                                        (equal (definition.file def) (file parser)))
-                                                      defs)))
-                     (when other-file-defs
-                       (record-reference *current-tracker*
-                                                          :name current-form
-                                                          :file (file parser)
-                                                          :type sym-type
-                                                          :package sym-pkg  
-                                                          :context parent-context
-                                                          :visibility (get-visibility current-form (current-package parser))
-                                                          :definitions other-file-defs))))))))
-    ;; Walk the form breadth-first applying handler
-    (walk-form form #'handle-reference)))
+(defun generic-function-p (sym)
+  (and (symbolp sym)
+       (fboundp sym)
+       (typep (fdefinition sym) 'standard-generic-function)))
+
+
+(defun pushit-transform (form predicate)
+  "Walk FORM. If (car FORM) satisfies PREDICATE, wrap it in (PUSHIT form).
+   For compound forms like EXPT, preserve structure and recur into arguments."
+  (cond ((atom form)
+         form)
+        ;; If head is a method, wrap in pushit
+        ((funcall predicate (car form))
+         (list 'pushit 
+               (cons (car form)
+                     (mapcar (lambda (x) (pushit-transform x predicate))
+                            (cdr form)))))
+        ;; Otherwise preserve the form structure and recur
+        (t
+         (cons (car form)
+               (mapcar (lambda (x) (pushit-transform x predicate))
+                      (cdr form))))))
 
 
 (defun detect-package-symbol-inconsistency (parser form previous)

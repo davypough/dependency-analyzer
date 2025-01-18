@@ -7,6 +7,31 @@
 (in-package #:dep)
 
 
+(defmacro pushit (call)
+  "Push a list (FN EVAL-ARG1 EVAL-ARG2 ...) onto RESULT, and return the call’s value."
+  ;; Handle the case where CALL is just a symbol or atom (not a list).
+  (if (atom call)
+      ;; Example: (pushit x) => push (x VAL-OF-X).
+      `(let ((val ,call))
+         (push (list ',call val) result)
+         val)
+    ;; Otherwise, destructure the function call.
+    (destructuring-bind (fn &rest args) call
+      (let ((vals (mapcar (lambda (_) (gensym "arg")) args))
+            (the-value (gensym "the-value")))
+        `(let* (,@(mapcar (lambda (tmp-var form)
+                            `(,tmp-var ,form))
+                          vals args))
+           ;; Now call the function with the evaluated args.
+           (let ((,the-value (,fn ,@vals)))
+             ;; Push (FN EVAL-ARG1 EVAL-ARG2 ...) onto RESULT
+             ;; but store FN as a symbol.
+             (push (cons ',fn (mapcar #'identity (list ,@vals))) result)
+             ;; Return the actual value
+             ,the-value))))))
+
+
+
 (defun symbol-status (sym pkg)
   "Determines the status of a symbol in a package, :internal, :external, :inherited, :nil."
   (let ((name (if (and (listp sym) (eq (car sym) 'setf))
@@ -239,34 +264,6 @@
                             define-modify-macro define-compiler-macro
                             define-symbol-macro defsetf define-setf-expander
                             deftype))))
-
-
-#+ignore-1 (defun walk-form (form handler &optional (path nil))
-  "Walk a form calling HANDLER on each subform with context, parent-context and path."
-  (declare (special log-stream))
-  (labels ((walk (x context parent-context path)
-             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%" 
-                              x context parent-context)
-             (unless (skip-item-p x)  ;skip non-referring items
-               (funcall handler x context parent-context form path)  
-               (typecase x
-                 (cons 
-                   (loop for element in x
-                         for i from 0
-                         do (walk element x context (cons i path))))
-                 (array 
-                   (dotimes (i (array-total-size x))
-                     (walk (row-major-aref x i) x context (cons i path))))
-                 (hash-table 
-                   (maphash (lambda (k v)
-                             (walk k x context (cons k path))
-                             (walk v x context (cons v path)))
-                           x))))))
-    (let ((*print-circle* nil)    
-          (*print-length* 10)     
-          (*print-level* 5))      
-      (format log-stream "~&-------------------------------~%")
-      (walk form form form path))))
 
 
 (defun walk-form (form handler)
@@ -866,20 +863,21 @@
                             :context context)))))))
 
 
-(defun get-symbol-reference-type (sym context &optional top-level-form)
-  "Derive the reference type of a symbol."
-  (cond ((boundp sym) :variable)
-        ((macro-function sym) :macro) 
-        ((fboundp sym) 
-         (let ((fn (fdefinition sym)))
-           (cond ((compatible-method-p sym context top-level-form) :method)
-                 ((c2mop:typep fn 'standard-generic-function) :generic-function)
-                 (t :function))))
-        ((ignore-errors (find-class sym)) :STRUCTURE/CLASS/CONDITION)
-        ((and (subtypep sym t)
-              (not (ignore-errors (find-class sym)))
-              (not (cl-symbol-p sym))) :DEFTYPE)
-        ((nth-value 1 (macroexpand-1 sym)) :symbol-macro)))
+(defun get-symbol-reference-type (sym)
+  "Derive the reference type of a symbol based on its bindings."
+  (cond 
+    ((boundp sym) :variable)
+    ((macro-function sym) :macro)
+    ((fboundp sym)
+     (let ((fn (fdefinition sym)))
+       (cond 
+         ((typep fn 'standard-generic-function) :generic-function) 
+         (t :function))))
+    ((ignore-errors (find-class sym)) :STRUCTURE/CLASS/CONDITION)
+    ((and (subtypep sym t)
+          (not (ignore-errors (find-class sym)))
+          (not (cl-symbol-p sym))) :DEFTYPE)
+    ((nth-value 1 (macroexpand-1 sym)) :symbol-macro)))
 
 
 (defun compatible-method-p (sym context top-level-form)
@@ -900,23 +898,6 @@
              (when arg-type
                (first (compute-applicable-methods 
                        fn (list arg-type)))))))))))
-
-
-#+ignore-1 (defun compatible-method-p (sym context)
-  (when (fboundp sym)
-    (let ((fn (fdefinition sym))
-          (args (rest context))
-          (sym-pkg (symbol-package sym)))
-      (when (typep fn 'standard-generic-function)
-        (some (lambda (method)
-                (every (lambda (spec arg)
-                        (type-compatible-p 
-                          (class-name spec)  ; Convert class object to symbol name
-                          arg 
-                          sym-pkg))
-                      (c2mop:method-specializers method)
-                      args))
-              (c2mop:generic-function-methods fn))))))
 
 
 (defun get-visibility (sym current-pkg)
