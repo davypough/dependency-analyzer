@@ -84,7 +84,7 @@ DEFINITION>
     :Context (DEFCLASS VECTOR2D NIL
                        ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
                         (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
-    :Type :FUNCTION
+    :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
@@ -94,7 +94,7 @@ DEFINITION>
     :Context (DEFCLASS VECTOR2D NIL
                        ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
                         (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
-    :Type :FUNCTION
+    :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :NIL
@@ -104,7 +104,7 @@ DEFINITION>
     :Context (DEFCLASS VECTOR2D NIL
                        ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
                         (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
-    :Type :FUNCTION
+    :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
@@ -114,7 +114,7 @@ DEFINITION>
     :Context (DEFCLASS VECTOR2D NIL
                        ((X :INITARG :X :INITFORM 0.0 :ACCESSOR V2D-X)
                         (Y :INITARG :Y :INITFORM 0.0 :ACCESSOR V2D-Y)))
-    :Type :FUNCTION
+    :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :NIL

@@ -268,10 +268,10 @@
                    (unless (skip-item-p current-form)  ; (skip-definition-form current-form))
                      (when (symbolp current-form)
                        (let* ((sym-pkg (symbol-package current-form))
-                              (sym-type (get-symbol-reference-type current-form))
+                              (sym-type (get-symbol-reference-type current-form context))
                               (key (make-tracking-key current-form sym-pkg sym-type)))
                          ;; If this is a GF call, save it for later analysis
-                         (when (and (eq sym-type :generic-function)
+                         (when (and (member sym-type '(:generic-function :method))
                                     (consp context)
                                     (eq (first context) current-form))
                            (setf gf-p t))  ;the context is a generic function call

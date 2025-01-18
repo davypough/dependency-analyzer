@@ -17,7 +17,7 @@
          val)
     ;; Otherwise, destructure the function call.
     (destructuring-bind (fn &rest args) call
-      (let ((vals (mapcar (lambda (_) (gensym "arg")) args))
+      (let ((vals (mapcar (lambda (_) (declare (ignore _)) (gensym "arg")) args))
             (the-value (gensym "the-value")))
         `(let* (,@(mapcar (lambda (tmp-var form)
                             `(,tmp-var ,form))
@@ -695,6 +695,53 @@
               (when (fboundp accessor-name)
                 (record-definition *current-tracker*
                                  :name accessor-name
+                                 :type :function   ; Structures use regular functions
+                                 :file (file parser)
+                                 :package pkg
+                                 :status (symbol-status accessor-name pkg)
+                                 :context current-form)))))
+        ;; CLOS class slots use MOP info
+        (progn 
+          (c2mop:finalize-inheritance class)
+          (dolist (slot (c2mop:class-direct-slots class))
+            ;; Record reader methods
+            (dolist (reader (c2mop:slot-definition-readers slot))
+              (when (fboundp reader)
+                (record-definition *current-tracker*
+                                 :name reader
+                                 :type :method    ; CLOS readers are methods
+                                 :file (file parser)
+                                 :package pkg
+                                 :status (symbol-status reader pkg)
+                                 :context current-form)))
+            ;; Record writer methods
+            (dolist (writer (c2mop:slot-definition-writers slot))
+              (when (fboundp writer)
+                (record-definition *current-tracker*
+                                 :name writer
+                                 :type :method    ; CLOS writers are methods
+                                 :file (file parser)
+                                 :package pkg
+                                 :status (symbol-status writer pkg)
+                                 :context current-form))))))))
+
+
+#+ignore (defun record-slot-accessors (parser name class current-form)
+  "Record all slot accessor definitions for a class/struct/condition"
+  (declare (special log-stream))
+  (let ((pkg (current-package parser)))
+    (if (typep class 'structure-class)
+        ;; Structure slots use naming pattern with conc-name
+        (let ((prefix (get-defstruct-conc-name name current-form)))
+          (dolist (slot (c2mop:class-slots class))
+            (let ((accessor-name 
+                   (intern (format nil "~A~A" 
+                                 prefix
+                                 (symbol-name (c2mop:slot-definition-name slot)))
+                           pkg)))
+              (when (fboundp accessor-name)
+                (record-definition *current-tracker*
+                                 :name accessor-name
                                  :type :function
                                  :file (file parser)
                                  :package pkg
@@ -863,21 +910,51 @@
                             :context context)))))))
 
 
-(defun get-symbol-reference-type (sym)
-  "Derive the reference type of a symbol based on its bindings."
+(defun get-symbol-reference-type (sym &optional context)
+  "Derive the reference type of a symbol based on its bindings and usage context.
+   When in a call context, checks for method dispatch before other bindings.
+   Returns one of: :method :generic-function :function :variable :macro 
+                  :structure/class/condition :deftype :symbol-macro"
   (cond 
-    ((boundp sym) :variable)
-    ((macro-function sym) :macro)
+    ;; When symbol appears in function call position
+    ((and context 
+          (consp context)
+          (eq (car context) sym)
+          (fboundp sym))
+     (let ((fn (fdefinition sym)))
+       (when (typep fn 'standard-generic-function)
+         (if (c2mop:generic-function-methods fn)
+           :method
+           :generic-function))))  ;not really possible, but included for completeness
+    
+    ;; Check variable binding first since functions can also be bound as values
+    ((boundp sym) 
+     :variable)
+    
+    ;; Check for macro before function since macros have function bindings
+    ((macro-function sym) 
+     :macro)
+    
+    ;; Generic functions and regular functions
     ((fboundp sym)
      (let ((fn (fdefinition sym)))
-       (cond 
-         ((typep fn 'standard-generic-function) :generic-function) 
-         (t :function))))
-    ((ignore-errors (find-class sym)) :STRUCTURE/CLASS/CONDITION)
+       (if (typep fn 'standard-generic-function)
+           :generic-function
+           :function)))
+    
+    ;; Classes and structures
+    ((ignore-errors (find-class sym))
+     :structure/class/condition)
+    
+    ;; Type declarations that aren't classes
     ((and (subtypep sym t)
           (not (ignore-errors (find-class sym)))
-          (not (cl-symbol-p sym))) :DEFTYPE)
-    ((nth-value 1 (macroexpand-1 sym)) :symbol-macro)))
+          (not (cl-symbol-p sym)))
+     :deftype)
+    
+    ;; Symbol macros last since they're least common
+    ((nth-value 1 (macroexpand-1 sym))
+     :symbol-macro)))
 
 
 (defun compatible-method-p (sym context top-level-form)

@@ -15,6 +15,52 @@ REFERENCE>
                         :File /src/defs.lisp
 
 REFERENCE>
+    :Name V2D-X
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+               (MAGNITUDE V)
+               (V2D-X V)
+               (V2D-Y V))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-X
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name V2D-Y
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
+               (MAGNITUDE V)
+               (V2D-X V)
+               (V2D-Y V))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-Y
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
     :Name MAGNITUDE
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
                (MAGNITUDE V)
@@ -23,7 +69,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {1104E83263}>)
+    :Arguments (#<VECTOR2D {1106132DB3}>)
     :Definitions
                     DEFINITION>
                         :Name MAGNITUDE
@@ -35,26 +81,4 @@ REFERENCE>
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                         :Specializers (VECTOR2D)
-
-REFERENCE>
-    :Name MAGNITUDE
-    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)))
-               (MAGNITUDE V)
-               (V2D-X V)
-               (V2D-Y V))
-    :Type :GENERIC-FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name MAGNITUDE
-                        :Context (DEFGENERIC MAGNITUDE
-                                     (VECTOR)
-                                   (:DOCUMENTATION
-                                    "Calculate vector magnitude"))
-                        :Type :GENERIC-FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
 
