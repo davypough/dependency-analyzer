@@ -11,7 +11,7 @@
 (defpackage #:dependency-analyzer
   (:use #:cl #:alexandria)
   (:nicknames #:dep)
-  (:export #:analyze
+  (:export #:analyze #:pushit
      ;; Development
      #:prt
      #:delete-fasl
@@ -31,9 +31,10 @@
 (defmacro prt (&rest forms)
   "Print the names & values of given forms (ie,variables or accessors).
    Can wrap around an expression, returning its value."
-  `(progn ,@(loop for form in forms
-              collect `(format t "~&  ~S => ~S~%" ',form ,form))
-          ,@(last `,forms)))
+  `(let ((*package* (find-package "DEP")))
+     (progn ,@(loop for form in forms
+                    collect `(format t "~&  ~S => ~S~%" ',form ,form))
+            ,@(last `,forms))))
 
 
 (defun flatten-directories (input-directories output-directory &optional (filespecs '("*.lisp")))

@@ -166,7 +166,11 @@
    (package-cycles
     :initform nil
     :accessor package-cycles
-    :documentation "List of detected package dependency cycles"))
+    :documentation "List of detected package dependency cycles")
+   (pushit-symbols
+    :initform nil
+    :accessor pushit-symbols
+    :documentation "List of detected referring symbols in a form analyzed by pushit-transform"))
   (:documentation "Tracker for analyzing a user's project files."))
 
 

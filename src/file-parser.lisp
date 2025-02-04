@@ -245,10 +245,9 @@
 (defun analyze-reference-form (parser top-level-form)
   "Analyze source top-level-forms, recording references to definitions in different files."
   (declare (special log-stream))
-  (let ((gf-top-level-form (copy-list top-level-form))  ;revised top-level-form if there are generic function calls
-        (gf-p nil))  ;is there a generic function call in the top-level-form
+  (let ((gf-top-level-form (copy-list top-level-form))  
+        (gf-p nil))  
     (labels ((handle-reference (current-form context parent-context)
-               ;(declare (ignorable context))
                (if (and (typep current-form '(or character package string symbol))
                         (find-package current-form))
                    ;; Process a package designator
@@ -265,30 +264,28 @@
                                        :context parent-context
                                        :definitions other-file-defs)))
                    ;; Process a symbol reference
-                   (unless (skip-item-p current-form)  ; (skip-definition-form current-form))
+                   (unless (skip-item-p current-form)
                      (when (symbolp current-form)
-                       (let* ((sym-pkg (symbol-package current-form))
-                              (sym-type (get-symbol-reference-type current-form context))
-                              (key (make-tracking-key current-form sym-pkg sym-type)))
-                         ;; If this is a GF call, save it for later analysis
-                         (when (and (member sym-type '(:generic-function :method))
-                                    (consp context)
-                                    (eq (first context) current-form))
-                           (setf gf-p t))  ;the context is a generic function call
-                         ;; Record the basic reference
-                         (let* ((defs (gethash key (slot-value *current-tracker* 'definitions)))
-                                (other-file-defs (remove-if (lambda (def)
-                                                           (equal (definition.file def) (file parser)))
-                                                         defs)))
-                           (when other-file-defs
-                             (record-reference *current-tracker*
-                                             :name current-form
-                                             :file (file parser)
-                                             :type sym-type
-                                             :package sym-pkg
-                                             :context parent-context
-                                             :visibility (get-visibility current-form (current-package parser))
-                                             :definitions other-file-defs)))))))))
+                       (let ((sym-type (get-symbol-reference-type current-form context)))
+                         ;; For potential generic function references in form, just set flag and continue
+                         (if (potential-gf-reference-p current-form context)
+                             (setf gf-p t)
+                             ;; For non-generic-functions, record reference
+                             (let* ((sym-pkg (symbol-package current-form))
+                                    (key (make-tracking-key current-form sym-pkg sym-type))
+                                    (defs (gethash key (slot-value *current-tracker* 'definitions)))
+                                    (other-file-defs (remove-if (lambda (def)
+                                                               (equal (definition.file def) (file parser)))
+                                                             defs)))
+                               (when other-file-defs
+                                 (record-reference *current-tracker*
+                                                 :name current-form
+                                                 :file (file parser)
+                                                 :type sym-type
+                                                 :package sym-pkg
+                                                 :context parent-context
+                                                 :visibility (get-visibility current-form (current-package parser))
+                                                 :definitions other-file-defs))))))))))
       ;; Walk the top-level-form first
       (walk-form top-level-form #'handle-reference)
       ;; Then analyze any method calls found
@@ -296,70 +293,34 @@
         (analyze-method-references parser gf-top-level-form)))))
 
 
-(defun analyze-method-references (parser gf-top-level-form)
-  "Analyze generic function calls to track method references."
-  (let* ((pushit-top-level-form (pushit-transform gf-top-level-form #'generic-function-p))
-         (pre-eval-form `(let (result) ,pushit-top-level-form result))
-         (method-calls (eval pre-eval-form)))
-    ;; Debug print
-    ;(let ((*package* (find-package :common-lisp-user)))
-    ;  (prt gf-top-level-form pushit-top-level-form pre-eval-form method-calls))
-    ;; Process each captured call
-    (dolist (call method-calls)
-      (when (and (consp call)          ; Must be a cons
-                 (symbolp (car call))   ; With symbol in car position
-                 (fboundp (car call))   ; That's bound
-                 (typep (fdefinition (car call)) 'standard-generic-function)) ; To a generic function
-        (let* ((name (car call))
-               (args (cdr call))
-               ;; Get generic function and applicable methods  
-               (methods (compute-applicable-methods (fdefinition name) args)))
-          ;; Record references to matching method definitions
-          (dolist (method methods)
-            (let ((specs (mapcar #'class-name 
-                                (closer-mop:method-specializers method)))
-                  (quals (method-qualifiers method)))
-              ;; Look up and record reference to this specific method
-              (let* ((key (make-tracking-key name 
-                                           (symbol-package name)
-                                           :method 
-                                           quals 
-                                           specs))
-                     (defs (gethash key (slot-value *current-tracker* 'definitions))))
-                (when defs
-                  (record-reference *current-tracker*
-                                  :name name
-                                  :type :method
-                                  :file (file parser)
-                                  :context gf-top-level-form
-                                  :package (symbol-package name)
-                                  :qualifiers quals
-                                  :arguments args
-                                  :definitions defs))))))))))      
-
-
-(defun generic-function-p (sym)
-  (and (symbolp sym)
-       (fboundp sym)
-       (typep (fdefinition sym) 'standard-generic-function)))
-
-
-(defun pushit-transform (form predicate)
-  "Walk FORM. If (car FORM) satisfies PREDICATE, wrap it in (PUSHIT form).
-   For compound forms like EXPT, preserve structure and recur into arguments."
-  (cond ((atom form)
-         form)
-        ;; If head is a method, wrap in pushit
-        ((funcall predicate (car form))
-         (list 'pushit 
-               (cons (car form)
-                     (mapcar (lambda (x) (pushit-transform x predicate))
-                            (cdr form)))))
-        ;; Otherwise preserve the form structure and recur
-        (t
-         (cons (car form)
-               (mapcar (lambda (x) (pushit-transform x predicate))
-                      (cdr form))))))
+(defun pushit-transform (form predicate result-sym)
+  "Recursively walk input CONTEXT-FORM.  
+  If (atom FORM) is recognized by PREDICATE, replace it with (PUSHIT 'atom RESULT).
+  If any element of FORM is a method call (recognized by PREDICATE),
+  replace the entire list with (PUSHIT form RESULT).
+  Otherwise preserve structure and recurse."
+  (cond
+    ((atom form)
+     (when (funcall predicate form)
+       (push form (pushit-symbols *current-tracker*)))
+     form)
+    ((and (consp form)
+          (not (member (first form) '(defgeneric defmethod)))
+          (or (funcall predicate (car form))  ; Function position
+              (some (lambda (arg)             ; Any argument position
+                     (or (funcall predicate arg)
+                         (and (consp arg)     ; Handle #'fn forms
+                              (member (car arg) '(quote function))
+                              (funcall predicate (cadr arg)))))
+                   (cdr form))))
+     (if (assoc (car form) +comparison-functions+)
+         `(pushit (,(car form) ,@(mapcar (lambda (x) `(eval ',x)) (cdr form))) ,result-sym)
+         `(pushit ,form ,result-sym)))
+    (t
+     (cons (pushit-transform (car form) predicate result-sym)
+           (mapcar (lambda (x)
+                    (pushit-transform x predicate result-sym))
+                  (cdr form))))))
 
 
 (defun detect-package-symbol-inconsistency (parser form previous)
@@ -434,3 +395,262 @@
                 References undefined package: ~A~2%~
                 Please ensure all package definitions compile and load successfully before analysis.~2%"
                (project-pathname (file parser)) form pkg-designator))))
+
+
+(defun function-designator-p (item)
+  (or (functionp item)
+      (and (symbolp item)
+           (fboundp item))
+      (and (listp item)
+           (case (first item)
+             (lambda t)
+             (function (function-designator-p (second item)))
+             (setf (and (= (length item) 2)
+                       (symbolp (second item))
+                       (fboundp `(setf ,(second item)))))))))
+
+
+(defun user-gf-designator-p (item)
+  (and (function-designator-p item)
+       (not (cl-symbol-p item))
+       (if (functionp item)
+           (typep item 'generic-function)
+           (typep (fdefinition (if (listp item)
+                                  (if (eq (first item) 'function)
+                                      (second item)
+                                      item)
+                                  item))
+                 'generic-function))))
+
+
+(defun slot-definition-gf-references (slot-def)
+  (and (listp slot-def)
+       (loop for (key value) on (rest slot-def) by #'cddr
+             when (member key '(:accessor :reader :writer))
+             collect value)))
+
+
+(defun function-arg-position-p (fn-name)
+  (member fn-name 
+          '(funcall apply mapcar mapc map maplist mapcan mapcon 
+            some every notany notevery find position count 
+            remove remove-if-not substitute substitute-if-not
+            delete delete-if-not)
+          :test #'eq))
+
+
+(defun potential-gf-reference-p (sym context)
+  "May include some symbols that masquerade as gf references--eg, bound var in let statement."
+  (and (ignore-errors (typep (fdefinition sym) 'generic-function))  ;sym must name a gf
+       (not (and (consp context)  ;exclude defgeneric and defmethod name position
+                 (member (first context) '(defgeneric defmethod))
+                 (eq sym (second context))))
+       (not (loop for (x y) on context  ;exclude slot method definitions for defclass & define-condition
+                  thereis (and (member x '(:reader :writer :accessor))
+                               (eq y sym))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defun record-method-reference (parser form gf-name args)
+  "Record reference from method call to its matching definition.
+   PARSER - File parser instance for current file context
+   FORM - Original source form containing the call 
+   GF-NAME - Generic function name being called
+   ARGS - List of argument values/mock instances to match"
+  (let* ((gf (fdefinition gf-name))    ;(generic-function-name gf))
+         (pkg (current-package parser)))
+
+    ;; First verify we have a valid generic function
+    (unless (typep gf 'generic-function)
+      (return-from record-method-reference nil))
+
+    ;; Record reference for each matching method
+    (dolist (method (compute-applicable-methods gf args))
+      (let* ((specs (mapcar #'class-name (closer-mop:method-specializers method)))
+             (quals (method-qualifiers method))
+             ;; Build lookup key to find method definition
+             (key (make-tracking-key gf-name
+                                   (symbol-package gf-name)
+                                   :method 
+                                   quals 
+                                   specs))
+             (defs (gethash key (slot-value *current-tracker* 'definitions))))
+
+        ;; Record reference with its matched definition
+        (when defs  ; Only record if we found matching definition
+          (record-reference *current-tracker*
+                          :name gf-name
+                          :type :method
+                          :file (file parser)
+                          :context form
+                          :package pkg
+                          :qualifiers quals
+                          :arguments args 
+                          :definitions defs))))))
+
+
+(defun create-mock-instance (specializer)
+  "Create a minimal instance sufficient for method dispatch.
+   SPECIALIZER - A type specifier from method parameter list.
+   Returns instance that satisfies typep for the specializer."
+  
+  (cond
+    ;; Handle EQL specializer: (eql value)
+    ((and (consp specializer)
+          (eq (car specializer) 'eql))
+     (cadr specializer))  ; Return the actual value
+    
+    ;; Handle built-in types with specific constructors
+    ((eq specializer 'string) "")
+    ((eq specializer 'number) 0)
+    ((eq specializer 'vector) (vector))
+    ((eq specializer 'array) (make-array 0))
+    ((eq specializer 'hash-table) (make-hash-table))
+    ((eq specializer 'package) (find-package :common-lisp))
+    ((eq specializer 'symbol) 'mock-symbol)
+    
+    ;; Handle CLOS classes through instantiation
+    (t
+     (let ((class (find-class specializer nil)))
+       (when class
+         ;; For known types, create minimal instance
+         (handler-case
+             ;; Try direct instantiation first
+             (make-instance specializer)
+           (error ()
+             ;; On failure, try allocate-instance
+             (allocate-instance class))))))))
+
+
+(defun process-lambda-list (lambda-list)
+  "Build mock instance bindings for specialized parameters.
+   Returns: list of bindings for let form"
+  (let ((bindings nil))
+    (loop for param in lambda-list
+          until (and (symbolp param)
+                    (member param lambda-list-keywords))
+          when (consp param)
+          do (let ((param-name (car param))
+                   (param-type (second param)))
+               (when param-type
+                 (let ((binding `(,param-name (create-mock-instance ',param-type))))
+                   (push binding bindings)))))
+    bindings))
+
+
+(defun extract-method-components (form)
+  "Extract components from a defmethod form.
+   Returns: (values name qualifiers lambda-list body)"
+  (let* ((rest (cddr form))
+         (qualifiers (loop while (and rest (keywordp (car rest)))
+                           collect (pop rest)))
+         (lambda-list (car rest))
+         (body (cdr rest)))
+    (values (second form) qualifiers lambda-list body)))
+
+
+(defun build-eval-context (form)
+  "Build let form to establish bindings for typed parameters in definition forms."
+  (let ((definition-p nil))
+    (if (consp form)
+        (case (car form)
+          ;; Method definition
+          ((defmethod)
+           (setf definition-p t)
+           (multiple-value-bind (name qualifiers lambda-list body)
+               (extract-method-components form)
+             (declare (ignore name qualifiers))
+             (let ((bindings (process-lambda-list lambda-list)))
+               (let ((result-form 
+                      (if bindings
+                          `(let ,(reverse bindings)
+                             ,@body)
+                          `(progn ,@body))))
+                 (values result-form definition-p)))))
+          
+          ;; Function definitions with type declarations
+          ((flet labels) 
+           (setf definition-p t)
+           (let* ((name (second form))
+                  (lambda-list (third form))
+                  (body (cdddr form))
+                  (declarations (when (and (consp (car body))
+                                         (eq (caar body) 'declare))
+                                (pop body)))
+                  (bindings nil))
+             ;; Process type declarations
+             (when declarations
+               (dolist (decl (cdr declarations))
+                 (when (eq (car decl) 'type)
+                   (push `(,(third decl) (create-mock-instance ',(second decl)))
+                         bindings))))
+             (values
+              (list* (car form) name lambda-list
+                     (append (when declarations (list declarations))
+                             (if bindings
+                                 `((let ,(reverse bindings)
+                                     ,@body))
+                                 body)))
+              definition-p)))
+          ;; No case matched - return original form
+          (otherwise (values form definition-p)))
+        ;; Not a cons - error
+        (error "Form ~A is not consp" form))))
+
+
+(defun extract-method-calls (transformed-form eval-context definition-p calls-sym)
+  "Extract actual method calls from a transformed form.
+   TRANSFORMED-FORM - Form with pushit wrapping GF calls
+   EVAL-CONTEXT - Either:
+     - Lambda form from method body transformation
+     - Let form binding mock instances
+     - Original form if no transformation needed
+   DEFINITION-P - T if analyzing a definition form
+   CALLS-SYM - Symbol to collect method calls into"
+  (let* ((inner-form
+          (if (and definition-p
+                   (consp eval-context)
+                   (eq (car eval-context) 'let))
+              `(let ,(second eval-context)
+                 ,transformed-form)
+              transformed-form))
+         
+         (wrapped-form
+          `(let ((,calls-sym nil))
+             ,inner-form
+             ,calls-sym)))
+    
+    ;; Evaluate with error handling
+    (let ((calls (handler-case (eval (prt wrapped-form))
+                   (error (c)
+                     (warn "Error evaluating method calls: ~A" c)
+                     '()))))
+      
+      ;; Filter for valid generic function calls
+      (remove-if-not 
+       (lambda (call)
+         (and (consp call)         
+              (symbolp (car call))  
+              (fboundp (car call))  
+              (typep (fdefinition (car call)) 
+                    'generic-function)))
+       calls))))
+
+
+(defun analyze-method-references (parser gf-top-level-form)
+  "Analyze generic function calls to track method references.
+   PARSER - File parser instance for current context
+   GF-TOP-LEVEL-FORM - The original source form to analyze"         (prt gf-top-level-form)
+  (multiple-value-bind (context-form definition-p)
+      (build-eval-context gf-top-level-form)                        (prt context-form)
+    
+    ;; Create one gensym to be used throughout
+    (let* ((calls-sym (gensym "CALLS"))
+           (pushit-form (pushit-transform context-form #'user-gf-designator-p calls-sym)))     (prt pushit-form)
+           
+      (let ((method-calls (extract-method-calls pushit-form context-form definition-p calls-sym)))        (prt method-calls)
+        (dolist (call method-calls)
+          (let ((gf-name (first call))
+                (args (rest call)))
+            (record-method-reference parser gf-top-level-form gf-name args)))))))

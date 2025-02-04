@@ -88,6 +88,7 @@ DEFINITION>
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
+    :Specializers (VECTOR2D)
 
 DEFINITION>
     :Name (SETF V2D-X)
@@ -98,6 +99,7 @@ DEFINITION>
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :NIL
+    :Specializers (VECTOR2D)
 
 DEFINITION>
     :Name V2D-Y
@@ -108,6 +110,7 @@ DEFINITION>
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
+    :Specializers (VECTOR2D)
 
 DEFINITION>
     :Name (SETF V2D-Y)
@@ -118,6 +121,7 @@ DEFINITION>
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :NIL
+    :Specializers (VECTOR2D)
 
 DEFINITION>
     :Name MAGNITUDE
@@ -128,16 +132,6 @@ DEFINITION>
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
-
-DEFINITION>
-    :Name MAGNITUDE
-    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
-               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
-    :Type :METHOD
-    :File /src/defs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Status :INTERNAL
-    :Specializers (VECTOR2D)
 
 DEFINITION>
     :Name *DEFAULT-CACHE*
@@ -190,4 +184,13 @@ DEFINITION>
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
+
+DEFINITION>
+    :Name GF
+    :Context (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+    :Specializers (NUMBER NUMBER)
 

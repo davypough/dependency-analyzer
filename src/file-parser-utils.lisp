@@ -7,29 +7,136 @@
 (in-package #:dep)
 
 
-(defmacro pushit (call)
-  "Push a list (FN EVAL-ARG1 EVAL-ARG2 ...) onto RESULT, and return the call’s value."
-  ;; Handle the case where CALL is just a symbol or atom (not a list).
-  (if (atom call)
-      ;; Example: (pushit x) => push (x VAL-OF-X).
-      `(let ((val ,call))
-         (push (list ',call val) result)
-         val)
-    ;; Otherwise, destructure the function call.
-    (destructuring-bind (fn &rest args) call
-      (let ((vals (mapcar (lambda (_) (declare (ignore _)) (gensym "arg")) args))
-            (the-value (gensym "the-value")))
-        `(let* (,@(mapcar (lambda (tmp-var form)
-                            `(,tmp-var ,form))
-                          vals args))
-           ;; Now call the function with the evaluated args.
-           (let ((,the-value (,fn ,@vals)))
-             ;; Push (FN EVAL-ARG1 EVAL-ARG2 ...) onto RESULT
-             ;; but store FN as a symbol.
-             (push (cons ',fn (mapcar #'identity (list ,@vals))) result)
-             ;; Return the actual value
-             ,the-value))))))
+(alexandria:define-constant +comparison-functions+ 
+  '((sort . 1)           ; predicate in position 1 (0-based)
+    (stable-sort . 1)    
+    (merge . 3))         ; predicate in position 3 for merge
+  :test #'equal
+  :documentation "Maps comparison functions to the position of their predicate argument")
 
+
+(alexandria:define-constant +mapping-functions+
+  '((map . 1)            ; function in position 1 after result-type
+    (mapcar . 0)         ; function in position 0
+    (mapcan . 0)
+    (mapc . 0)
+    (maplist . 0)
+    (mapcon . 0)
+    (some . 0)
+    (every . 0)
+    (notany . 0)
+    (notevery . 0))
+  :test #'equal
+  :documentation "Maps mapping functions to position of their function argument")
+
+
+(defmacro pushit (call result-sym)
+  "Push function calls onto RESULT-SYM while preserving the call's value.
+   For atomic forms, pushes (form value).
+   For direct function calls, pushes (fn arg1 arg2...).
+   For higher-order functions:
+   - Comparison functions (sort etc): Uses sequence element twice (fn elem elem)
+   - Mapping functions (mapcar etc): Uses first element from each sequence"
+  (if (atom call)
+      `(let ((val ,call))
+         (push (list ',call val) ,result-sym)
+         val)
+    (destructuring-bind (fn &rest args) call
+      (let ((fn-pos (or (cdr (assoc fn +comparison-functions+))
+                        (cdr (assoc fn +mapping-functions+)))))
+        (cond
+          ;; Direct funcall/apply - extract actual function and args
+          ((member fn '(funcall apply))
+           (let ((actual-fn (second call))
+                 (actual-args (cddr call))  
+                 (vals (mapcar (lambda (_) (declare (ignore _)) 
+                               (gensym "arg"))
+                             (cddr call)))
+                 (the-value (gensym "value")))
+             `(let* (,@(mapcar (lambda (tmp arg) 
+                                `(,tmp ,arg))
+                              vals actual-args))
+                (let ((,the-value (,fn ,actual-fn ,@vals)))
+                  (push (cons ',(if (and (consp actual-fn)
+                                       (eq (car actual-fn) 'function))
+                                  (cadr actual-fn) 
+                                  actual-fn)
+                            (mapcar #'identity (list ,@vals)))
+                        ,result-sym)
+                  ,the-value))))
+
+          ;; Comparison function (sort, stable-sort, merge)
+          ((assoc fn +comparison-functions+)
+           (let  ((pred-arg (nth fn-pos args))        ; Get predicate argument
+                  (vals (mapcar (lambda (_) 
+                                (declare (ignore _))
+                                (gensym "arg"))
+                              args))
+                  (the-value (gensym "value")))
+             `(let* (,@(mapcar (lambda (tmp arg)
+                                `(,tmp ,arg))
+                              vals args))
+                (let ((,the-value (,fn ,@vals)))
+                  (when (and (typep ,(nth (if (eq fn 'merge) 1 0) vals) 'sequence)
+                             (plusp (length ,(nth (if (eq fn 'merge) 1 0) vals))))
+                    (let ((elem (elt ,(nth (if (eq fn 'merge) 1 0) vals) 0)))
+                      (push (cons (if (and (consp ',pred-arg) 
+                                           (eq (car ',pred-arg) 'eval))
+                                    (if (and (consp (cadr ',pred-arg))
+                                             (eq (car (cadr ',pred-arg)) 'quote)
+                                             (consp (cadr (cadr ',pred-arg)))
+                                             (eq (car (cadr (cadr ',pred-arg))) 'function))
+                                      (cadr (cadr (cadr ',pred-arg)))  ; Extract GF from (EVAL '#'GF)
+                                      (cadr ',pred-arg))
+                                    ',pred-arg)
+                                  (list elem elem))
+                            ,result-sym)
+                      (print (list :debug-pushit 'comparison ,result-sym))))
+                  ,the-value))))
+
+          ;; Mapping function (mapcar etc)
+          ((assoc fn +mapping-functions+)
+           (let  ((fn-arg (nth fn-pos args))          ; Get function argument
+                  (vals (mapcar (lambda (_)
+                                (declare (ignore _))
+                                (gensym "arg"))
+                              args))
+                  (the-value (gensym "value")))
+             `(let* (,@(mapcar (lambda (tmp arg)
+                                `(,tmp ,arg))
+                              vals args))
+                (let ((,the-value (,fn ,@vals)))
+                  (when (every (lambda (seq)
+                               (and (typep seq 'sequence)
+                                    (plusp (length seq))))
+                             (list ,@(mapcar (lambda (v) v)
+                                           (nthcdr (1+ fn-pos) vals))))
+                    (push (cons ',(if (and (consp fn-arg)
+                                         (eq (car fn-arg) 'function))
+                                    (cadr fn-arg)
+                                    fn-arg)
+                              (mapcar (lambda (seq)
+                                      (elt seq 0))
+                                    (list ,@(mapcar (lambda (v) v)
+                                                  (nthcdr (1+ fn-pos) vals)))))
+                          ,result-sym))
+                  ,the-value))))
+
+          ;; Normal function call
+          (t
+           (let ((vals (mapcar (lambda (_)
+                                (declare (ignore _))
+                                (gensym "arg"))
+                              args))
+                 (the-value (gensym "value")))
+             `(let* (,@(mapcar (lambda (tmp arg)
+                                `(,tmp ,arg))
+                              vals args))
+                (let ((,the-value (,fn ,@vals)))
+                  (push (cons ',fn
+                            (mapcar #'identity (list ,@vals)))
+                        ,result-sym)
+                  ,the-value)))))))))
 
 
 (defun symbol-status (sym pkg)
@@ -122,18 +229,24 @@
 
 
 (defun record-reference (tracker &key name file type package context visibility definitions
-                                      qualifiers arguments)
+                                     qualifiers arguments)
   "Record a name reference in the tracker.
    VISIBILITY is inherited, imported, or local (defaults to local)
    DEFINITIONS is a non-empty list of definitions this reference depends on
    QUALIFIERS tracks method qualifiers in the call 
-   ARGUMENTS is alternating list of argument values and their types"
+   ARGUMENTS is a list of argument values"
   (declare (special log-stream))
-  (let ((key (make-tracking-key name (etypecase name
-                                        (string name) 
-                                        (symbol (when (symbol-package name)
-                                                  (package-name (symbol-package name)))))))
-        (ref (make-instance 'reference 
+  (let* ((pkg-name (etypecase name
+                     (string name) 
+                     (symbol (when (symbol-package name)
+                              (package-name (symbol-package name))))))
+         (specializers (when (and (eq type :method) 
+                                definitions)
+                        (definition.specializers (first definitions))))
+         (key (if (eq type :method)
+                 (make-tracking-key name pkg-name type qualifiers specializers)
+                 (make-tracking-key name pkg-name type)))
+         (ref (make-instance 'reference 
                           :name name 
                           :file file
                           :type type
@@ -144,7 +257,7 @@
                           :qualifiers qualifiers
                           :arguments arguments)))
    (pushnew ref (gethash key (slot-value tracker 'references))
-        :test #'equalp)
+            :test #'equalp)
    (format log-stream "~%~A~%" ref)
    ref))
 
@@ -230,11 +343,10 @@
 
 
 (defun quoted-symbol-p (item)
- "Return true if item is quoted with quote or function quote;
-  eg, 'var, (quote var), #'foo, (function foo)."
+ "Return true if item is quoted with quote (but not function quote);
+  eg, 'var, (quote var). Function quotes (#'foo, (function foo)) return nil."
  (and (consp item)
-      (or (eq (car item) 'quote)
-          (eq (car item) 'function))))
+      (eq (car item) 'quote)))
 
 
 (defun symbol-qualified-p (symbol parser)
@@ -713,7 +825,8 @@
                                  :file (file parser)
                                  :package pkg
                                  :status (symbol-status reader pkg)
-                                 :context current-form)))
+                                 :context current-form
+                                 :specializers (list name))))
             ;; Record writer methods
             (dolist (writer (c2mop:slot-definition-writers slot))
               (when (fboundp writer)
@@ -723,54 +836,8 @@
                                  :file (file parser)
                                  :package pkg
                                  :status (symbol-status writer pkg)
-                                 :context current-form))))))))
-
-
-#+ignore (defun record-slot-accessors (parser name class current-form)
-  "Record all slot accessor definitions for a class/struct/condition"
-  (declare (special log-stream))
-  (let ((pkg (current-package parser)))
-    (if (typep class 'structure-class)
-        ;; Structure slots use naming pattern with conc-name
-        (let ((prefix (get-defstruct-conc-name name current-form)))
-          (dolist (slot (c2mop:class-slots class))
-            (let ((accessor-name 
-                   (intern (format nil "~A~A" 
-                                 prefix
-                                 (symbol-name (c2mop:slot-definition-name slot)))
-                           pkg)))
-              (when (fboundp accessor-name)
-                (record-definition *current-tracker*
-                                 :name accessor-name
-                                 :type :function
-                                 :file (file parser)
-                                 :package pkg
-                                 :status (symbol-status accessor-name pkg)
-                                 :context current-form)))))
-        ;; CLOS class slots use MOP info
-        (progn 
-          (c2mop:finalize-inheritance class)
-          (dolist (slot (c2mop:class-direct-slots class))
-            ;; Record reader methods
-            (dolist (reader (c2mop:slot-definition-readers slot))
-              (when (fboundp reader)
-                (record-definition *current-tracker*
-                                 :name reader
-                                 :type :function
-                                 :file (file parser)
-                                 :package pkg
-                                 :status (symbol-status reader pkg)
-                                 :context current-form)))
-            ;; Record writer methods
-            (dolist (writer (c2mop:slot-definition-writers slot))
-              (when (fboundp writer)  ; Changed: Don't wrap in SETF
-                (record-definition *current-tracker*
-                                 :name writer
-                                 :type :function
-                                 :file (file parser)
-                                 :package pkg
-                                 :status (symbol-status writer pkg)
-                                 :context current-form))))))))
+                                 :context current-form
+                                 :specializers (list name)))))))))
 
 
 (defun record-defstruct-functions (parser name class current-form)
@@ -911,10 +978,7 @@
 
 
 (defun get-symbol-reference-type (sym &optional context)
-  "Derive the reference type of a symbol based on its bindings and usage context.
-   When in a call context, checks for method dispatch before other bindings.
-   Returns one of: :method :generic-function :function :variable :macro 
-                  :structure/class/condition :deftype :symbol-macro"
+  "Derive the reference type of a symbol based on its bindings and usage context."
   (cond 
     ;; When symbol appears in function call position
     ((and context 
@@ -923,9 +987,20 @@
           (fboundp sym))
      (let ((fn (fdefinition sym)))
        (when (typep fn 'standard-generic-function)
-         (if (c2mop:generic-function-methods fn)
-           :method
-           :generic-function))))  ;not really possible, but included for completeness
+         :generic-function)))
+
+    ;; When symbol is used in funcall/apply
+    ((and context
+          (consp context)
+          (member (car context) '(funcall apply))
+          (consp (second context))
+          (member (car (second context)) '(quote function))
+          (eq (cadr (second context)) sym)
+          (fboundp sym))
+     (let ((fn (fdefinition sym)))
+       (if (typep fn 'standard-generic-function)
+           :generic-function
+           :function)))
     
     ;; Check variable binding first since functions can also be bound as values
     ((boundp sym) 
@@ -1016,3 +1091,10 @@ DO-SYMBOLS iterates over all symbols accessible from PKG, including inherited on
 (defun symbol-exported-p (sym pkg)
   "Return T if SYM is exported from PKG; otherwise NIL."
   (eq (nth-value 1 (find-symbol (symbol-name sym) pkg)) :external))
+
+
+(defun extract-function-name (form)
+  "Extract function name from quoted function forms like #'name or (function name)"
+  (when (and (consp form)
+             (member (car form) '(quote function)))
+    (cadr form)))
