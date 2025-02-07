@@ -707,25 +707,67 @@ WALK(ING):
 
 -------------------------------
 WALK(ING):
-  Expression: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
-  Context: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Expression: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+  Context: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
 WALK(ING):
   Expression: DEFMETHOD
-  Context: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Context: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
 WALK(ING):
-  Expression: GF
-  Context: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Expression: GF1
+  Context: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+WALK(ING):
+  Expression: ((X CONS))
+  Context: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+WALK(ING):
+  Expression: (X CONS)
+  Context: ((X CONS))
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+WALK(ING):
+  Expression: X
+  Context: (X CONS)
+  Parent: ((X CONS))
+WALK(ING):
+  Expression: CONS
+  Context: (X CONS)
+  Parent: ((X CONS))
+WALK(ING):
+  Expression: (FIRST X)
+  Context: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+WALK(ING):
+  Expression: FIRST
+  Context: (FIRST X)
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+WALK(ING):
+  Expression: X
+  Context: (FIRST X)
+  Parent: (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+
+-------------------------------
+WALK(ING):
+  Expression: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+  Context: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+WALK(ING):
+  Expression: DEFMETHOD
+  Context: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+WALK(ING):
+  Expression: GF2
+  Context: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 WALK(ING):
   Expression: ((X NUMBER) (Y NUMBER))
-  Context: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Context: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 WALK(ING):
   Expression: (X NUMBER)
   Context: ((X NUMBER) (Y NUMBER))
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 WALK(ING):
   Expression: X
   Context: (X NUMBER)
@@ -737,7 +779,7 @@ WALK(ING):
 WALK(ING):
   Expression: (Y NUMBER)
   Context: ((X NUMBER) (Y NUMBER))
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 WALK(ING):
   Expression: Y
   Context: (Y NUMBER)
@@ -748,20 +790,20 @@ WALK(ING):
   Parent: ((X NUMBER) (Y NUMBER))
 WALK(ING):
   Expression: (< X Y)
-  Context: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Context: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 WALK(ING):
   Expression: <
   Context: (< X Y)
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 WALK(ING):
   Expression: X
   Context: (< X Y)
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 WALK(ING):
   Expression: Y
   Context: (< X Y)
-  Parent: (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+  Parent: (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
 
 
 Reference Analysis Trace for d:/quicklisp/local-projects/test-project/src/refs.lisp
@@ -796,73 +838,277 @@ REFERENCE>
 
 -------------------------------
 WALK(ING):
+  Expression: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+                (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+WALK(ING):
+  Expression: DEFMETHOD
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+WALK(ING):
+  Expression: MAGNITUDE
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+
+REFERENCE>
+    :Name MAGNITUDE
+    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+    :Type :GENERIC-FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name MAGNITUDE
+                        :Context (DEFGENERIC MAGNITUDE
+                                     (VECTOR)
+                                   (:DOCUMENTATION
+                                    "Calculate vector magnitude"))
+                        :Type :GENERIC-FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: ((V VECTOR2D))
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+WALK(ING):
+  Expression: (V VECTOR2D)
+  Context: ((V VECTOR2D))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+WALK(ING):
+  Expression: V
+  Context: (V VECTOR2D)
+  Parent: ((V VECTOR2D))
+WALK(ING):
+  Expression: VECTOR2D
+  Context: (V VECTOR2D)
+  Parent: ((V VECTOR2D))
+
+REFERENCE>
+    :Name VECTOR2D
+    :Context ((V VECTOR2D))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name VECTOR2D
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :STRUCTURE/CLASS/CONDITION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+  Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+WALK(ING):
+  Expression: SQRT
+  Context: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+WALK(ING):
+  Expression: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Context: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+  Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+            (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+WALK(ING):
+  Expression: +
+  Context: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Parent: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+WALK(ING):
+  Expression: (EXPT (V2D-X V) 2)
+  Context: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Parent: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+WALK(ING):
+  Expression: EXPT
+  Context: (EXPT (V2D-X V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: (V2D-X V)
+  Context: (EXPT (V2D-X V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: V2D-X
+  Context: (V2D-X V)
+  Parent: (EXPT (V2D-X V) 2)
+WALK(ING):
+  Expression: V
+  Context: (V2D-X V)
+  Parent: (EXPT (V2D-X V) 2)
+WALK(ING):
+  Expression: 2
+  Context: (EXPT (V2D-X V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: (EXPT (V2D-Y V) 2)
+  Context: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+  Parent: (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2)))
+WALK(ING):
+  Expression: EXPT
+  Context: (EXPT (V2D-Y V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: (V2D-Y V)
+  Context: (EXPT (V2D-Y V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+WALK(ING):
+  Expression: V2D-Y
+  Context: (V2D-Y V)
+  Parent: (EXPT (V2D-Y V) 2)
+WALK(ING):
+  Expression: V
+  Context: (V2D-Y V)
+  Parent: (EXPT (V2D-Y V) 2)
+WALK(ING):
+  Expression: 2
+  Context: (EXPT (V2D-Y V) 2)
+  Parent: (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))
+
+REFERENCE>
+    :Name V2D-Y
+    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {110254F133}>)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-Y
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (VECTOR2D)
+
+
+REFERENCE>
+    :Name V2D-X
+    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {110254F133}>)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-X
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (VECTOR2D)
+
+
+-------------------------------
+WALK(ING):
   Expression: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                    (RESULT (SORT (LIST 1 3 2) #'GF)))
+                    (RESULT (SORT (LIST 1 3 2) #'GF2)))
                 RESULT
                 (V2D-X V)
+                (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
                 (FUNCALL #'V2D-X V)
-                (MAPCAR #'V2D-X (LIST V)))
+                (MAPCAR #'V2D-Y (LIST V)))
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                 (RESULT (SORT (LIST 1 3 2) #'GF)))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
              (FUNCALL #'V2D-X V)
-             (MAPCAR #'V2D-X (LIST V)))
+             (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: LET
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                 (RESULT (SORT (LIST 1 3 2) #'GF)))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
              (FUNCALL #'V2D-X V)
-             (MAPCAR #'V2D-X (LIST V)))
+             (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-               (RESULT (SORT (LIST 1 3 2) #'GF)))
+               (RESULT (SORT (LIST 1 3 2) #'GF2)))
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                 (RESULT (SORT (LIST 1 3 2) #'GF)))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
              (FUNCALL #'V2D-X V)
-             (MAPCAR #'V2D-X (LIST V)))
+             (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
   Context: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-            (RESULT (SORT (LIST 1 3 2) #'GF)))
+            (RESULT (SORT (LIST 1 3 2) #'GF2)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: V
   Context: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
   Parent: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-           (RESULT (SORT (LIST 1 3 2) #'GF)))
+           (RESULT (SORT (LIST 1 3 2) #'GF2)))
 WALK(ING):
   Expression: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
   Context: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
   Parent: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-           (RESULT (SORT (LIST 1 3 2) #'GF)))
+           (RESULT (SORT (LIST 1 3 2) #'GF2)))
 WALK(ING):
   Expression: MAKE-INSTANCE
   Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
@@ -888,139 +1134,224 @@ WALK(ING):
   Context: (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0)
   Parent: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
 WALK(ING):
-  Expression: (RESULT (SORT (LIST 1 3 2) #'GF))
+  Expression: (RESULT (SORT (LIST 1 3 2) #'GF2))
   Context: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-            (RESULT (SORT (LIST 1 3 2) #'GF)))
+            (RESULT (SORT (LIST 1 3 2) #'GF2)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: RESULT
-  Context: (RESULT (SORT (LIST 1 3 2) #'GF))
+  Context: (RESULT (SORT (LIST 1 3 2) #'GF2))
   Parent: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-           (RESULT (SORT (LIST 1 3 2) #'GF)))
+           (RESULT (SORT (LIST 1 3 2) #'GF2)))
 WALK(ING):
-  Expression: (SORT (LIST 1 3 2) #'GF)
-  Context: (RESULT (SORT (LIST 1 3 2) #'GF))
+  Expression: (SORT (LIST 1 3 2) #'GF2)
+  Context: (RESULT (SORT (LIST 1 3 2) #'GF2))
   Parent: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-           (RESULT (SORT (LIST 1 3 2) #'GF)))
+           (RESULT (SORT (LIST 1 3 2) #'GF2)))
 WALK(ING):
   Expression: SORT
-  Context: (SORT (LIST 1 3 2) #'GF)
-  Parent: (RESULT (SORT (LIST 1 3 2) #'GF))
+  Context: (SORT (LIST 1 3 2) #'GF2)
+  Parent: (RESULT (SORT (LIST 1 3 2) #'GF2))
 WALK(ING):
   Expression: (LIST 1 3 2)
-  Context: (SORT (LIST 1 3 2) #'GF)
-  Parent: (RESULT (SORT (LIST 1 3 2) #'GF))
+  Context: (SORT (LIST 1 3 2) #'GF2)
+  Parent: (RESULT (SORT (LIST 1 3 2) #'GF2))
 WALK(ING):
   Expression: LIST
   Context: (LIST 1 3 2)
-  Parent: (SORT (LIST 1 3 2) #'GF)
+  Parent: (SORT (LIST 1 3 2) #'GF2)
 WALK(ING):
   Expression: 1
   Context: (LIST 1 3 2)
-  Parent: (SORT (LIST 1 3 2) #'GF)
+  Parent: (SORT (LIST 1 3 2) #'GF2)
 WALK(ING):
   Expression: 3
   Context: (LIST 1 3 2)
-  Parent: (SORT (LIST 1 3 2) #'GF)
+  Parent: (SORT (LIST 1 3 2) #'GF2)
 WALK(ING):
   Expression: 2
   Context: (LIST 1 3 2)
-  Parent: (SORT (LIST 1 3 2) #'GF)
+  Parent: (SORT (LIST 1 3 2) #'GF2)
 WALK(ING):
-  Expression: #'GF
-  Context: (SORT (LIST 1 3 2) #'GF)
-  Parent: (RESULT (SORT (LIST 1 3 2) #'GF))
+  Expression: #'GF2
+  Context: (SORT (LIST 1 3 2) #'GF2)
+  Parent: (RESULT (SORT (LIST 1 3 2) #'GF2))
 WALK(ING):
   Expression: FUNCTION
-  Context: #'GF
-  Parent: (SORT (LIST 1 3 2) #'GF)
+  Context: #'GF2
+  Parent: (SORT (LIST 1 3 2) #'GF2)
 WALK(ING):
-  Expression: GF
-  Context: #'GF
-  Parent: (SORT (LIST 1 3 2) #'GF)
+  Expression: GF2
+  Context: #'GF2
+  Parent: (SORT (LIST 1 3 2) #'GF2)
 WALK(ING):
   Expression: RESULT
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                 (RESULT (SORT (LIST 1 3 2) #'GF)))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
              (FUNCALL #'V2D-X V)
-             (MAPCAR #'V2D-X (LIST V)))
+             (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: (V2D-X V)
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                 (RESULT (SORT (LIST 1 3 2) #'GF)))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
              (FUNCALL #'V2D-X V)
-             (MAPCAR #'V2D-X (LIST V)))
+             (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: V2D-X
   Context: (V2D-X V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: V
   Context: (V2D-X V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
+             RESULT
+             (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+             (FUNCALL #'V2D-X V)
+             (MAPCAR #'V2D-Y (LIST V)))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-X V)
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: REMOVE
+  Context: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-X V)
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: 'B
+  Context: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-X V)
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: '((A) (B) (C))
+  Context: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-X V)
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: :KEY
+  Context: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-X V)
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: #'GF1
+  Context: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-X V)
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: FUNCTION
+  Context: #'GF1
+  Parent: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+WALK(ING):
+  Expression: GF1
+  Context: #'GF1
+  Parent: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
 WALK(ING):
   Expression: (FUNCALL #'V2D-X V)
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                 (RESULT (SORT (LIST 1 3 2) #'GF)))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
              (FUNCALL #'V2D-X V)
-             (MAPCAR #'V2D-X (LIST V)))
+             (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: FUNCALL
   Context: (FUNCALL #'V2D-X V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: #'V2D-X
   Context: (FUNCALL #'V2D-X V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: FUNCTION
   Context: #'V2D-X
@@ -1033,81 +1364,116 @@ WALK(ING):
   Expression: V
   Context: (FUNCALL #'V2D-X V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
-  Expression: (MAPCAR #'V2D-X (LIST V))
+  Expression: (MAPCAR #'V2D-Y (LIST V))
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                 (RESULT (SORT (LIST 1 3 2) #'GF)))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
              (FUNCALL #'V2D-X V)
-             (MAPCAR #'V2D-X (LIST V)))
+             (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: MAPCAR
-  Context: (MAPCAR #'V2D-X (LIST V))
+  Context: (MAPCAR #'V2D-Y (LIST V))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
-  Expression: #'V2D-X
-  Context: (MAPCAR #'V2D-X (LIST V))
+  Expression: #'V2D-Y
+  Context: (MAPCAR #'V2D-Y (LIST V))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: FUNCTION
-  Context: #'V2D-X
-  Parent: (MAPCAR #'V2D-X (LIST V))
+  Context: #'V2D-Y
+  Parent: (MAPCAR #'V2D-Y (LIST V))
 WALK(ING):
-  Expression: V2D-X
-  Context: #'V2D-X
-  Parent: (MAPCAR #'V2D-X (LIST V))
+  Expression: V2D-Y
+  Context: #'V2D-Y
+  Parent: (MAPCAR #'V2D-Y (LIST V))
 WALK(ING):
   Expression: (LIST V)
-  Context: (MAPCAR #'V2D-X (LIST V))
+  Context: (MAPCAR #'V2D-Y (LIST V))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                (RESULT (SORT (LIST 1 3 2) #'GF)))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
             (FUNCALL #'V2D-X V)
-            (MAPCAR #'V2D-X (LIST V)))
+            (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: LIST
   Context: (LIST V)
-  Parent: (MAPCAR #'V2D-X (LIST V))
+  Parent: (MAPCAR #'V2D-Y (LIST V))
 WALK(ING):
   Expression: V
   Context: (LIST V)
-  Parent: (MAPCAR #'V2D-X (LIST V))
+  Parent: (MAPCAR #'V2D-Y (LIST V))
+
+REFERENCE>
+    :Name V2D-Y
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
+               RESULT
+               (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+               (FUNCALL #'V2D-X V)
+               (MAPCAR #'V2D-Y (LIST V)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {1102866913}>)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-Y
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (VECTOR2D)
+
 
 REFERENCE>
     :Name V2D-X
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
                RESULT
                (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
                (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
+               (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {11020EB2D3}>)
+    :Arguments (#<VECTOR2D {1102866913}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-X
@@ -1124,17 +1490,42 @@ REFERENCE>
 
 
 REFERENCE>
-    :Name V2D-X
+    :Name GF1
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
                RESULT
                (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
                (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
+               (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {11020EB2D3}>)
+    :Arguments ('(A))
+    :Definitions
+                    DEFINITION>
+                        :Name GF1
+                        :Context (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (CONS)
+
+
+REFERENCE>
+    :Name V2D-X
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
+               RESULT
+               (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+               (FUNCALL #'V2D-X V)
+               (MAPCAR #'V2D-Y (LIST V)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {1102866913}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-X
@@ -1151,48 +1542,22 @@ REFERENCE>
 
 
 REFERENCE>
-    :Name V2D-X
+    :Name GF2
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
                RESULT
                (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
                (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {11020EB2D3}>)
-    :Definitions
-                    DEFINITION>
-                        :Name V2D-X
-                        :Context (DEFCLASS VECTOR2D NIL
-                                           ((X :INITARG :X :INITFORM 0.0
-                                             :ACCESSOR V2D-X)
-                                            (Y :INITARG :Y :INITFORM 0.0
-                                             :ACCESSOR V2D-Y)))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-                        :Specializers (VECTOR2D)
-
-
-REFERENCE>
-    :Name GF
-    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
-               RESULT
-               (V2D-X V)
-               (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
+               (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Arguments (1 1)
     :Definitions
                     DEFINITION>
-                        :Name GF
-                        :Context (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+                        :Name GF2
+                        :Context (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
                         :Type :METHOD
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">

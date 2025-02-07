@@ -15,17 +15,107 @@ REFERENCE>
                         :File /src/defs.lisp
 
 REFERENCE>
-    :Name V2D-X
+    :Name MAGNITUDE
+    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+    :Type :GENERIC-FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name MAGNITUDE
+                        :Context (DEFGENERIC MAGNITUDE
+                                     (VECTOR)
+                                   (:DOCUMENTATION
+                                    "Calculate vector magnitude"))
+                        :Type :GENERIC-FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name VECTOR2D
+    :Context ((V VECTOR2D))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name VECTOR2D
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :STRUCTURE/CLASS/CONDITION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name V2D-Y
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
                RESULT
                (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
                (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
+               (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {11020EB2D3}>)
+    :Arguments (#<VECTOR2D {1102866913}>)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-Y
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (VECTOR2D)
+
+REFERENCE>
+    :Name V2D-Y
+    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {110254F133}>)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-Y
+                        :Context (DEFCLASS VECTOR2D NIL
+                                           ((X :INITARG :X :INITFORM 0.0
+                                             :ACCESSOR V2D-X)
+                                            (Y :INITARG :Y :INITFORM 0.0
+                                             :ACCESSOR V2D-Y)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (VECTOR2D)
+
+REFERENCE>
+    :Name V2D-X
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
+               RESULT
+               (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+               (FUNCALL #'V2D-X V)
+               (MAPCAR #'V2D-Y (LIST V)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {1102866913}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-X
@@ -43,15 +133,16 @@ REFERENCE>
 REFERENCE>
     :Name V2D-X
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
                RESULT
                (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
                (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
+               (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {11020EB2D3}>)
+    :Arguments (#<VECTOR2D {1102866913}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-X
@@ -68,16 +159,12 @@ REFERENCE>
 
 REFERENCE>
     :Name V2D-X
-    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
-               RESULT
-               (V2D-X V)
-               (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
+    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {11020EB2D3}>)
+    :Arguments (#<VECTOR2D {110254F133}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-X
@@ -93,21 +180,45 @@ REFERENCE>
                         :Specializers (VECTOR2D)
 
 REFERENCE>
-    :Name GF
+    :Name GF1
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
-                   (RESULT (SORT (LIST 1 3 2) #'GF)))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
                RESULT
                (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
                (FUNCALL #'V2D-X V)
-               (MAPCAR #'V2D-X (LIST V)))
+               (MAPCAR #'V2D-Y (LIST V)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments ('(A))
+    :Definitions
+                    DEFINITION>
+                        :Name GF1
+                        :Context (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (CONS)
+
+REFERENCE>
+    :Name GF2
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
+               RESULT
+               (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+               (FUNCALL #'V2D-X V)
+               (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Arguments (1 1)
     :Definitions
                     DEFINITION>
-                        :Name GF
-                        :Context (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+                        :Name GF2
+                        :Context (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
                         :Type :METHOD
                         :File /src/defs.lisp
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">

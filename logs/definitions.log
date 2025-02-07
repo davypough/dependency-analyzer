@@ -186,11 +186,30 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name GF
-    :Context (DEFMETHOD GF ((X NUMBER) (Y NUMBER)) (< X Y))
+    :Name GF1
+    :Context (DEFMETHOD GF1 ((X CONS)) (FIRST X))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+    :Specializers (CONS)
+
+DEFINITION>
+    :Name GF2
+    :Context (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
     :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
     :Status :INTERNAL
     :Specializers (NUMBER NUMBER)
+
+DEFINITION>
+    :Name MAGNITUDE
+    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
+               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Status :INTERNAL
+    :Specializers (VECTOR2D)
 

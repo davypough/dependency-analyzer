@@ -449,25 +449,19 @@
                   thereis (and (member x '(:reader :writer :accessor))
                                (eq y sym))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-(defun record-method-reference (parser form gf-name args)
+(defun record-method-reference (parser form gf args)
   "Record reference from method call to its matching definition.
    PARSER - File parser instance for current file context
    FORM - Original source form containing the call 
-   GF-NAME - Generic function name being called
+   GF - Generic function being called
    ARGS - List of argument values/mock instances to match"
-  (let* ((gf (fdefinition gf-name))    ;(generic-function-name gf))
-         (pkg (current-package parser)))
-
-    ;; First verify we have a valid generic function
-    (unless (typep gf 'generic-function)
-      (return-from record-method-reference nil))
+  (let ((gf-name (c2mop:generic-function-name gf))
+        (pkg (current-package parser)))
 
     ;; Record reference for each matching method
     (dolist (method (compute-applicable-methods gf args))
-      (let* ((specs (mapcar #'class-name (closer-mop:method-specializers method)))
+      (let* ((specs (mapcar #'class-name (c2mop:method-specializers method)))
              (quals (method-qualifiers method))
              ;; Build lookup key to find method definition
              (key (make-tracking-key gf-name
@@ -617,40 +611,26 @@
               transformed-form))
          
          (wrapped-form
-          `(let ((,calls-sym nil))
+          `(let ((,calls-sym nil))      
              ,inner-form
              ,calls-sym)))
     
-    ;; Evaluate with error handling
-    (let ((calls (handler-case (eval (prt wrapped-form))
-                   (error (c)
-                     (warn "Error evaluating method calls: ~A" c)
-                     '()))))
-      
-      ;; Filter for valid generic function calls
-      (remove-if-not 
-       (lambda (call)
-         (and (consp call)         
-              (symbolp (car call))  
-              (fboundp (car call))  
-              (typep (fdefinition (car call)) 
-                    'generic-function)))
-       calls))))
+    (handler-case (eval wrapped-form)
+      (error (c)
+        (warn "Error evaluating method calls: ~A" c)
+        '()))))
 
 
-(defun analyze-method-references (parser gf-top-level-form)
-  "Analyze generic function calls to track method references.
-   PARSER - File parser instance for current context
-   GF-TOP-LEVEL-FORM - The original source form to analyze"         (prt gf-top-level-form)
+(defun analyze-method-references (parser gf-top-level-form) 
+  "Analyze generic function calls to track method references."         (prt gf-top-level-form)
   (multiple-value-bind (context-form definition-p)
       (build-eval-context gf-top-level-form)                        (prt context-form)
-    
-    ;; Create one gensym to be used throughout
+
     (let* ((calls-sym (gensym "CALLS"))
-           (pushit-form (pushit-transform context-form #'user-gf-designator-p calls-sym)))     (prt pushit-form)
-           
-      (let ((method-calls (extract-method-calls pushit-form context-form definition-p calls-sym)))        (prt method-calls)
-        (dolist (call method-calls)
-          (let ((gf-name (first call))
-                (args (rest call)))
-            (record-method-reference parser gf-top-level-form gf-name args)))))))
+           (pushit-form (pushit-transform context-form #'user-gf-designator-p calls-sym))
+           (method-calls (extract-method-calls pushit-form context-form definition-p calls-sym)))     (prt pushit-form method-calls)
+      
+      (dolist (call method-calls)
+        (let ((gf (first call))
+              (args (rest call)))
+          (record-method-reference parser gf-top-level-form gf args))))))
