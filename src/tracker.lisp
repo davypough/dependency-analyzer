@@ -208,7 +208,7 @@
           (project-packages '()))
       (let ((new-packages (set-difference after before :test #'eq)))
         ;; Store just the new packages
-        (setf (project-owned-packages *current-tracker*) new-packages)
+        (setf (slot-value *current-tracker* 'project-owned-packages) new-packages)
         ;; For each newly introduced package, gather its full dependency closure.
         (dolist (pkg new-packages)
           (setq project-packages

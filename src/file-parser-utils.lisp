@@ -4,7 +4,16 @@
 ;;; Contains pure functions for name normalization, symbol lookup,
 ;;; package option processing, and dependency cycle detection.
 
+
 (in-package #:dep)
+
+
+(alexandria:define-constant +def*-forms+
+  '(defun defvar defparameter defconstant defclass defstruct defmethod defgeneric 
+    define-condition defmacro define-method-combination define-modify-macro
+    define-compiler-macro define-symbol-macro defsetf define-setf-expander deftype)
+  :test #'equal
+  :documentation "All the def* forms allowed in common lisp")
 
 
 (alexandria:define-constant +comparison-functions+ 
@@ -48,29 +57,29 @@
   :test #'equal)
 
 
-(defmacro pushit (call result-sym)
-  "Push function calls onto RESULT-SYM while preserving the call's value.
+(defmacro pushit (ref result-sym)
+  "Push function refs onto RESULT-SYM while preserving the ref's value.
    For atomic forms, pushes (form value).
-   For direct function calls, pushes (fn arg1 arg2...).
+   For direct function refs, pushes (fn arg1 arg2...).
    For higher-order functions:
    - Comparison functions (sort etc): Uses sequence element twice (fn elem elem)  
    - Mapping functions (mapcar etc): Uses first element from each sequence
    - Sequence/list functions with :key/:test/:test-not: Uses appropriate elements"
-  (if (atom call)
-      `(let ((val ,call))
-         (push (list ',call val) ,result-sym)
+  (if (atom ref)
+      `(let ((val ,ref))
+         (push (list ',ref val) ,result-sym)
          val)
-    (destructuring-bind (fn &rest args) call
+    (destructuring-bind (fn &rest args) ref
       (let ((fn-pos (or (cdr (assoc fn +comparison-functions+))
                         (cdr (assoc fn +mapping-functions+)))))
         (cond
           ;; Direct funcall/apply - extract actual function and args
           ((member fn '(funcall apply))
-           (let ((actual-fn (second call))
-                 (actual-args (cddr call))  
+           (let ((actual-fn (second ref))
+                 (actual-args (cddr ref))  
                  (vals (mapcar (lambda (_) (declare (ignore _))
                                  (gensym "arg"))
-                               (cddr call)))
+                               (cddr ref)))
                  (the-value (gensym "value")))
              `(let* (,@(mapcar (lambda (tmp arg) 
                                 `(,tmp ,arg))
@@ -82,7 +91,9 @@
                                      ((symbolp actual-fn)
                                       `(fdefinition ',actual-fn))
                                      (t actual-fn))
-                              (mapcar #'identity (list ,@vals)))
+                              (if (eq ',fn 'apply)
+                                ,(car (last actual-args))  ; Just use apply's list arg directly
+                                (mapcar #'identity (list ,@vals))))  ; Keep funcall args as-is
                         ,result-sym)
                   ,the-value))))
 
@@ -146,36 +157,36 @@
                   ,the-value))))
 
           ;; Sequence/List functions with keyword function args
-((assoc fn +sequence-functions+)
- (let* ((seq-pos (cdr (assoc fn +sequence-functions+)))
-        (vals (mapcar (lambda (_) (declare (ignore _)) 
-                       (gensym "arg"))
-                     args))
-        (the-value (gensym "value")))
-   `(let* (,@(mapcar (lambda (tmp arg) 
-                       `(,tmp ,arg))
-                     vals args))
-      (let ((,the-value (,fn ,@vals)))
-        (when-let ((seq ,(nth seq-pos vals)))
-          (when (and (typep seq 'sequence)
-                    (plusp (length seq)))
-            (let ((elem `',(elt seq 0)))
-              (let ((required-args ,(1+ seq-pos)))
-                (do* ((orig-args (nthcdr required-args (list ,@args)))
-                      (remaining-args orig-args (cddr remaining-args))
-                      (keyword (car remaining-args) (car remaining-args))
-                      (orig-val (cadr remaining-args) (cadr remaining-args)))
-                     ((null remaining-args))
-                  (when (and (keywordp keyword)
-                            (member keyword '(:key :test :test-not)))
-                    (push (cons orig-val
-                              (if (eq keyword :key)
-                                  (list elem)
-                                  (list elem elem)))
-                          ,result-sym)))))))
-        ,the-value))))
+          ((assoc fn +sequence-functions+)
+           (let* ((seq-pos (cdr (assoc fn +sequence-functions+)))
+                  (vals (mapcar (lambda (_) (declare (ignore _)) 
+                                  (gensym "arg"))
+                                args))
+                  (the-value (gensym "value")))
+             `(let* (,@(mapcar (lambda (tmp arg) 
+                                 `(,tmp ,arg))
+                               vals args))
+                (let ((,the-value (,fn ,@vals)))
+                  (when-let ((seq ,(nth seq-pos vals)))
+                    (when (and (typep seq 'sequence)
+                               (plusp (length seq)))
+                      (let ((elem `',(elt seq 0)))
+                        (let ((required-args ,(1+ seq-pos)))
+                          (do* ((orig-args (nthcdr required-args (list ,@args)))
+                                (remaining-args orig-args (cddr remaining-args))
+                                (keyword (car remaining-args) (car remaining-args))
+                                (orig-val (cadr remaining-args) (cadr remaining-args)))
+                               ((null remaining-args))
+                            (when (and (keywordp keyword)
+                                       (member keyword '(:key :test :test-not)))
+                              (push (cons orig-val
+                                          (if (eq keyword :key)
+                                            (list elem)
+                                            (list elem elem)))
+                                    ,result-sym)))))))
+                  ,the-value))))
 
-          ;; Normal function call  
+          ;; Normal function ref  
           (t
            (let ((vals (mapcar (lambda (_)
                                 (declare (ignore _))
@@ -286,7 +297,7 @@
   "Record a name reference in the tracker.
    VISIBILITY is inherited, imported, or local (defaults to local)
    DEFINITIONS is a non-empty list of definitions this reference depends on
-   QUALIFIERS tracks method qualifiers in the call 
+   QUALIFIERS tracks method qualifiers in the ref 
    ARGUMENTS is a list of argument values"
   (declare (special log-stream))
   (let* ((pkg-name (etypecase name
@@ -325,7 +336,7 @@
                                :description description
                                :package package
                                :context context)))
-    (pushnew anomaly (gethash type (anomalies tracker))
+    (pushnew anomaly (gethash type (slot-value tracker 'anomalies))
                      :test #'equal :key #'anomaly.file)
     anomaly))
 
@@ -350,17 +361,17 @@
 
 (defun record-package-cycle (tracker cycle-chain)
   "Record a package dependency cycle."
-  (pushnew cycle-chain (package-cycles tracker) :test #'string=))
+  (pushnew cycle-chain (slot-value tracker 'package-cycles) :test #'string=))
 
 
 (defun get-file-cycles (&optional tracker)
   "Get all recorded file dependency cycles."
-  (file-cycles (ensure-tracker tracker)))
+  (slot-value (ensure-tracker tracker) 'file-cycles))
 
 
 (defun get-package-cycles (&optional tracker)
   "Get all recorded package dependency cycles."
-  (package-cycles (ensure-tracker tracker)))
+  (slot-value (ensure-tracker tracker) 'package-cycles))
 
 
 (defun detect-package-cycle (pkg-name current-packages)
@@ -420,15 +431,11 @@
       (quoted-symbol-p form)))
 
 
-(defun skip-definition-form (form)
-  "Return T if form should be skipped during reference analysis."
-  (and (consp form)
-       (member (car form) '(defun defvar defparameter defconstant 
-                            defclass defstruct defmethod defgeneric 
-                            define-condition defmacro define-method-combination
-                            define-modify-macro define-compiler-macro
-                            define-symbol-macro defsetf define-setf-expander
-                            deftype))))
+(defun def*-name-p (sym context)
+  "Return T if sym is the name of a def* definition."
+  (and (consp context)
+       (member (car context) +def*-forms+)
+       (eq (second context) sym)))
 
 
 (defun walk-form (form handler)
@@ -479,12 +486,8 @@
                 (member (car context) '(:use :import-from :nicknames))))))
 
 
-(defun not-interned-p (symbol)
-  (not (symbol-package symbol)))
-
-
-(defun find-method-call-definitions (parser form)
-  "Find method and generic function definitions for a method call form."
+(defun find-method-ref-definitions (parser form)
+  "Find method and generic function definitions for a method ref form."
   (let* ((name (car form))
          (args (mapcar (lambda (arg)
                         (ignore-errors (eval arg))) 
@@ -592,8 +595,8 @@
       (t t))))
 
 
-(defun analyze-call-qualifiers (name-form)
-  "Analyze a method call name form to extract name and qualifiers.
+(defun analyze-ref-qualifiers (name-form)
+  "Analyze a method ref name form to extract name and qualifiers.
    Handles multiple qualifier lists correctly."
   (etypecase name-form
     (symbol (list name-form))
@@ -693,10 +696,10 @@
       (t t))))
 
 
-(defun analyze-function-call-context (symbol context)
-  "Analyze if a symbol appears in a function call context.
-   Returns (values call-p name args caller-type), where:
-   - call-p: T if symbol is being called as a function
+(defun analyze-function-ref-context (symbol context)
+  "Analyze if a symbol appears in a function ref context.
+   Returns (values ref-p name args caller-type), where:
+   - ref-p: T if symbol is being called as a function
    - name: The function name being called
    - args: List of argument forms
    - caller-type: One of :direct :funcall :apply :method :macro"
@@ -721,7 +724,7 @@
     
     (when (and context (listp context))
       (cond
-        ;; Direct function call 
+        ;; Direct function ref 
         ((and (eq symbol (car context))
               (not (quoted-p context))
               (valid-function-p symbol))
@@ -771,7 +774,7 @@
                  (cdr context)
                  :method))
         
-        ;; Not a function call
+        ;; Not a function ref
         (t (values nil nil nil nil))))))
 
 
@@ -1030,7 +1033,33 @@
                             :context context)))))))
 
 
-(defun get-symbol-reference-type (sym &optional context)
+(defun get-symbol-reference-type (sym)
+  "Derive the reference type of a symbol based on its bindings and usage context."
+  (cond
+    ;; Note that the order of clauses is important
+    ((and (not (macro-function sym))     ; Not a regular macro
+          (not (boundp sym))            ; Not a bound variable
+          (not (fboundp sym))          ; Not a function
+          (multiple-value-bind (expansion expanded-p)
+              (ignore-errors (macroexpand-1 sym))
+            (declare (ignore expansion))
+            expanded-p))                ; Successfully expands
+     :symbol-macro)
+    ((boundp sym) 
+     :variable)
+    ((macro-function sym)  ;; Check for macro before function since macros have function bindings
+     :macro)
+    ((fboundp sym)  ;; Check for function, already excluded symbol-macro, macro, variable
+     :function)
+    ((ignore-errors (find-class sym))    ;; Check for classes and structures
+     :structure/class/condition)
+    ((and (subtypep sym t)    ;; Check for type declarations that aren't classes
+          (not (ignore-errors (find-class sym)))
+          (not (cl-symbol-p sym)))
+     :deftype)))
+
+
+#+ignore (defun get-symbol-reference-type (sym &optional context)
   "Derive the reference type of a symbol based on its bindings and usage context."
   (cond 
     ;; When symbol appears in function call position
@@ -1039,7 +1068,7 @@
           (eq (car context) sym)
           (fboundp sym))
      (let ((fn (fdefinition sym)))
-       (when (typep fn 'standard-generic-function)
+       (when (typep fn 'generic-function)
          :generic-function)))
 
     ;; When symbol is used in funcall/apply
@@ -1051,7 +1080,7 @@
           (eq (cadr (second context)) sym)
           (fboundp sym))
      (let ((fn (fdefinition sym)))
-       (if (typep fn 'standard-generic-function)
+       (if (typep fn 'generic-function)
            :generic-function
            :function)))
     
@@ -1066,7 +1095,7 @@
     ;; Generic functions and regular functions
     ((fboundp sym)
      (let ((fn (fdefinition sym)))
-       (if (typep fn 'standard-generic-function)
+       (if (typep fn 'generic-function)
            :generic-function
            :function)))
     
@@ -1083,26 +1112,6 @@
     ;; Symbol macros last since they're least common
     ((nth-value 1 (macroexpand-1 sym))
      :symbol-macro)))
-
-
-(defun compatible-method-p (sym context top-level-form)
- "Test if symbol is being called as a method. Returns matching method if found."
- (when (fboundp sym) 
-   (let ((fn (fdefinition sym)))
-     (when (typep fn 'standard-generic-function)
-       (let* ((args (rest context))
-              ;; Evaluate whole form but wrap target expr in type-of
-              (type-form (subst `(list (type-of ,(car args)) ,(car args))
-                               (car args)
-                               (copy-tree top-level-form)))
-              (type-result (handler-case (eval type-form)
-                            (error () nil))))
-         ;; If we got the type, find matching method
-         (when type-result  
-           (let ((arg-type (car type-result)))
-             (when arg-type
-               (first (compute-applicable-methods 
-                       fn (list arg-type)))))))))))
 
 
 (defun get-visibility (sym current-pkg)

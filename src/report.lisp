@@ -16,7 +16,7 @@
  ;; Top Banner
  (format stream "~&~V,,,'-<~A~>" 70 "")
  (format stream "~&Dependency Analysis Report~%")
- (format stream "Project: ~A~%" (project.name tracker))
+ (format stream "Project: ~A~%" (slot-value tracker 'project-name))
  (format stream "Generated: ~A~%" (local-time:now))
  (format stream "~V,,,'-<~A~>~2%" 70 "")
  ;; 1. Executive Summary
@@ -43,7 +43,7 @@
                   (:ERROR (incf error-count))
                   (:WARNING (incf warning-count))
                   (:INFO (incf info-count)))))
-            (anomalies tracker))
+            (slot-value tracker 'anomalies))
    (format stream "  Anomalies: ~A~%" (+ error-count warning-count info-count)))
  (format stream "~2%")
  (format stream "SYSTEM DETAILS~%")
@@ -90,7 +90,7 @@
                  (declare (ignore type))
                  (when (find severity anomaly-list :key #'anomaly.severity)
                    (setf found-severity t)))
-               (anomalies tracker))
+               (slot-value tracker 'anomalies))
       (when found-severity
         (format stream "~A Level Findings:~%" 
                 (string-capitalize (symbol-name severity)))
@@ -103,7 +103,7 @@
                                   (remove severity anomaly-list 
                                          :key #'anomaly.severity 
                                          :test-not #'eq)))))
-                  (anomalies tracker))
+                  (slot-value tracker 'anomalies))
           (when system-anomalies
             (format stream "~%  System Level:~%")
             (dolist (a system-anomalies)
@@ -118,7 +118,7 @@
                                   (remove severity anomaly-list 
                                          :key #'anomaly.severity 
                                          :test-not #'eq)))))
-                  (anomalies tracker))
+                  (slot-value tracker 'anomalies))
           (when package-anomalies
             (format stream "~%  Package Level:~%")
             (dolist (a package-anomalies)
@@ -132,7 +132,7 @@
                                   (remove severity anomaly-list 
                                          :key #'anomaly.severity 
                                          :test-not #'eq)))))
-                  (anomalies tracker))
+                  (slot-value tracker 'anomalies))
           (when file-anomalies
             (format stream "~%  File Level:~%")
             (dolist (a file-anomalies)
@@ -147,7 +147,7 @@
                                   (remove severity anomaly-list 
                                          :key #'anomaly.severity 
                                          :test-not #'eq)))))
-                  (anomalies tracker))
+                  (slot-value tracker 'anomalies))
           (when def-anomalies
             (format stream "~%  Definition Level:~%")
             (dolist (a def-anomalies)
@@ -220,7 +220,7 @@
     (yason:with-output (stream :indent t)
       (yason:with-object ()
         ;; Project name and systems
-        (yason:encode-object-element "project" (project.name tracker))
+        (yason:encode-object-element "project" (slot-value tracker 'project-name))
           (yason:encode (slot-value tracker 'subsystems)))
         ;; Anomalies
       (yason:with-object-element ("anomalies")
@@ -238,7 +238,7 @@
                                (yason:encode-object-element "description" (anomaly.description a))
                                (when (anomaly.context a)
                                  (yason:encode-object-element "context" (anomaly.context a))))))
-                         (anomalies tracker)))))))
+                         (slot-value tracker 'anomalies)))))))
       ;; System dependencies
       (let ((systems (make-hash-table :test 'equal)))
         (maphash (lambda (sys-name deps)
@@ -314,7 +314,7 @@
                                                      :key #'anomaly.file 
                                                      :test #'equal)
                                              (return-from check-errors t)))
-                                          (anomalies tracker))
+                                          (slot-value tracker 'anomalies))
                                   nil)))
                  (format stream "    \"~A\" [label=\"~A\"~A];~%" 
                          file-id file-path
@@ -353,7 +353,7 @@
   ;; Always output text report to terminal
   (generate-report :text *current-tracker* :stream *standard-output*)
   
-  (let* ((project-name (project.name *current-tracker*))
+  (let* ((project-name (slot-value *current-tracker* 'project-name))
          (text-path (if filename
                        (parse-namestring filename)
                        (make-report-path project-name :text)))

@@ -71,7 +71,7 @@
    Returns a path starting with / that is relative to the project root.
    E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
   (when pathname
-    (if-let (project-root (project-root *current-tracker*))
+    (if-let (project-root (slot-value *current-tracker* 'project-root))
       (let ((relative (enough-namestring pathname project-root)))
         (if (char= (char relative 0) #\/)
           relative
@@ -340,10 +340,10 @@
     (maphash (lambda (type anomaly-list)
                (declare (ignore anomaly-list))
                (push type anomaly-types))
-             (anomalies *current-tracker*))
+             (slot-value *current-tracker* 'anomalies))
     ;; Process each type in sorted order
     (dolist (type (sort anomaly-types #'string< :key #'symbol-name))
-      (when-let (anomalies-of-type (gethash type (anomalies *current-tracker*)))
+      (when-let (anomalies-of-type (gethash type (slot-value *current-tracker* 'anomalies)))
         (dolist (anomaly (sort anomalies-of-type #'string< 
                                :key #'anomaly.description))
           (print-anomaly anomaly log-stream 0))

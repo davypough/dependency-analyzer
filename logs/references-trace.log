@@ -856,27 +856,6 @@ WALK(ING):
              (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
   Parent: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
             (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
-
-REFERENCE>
-    :Name MAGNITUDE
-    :Context (DEFMETHOD MAGNITUDE ((V VECTOR2D))
-               (SQRT (+ (EXPT (V2D-X V) 2) (EXPT (V2D-Y V) 2))))
-    :Type :GENERIC-FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
-    :Definitions
-                    DEFINITION>
-                        :Name MAGNITUDE
-                        :Context (DEFGENERIC MAGNITUDE
-                                     (VECTOR)
-                                   (:DOCUMENTATION
-                                    "Calculate vector magnitude"))
-                        :Type :GENERIC-FUNCTION
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-                        :Status :INTERNAL
-
 WALK(ING):
   Expression: ((V VECTOR2D))
   Context: (DEFMETHOD MAGNITUDE ((V VECTOR2D))
@@ -993,7 +972,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {110254F133}>)
+    :Arguments (#<VECTOR2D {11025B5773}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-Y
@@ -1016,7 +995,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {110254F133}>)
+    :Arguments (#<VECTOR2D {11025B5773}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-X
@@ -1039,21 +1018,24 @@ WALK(ING):
                 RESULT
                 (V2D-X V)
                 (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-                (FUNCALL #'V2D-X V)
+                (FUNCALL #'V2D-Y V)
+                (APPLY #'GF2 (LIST 1 2))
                 (MAPCAR #'V2D-Y (LIST V)))
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                  (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: LET
@@ -1062,14 +1044,16 @@ WALK(ING):
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
@@ -1079,14 +1063,16 @@ WALK(ING):
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: (V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
@@ -1097,7 +1083,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: V
@@ -1142,7 +1129,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: RESULT
@@ -1197,14 +1185,16 @@ WALK(ING):
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: (V2D-X V)
@@ -1213,14 +1203,16 @@ WALK(ING):
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: V2D-X
@@ -1230,7 +1222,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: V
@@ -1240,7 +1233,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
@@ -1249,14 +1243,16 @@ WALK(ING):
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: REMOVE
@@ -1266,7 +1262,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: 'B
@@ -1276,7 +1273,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: '((A) (B) (C))
@@ -1286,7 +1284,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: :KEY
@@ -1296,7 +1295,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: #'GF1
@@ -1306,7 +1306,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: FUNCTION
@@ -1317,59 +1318,135 @@ WALK(ING):
   Context: #'GF1
   Parent: (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
 WALK(ING):
-  Expression: (FUNCALL #'V2D-X V)
+  Expression: (FUNCALL #'V2D-Y V)
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                  (RESULT (SORT (LIST 1 3 2) #'GF2)))
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: FUNCALL
-  Context: (FUNCALL #'V2D-X V)
+  Context: (FUNCALL #'V2D-Y V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
-  Expression: #'V2D-X
-  Context: (FUNCALL #'V2D-X V)
+  Expression: #'V2D-Y
+  Context: (FUNCALL #'V2D-Y V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: FUNCTION
-  Context: #'V2D-X
-  Parent: (FUNCALL #'V2D-X V)
+  Context: #'V2D-Y
+  Parent: (FUNCALL #'V2D-Y V)
 WALK(ING):
-  Expression: V2D-X
-  Context: #'V2D-X
-  Parent: (FUNCALL #'V2D-X V)
+  Expression: V2D-Y
+  Context: #'V2D-Y
+  Parent: (FUNCALL #'V2D-Y V)
 WALK(ING):
   Expression: V
-  Context: (FUNCALL #'V2D-X V)
+  Context: (FUNCALL #'V2D-Y V)
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: (APPLY #'GF2 (LIST 1 2))
+  Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
+             RESULT
+             (V2D-X V)
+             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
+             (MAPCAR #'V2D-Y (LIST V)))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: APPLY
+  Context: (APPLY #'GF2 (LIST 1 2))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: #'GF2
+  Context: (APPLY #'GF2 (LIST 1 2))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: FUNCTION
+  Context: #'GF2
+  Parent: (APPLY #'GF2 (LIST 1 2))
+WALK(ING):
+  Expression: GF2
+  Context: #'GF2
+  Parent: (APPLY #'GF2 (LIST 1 2))
+WALK(ING):
+  Expression: (LIST 1 2)
+  Context: (APPLY #'GF2 (LIST 1 2))
+  Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                (RESULT (SORT (LIST 1 3 2) #'GF2)))
+            RESULT
+            (V2D-X V)
+            (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
+            (MAPCAR #'V2D-Y (LIST V)))
+WALK(ING):
+  Expression: LIST
+  Context: (LIST 1 2)
+  Parent: (APPLY #'GF2 (LIST 1 2))
+WALK(ING):
+  Expression: 1
+  Context: (LIST 1 2)
+  Parent: (APPLY #'GF2 (LIST 1 2))
+WALK(ING):
+  Expression: 2
+  Context: (LIST 1 2)
+  Parent: (APPLY #'GF2 (LIST 1 2))
 WALK(ING):
   Expression: (MAPCAR #'V2D-Y (LIST V))
   Context: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
@@ -1377,14 +1454,16 @@ WALK(ING):
              RESULT
              (V2D-X V)
              (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-             (FUNCALL #'V2D-X V)
+             (FUNCALL #'V2D-Y V)
+             (APPLY #'GF2 (LIST 1 2))
              (MAPCAR #'V2D-Y (LIST V)))
   Parent: (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                 (RESULT (SORT (LIST 1 3 2) #'GF2)))
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: MAPCAR
@@ -1394,7 +1473,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: #'V2D-Y
@@ -1404,7 +1484,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: FUNCTION
@@ -1422,7 +1503,8 @@ WALK(ING):
             RESULT
             (V2D-X V)
             (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-            (FUNCALL #'V2D-X V)
+            (FUNCALL #'V2D-Y V)
+            (APPLY #'GF2 (LIST 1 2))
             (MAPCAR #'V2D-Y (LIST V)))
 WALK(ING):
   Expression: LIST
@@ -1440,12 +1522,13 @@ REFERENCE>
                RESULT
                (V2D-X V)
                (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-               (FUNCALL #'V2D-X V)
+               (FUNCALL #'V2D-Y V)
+               (APPLY #'GF2 (LIST 1 2))
                (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {1102866913}>)
+    :Arguments (#<VECTOR2D {11028EE813}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-Y
@@ -1462,21 +1545,47 @@ REFERENCE>
 
 
 REFERENCE>
-    :Name V2D-X
+    :Name GF2
     :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
                    (RESULT (SORT (LIST 1 3 2) #'GF2)))
                RESULT
                (V2D-X V)
                (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-               (FUNCALL #'V2D-X V)
+               (FUNCALL #'V2D-Y V)
+               (APPLY #'GF2 (LIST 1 2))
                (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {1102866913}>)
+    :Arguments (1 2)
     :Definitions
                     DEFINITION>
-                        :Name V2D-X
+                        :Name GF2
+                        :Context (DEFMETHOD GF2 ((X NUMBER) (Y NUMBER)) (< X Y))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+                        :Specializers (NUMBER NUMBER)
+
+
+REFERENCE>
+    :Name V2D-Y
+    :Context (LET ((V (MAKE-INSTANCE 'VECTOR2D :X 3.0 :Y 4.0))
+                   (RESULT (SORT (LIST 1 3 2) #'GF2)))
+               RESULT
+               (V2D-X V)
+               (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
+               (FUNCALL #'V2D-Y V)
+               (APPLY #'GF2 (LIST 1 2))
+               (MAPCAR #'V2D-Y (LIST V)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Arguments (#<VECTOR2D {11028EE813}>)
+    :Definitions
+                    DEFINITION>
+                        :Name V2D-Y
                         :Context (DEFCLASS VECTOR2D NIL
                                            ((X :INITARG :X :INITFORM 0.0
                                              :ACCESSOR V2D-X)
@@ -1496,7 +1605,8 @@ REFERENCE>
                RESULT
                (V2D-X V)
                (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-               (FUNCALL #'V2D-X V)
+               (FUNCALL #'V2D-Y V)
+               (APPLY #'GF2 (LIST 1 2))
                (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
@@ -1520,12 +1630,13 @@ REFERENCE>
                RESULT
                (V2D-X V)
                (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-               (FUNCALL #'V2D-X V)
+               (FUNCALL #'V2D-Y V)
+               (APPLY #'GF2 (LIST 1 2))
                (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
-    :Arguments (#<VECTOR2D {1102866913}>)
+    :Arguments (#<VECTOR2D {11028EE813}>)
     :Definitions
                     DEFINITION>
                         :Name V2D-X
@@ -1548,7 +1659,8 @@ REFERENCE>
                RESULT
                (V2D-X V)
                (REMOVE 'B '((A) (B) (C)) :KEY #'GF1)
-               (FUNCALL #'V2D-X V)
+               (FUNCALL #'V2D-Y V)
+               (APPLY #'GF2 (LIST 1 2))
                (MAPCAR #'V2D-Y (LIST V)))
     :Type :METHOD
     :File /src/refs.lisp
@@ -1563,5 +1675,288 @@ REFERENCE>
                         :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
                         :Status :INTERNAL
                         :Specializers (NUMBER NUMBER)
+
+
+-------------------------------
+WALK(ING):
+  Expression: (CACHE-ENTRY 'KEY)
+  Context: (CACHE-ENTRY 'KEY)
+  Parent: (CACHE-ENTRY 'KEY)
+WALK(ING):
+  Expression: CACHE-ENTRY
+  Context: (CACHE-ENTRY 'KEY)
+  Parent: (CACHE-ENTRY 'KEY)
+
+REFERENCE>
+    :Name CACHE-ENTRY
+    :Context (CACHE-ENTRY 'KEY)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name CACHE-ENTRY
+                        :Context (DEFUN CACHE-ENTRY (KEY)
+                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: 'KEY
+  Context: (CACHE-ENTRY 'KEY)
+  Parent: (CACHE-ENTRY 'KEY)
+
+-------------------------------
+WALK(ING):
+  Expression: (SETF (CACHE-ENTRY 'TEST) 42)
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: SETF
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: (CACHE-ENTRY 'TEST)
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: CACHE-ENTRY
+  Context: (CACHE-ENTRY 'TEST)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+
+REFERENCE>
+    :Name CACHE-ENTRY
+    :Context (SETF (CACHE-ENTRY 'TEST) 42)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name CACHE-ENTRY
+                        :Context (DEFUN CACHE-ENTRY (KEY)
+                                   (GETHASH KEY (CACHE.TABLE *DEFAULT-CACHE*)))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: 'TEST
+  Context: (CACHE-ENTRY 'TEST)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+WALK(ING):
+  Expression: 42
+  Context: (SETF (CACHE-ENTRY 'TEST) 42)
+  Parent: (SETF (CACHE-ENTRY 'TEST) 42)
+
+-------------------------------
+WALK(ING):
+  Expression: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Context: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Parent: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+WALK(ING):
+  Expression: CACHE.MAX-SIZE
+  Context: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Parent: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+
+REFERENCE>
+    :Name CACHE.MAX-SIZE
+    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name CACHE.MAX-SIZE
+                        :Context (DEFSTRUCT (CACHE (:CONC-NAME CACHE.))
+                                   (TABLE (MAKE-HASH-TABLE) :TYPE HASH-TABLE)
+                                   (MAX-SIZE 100 :TYPE FIXNUM))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: *DEFAULT-CACHE*
+  Context: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+  Parent: (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+
+REFERENCE>
+    :Name *DEFAULT-CACHE*
+    :Context (CACHE.MAX-SIZE *DEFAULT-CACHE*)
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFAULT-CACHE*
+                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+
+-------------------------------
+WALK(ING):
+  Expression: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+                (MAGNITUDE V))
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: WITH-VECTOR
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+
+REFERENCE>
+    :Name WITH-VECTOR
+    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+               (MAGNITUDE V))
+    :Type :MACRO
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name WITH-VECTOR
+                        :Context (DEFMACRO WITH-VECTOR ((VAR X Y) &BODY BODY)
+                                   `(LET ((,VAR
+                                           (MAKE-INSTANCE 'VECTOR2D :X ,X :Y
+                                                          ,Y)))
+                                      ,@BODY))
+                        :Type :MACRO
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: V
+  Context: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: +UNIT-DISTANCE+
+  Context: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+
+REFERENCE>
+    :Name +UNIT-DISTANCE+
+    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+               (MAGNITUDE V))
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name +UNIT-DISTANCE+
+                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: +UNIT-DISTANCE+
+  Context: (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+
+REFERENCE>
+    :Name +UNIT-DISTANCE+
+    :Context (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+               (MAGNITUDE V))
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name +UNIT-DISTANCE+
+                        :Context (DEFCONSTANT +UNIT-DISTANCE+ 1.0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+WALK(ING):
+  Expression: (MAGNITUDE V)
+  Context: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+             (MAGNITUDE V))
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: MAGNITUDE
+  Context: (MAGNITUDE V)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+WALK(ING):
+  Expression: V
+  Context: (MAGNITUDE V)
+  Parent: (WITH-VECTOR (V +UNIT-DISTANCE+ +UNIT-DISTANCE+)
+            (MAGNITUDE V))
+
+-------------------------------
+WALK(ING):
+  Expression: *ORIGIN*
+  Context: *ORIGIN*
+  Parent: *ORIGIN*
+
+REFERENCE>
+    :Name *ORIGIN*
+    :Context *ORIGIN*
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *ORIGIN*
+                        :Context (DEFPARAMETER *ORIGIN*
+                                   (MAKE-INSTANCE 'VECTOR2D))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
+
+
+-------------------------------
+WALK(ING):
+  Expression: *DEFAULT-CACHE*
+  Context: *DEFAULT-CACHE*
+  Parent: *DEFAULT-CACHE*
+
+REFERENCE>
+    :Name *DEFAULT-CACHE*
+    :Context *DEFAULT-CACHE*
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+    :Visibility (:LOCAL #<PACKAGE "TEST-PROJECT-PACKAGE">)
+    :Definitions
+                    DEFINITION>
+                        :Name *DEFAULT-CACHE*
+                        :Context (DEFVAR *DEFAULT-CACHE* (MAKE-CACHE))
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "TEST-PROJECT-PACKAGE">
+                        :Status :INTERNAL
 
 

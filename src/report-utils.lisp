@@ -30,7 +30,7 @@
                          (format stream "  ~A:~%" (string-upcase (symbol-name severity)))
                          (dolist (a (reverse severity-anomalies)) ; Reverse to show in detection order
                            (format stream "    ~A~%" (anomaly.description a))))))
-             (anomalies tracker))
+             (slot-value tracker 'anomalies))
     ;; Return whether we found any anomalies
     found-anomalies))
 
@@ -296,7 +296,7 @@
                (when (eq type :system-cycle)
                  (dolist (a anomaly-list)
                    (push (anomaly.context a) cycles))))
-             (anomalies actual-tracker))
+             (slot-value actual-tracker 'anomalies))
     (sort cycles #'string< :key (lambda (cycle)
                                  (format nil "~{~A~^->~}" cycle)))))
 

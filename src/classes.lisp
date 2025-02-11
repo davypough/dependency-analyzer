@@ -129,23 +129,18 @@
     :documentation "Maps symbols to where they are used")
    (anomalies
     :initform (make-hash-table :test 'equal)
-    :accessor anomalies
     :documentation "Maps anomaly types to lists of detected anomalies")
    (project-name
     :initarg :project-name
-    :reader project.name
     :documentation "Name of the project being analyzed")
    (project-packages
     :initform nil
-    :accessor project-packages
     :documentation "List of all packages defined, used, or imported from by the project")
    (project-owned-packages
     :initform nil
-    :accessor project-owned-packages 
     :documentation "List of packages newly created by the project")
    (project-root
     :initarg :project-root
-    :reader project-root
     :documentation "Root directory of the project being analyzed")
    (file-map
     :initform (make-hash-table :test 'equal)
@@ -161,15 +156,12 @@
     :documentation "Maps macro names to symbols used in their bodies")
    (file-cycles
     :initform nil
-    :accessor file-cycles
     :documentation "List of detected file dependency cycles")
    (package-cycles
     :initform nil
-    :accessor package-cycles
     :documentation "List of detected package dependency cycles")
    (pushit-symbols
     :initform nil
-    :accessor pushit-symbols
     :documentation "List of detected referring symbols in a form analyzed by pushit-transform"))
   (:documentation "Tracker for analyzing a user's project files."))
 
@@ -178,7 +170,7 @@
   "Print a human-readable representation of the tracker."
   (print-unreadable-object (tracker stream :type t)
     (format stream "~A: ~D definitions, ~D references, ~D anomalies, ~D files"
-            (project.name tracker)
+            (slot-value tracker 'project-name)
             (hash-table-count (slot-value tracker 'definitions))  ;need to collapse to actual definitions
             (hash-table-count (slot-value tracker 'references))
             (hash-table-count (slot-value tracker 'anomalies))
@@ -187,7 +179,7 @@
 
 (defclass file-parser ()
   ((file 
-    :initarg :file 
+    :initarg :file
     :reader file
     :documentation "The source file being parsed")
    (package 

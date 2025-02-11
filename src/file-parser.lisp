@@ -245,64 +245,65 @@
 (defun analyze-reference-form (parser top-level-form)
   "Analyze source top-level-forms, recording references to definitions in different files."
   (declare (special log-stream))
-  (let ((gf-top-level-form (copy-list top-level-form))  
+  (let (;(gf-top-level-form (copy-list top-level-form))  
         (gf-p nil))  
     (labels ((handle-reference (current-form context parent-context)
                (if (and (typep current-form '(or character package string symbol))
                         (find-package current-form))
-                   ;; Process a package designator
-                   (let* ((key (make-tracking-key current-form nil :package))  
-                          (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                          (other-file-defs (remove-if (lambda (def)
+                 ;; Process a package designator
+                 (let* ((key (make-tracking-key current-form nil :package))  
+                        (defs (gethash key (slot-value *current-tracker* 'definitions)))
+                        (other-file-defs (remove-if (lambda (def)
                                                       (equal (definition.file def) (file parser)))
                                                     defs)))
-                     (when other-file-defs
-                       (record-reference *current-tracker*
+                   (when other-file-defs
+                     (record-reference *current-tracker*
                                        :name current-form
                                        :type :package
                                        :file (file parser)
                                        :context parent-context
                                        :definitions other-file-defs)))
+                 (when (symbolp current-form)
                    ;; Process a symbol reference
-                   (unless (skip-item-p current-form)
-                     (when (symbolp current-form)
-                       (let ((sym-type (get-symbol-reference-type current-form context)))
-                         ;; For potential generic function references in form, just set flag and continue
-                         (if (potential-gf-reference-p current-form context)
-                             (setf gf-p t)
-                             ;; For non-generic-functions, record reference
-                             (let* ((sym-pkg (symbol-package current-form))
-                                    (key (make-tracking-key current-form sym-pkg sym-type))
-                                    (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                                    (other-file-defs (remove-if (lambda (def)
-                                                               (equal (definition.file def) (file parser)))
-                                                             defs)))
-                               (when other-file-defs
-                                 (record-reference *current-tracker*
-                                                 :name current-form
-                                                 :file (file parser)
-                                                 :type sym-type
-                                                 :package sym-pkg
-                                                 :context parent-context
-                                                 :visibility (get-visibility current-form (current-package parser))
-                                                 :definitions other-file-defs))))))))))
+                   (unless (or (cl-symbol-p current-form)
+                               (def*-name-p current-form context))
+                     (if (potential-gf-reference-p current-form context)
+                       ;; For potential generic function references in form, just set flag and continue walking
+                       (setf gf-p t)
+                       ;; For non-generic-functions, record reference if it has other-file-defs
+                       (let* ((sym-type (get-symbol-reference-type current-form))
+                              (sym-pkg (symbol-package current-form))
+                              (key (make-tracking-key current-form sym-pkg sym-type))
+                              (defs (gethash key (slot-value *current-tracker* 'definitions)))
+                              (other-file-defs (remove-if (lambda (def)
+                                                            (equal (definition.file def) (file parser)))
+                                                          defs)))
+                          (when other-file-defs
+                            (record-reference *current-tracker*
+                                              :name current-form
+                                              :file (file parser)
+                                              :type sym-type
+                                              :package sym-pkg
+                                              :context parent-context
+                                              :visibility (get-visibility current-form (current-package parser))
+                                              :definitions other-file-defs)))))))))
       ;; Walk the top-level-form first
       (walk-form top-level-form #'handle-reference)
-      ;; Then analyze any method calls found
+      ;; Then analyze any method refs found
       (when gf-p
-        (analyze-method-references parser gf-top-level-form)))))
+        (analyze-method-references parser top-level-form)))))
 
 
 (defun pushit-transform (form predicate result-sym)
   "Recursively walk input CONTEXT-FORM.  
   If (atom FORM) is recognized by PREDICATE, replace it with (PUSHIT 'atom RESULT).
-  If any element of FORM is a method call (recognized by PREDICATE),
+  If any element of FORM is a method ref (recognized by PREDICATE),
   replace the entire list with (PUSHIT form RESULT).
   Otherwise preserve structure and recurse."
   (cond
     ((atom form)
      (when (funcall predicate form)
-       (push form (pushit-symbols *current-tracker*)))
+       (push form (slot-value *current-tracker* 'pushit-symbols)))
      form)
     ((and (consp form)
           (not (member (first form) '(defgeneric defmethod)))
@@ -359,7 +360,7 @@
           (cond 
             ;; No package context but defining symbols
             ((and (eq current-pkg cl-user-pkg)
-                  (member current-pkg (project-owned-packages *current-tracker*)))
+                  (member current-pkg (slot-value *current-tracker* 'project-owned-packages)))
              (record-anomaly *current-tracker*
                          :type :possible-missing-in-package-for-definition
                          :severity :WARNING
@@ -430,30 +431,21 @@
              collect value)))
 
 
-(defun function-arg-position-p (fn-name)
-  (member fn-name 
-          '(funcall apply mapcar mapc map maplist mapcan mapcon 
-            some every notany notevery find position count 
-            remove remove-if-not substitute substitute-if-not
-            delete delete-if-not)
-          :test #'eq))
-
-
 (defun potential-gf-reference-p (sym context)
   "May include some symbols that masquerade as gf references--eg, bound var in let statement."
   (and (ignore-errors (typep (fdefinition sym) 'generic-function))  ;sym must name a gf
-       (not (and (consp context)  ;exclude defgeneric and defmethod name position
+       (not (and (consp context)  ;exclude defgeneric and defmethod name position (but already excluded in def* exclusion earlier)
                  (member (first context) '(defgeneric defmethod))
                  (eq sym (second context))))
-       (not (loop for (x y) on context  ;exclude slot method definitions for defclass & define-condition
+       (not (loop for (x y) on context  ;exclude slot method implicit definitions for defclass & define-condition
                   thereis (and (member x '(:reader :writer :accessor))
                                (eq y sym))))))
 
 
 (defun record-method-reference (parser form gf args)
-  "Record reference from method call to its matching definition.
+  "Record reference from method ref to its matching definition.
    PARSER - File parser instance for current file context
-   FORM - Original source form containing the call 
+   FORM - Original source form containing the ref 
    GF - Generic function being called
    ARGS - List of argument values/mock instances to match"
   (let ((gf-name (c2mop:generic-function-name gf))
@@ -469,19 +461,22 @@
                                    :method 
                                    quals 
                                    specs))
-             (defs (gethash key (slot-value *current-tracker* 'definitions))))
-
-        ;; Record reference with its matched definition
-        (when defs  ; Only record if we found matching definition
+             (defs (gethash key (slot-value *current-tracker* 'definitions)))
+             ;; Filter out definitions from same file before recording reference
+             (other-file-defs (remove-if (lambda (def)
+                                           (equal (definition.file def) 
+                                                  (file parser)))
+                                          defs)))
+        (when other-file-defs  ; Only record if we have defs from other files
           (record-reference *current-tracker*
-                          :name gf-name
-                          :type :method
-                          :file (file parser)
-                          :context form
-                          :package pkg
-                          :qualifiers quals
-                          :arguments args 
-                          :definitions defs))))))
+                            :name gf-name
+                            :type :method
+                            :file (file parser)
+                            :context form
+                            :package pkg
+                            :qualifiers quals
+                            :arguments args 
+                            :definitions other-file-defs))))))
 
 
 (defun create-mock-instance (specializer)
@@ -546,6 +541,51 @@
 
 (defun build-eval-context (form)
   "Build let form to establish bindings for typed parameters in definition forms."
+    (if (consp form)
+        (case (car form)
+          ;; Method definition
+          ((defmethod)
+           (multiple-value-bind (name qualifiers lambda-list body)
+               (extract-method-components form)
+             (declare (ignore name qualifiers))
+             (let ((bindings (process-lambda-list lambda-list)))
+               ;(print `(:debug-method-bindings :bindings ,bindings))
+               (let ((result-form 
+                      (if bindings
+                          `(let ,(reverse bindings)
+                             ,@body)
+                          `(progn ,@body))))
+                 result-form))))
+          
+          ;; Function definitions with type declarations
+          ((flet labels) 
+           (let* ((name (second form))
+                  (lambda-list (third form))
+                  (body (cdddr form))
+                  (declarations (when (and (consp (car body))
+                                         (eq (caar body) 'declare))
+                                (pop body)))
+                  (bindings nil))
+             ;; Process type declarations
+             (when declarations
+               (dolist (decl (cdr declarations))
+                 (when (eq (car decl) 'type)
+                   (push `(,(third decl) (create-mock-instance ',(second decl)))
+                         bindings))))
+             (list* (car form) name lambda-list
+                     (append (when declarations (list declarations))
+                             (if bindings
+                                 `((let ,(reverse bindings)
+                                     ,@body))
+                                 body)))))
+          ;; No case matched - return original form
+          (otherwise form))
+        ;; Not a cons - error
+        (error "Form ~A is not consp" form)))
+
+
+#+ignore (defun build-eval-context (form)
+  "Build let form to establish bindings for typed parameters in definition forms."
   (let ((definition-p nil))
     (if (consp form)
         (case (car form)
@@ -556,6 +596,7 @@
                (extract-method-components form)
              (declare (ignore name qualifiers))
              (let ((bindings (process-lambda-list lambda-list)))
+               ;(print `(:debug-method-bindings :bindings ,bindings))
                (let ((result-form 
                       (if bindings
                           `(let ,(reverse bindings)
@@ -593,44 +634,25 @@
         (error "Form ~A is not consp" form))))
 
 
-(defun extract-method-calls (transformed-form eval-context definition-p calls-sym)
-  "Extract actual method calls from a transformed form.
-   TRANSFORMED-FORM - Form with pushit wrapping GF calls
-   EVAL-CONTEXT - Either:
-     - Lambda form from method body transformation
-     - Let form binding mock instances
-     - Original form if no transformation needed
-   DEFINITION-P - T if analyzing a definition form
-   CALLS-SYM - Symbol to collect method calls into"
-  (let* ((inner-form
-          (if (and definition-p
-                   (consp eval-context)
-                   (eq (car eval-context) 'let))
-              `(let ,(second eval-context)
-                 ,transformed-form)
-              transformed-form))
-         
-         (wrapped-form
-          `(let ((,calls-sym nil))      
-             ,inner-form
-             ,calls-sym)))
-    
+(defun extract-method-refs (transformed-form refs-sym)
+  "Extract actual method refs from a transformed form."
+  (let ((wrapped-form
+          `(let ((,refs-sym nil))
+             ,transformed-form
+             ,refs-sym)))
     (handler-case (eval wrapped-form)
       (error (c)
-        (warn "Error evaluating method calls: ~A" c)
+        (warn "Error evaluating method refs: ~A" c)
         '()))))
 
 
 (defun analyze-method-references (parser gf-top-level-form) 
-  "Analyze generic function calls to track method references."         (prt gf-top-level-form)
-  (multiple-value-bind (context-form definition-p)
-      (build-eval-context gf-top-level-form)                        (prt context-form)
-
-    (let* ((calls-sym (gensym "CALLS"))
-           (pushit-form (pushit-transform context-form #'user-gf-designator-p calls-sym))
-           (method-calls (extract-method-calls pushit-form context-form definition-p calls-sym)))     (prt pushit-form method-calls)
-      
-      (dolist (call method-calls)
-        (let ((gf (first call))
-              (args (rest call)))
-          (record-method-reference parser gf-top-level-form gf args))))))
+  "Analyze generic functions to track method references."
+  (let* ((context-form (build-eval-context gf-top-level-form))
+         (refs-sym (gensym "REFS"))
+         (pushit-form (pushit-transform context-form #'user-gf-designator-p refs-sym))
+         (method-refs (extract-method-refs pushit-form refs-sym)))
+    (dolist (ref method-refs)
+      (let ((gf (first ref))
+            (args (rest ref)))
+        (record-method-reference parser gf-top-level-form gf args)))))

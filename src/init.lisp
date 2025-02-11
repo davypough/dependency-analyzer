@@ -37,6 +37,29 @@
             ,@(last `,forms))))
 
 
+(defmacro debug-let* (bindings &body body)
+  "A LET* macro that prints each binding as it is evaluated,
+  showing each variable and its computed value.
+  Bindings are evaluated sequentially."
+  (let ((debug-bindings
+         (mapcar (lambda (binding)
+                   (if (symbolp binding)
+                       binding  ; leave lone symbols unchanged
+                     (destructuring-bind (var init) binding
+                       (list var
+                             `(let ((result ,init)
+                                    (*package* (find-package "DEP")))
+                                (format t "~S => ~S~%" ',var result)
+                                result)))))
+                 bindings)))
+    `(let* ,debug-bindings ,@body)))
+
+
+(defmacro debug-let (bindings &body body)
+  "Alias for DEBUG-LET* that provides the same sequential binding behavior."
+  `(debug-let* ,bindings ,@body))
+
+
 (defun flatten-directories (input-directories output-directory &optional (filespecs '("*.lisp")))
   "Collect all files matching FILESPECS from INPUT-DIRECTORIES and their subdirectories,
    and copy them into a new directory named 'flattened-files' in the current working directory.
