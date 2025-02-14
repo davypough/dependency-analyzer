@@ -8,6 +8,37 @@
 (in-package #:dep)
 
 
+(defun report (&optional filename)
+  "Generate comprehensive dependency reports for the current project.
+   If FILENAME is provided, saves text report to that file.
+   Otherwise writes to reports/ directory with project-based filenames."
+  (unless *current-tracker*
+    (return-from report nil))
+  
+  ;; Always output text report to terminal
+  (generate-report :text *current-tracker* :stream *standard-output*)
+  
+  (let* ((project-name (slot-value *current-tracker* 'project-name))
+         (text-path (if filename
+                       (parse-namestring filename)
+                       (make-report-path project-name :text)))
+         (json-path (make-report-path project-name :json))
+         (dot-path (make-report-path project-name :dot)))
+    
+    ;; Generate each report format
+    (report-to-file text-path :text *current-tracker*)
+    (report-to-file json-path :json *current-tracker*)
+    (report-to-file dot-path :dot *current-tracker*)
+    
+    (format t "~2%Reports saved to:~%")
+    (format t "  Text: ~A~%" (project-pathname text-path))
+    (format t "  JSON: ~A~%" (project-pathname json-path))
+    (format t "  Graphviz DOT: ~A~%" (project-pathname dot-path)))
+  
+  ;; Return tracker for chaining
+  *current-tracker*)
+
+
 (defgeneric generate-report (format tracker &key stream)
  (:documentation "Generate a dependency report in the specified format."))
 
@@ -156,13 +187,13 @@
  (format stream "MAINTENANCE CONSIDERATIONS~%")
  (format stream "~V,,,'-<~A~>~%" 30 "")
  ;; Display any cycles detected
- (when-let (cycles (get-file-cycles tracker))
+ (when-let (cycles (slot-value tracker 'file-cycles))
    (format stream "~%File Dependencies with Cycles:~%")
    (format stream "The following files have circular dependencies.~%")
    (format stream "This may indicate tightly coupled components:~%~%")
    (dolist (cycle cycles)
      (format stream "  ~A~%" cycle)))
- (when-let (cycles (get-package-cycles tracker))
+ (when-let (cycles (slot-value tracker 'package-cycles))
    (format stream "~%Package Dependencies with Cycles:~%")
    (format stream "The following packages have mutual dependencies.~%")
    (format stream "While sometimes necessary, this can make the system harder to understand:~%~%")
@@ -212,6 +243,46 @@
 
 
 (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
+  "Generate a JSON format dependency report.
+   Handles pathnames by converting them to project-relative paths before encoding."
+  (let ((*print-pretty* t)
+        (yason:*symbol-key-encoder* #'string-downcase)
+        (yason:*symbol-encoder* #'string-downcase))
+    (yason:with-output (stream :indent t)
+      (yason:with-object ()
+        ;; Project metadata section
+        (yason:encode-object-element "project" (slot-value tracker 'project-name))
+        (yason:encode-object-element "systems" (slot-value tracker 'subsystems))
+        
+        ;; Anomalies section
+        (yason:with-object-element ("anomalies")
+          (yason:with-object ()
+            (dolist (severity '(:ERROR :WARNING :INFO))
+              (yason:with-object-element ((string-downcase (symbol-name severity)))
+                (yason:with-array ()
+                  (maphash (lambda (type anomaly-list)
+                             (dolist (a (remove severity anomaly-list 
+                                              :key #'anomaly.severity 
+                                              :test-not #'eq))
+                               (yason:with-object ()
+                                 (yason:encode-object-element "type" 
+                                   (string-downcase (symbol-name type)))
+                                 (yason:encode-object-element "description" 
+                                   (anomaly.description a))
+                                 (when (anomaly.context a)
+                                   (yason:encode-object-element "context" 
+                                     (anomaly.context a))))))
+                           (slot-value tracker 'anomalies)))))))
+        
+        ;; Dependencies sections
+        (when-let (files (build-file-dependency-json tracker))
+          (yason:encode-object-element "files" files))
+        
+        (when-let (packages (build-package-dependency-json tracker))
+          (yason:encode-object-element "packages" packages))))))
+
+
+#+ignore (defmethod generate-report ((format (eql :json)) tracker &key (stream *standard-output*))
   "Generate a JSON format dependency report.
    Handles pathnames by converting them to project-relative paths before encoding."
   (let ((*print-pretty* t)
@@ -341,34 +412,3 @@
                              file-id dep-id label)))))
              (slot-value tracker 'file-map)))
   (format stream "  }~%"))
-
-
-(defun report (&optional filename)
-  "Generate comprehensive dependency reports for the current project.
-   If FILENAME is provided, saves text report to that file.
-   Otherwise writes to reports/ directory with project-based filenames."
-  (unless *current-tracker*
-    (return-from report nil))
-  
-  ;; Always output text report to terminal
-  (generate-report :text *current-tracker* :stream *standard-output*)
-  
-  (let* ((project-name (slot-value *current-tracker* 'project-name))
-         (text-path (if filename
-                       (parse-namestring filename)
-                       (make-report-path project-name :text)))
-         (json-path (make-report-path project-name :json))
-         (dot-path (make-report-path project-name :dot)))
-    
-    ;; Generate each report format
-    (report-to-file text-path :text *current-tracker*)
-    (report-to-file json-path :json *current-tracker*)
-    (report-to-file dot-path :dot *current-tracker*)
-    
-    (format t "~2%Reports saved to:~%")
-    (format t "  Text: ~A~%" (project-pathname text-path))
-    (format t "  JSON: ~A~%" (project-pathname json-path))
-    (format t "  Graphviz DOT: ~A~%" (project-pathname dot-path)))
-  
-  ;; Return tracker for chaining
-  *current-tracker*)

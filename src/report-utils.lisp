@@ -12,7 +12,7 @@
   "Default maximum width for formatted report output.")
 
 
-(defun format-anomalies (stream tracker)
+#+ignore (defun format-anomalies (stream tracker)
   "Format all anomalies in a consistent way, grouped by type and severity."
   (let ((found-anomalies nil))
     ;; First get all anomaly types
@@ -35,7 +35,7 @@
     found-anomalies))
 
 
-(defun simplify-path (pathname)
+#+ignore (defun simplify-path (pathname)
   "Convert a pathname to a simplified string representation."
   (if pathname
       (let ((name (enough-namestring pathname)))

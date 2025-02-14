@@ -21,10 +21,6 @@
 (in-package :dep)
 
 
-(defparameter *current-tracker* nil
-  "The currently active dependency tracker instance.")
-
-
 ;;; Development utilities
 
 

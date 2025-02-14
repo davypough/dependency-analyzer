@@ -1,5 +1,6 @@
 {
   "project":"test-project",
+  "systems":["test-project"],
   "anomalies":
   {
     "error":
@@ -7,54 +8,21 @@
     ],
     "warning":
     [
-      {
-        "type":"missing-in-package",
-        "location":"/source/single-pkg-defs.lisp",
-        "description":"Unqualified reference to USER-MAIN-PACKAGE from package COMMON-LISP-USER without in-package declaration"
-      }
     ],
     "info":
     [
+      {
+        "type":"late-in-package",
+        "description":"In-package occurs after non-package form in /src/defs.lisp",
+        "context":["in-package","test-project-package"]
+      },
+      {
+        "type":"late-in-package",
+        "description":"In-package occurs after non-package form in /src/refs.lisp",
+        "context":["in-package","test-project-package"]
+      }
     ]
   },
-  "files":{
-    "/source/single-pkg-refs.lisp": {
-      "depends_on": [
-        {
-          "file": "/source/single-pkg-defs.lisp",
-          "function_calls": [
-            "*DEFVAR-VARIABLE*",
-            "CIRCLE-RADIUS",
-            "COMPUTE-AREA",
-            "CONDITION-NAME",
-            "DEFMACRO-NAME",
-            "DEFUN-NAME",
-            "FDEFINITION-FUNCTION-NAME",
-            "MACRO-FUNCTION-NAME",
-            "MAKE-CIRCLE",
-            "MAKE-PERSON",
-            "PERSON.AGE",
-            "PROCESS-DATA",
-            "SYMBOL-FUNCTION-NAME"
-          ],
-          "value_references": [
-            "*DEFPARAMETER-VARIABLE*",
-            "*DEFVAR-VARIABLE*",
-            "+DEFCONSTANT-VARIABLE+",
-            "SYMBOL-VALUE-VARIABLE"
-          ]
-        }
-      ]
-    }
-  },
-  "packages":{
-    "USER-MAIN-PACKAGE": {
-      "uses": [
-        "CL"
-      ],
-      "exports": [
-        "USER-MAIN-PACKAGE"
-      ]
-    }
-  }
+  "files":{},
+  "packages":{}
 }

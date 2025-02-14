@@ -1,17 +1,17 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2024-12-04T12:30:01.156659Z
+Generated: 2025-02-14T18:20:28.871661Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
   Files: 2
-  Packages: 1
-  Definitions: 25
-  References: 18
-  Anomalies: 1
+  Packages: 0
+  Definitions: 22
+  References: 19
+  Anomalies: 2
 
 
 SYSTEM DETAILS
@@ -25,17 +25,16 @@ SYSTEM OVERVIEW
 
 
 Package Hierarchy:
-└── CL
-    └── USER-MAIN-PACKAGE
+  No package dependencies found.
 
 File Hierarchy:
-└── single-pkg-refs.lisp
-    └── single-pkg-defs.lisp
+├── defs.lisp
+└── refs.lisp
 
 
 ANOMALIES AND ANALYSIS
 ------------------------------
-Warning Level Findings:
+Info Level Findings:
 MAINTENANCE CONSIDERATIONS
 ------------------------------
 
@@ -46,12 +45,6 @@ System Dependencies:
 
 
 Package Dependencies:
-USER-MAIN-PACKAGE uses CL  Exports:
-    USER-MAIN-PACKAGE
 
 
 File Dependencies:
-/source/single-pkg-refs.lisp depends on /source/single-pkg-defs.lisp
-  Called functions: *DEFVAR-VARIABLE*, CIRCLE-RADIUS, COMPUTE-AREA, CONDITION-NAME, DEFMACRO-NAME, DEFUN-NAME, FDEFINITION-FUNCTION-NAME, MACRO-FUNCTION-NAME, MAKE-CIRCLE, MAKE-PERSON, PERSON.AGE, PROCESS-DATA, SYMBOL-FUNCTION-NAME
-  Referenced values: *DEFPARAMETER-VARIABLE*, *DEFVAR-VARIABLE*, +DEFCONSTANT-VARIABLE+, SYMBOL-VALUE-VARIABLE
-

@@ -160,6 +160,9 @@
    (package-cycles
     :initform nil
     :documentation "List of detected package dependency cycles")
+   (subsystems
+    :initform nil
+    :documentation "ASDF :depends-on system dependencies determined from runtime analysis")
    (pushit-symbols
     :initform nil
     :documentation "List of detected referring symbols in a form analyzed by pushit-transform"))

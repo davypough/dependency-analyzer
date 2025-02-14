@@ -1,82 +1,9 @@
-;;;; Filename: tracker-utils.lisp
-;;;
-;;; Utility functions for dependency tracking functionality.
-;;; Contains helper functions for working with dependency tracking,
-;;; including key generation, tracker management, and common operations.
+;;;; Filename:  anomaly-detection.lisp
+
+;;;; Functions to detect anomalies in the user's project files.
 
 
-(in-package #:dep)
-
-
-(defmacro with-dependency-tracker ((&optional (tracker-form '(make-instance 'dependency-tracker :project-name "test-project"))) &body body)
-  "Execute BODY with *CURRENT-TRACKER* bound to the result of TRACKER-FORM.
-   If TRACKER-FORM is not provided, creates a new tracker instance."
-  `(let ((tracker ,tracker-form))
-     (setf *current-tracker* tracker)
-     (let ((*current-tracker* tracker))
-       ,@body)))
-
-
-(defun ensure-tracker (&optional tracker)
-  "Return TRACKER if provided, otherwise return *CURRENT-TRACKER*.
-   Signals an error if no tracker is available."
-  (or tracker *current-tracker*
-      (error "No tracker is currently bound. Please use 'with-dependency-tracker' to bind one.")))
-
-
-(defun make-tracking-key (designator &optional package-alias type qualifiers specializers)
-  "Create a lookup key for a designator with optional package name, type & method info.
-   For methods and generic functions, always includes qualifiers and specializers parts, even if nil.
-   DESIGNATOR can be symbol, package designator, or (setf symbol) form.
-   PACKAGE-ALIAS is a package designator--eg, \"FOO\", :foo, #:foo, or package object.
-   TYPE is one of +valid-definition-types+ of DESIGNATOR.
-   QUALIFIERS is a list of method qualifiers in their significant order.
-   SPECIALIZERS is a list of specializer types."
-  (let ((name (format nil "~A" designator))
-        (pkg-name (typecase package-alias
-                    (package (package-name package-alias))
-                    (null nil)
-                    (t (or (package-name package-alias) (string package-alias))))))
-    
-    (when (and type (not (member type +valid-definition-types+)))
-      (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package-alias: ~S~%  type: ~S"
-             designator package-alias type))
-    
-    (let ((key (format nil "~A|~A|~A" name (or pkg-name "") (or type ""))))
-      (when (or (member type '(:METHOD :GENERIC-FUNCTION)) qualifiers specializers)
-        ;; Preserve qualifier order as it is significant
-        (setf key (format nil "~A|(~{~A~^ ~})" key (or qualifiers nil)))
-        ;; Sort specializers using printed representation for comparison
-        (let ((sorted-specs (sort (copy-list (or specializers nil)) 
-                                  #'string<
-                                  :key (lambda (spec)
-                                         (format nil "~S" spec)))))
-          (setf key (format nil "~A|(~{~A~^ ~})" key sorted-specs))))
-      key)))
-
-
-#+ignore (defun user-defined-p (def)  ;keep to use later for detecting unused definitions
-  "Check if definition appears to be explicitly defined by user rather than auto-generated."
-  (let ((name (string (definition.name def))))
-    (case (definition.type def)
-      (:function 
-       ;; Filter out structure accessors/predicates/copiers
-       (not (or (search "-P" name :from-end t) ; predicates
-                (search "COPY-" name))))          ; copiers
-      (t t))))  ; Keep all other types of definitions
-
-
-(defun project-pathname (pathname)
-  "Convert a pathname to a string representation relative to project root.
-   Returns a path starting with / that is relative to the project root.
-   E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
-  (when pathname
-    (if-let (project-root (slot-value *current-tracker* 'project-root))
-      (let ((relative (enough-namestring pathname project-root)))
-        (if (char= (char relative 0) #\/)
-          relative
-          (concatenate 'string "/" relative)))
-      (namestring pathname))))
+(in-package :dep)
 
 
 #+ignore (defun detect-unused-definitions (tracker)  ;redo later, too many ways to reference a definition
@@ -106,6 +33,17 @@
                                       (definition.type def)
                                       (definition.name def))))))
              (slot-value tracker 'definitions))))
+
+
+#+ignore (defun user-defined-p (def)  ;keep to use later for detecting unused definitions
+  "Check if definition appears to be explicitly defined by user rather than auto-generated."
+  (let ((name (string (definition.name def))))
+    (case (definition.type def)
+      (:function 
+       ;; Filter out structure accessors/predicates/copiers
+       (not (or (search "-P" name :from-end t) ; predicates
+                (search "COPY-" name))))          ; copiers
+      (t t))))  ; Keep all other types of definitions
 
 
 (defun detect-redundant-package-uses (tracker)
@@ -190,7 +128,7 @@
         (path nil))
     (labels ((get-type-deps (class-name)
                ;; Get dependencies from slots and superclasses
-               (when-let ((class (find-class class-name nil)))
+               (when-let (class (find-class class-name nil))
                  (union 
                    ;; Direct slot types
                    (loop for slot in (c2mop:class-direct-slots class)
@@ -301,50 +239,18 @@
     (slot-value tracker 'references)))
 
 
-(defun log-definitions ()
-  (declare (special log-stream))
-  (format log-stream "Filename: DEFINITIONS.LOG")
-  (format log-stream "~2%The list of all definitions identified in the ~A project.~2%"
-          (slot-value *current-tracker* 'project-name))
-  (maphash (lambda (key def-list)
-             (declare (ignore key))
-             (dolist (def def-list)
-               (print-object def log-stream)
-               (terpri log-stream)))
-           (slot-value *current-tracker* 'definitions)))
+(defun record-anomaly (tracker &key type severity file description package context)
+  "Record a new anomaly in the dependency tracker.
+   For :duplicate-definition type, files must be provided as list of all definition locations."
+  (let ((anomaly (make-instance 'anomaly 
+                               :type type 
+                               :severity severity 
+                               :file file
+                               :description description
+                               :package package
+                               :context context)))
+    (pushnew anomaly (gethash type (slot-value tracker 'anomalies))
+                     :test #'equal :key #'anomaly.file)
+    anomaly))
 
 
-(defun log-references ()
-  (declare (special log-stream))
-  (format log-stream "Filename: REFERENCES.LOG")
-  (format log-stream "~2%The list of all references to definitions in other files for the ~A project.~%"
-          (slot-value *current-tracker* 'project-name))
-  (maphash (lambda (key ref-list)
-             (declare (ignore key))
-             (dolist (ref ref-list)  ;(sort ref-list #'string< 
-                                     ;   :key (lambda (r)
-                                     ;           (format nil "~A:~A" (reference.file r) (reference.name r)))))
-               (print-object ref log-stream)
-               (terpri log-stream)))
-           (slot-value *current-tracker* 'references)))
-    
-
-(defun log-anomalies ()
-  "Log all anomalies grouped by type to the specified stream."
-  (declare (special log-stream))
-  (format log-stream "Filename: ANOMALIES.LOG")
-  (format log-stream "~2%The list of all anomalies detected during dependency analysis of the ~A project.~2%"
-          (slot-value *current-tracker* 'project-name))
-  (let ((anomaly-types nil))
-    ;; Collect all anomaly types
-    (maphash (lambda (type anomaly-list)
-               (declare (ignore anomaly-list))
-               (push type anomaly-types))
-             (slot-value *current-tracker* 'anomalies))
-    ;; Process each type in sorted order
-    (dolist (type (sort anomaly-types #'string< :key #'symbol-name))
-      (when-let (anomalies-of-type (gethash type (slot-value *current-tracker* 'anomalies)))
-        (dolist (anomaly (sort anomalies-of-type #'string< 
-                               :key #'anomaly.description))
-          (print-anomaly anomaly log-stream 0))
-        (terpri log-stream)))))
