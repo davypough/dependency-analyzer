@@ -68,39 +68,21 @@
 
           ;; First pass: analyze definitions
           (format t "~%First Pass - Collecting Definitions...~%")
-          (with-open-file (log-stream (merge-pathnames "definitions-trace.log" logs-dir)
-                                      :direction :output
-                                      :if-exists :supersede
-                                      :if-does-not-exist :create)
-            (declare (special log-stream))
-            (dolist (file source-files)
-              (format log-stream "~%Definitions Analysis Trace for ~A~2%" file)
-              (let ((file-parser (make-instance 'file-parser :file file)))
-                (parse-definitions-in-file file-parser))))
+          (dolist (file source-files)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-definitions-in-file file-parser)))
 
           ;; Second pass: analyze references  
           (format t "~%Second Pass - Analyzing References...~%") 
-          (with-open-file (log-stream (merge-pathnames "references-trace.log" logs-dir)
-                                      :direction :output
-                                      :if-exists :supersede
-                                      :if-does-not-exist :create)
-            (declare (special log-stream))
-            (dolist (file source-files)
-              (format log-stream "~%Reference Analysis Trace for ~A~2%" file)
-              (let ((file-parser (make-instance 'file-parser :file file)))
-                (parse-references-in-file file-parser))))
+          (dolist (file source-files)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-references-in-file file-parser)))
 
           ;; Third pass: package-symbol analysis
           (format t "~%Third Pass - Analyzing Package/Symbol Consistency...~2%")
-          (with-open-file (log-stream (merge-pathnames "package-symbols-trace.log" logs-dir)
-                                      :direction :output
-                                      :if-exists :supersede
-                                      :if-does-not-exist :create)
-            (declare (special log-stream))
-            (dolist (file source-files)
-              (format log-stream "~%Package/Symbol Analysis Trace for ~A~2%" file)
-              (let ((file-parser (make-instance 'file-parser :file file)))
-                (parse-package-symbols-in-file file-parser))))
+          (dolist (file source-files)
+            (let ((file-parser (make-instance 'file-parser :file file)))
+              (parse-package-symbols-in-file file-parser)))
 
           ;; Post-pass analysis
           ;(detect-unused-definitions *current-tracker*)  ;maybe enhance later

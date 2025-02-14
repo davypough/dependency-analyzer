@@ -19,7 +19,6 @@
   "Second pass parser that records references to previously recorded definitions.
    Processes in-package forms to maintain proper package context, 
    then analyzes all forms for references."
-  (declare (special log-stream))
   (with-slots (file package) parser
     ;; Reset to CL-USER before processing each file
     (setf (current-package parser) (find-package :common-lisp-user)
@@ -31,13 +30,11 @@
             do (when (and (consp form) (eq (first form) 'in-package))
                  (eval form)
                  (analyze-in-package parser form))
-               (analyze-reference-form parser form)
-               (terpri log-stream)))))
+               (analyze-reference-form parser form)))))
 
 
 (defun analyze-reference-form (parser top-level-form)
   "Analyze source top-level-forms, recording references to definitions in different files."
-  (declare (special log-stream))
   (let (;(gf-top-level-form (copy-list top-level-form))  
         (gf-p nil))  
     (labels ((handle-reference (current-form context parent-context)
@@ -105,7 +102,6 @@
    DEFINITIONS is a non-empty list of definitions this reference depends on
    QUALIFIERS tracks method qualifiers in the ref 
    ARGUMENTS is a list of argument values"
-  (declare (special log-stream))
   (let* ((pkg-name (etypecase name
                      (string name) 
                      (symbol (when (symbol-package name)
@@ -128,7 +124,6 @@
                           :arguments arguments)))
    (pushnew ref (gethash key (slot-value tracker 'references))
             :test #'equalp)
-   (format log-stream "~%~A~%" ref)
    ref))
 
 

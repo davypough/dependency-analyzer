@@ -9,7 +9,6 @@
 (defun parse-definitions-in-file (parser)
   "First pass parser that records definitions. Analyzes all forms recursively,
    maintaining package context during traversal. Logs analysis progress to provided log-stream."
-  (declare (special log-stream))
   (with-slots (file parsing-files) parser
     ;; Reset to CL-USER before processing each file
     (setf (current-package parser) (find-package :common-lisp-user)
@@ -22,14 +21,12 @@
             do (when (and (consp form) (eq (first form) 'in-package))
                  (eval form)
                  (analyze-in-package parser form))
-               (analyze-definition-form parser form)
-               (terpri log-stream)))
+               (analyze-definition-form parser form)))
     (pop parsing-files)))
 
 
 (defun analyze-definition-form (parser form)
   "Analyze raw form from source file for definitions, recording location and basic info."
-  (declare (special log-stream))
   (walk-form form
     (lambda (current-form context parent-context &optional form)
       (declare (ignorable context parent-context form))
@@ -270,17 +267,6 @@
                  :test #'eq)))))
 
 
-#+ignore (defun record-export (tracker package-name name)
-  "Record a name as being exported from a package.
-   Both package-name and name can be either strings or symbols."
-  (when-let* ((pkg (find-package (string package-name)))
-              (exported-sym (etypecase name
-                              (string (intern name pkg))
-                              (symbol (intern (symbol-name name) pkg)))))
-    (pushnew exported-sym (gethash (string package-name) (slot-value tracker 'package-exports))
-             :test #'eq)))
-
-
 (defun get-defstruct-conc-name (name current-form)
   "Extract the :conc-name prefix for a defstruct.
    Returns string to prepend to slot names."
@@ -299,7 +285,6 @@
 
 (defun record-slot-accessors (parser name class current-form)
   "Record all slot accessor definitions for a class/struct/condition"
-  (declare (special log-stream))
   (let ((pkg (current-package parser)))
     (if (typep class 'structure-class)
         ;; Structure slots use naming pattern with conc-name
@@ -348,7 +333,7 @@
 
 (defun record-defstruct-functions (parser name class current-form)
   "Record constructor, copier, and predicate functions for structures"
-  (declare (special log-stream) (ignorable class))
+  (declare (ignorable class))
   (let ((pkg (current-package parser)))
     ;; Constructor
     (let ((make-name (intern (format nil "MAKE-~A" (symbol-name name)) pkg)))
@@ -385,7 +370,6 @@
 (defun analyze-defclass/defstruct/define-condition (parser name form)
   "Analyze a defclass, defstruct, or define-condition form.
    Records the primary type definition and all implicitly defined functions."
-  (declare (special log-stream))
   (let ((def-op (first form))
         (class (find-class name nil)))
     ;; Common accessor analysis
@@ -399,7 +383,6 @@
   "Handle defpackage/make-package form recording nicknames as definitions.
    Uses runtime package info when available, falls back to form parsing
    for make-package when package doesn't yet exist."
-  (declare (special log-stream))
   (let ((file (file parser))
         (context current-form)
         (form-type (car current-form))

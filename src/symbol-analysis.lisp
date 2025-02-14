@@ -9,7 +9,6 @@
 (defun parse-package-symbols-in-file (parser)
   "Third pass parser that validates package/symbol consistency.
    Updates package context during iteration and hands forms to analyzer."
-  (declare (special log-stream))
   (with-slots (file package) parser
     ;; Reset to CL-USER before processing each file
     (setf (current-package parser) (find-package :common-lisp-user)
@@ -25,17 +24,12 @@
                  (when (and (consp form) (eq (car form) 'in-package))
                    (eval form)
                    (analyze-in-package parser form))
-                 (setf previous form))))
-
-    ;; Print analysis trace info
-    (format log-stream "~&Package state for ~A:~%" (project-pathname file))
-    (format log-stream "  Current package: ~A~%" (current-package parser))))
+                 (setf previous form))))))
 
 
 (defun detect-package-symbol-inconsistency (parser form previous)
   "Analyze a form for package/symbol consistency.
    Records anomalies for package declaration and symbol binding issues."
-  (declare (special log-stream))
   (when (and (consp form) (symbolp (car form)))
     (let ((head (car form))
           (current-file (file parser))

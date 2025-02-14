@@ -81,10 +81,7 @@
   "Walk a form calling HANDLER on each subform with context and parent context info.
    FORM - The form to analyze
    HANDLER - Function taking (form context parent-context)"
-  (declare (special log-stream))
   (labels ((walk (x context parent-context)
-             (format log-stream "~&WALK(ING):~%  Expression: ~S~%  Context: ~S~%  Parent: ~S~%" 
-                              x context parent-context)
              (unless (skip-item-p x)  ;skip non-referring items
                (funcall handler x context parent-context)  
                ;; Recursively process subforms
@@ -105,7 +102,6 @@
     (let ((*print-circle* nil)     ; Prevent circular printing issues
           (*print-length* 10)      ; Limit list length 
           (*print-level* 5))       ; Limit nesting output
-      (format log-stream "~&-------------------------------~%")
       (walk form form form))))
 
 
