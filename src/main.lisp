@@ -87,6 +87,7 @@
           ;; Post-pass analysis
           ;(detect-unused-definitions *current-tracker*)  ;maybe enhance later
           (detect-redundant-package-uses *current-tracker*)
+          (detect-suboptimal-package-placement *current-tracker*)
           (detect-shadowed-definitions *current-tracker*)
           (detect-qualified-internal-references *current-tracker*)
           (detect-circular-type-dependencies *current-tracker*)

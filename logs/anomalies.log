@@ -2,20 +2,3 @@ Filename: ANOMALIES.LOG
 
 The list of all anomalies detected during dependency analysis of the test-project project.
 
-ANOMALY>
-    :Description "In-package occurs after non-package form in /src/defs.lisp"
-    :Type :LATE-IN-PACKAGE
-    :Severity :INFO
-    :Context (IN-PACKAGE TEST-PROJECT-PACKAGE)
-    :File /src/defs.lisp
-    :Package #<PACKAGE "COMMON-LISP-USER">
-
-ANOMALY>
-    :Description "In-package occurs after non-package form in /src/refs.lisp"
-    :Type :LATE-IN-PACKAGE
-    :Severity :INFO
-    :Context (IN-PACKAGE TEST-PROJECT-PACKAGE)
-    :File /src/refs.lisp
-    :Package #<PACKAGE "COMMON-LISP-USER">
-
-

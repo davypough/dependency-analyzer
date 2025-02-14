@@ -74,6 +74,112 @@
            (slot-value tracker 'package-uses)))
 
 
+(defun detect-suboptimal-package-placement (tracker)
+  "Analyze symbol usage patterns to detect definitions that might be
+   better placed in different packages based on their usage patterns.
+   Detects:
+   1. Symbols exclusively used in non-home packages
+   2. Symbols consistently referenced with package qualification"
+  (let ((usage-table (make-hash-table :test 'equal))
+        (project-packages (slot-value tracker 'project-owned-packages)))
+    
+    ;; Build usage patterns from definitions
+    (maphash 
+     (lambda (key def-list)
+       (declare (ignore key))
+       (dolist (def def-list)
+         (let* ((sym (definition.name def))
+                (pkg (definition.package def)))
+           ;; Only analyze project package symbols
+           (when (and pkg 
+                     (member pkg project-packages)
+                     (not (eq pkg (find-package :common-lisp))))
+             (let ((usage-key (format nil "~A:~A" 
+                                    (package-name pkg)
+                                    (if (symbolp sym)
+                                        (symbol-name sym)
+                                        sym))))
+               (setf (gethash usage-key usage-table)
+                     (cons def (make-hash-table :test 'equal))))))))
+     (slot-value tracker 'definitions))
+    
+    ;; Analyze reference patterns
+    (maphash 
+     (lambda (key refs)
+       (declare (ignore key))
+       (dolist (ref refs)
+         (let* ((sym (reference.name ref))
+                (sym-pkg (when (symbolp sym)
+                           (symbol-package sym)))
+                (usage-key (format nil "~A:~A" 
+                                   (if sym-pkg
+                                     (package-name sym-pkg)
+                                     "NIL")          ; Safe fallback for uninterned symbols
+                                   (if (symbolp sym)
+                                     (symbol-name sym)
+                                     sym))))
+           (when-let ((usage (gethash usage-key usage-table)))
+             (let ((refs-by-pkg (cdr usage)))
+               (push ref (gethash (package-name (reference.package ref))
+                                refs-by-pkg)))))))
+     (slot-value tracker 'references))
+    
+    ;; Record anomalies for suspicious patterns
+    (maphash 
+     (lambda (key usage)
+       (declare (ignore key))
+       (let* ((def (car usage))
+              (refs-by-pkg (cdr usage))
+              (sym (definition.name def))
+              (home-pkg (definition.package def)))
+         
+         ;; Skip certain definition types
+         (unless (member (definition.type def)
+                        '(:package :method :generic-function))
+           
+           ;; Check exclusive usage in non-home package
+           (when (= (hash-table-count refs-by-pkg) 1)
+             (let* ((using-pkg-name (car (alexandria:hash-table-keys refs-by-pkg)))
+                    (ref-count (length (gethash using-pkg-name refs-by-pkg))))
+               (when (and (not (string= using-pkg-name (package-name home-pkg)))
+                         (> ref-count 2))
+                 (record-anomaly tracker
+                   :type :suboptimal-package-placement
+                   :severity :info
+                   :file (definition.file def)
+                   :package home-pkg
+                   :context (definition.context def)
+                   :description 
+                   (format nil "Symbol ~A:~A is only used in package ~A (~D references)"
+                           (package-name home-pkg) sym using-pkg-name ref-count)))))
+           
+           ;; Check for consistent package qualification
+           (let ((qualified-count 0)
+                 (unqualified-count 0))
+             (maphash 
+              (lambda (pkg-name refs)
+                (declare (ignore pkg-name))
+                (dolist (ref refs)
+                  (if (eq (car (reference.visibility ref)) :inherited)
+                      (incf unqualified-count)
+                      (incf qualified-count))))
+              refs-by-pkg)
+             
+             (when (and (> (+ qualified-count unqualified-count) 3)
+                       (zerop unqualified-count)
+                       (> (hash-table-count refs-by-pkg) 1))
+               (record-anomaly tracker
+                 :type :consistent-package-qualification
+                 :severity :info
+                 :file (definition.file def)
+                 :package home-pkg
+                 :context (definition.context def)
+                 :description
+                 (format nil "Symbol ~A:~A is always referenced with package qualifier (~D refs)"
+                         (package-name home-pkg) sym qualified-count)))))))
+     usage-table)))
+
+
 (defun detect-shadowed-definitions (tracker)
   "Find definitions that shadow inherited symbols from other packages."
   (maphash (lambda (key defs)

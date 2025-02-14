@@ -19,7 +19,7 @@
                              (:file "definition-analysis")
                              (:file "reference-analysis")
                              (:file "method-reference-analysis")
-                             (:file "symbol-analysis")
+                             (:file "package-symbol-analysis")
                              (:file "anomaly-detection")
                              (:file "report-utils")
                              (:file "report")))))

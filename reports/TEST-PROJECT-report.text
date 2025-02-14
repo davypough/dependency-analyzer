@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2025-02-14T20:13:09.613360Z
+Generated: 2025-02-14T21:46:52.890816Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
@@ -11,7 +11,7 @@ Project Statistics:
   Packages: 0
   Definitions: 22
   References: 19
-  Anomalies: 2
+  Anomalies: 0
 
 
 SYSTEM DETAILS
@@ -34,7 +34,6 @@ File Hierarchy:
 
 ANOMALIES AND ANALYSIS
 ------------------------------
-Info Level Findings:
 MAINTENANCE CONSIDERATIONS
 ------------------------------
 

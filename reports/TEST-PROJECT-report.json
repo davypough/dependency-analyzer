@@ -11,16 +11,6 @@
     ],
     "info":
     [
-      {
-        "type":"late-in-package",
-        "description":"In-package occurs after non-package form in /src/defs.lisp",
-        "context":["in-package","test-project-package"]
-      },
-      {
-        "type":"late-in-package",
-        "description":"In-package occurs after non-package form in /src/refs.lisp",
-        "context":["in-package","test-project-package"]
-      }
     ]
   },
   "files":{},
