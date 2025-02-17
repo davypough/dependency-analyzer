@@ -7,13 +7,6 @@
 (in-package #:dep)
 
 
-(alexandria:define-constant +valid-definition-types+ 
-  '(:STRUCTURE/CLASS/CONDITION :VARIABLE :FUNCTION :MACRO
-    :GENERIC-FUNCTION :METHOD :SYMBOL-MACRO :DEFTYPE :PACKAGE)  ;use :deftype instead of :type
-  :test #'equal
-  :documentation "Valid types for dependency definitions. Used for type checking and reference matching.")
-
-
 (defun format-if (stream control indent value)
   "Print an indented slot name and value only if VALUE is non-nil."
   (when value
@@ -174,8 +167,13 @@
   (print-unreadable-object (tracker stream :type t)
     (format stream "~A: ~D definitions, ~D references, ~D anomalies, ~D files"
             (slot-value tracker 'project-name)
-            (hash-table-count (slot-value tracker 'definitions))  ;need to collapse to actual definitions
-            (hash-table-count (slot-value tracker 'references))
+            (hash-table-count (slot-value tracker 'definitions))
+            (let ((count 0))  ; There may be multiple refs to the same def
+              (maphash (lambda (key refs)
+                        (declare (ignore key))
+                        (incf count (length refs)))
+                      (slot-value tracker 'references))
+              count)
             (hash-table-count (slot-value tracker 'anomalies))
             (hash-table-count (slot-value tracker 'file-map)))))
 

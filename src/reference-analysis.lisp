@@ -7,14 +7,6 @@
 (in-package :dep)
 
 
-(alexandria:define-constant +def*-forms+
-  '(defun defvar defparameter defconstant defclass defstruct defmethod defgeneric 
-    define-condition defmacro define-method-combination define-modify-macro
-    define-compiler-macro define-symbol-macro defsetf define-setf-expander deftype)
-  :test #'equal
-  :documentation "All the def* forms allowed in common lisp")
-
-
 (defun parse-references-in-file (parser)
   "Second pass parser that records references to previously recorded definitions.
    Processes in-package forms to maintain proper package context, 
@@ -35,24 +27,23 @@
 
 (defun analyze-reference-form (parser top-level-form)
   "Analyze source top-level-forms, recording references to definitions in different files."
-  (let (;(gf-top-level-form (copy-list top-level-form))  
-        (gf-p nil))  
+  (let ((gf-p nil))  
     (labels ((handle-reference (current-form context parent-context)
                (if (and (typep current-form '(or character package string symbol))
                         (find-package current-form))
-                 ;; Process a package designator
-                 (let* ((key (make-tracking-key current-form nil :package))  
+                 ;; Process a package designator - create single reference to all definitions
+                 (let* ((key (make-tracking-key current-form nil :package))
                         (defs (gethash key (slot-value *current-tracker* 'definitions)))
                         (other-file-defs (remove-if (lambda (def)
-                                                      (equal (definition.file def) (file parser)))
-                                                    defs)))
+                                                    (equal (definition.file def) (file parser)))
+                                                  defs)))
                    (when other-file-defs
                      (record-reference *current-tracker*
-                                       :name current-form
-                                       :type :package
-                                       :file (file parser)
-                                       :context parent-context
-                                       :definitions other-file-defs)))
+                                     :name current-form
+                                     :type :package
+                                     :file (file parser)
+                                     :context parent-context
+                                     :definitions other-file-defs)))
                  (when (symbolp current-form)
                    ;; Process a symbol reference
                    (unless (or (cl-symbol-p current-form)

@@ -182,7 +182,7 @@
               ((eq head 'define-method-combination)
                (record-definition *current-tracker*
                                 :name (second current-form)
-                                :type :function
+                                :type :method-combination
                                 :file (file parser)
                                 :package (current-package parser)
                                 :status (symbol-status (second current-form) (current-package parser))
@@ -249,22 +249,26 @@
     ;; Record exports for non-package definitions
     (unless (eq type :package)
       (when (eq status :external)
-        (record-export tracker package name)))
+        (record-export tracker (package-name package) name)))
     def))
 
 
-(defun record-export (tracker package-name name)
-  "Record a name as being exported from a package.
-   Both package-name and name can be either strings or symbols."
-  (let ((pkg (find-package (string package-name))))
+(defun record-export (tracker package-designator symbol)
+  "Record a symbol as being exported from a package.
+   Both package-designator and symbol can be either strings or symbols."
+  (let* ((pkg-name (etypecase package-designator
+                     (string package-designator)
+                     (package (package-name package-designator))
+                     (symbol (string package-designator))))
+         (pkg (find-package pkg-name))
+         (sym (etypecase symbol
+                (string (intern symbol pkg))
+                (symbol (intern (symbol-name symbol) pkg)))))
     (when pkg
-      (let ((exported-sym (etypecase name
-                            (string (intern name pkg))
-                            (symbol (intern (symbol-name name) pkg)))))
-        (pushnew exported-sym 
-                 (gethash (string package-name) 
-                         (slot-value tracker 'package-exports))
-                 :test #'eq)))))
+      (pushnew sym 
+               (gethash pkg-name 
+                       (slot-value tracker 'package-exports))
+               :test #'eq))))
 
 
 (defun get-defstruct-conc-name (name current-form)
@@ -381,88 +385,39 @@
 
 (defun analyze-defpackage/make-package (parser name current-form)
   "Handle defpackage/make-package form recording nicknames as definitions.
-   Uses runtime package info when available, falls back to form parsing
+   Uses runtime info when available, falls back to form parsing
    for make-package when package doesn't yet exist."
   (let ((file (file parser))
         (context current-form)
-        (form-type (car current-form))
-        (package (find-package name)))
+        (form-type (car current-form)))
     
-    ;; Try runtime first for both forms
-    (if package
-        ;; Use runtime info when available
-        (dolist (nickname (package-nicknames package))
-          (record-definition *current-tracker*
-                           :name nickname
-                           :type :PACKAGE  
-                           :file file
-                           :context context))
+    ;; For make-package forms, just analyze the form structure
+    (if (eq form-type 'make-package)
+        (loop for (key val) on (cddr current-form) by #'cddr
+              when (member key '(:nicknames :use))
+              do (when (and (consp val) 
+                           (member (car val) '(list quote)))
+                   (dolist (item (if (eq (car val) 'list)
+                                    (cdr val)    ; (list item1 item2)
+                                    (cadr val))) ; (quote (item1 item2))
+                     (when (or (symbolp item) (stringp item))
+                       (when (eq key :nicknames)
+                         (record-definition *current-tracker*
+                                          :name item
+                                          :type :package
+                                          :file file
+                                          :context context))))))
         
-        ;; Fall back to parsing for make-package only
-        (when (eq form-type 'make-package)
-          (loop for (key val) on (cddr current-form) by #'cddr
-                when (eq key :nicknames)
-                do (dolist (nick (ensure-list (if (and (consp val)
-                                                      (eq (car val) 'quote))
-                                               (cadr val)
-                                               val)))
-                     (record-definition *current-tracker*
-                                      :name nick
-                                      :type :PACKAGE
-                                      :file file
-                                      :context context)))))
-    
-    ;; Process exports only when package exists
-    (when package
-      (do-external-symbols (sym package)
-        (cond 
-          ((boundp sym)  ; Variable binding
-           (record-definition *current-tracker*
-                            :name sym
-                            :type :VARIABLE
-                            :file file
-                            :package package
-                            :status :EXTERNAL
-                            :context context))
-          ((macro-function sym)  ; Macro binding - check before fboundp
-           (record-definition *current-tracker*
-                            :name sym
-                            :type :MACRO
-                            :file file
-                            :package package
-                            :status :EXTERNAL
-                            :context context))
-          ((fboundp sym)  ; Function binding (not macro)
-           (if (typep (symbol-function sym) 'standard-generic-function)
-               (record-definition *current-tracker*
-                                :name sym
-                                :type :GENERIC-FUNCTION
-                                :file file
-                                :package package
-                                :status :EXTERNAL
-                                :context context)
-               (record-definition *current-tracker*
-                                :name sym
-                                :type :FUNCTION
-                                :file file
-                                :package package
-                                :status :EXTERNAL
-                                :context context)))
-          ((find-class sym nil)  ; Class definition
-           (record-definition *current-tracker*
-                            :name sym
-                            :type :STRUCTURE/CLASS/CONDITION
-                            :file file
-                            :package package
-                            :status :EXTERNAL
-                            :context context))
-          ((ignore-errors (subtypep nil sym))  ; Type definition
-           (record-definition *current-tracker*
-                            :name sym
-                            :type :DEFTYPE
-                            :file file
-                            :package package
-                            :status :EXTERNAL
-                            :context context)))))))
-
-
+        ;; For defpackage, use runtime info when available
+        (when-let (package (find-package name))
+          ;; Record nicknames
+          (dolist (nickname (package-nicknames package))
+            (record-definition *current-tracker*
+                             :name nickname
+                             :type :package 
+                             :file file
+                             :context context))
+          
+          ;; Record exports but don't create definitions
+          (do-external-symbols (sym package)
+            (record-export *current-tracker* package sym))))))

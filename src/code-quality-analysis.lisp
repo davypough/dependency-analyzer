@@ -1,6 +1,6 @@
-;;;; Filename:  anomaly-detection.lisp
+;;;; Filename:  code-quality-analysis.lisp
 
-;;;; Functions to detect anomalies in the user's project files.
+;;;; Functions to detect quality issues in the user's project files.
 
 
 (in-package :dep)
@@ -72,6 +72,40 @@
                        :description (format nil "Package ~A uses but never references symbols from ~A"
                                          using-pkg used)))))))
            (slot-value tracker 'package-uses)))
+
+
+(defun detect-multiple-package-definitions (tracker)
+  "Find packages defined in multiple places (defpackage/make-package).
+   Records :info anomaly suggesting consolidation when appropriate.
+   Detects multiple definitions both within and across files."
+  (let ((pkg-defs (make-hash-table :test 'equal)))
+    ;; Group package definitions by normalized name 
+    (maphash (lambda (key def-list)
+               (declare (ignore key))
+               (dolist (def def-list)
+                 (when (and (eq (definition.type def) :package)
+                          (not (gensym-form-p (definition.name def))))
+                   (let ((pkg-name (package-designator-to-string (definition.name def))))
+                     (push def (gethash pkg-name pkg-defs))))))
+             (slot-value tracker 'definitions))
+    
+    ;; Record anomaly for packages with multiple definitions
+    (maphash (lambda (pkg-name defs)
+               (when (> (length defs) 1)
+                 (let ((def-files (mapcar #'definition.file defs))
+                       (def-forms (mapcar #'definition.context defs)))
+                   (record-anomaly tracker
+                     :type :multiple-package-definitions
+                     :severity :info
+                     :file def-files  
+                     :package pkg-name
+                     :context def-forms
+                     :description 
+                     (format nil "Package ~S has ~D definitions (~{~A~^, ~}). Consider consolidating."
+                             pkg-name
+                             (length defs)
+                             (mapcar #'project-pathname def-files))))))
+             pkg-defs)))
 
 
 (defun detect-suboptimal-package-placement (tracker)
@@ -181,27 +215,34 @@
 
 
 (defun detect-shadowed-definitions (tracker)
-  "Find definitions that shadow inherited symbols from other packages."
-  (maphash (lambda (key defs)
-             (declare (ignore key))
-             (dolist (def defs)
-               (let ((sym-name (definition.name def))
-                     (pkg (definition.package def)))
-                 (when (and pkg (symbolp sym-name))
-                   (multiple-value-bind (inherited status)
-                       (find-symbol (string sym-name) pkg)
-                     (when (and inherited 
-                               (eq status :inherited)
-                               (not (eq (definition.type def) :package)))
-                       (record-anomaly tracker
-                         :type :shadowed-definition
-                         :severity :warning
-                         :file (definition.file def)
-                         :package pkg
-                         :description (format nil "Definition of ~A shadows inherited symbol from ~A"
-                                           sym-name 
-                                           (package-name (symbol-package inherited))))))))))
-           (slot-value tracker 'definitions)))
+  "Find definitions that shadow inherited symbols from other packages.
+   Excludes valid CLOS method definitions that extend inherited generic functions."
+  (maphash 
+    (lambda (key defs)
+      (declare (ignore key))
+      (dolist (def defs)
+        (let ((sym-name (definition.name def))
+              (pkg (definition.package def)))
+          (when (and pkg (symbolp sym-name))
+            (multiple-value-bind (found-sym status)
+                (find-symbol (string sym-name) pkg)
+              (when (and found-sym 
+                        (eq status :inherited)
+                        (not (eq (definition.type def) :package))
+                        (not (and (eq (definition.type def) :method)
+                                 (fboundp sym-name)
+                                 (typep (fdefinition sym-name) 
+                                       'generic-function))))
+                (record-anomaly tracker
+                  :type :shadowed-definition
+                  :severity :warning
+                  :file (definition.file def)
+                  :package pkg
+                  :description (format nil 
+                                "Definition of ~A shadows inherited symbol from ~A"
+                                sym-name 
+                                (package-name (symbol-package found-sym))))))))))
+    (slot-value tracker 'definitions)))
 
 
 (defun detect-qualified-internal-references (tracker)
@@ -279,25 +320,31 @@
 (defun detect-inline-package-references (tracker)
   "Find direct references to package names in code.
    This detects strings and keywords used as package designators,
-   which makes package renaming harder than using package variables."
+   which makes package renaming harder than using package variables.
+   Excludes references in own package definition contexts."
   (maphash 
     (lambda (key refs)
       (declare (ignore key))
       (dolist (ref refs)
         (when (and (reference.name ref)  ; Check we have a name
                   (or (stringp (reference.name ref))
-                      (keywordp (reference.name ref)))
-                  ;; Ignore references in package definition contexts
-                  (not (member (first (reference.context ref))
-                             '(defpackage in-package make-package delete-package))))
-          (record-anomaly tracker
-            :type :inline-package-reference
-            :severity :warning
-            :file (reference.file ref)
-            :package (reference.package ref)
-            :description (format nil "Package name ~S referenced directly. Consider using a package variable instead"
-                               (reference.name ref))
-            :context (reference.context ref)))))
+                      (keywordp (reference.name ref))))
+          ;; Only flag if reference isn't in its own package definition
+          (let ((context (reference.context ref)))
+            (unless (and (consp context)
+                        (member (first context) '(defpackage in-package make-package delete-package))
+                        ;; For package definition forms, check if defining same package
+                        (or (not (eq (first context) 'defpackage))
+                            (equal (string (second context))
+                                   (string (reference.name ref)))))
+              (record-anomaly tracker
+                :type :inline-package-reference
+                :severity :info
+                :file (reference.file ref)
+                :package (reference.package ref)
+                :description (format nil "Package name ~S referenced directly. Consider using a package variable instead"
+                                   (reference.name ref))
+                :context context))))))
     (slot-value tracker 'references)))
 
 
@@ -334,7 +381,7 @@
                                 :key #'c2mop:slot-definition-name)))
                   (record-anomaly tracker
                     :type :indirect-slot-access
-                    :severity :warning
+                    :severity :info
                     :file (reference.file ref)
                     :package (reference.package ref)
                     :description 

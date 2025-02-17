@@ -13,6 +13,7 @@
  :serial t
  :components ((:module "src"
                 :components ((:file "init")
+                             (:file "globals")
                              (:file "classes")
                              (:file "shared")
                              (:file "main")
@@ -20,6 +21,6 @@
                              (:file "reference-analysis")
                              (:file "method-reference-analysis")
                              (:file "package-symbol-analysis")
-                             (:file "anomaly-detection")
+                             (:file "code-quality-analysis")
                              (:file "report-utils")
                              (:file "report")))))

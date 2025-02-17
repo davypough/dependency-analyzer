@@ -63,18 +63,28 @@
 
 (defun analyze-in-package (parser form)
   "Handle in-package forms by updating the current package context.
-   Signals an error if referenced package doesn't exist."
+   For uninterned symbols, updates parser state but skips package validation."
   (let* ((pkg-designator (second form))
-         (pkg (find-package pkg-designator)))
-    (if pkg
-        (setf (current-package parser) pkg
-              (current-package-name parser) (package-name pkg))
-        (format t "~2%Cannot accurately analyze dependencies:~%~
-                File: ~A~%~
-                Form: ~S~%~
-                References undefined package: ~A~2%~
-                Please ensure all package definitions compile and load successfully before analysis.~2%"
-               (project-pathname (file parser)) form pkg-designator))))
+         (pkg (and (or (symbolp pkg-designator) (stringp pkg-designator))
+                  (find-package (string pkg-designator)))))
+    (cond 
+      ;; Found existing package
+      (pkg
+       (setf (current-package parser) pkg
+             (current-package-name parser) (package-name pkg)))
+      ;; Uninterned symbol - just update parser state
+      ((and (symbolp pkg-designator) 
+            (not (symbol-package pkg-designator)))
+       (setf (current-package parser) (find-package :common-lisp-user)
+             (current-package-name parser) (symbol-name pkg-designator)))
+      ;; Invalid package reference  
+      (t
+       (format t "~2%Cannot accurately analyze dependencies:~%~
+                 File: ~A~%~
+                 Form: ~S~%~
+                 References undefined package: ~A~2%~
+                 Please ensure all package definitions compile and load successfully before analysis.~2%"
+                (project-pathname (file parser)) form pkg-designator)))))
 
 
 (defun walk-form (form handler)
@@ -139,14 +149,6 @@
       (eq (car item) 'quote)))
 
 
-;;;;;;;;;; move to report.lisp ;;;;;;;;;;;;;;;;
-
-(defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
-  "Get all definitions in a file."
-  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (gethash file (slot-value actual-tracker 'file-map))))
-
-
 (defun collect-file-references (tracker source-file target-file)
   "Collect all references in SOURCE-FILE that reference definitions in TARGET-FILE.
    Returns a list of reference objects."
@@ -171,3 +173,9 @@
                          (reference.name r)
                          (reference.qualifiers r)
                          (reference.arguments r)))))))
+
+
+(defun get-file-definitions (&optional (tracker nil tracker-provided-p) file)
+  "Get all definitions in a file."
+  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
+    (gethash file (slot-value actual-tracker 'file-map))))

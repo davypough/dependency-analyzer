@@ -19,6 +19,5 @@ digraph Dependencies {
     label="File Dependencies";
     style=dashed;
     node [style=filled,fillcolor=lightblue];
-    "defs_lisp" [label="/src/defs.lisp",fillcolor=lightgreen];
-    "refs_lisp" [label="/src/refs.lisp",fillcolor=lightgreen];
+    "defs_lisp" [label="/src/defs.lisp",fillcolor=pink];
   }

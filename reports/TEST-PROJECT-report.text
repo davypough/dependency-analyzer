@@ -1,17 +1,17 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2025-02-14T21:46:52.890816Z
+Generated: 2025-02-17T19:06:08.679478Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
-  Files: 2
+  Files: 1
   Packages: 0
-  Definitions: 22
-  References: 19
-  Anomalies: 0
+  Definitions: 58
+  References: 0
+  Anomalies: 1
 
 
 SYSTEM DETAILS
@@ -28,12 +28,16 @@ Package Hierarchy:
   No package dependencies found.
 
 File Hierarchy:
-├── defs.lisp
-└── refs.lisp
+└── defs.lisp
 
 
 ANOMALIES AND ANALYSIS
 ------------------------------
+Warning Level Findings:
+
+  Definition Level:
+    Definition of *SPECIAL1* shadows inherited symbol from USER-PKG
+
 MAINTENANCE CONSIDERATIONS
 ------------------------------
 

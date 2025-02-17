@@ -8,6 +8,10 @@
     ],
     "warning":
     [
+      {
+        "type":"shadowed-definition",
+        "description":"Definition of *SPECIAL1* shadows inherited symbol from USER-PKG"
+      }
     ],
     "info":
     [

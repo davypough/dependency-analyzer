@@ -2,3 +2,11 @@ Filename: ANOMALIES.LOG
 
 The list of all anomalies detected during dependency analysis of the test-project project.
 
+ANOMALY>
+    :Description "Definition of *SPECIAL1* shadows inherited symbol from USER-PKG"
+    :Type :SHADOWED-DEFINITION
+    :Severity :WARNING
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+
