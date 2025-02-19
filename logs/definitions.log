@@ -50,36 +50,34 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name #:TEST-PKG
-    :Context (DEFPACKAGE #:TEST-PKG
-               (:NICKNAMES #:TST :TPKG)
+    :Name #:TEST1-PKG
+    :Context (DEFPACKAGE #:TEST1-PKG
+               (:NICKNAMES :T1PKG)
                (:USE :CL)
                (:EXPORT #:VAR1 #:PARAM1 #:+CONST1+ #:*SPECIAL1*))
     :Type :PACKAGE
     :File /src/defs.lisp
 
 DEFINITION>
-    :Name "TST"
-    :Context (DEFPACKAGE #:TEST-PKG
-               (:NICKNAMES #:TST :TPKG)
+    :Name :T1PKG
+    :Context (DEFPACKAGE #:TEST1-PKG
+               (:NICKNAMES :T1PKG)
                (:USE :CL)
                (:EXPORT #:VAR1 #:PARAM1 #:+CONST1+ #:*SPECIAL1*))
     :Type :PACKAGE
     :File /src/defs.lisp
 
 DEFINITION>
-    :Name "TPKG"
-    :Context (DEFPACKAGE #:TEST-PKG
-               (:NICKNAMES #:TST :TPKG)
-               (:USE :CL)
-               (:EXPORT #:VAR1 #:PARAM1 #:+CONST1+ #:*SPECIAL1*))
+    :Name :TEST2-PKG
+    :Context (MAKE-PACKAGE :TEST2-PKG :NICKNAMES '("T2PKG") :USE
+                           '("COMMON-LISP"))
     :Type :PACKAGE
     :File /src/defs.lisp
 
 DEFINITION>
-    :Name (GENSYM "TEST-PKG")
-    :Context (MAKE-PACKAGE (GENSYM "TEST-PKG") :NICKNAMES
-                           (LIST (GENSYM "TPKG")) :USE '("COMMON-LISP"))
+    :Name "T2PKG"
+    :Context (MAKE-PACKAGE :TEST2-PKG :NICKNAMES '("T2PKG") :USE
+                           '("COMMON-LISP"))
     :Type :PACKAGE
     :File /src/defs.lisp
 
@@ -208,7 +206,7 @@ DEFINITION>
     :Type :GENERIC-FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Status :NIL
+    :Status :INTERNAL
 
 DEFINITION>
     :Name GF1
@@ -247,7 +245,7 @@ DEFINITION>
     :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Status :NIL
+    :Status :INTERNAL
     :Qualifiers (:AROUND)
     :Specializers (T CONS)
 
@@ -392,7 +390,7 @@ DEFINITION>
     :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Status :NIL
+    :Status :INTERNAL
     :Specializers (NAMED-POINT)
 
 DEFINITION>
@@ -416,7 +414,7 @@ DEFINITION>
     :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Status :NIL
+    :Status :INTERNAL
     :Specializers (NAMED-POINT)
 
 DEFINITION>
@@ -440,7 +438,7 @@ DEFINITION>
     :Type :METHOD
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Status :NIL
+    :Status :INTERNAL
     :Specializers (NAMED-POINT)
 
 DEFINITION>

@@ -127,11 +127,12 @@
 
 
 (defun symbol-status (sym pkg)
-  "Determines the status of a symbol in a package, :internal, :external, :inherited, :nil."
-  (let ((name (if (and (listp sym) (eq (car sym) 'setf))
-                  (format nil "(SETF ~A)" (symbol-name (cadr sym)))
-                  (symbol-name sym))))
-    (if-let (status (nth-value 1 (find-symbol name pkg)))
+  "Determines the status of a symbol in a package, :internal, :external, :inherited, :nil.
+   For setf functions, checks the status of the base name."
+  (let ((base-sym (if (and (listp sym) (eq (car sym) 'setf))
+                      (cadr sym)  ; Extract base symbol from (setf sym)
+                      sym)))
+    (if-let (status (nth-value 1 (find-symbol (symbol-name base-sym) pkg)))
        status
        :nil)))
 

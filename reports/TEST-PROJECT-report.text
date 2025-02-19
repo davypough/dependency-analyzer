@@ -1,19 +1,19 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2025-02-19T02:34:01.089535Z
+Generated: 2025-02-19T22:24:49.409731Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
   Files: 1
-  Packages: 4
+  Packages: 2
   Definitions: 58
   References: 0
-  Total Symbols: 3984
-  Package Dependencies: 3
-  Anomalies: 1
+  Total Symbols: 1956
+  Package Dependencies: 1
+  Anomalies: 0
 
 
 SYSTEM DETAILS
@@ -35,7 +35,6 @@ File Hierarchy:
 
 ANOMALIES AND ANALYSIS
 ------------------------------
-Info Level Findings:
 MAINTENANCE CONSIDERATIONS
 ------------------------------
 

@@ -405,15 +405,18 @@
                                           :file file
                                           :context context))))))
         
-        ;; For defpackage, use runtime info when available
+        ;; For defpackage, first verify package exists
         (when-let (package (find-package name))
-          ;; Record nicknames
-          (dolist (nickname (package-nicknames package))
-            (record-definition *current-tracker*
-                             :name nickname
-                             :type :package 
-                             :file file
-                             :context context))
+          ;; Record nicknames directly from defpackage form
+          (let ((options (cddr current-form)))
+            (loop for (option options) on options by #'cddr
+                  when (eq (car option) :nicknames)
+                  do (dolist (nickname (cdr option))
+                       (record-definition *current-tracker*
+                                        :name nickname ; Preserve original designator
+                                        :type :package
+                                        :file file
+                                        :context context))))
           
           ;; Record exports but don't create definitions
           (do-external-symbols (sym package)
