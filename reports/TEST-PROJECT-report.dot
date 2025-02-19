@@ -7,6 +7,8 @@ digraph Dependencies {
     label="System Dependencies";
     style=dashed;
     node [style=filled,fillcolor=lightpink];
+    "sys_test_project" [label="test-project"];
+    "sys_test_project" -> "sys_test_project";
   }
 
   subgraph cluster_packages {
@@ -15,9 +17,20 @@ digraph Dependencies {
     node [style=filled,fillcolor=lightgrey];
   }
 
+  subgraph cluster_types {
+    label="Type Dependencies";
+    style=dashed;
+    node [style=filled,fillcolor=lightyellow];
+    "type_named_point" [label="NAMED-POINT"];
+    "type_monitored_point" [label="MONITORED-POINT"];
+    "type_named_point" [label="NAMED-POINT"];
+    "type_monitored_point" -> "type_named_point";
+  }
+
   subgraph cluster_files {
     label="File Dependencies";
     style=dashed;
     node [style=filled,fillcolor=lightblue];
     "defs_lisp" [label="/src/defs.lisp",fillcolor=pink];
   }
+}

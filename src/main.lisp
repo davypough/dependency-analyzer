@@ -86,13 +86,9 @@
 
           ;; Post-pass analysis
           ;(detect-unused-definitions *current-tracker*)  ;maybe enhance later
-          (detect-redundant-package-uses *current-tracker*)
-          (detect-suboptimal-package-placement *current-tracker*)
-          (detect-shadowed-definitions *current-tracker*)
-          (detect-qualified-internal-references *current-tracker*)
-          (detect-circular-type-dependencies *current-tracker*)
-          (detect-inline-package-references *current-tracker*)
-          (detect-indirect-slot-access *current-tracker*)
+          (analyze-package-dependencies *current-tracker*)
+          (analyze-package-exports *current-tracker*)
+          (analyze-type-relationships *current-tracker*)
 
           ;; Log final definitions, references, anomalies
           (let ((*print-circle* nil) ;disable circular notation
@@ -153,13 +149,16 @@
 
 
 (defun get-runtime-dependencies (system-name)
-  "Get runtime dependencies as a list of system names"
-  (let ((sys (asdf:find-system system-name)))
-    (remove-duplicates 
-     (mapcar #'(lambda (dep)
-                 (asdf:primary-system-name (second dep)))
-             (asdf:component-depends-on 'asdf:load-op sys))
-     :test #'string=)))
+  "Get runtime dependencies as a hash table mapping systems to dependency lists"
+  (let ((result (make-hash-table :test 'equal))
+        (sys (asdf:find-system system-name)))
+    (setf (gethash (asdf:primary-system-name system-name) result)
+          (remove-duplicates 
+           (mapcar #'(lambda (dep)
+                       (asdf:primary-system-name (second dep)))
+                   (asdf:component-depends-on 'asdf:load-op sys))
+           :test #'string=))
+    result))
 
 
 ;;; Compute the full transitive closure of dependencies.

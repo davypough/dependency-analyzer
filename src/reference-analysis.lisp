@@ -93,16 +93,16 @@
    DEFINITIONS is a non-empty list of definitions this reference depends on
    QUALIFIERS tracks method qualifiers in the ref 
    ARGUMENTS is a list of argument values"
-  (let* ((pkg-name (etypecase name
-                     (string name) 
-                     (symbol (when (symbol-package name)
-                              (package-name (symbol-package name))))))
+  (let* ((pkg-str (package-designator-to-string name))  ;(etypecase name
+                                                         ;   (string name) 
+                                                         ;   (symbol (when (symbol-package name)
+                                                         ;             (package-name (symbol-package name))))))
          (specializers (when (and (eq type :method) 
                                 definitions)
                         (definition.specializers (first definitions))))
          (key (if (eq type :method)
-                 (make-tracking-key name pkg-name type qualifiers specializers)
-                 (make-tracking-key name pkg-name type)))
+                 (make-tracking-key name pkg-str type qualifiers specializers)
+                 (make-tracking-key name pkg-str type)))
          (ref (make-instance 'reference 
                           :name name 
                           :file file

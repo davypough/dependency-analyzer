@@ -6,6 +6,432 @@
 (in-package :dep)
 
 
+(defun analyze-package-dependencies (tracker)
+  "Analyze runtime package relationships for anomalies and reporting metrics.
+   Generates INFO level anomalies for structural patterns,
+   WARNING level for potential issues, and 
+   ERROR level for definite problems."
+  
+  ;; Data structures for report metrics
+  (let ((package-metrics (make-hash-table :test 'equal))    ; For executive summary
+        (package-graph (make-hash-table :test 'equal))      ; For architectural overview
+        (package-details (make-hash-table :test 'equal)))   ; For detailed references
+
+    ;; Step 1: Collect package relationships and record metrics
+    (dolist (pkg (slot-value tracker 'project-packages))
+      (let* ((pkg-name (package-name pkg))
+             (used-packages (package-use-list pkg))
+             (local-symbols (count-if 
+                            (lambda (s) 
+                              (eq (symbol-package s) pkg))
+                            (list-all-symbols pkg)))
+             (inherited-symbols (count-if 
+                               (lambda (s)
+                                 (eq (nth-value 1 (find-symbol (symbol-name s) pkg))
+                                     :inherited))
+                               (list-all-symbols pkg))))
+
+        ;; Record metrics for reports
+        (setf (gethash pkg-name package-metrics)
+              (list :local-symbols local-symbols
+                    :inherited-symbols inherited-symbols
+                    :used-packages (length used-packages)))
+        
+        ;; Record dependency graph data
+        (setf (gethash pkg-name package-graph)
+              (mapcar #'package-name used-packages))
+        
+        ;; Record detailed symbol usage
+        (setf (gethash pkg-name package-details)
+              (analyze-package-usage tracker pkg))))
+
+    ;; Step 2: Analyze for anomalies
+    (let ((cycles (detect-dependency-cycles package-graph)))
+      (when cycles
+        (dolist (cycle cycles)
+          (record-anomaly tracker
+            :type :package-cycle
+            :severity :warning
+            :file (mapcar (lambda (pkg)
+                           (find-package-definition-file tracker pkg))
+                         cycle)
+            :description 
+            (format nil "Package dependency cycle detected: ~{~A~^ -> ~}" cycle)
+            :context cycle))))
+
+    ;; Step 3: Update tracker with report data
+    (setf (slot-value tracker 'package-metrics) package-metrics
+          (slot-value tracker 'package-graph) package-graph
+          (slot-value tracker 'package-details) package-details)))
+
+
+(defun analyze-package-usage (tracker pkg)
+  "Analyze detailed symbol usage patterns for a package.
+   Returns alist of (symbol-name . usage-info) for reporting."
+  (let ((usage-data nil))
+    (do-symbols (sym pkg)
+      (multiple-value-bind (symbol status) 
+          (find-symbol (symbol-name sym) pkg)
+        (when symbol ; Skip unbound symbols
+          (push 
+           (list (symbol-name symbol)
+                 :status status
+                 :references (count-symbol-references tracker symbol pkg)
+                 :exports (when (eq status :external)
+                           (collect-export-references tracker symbol)))
+           usage-data))))
+    usage-data))
+
+
+(defun count-symbol-references (tracker symbol pkg)
+  "Count references to a symbol from within a specific package.
+   Returns total number of references from the package to that symbol.
+   
+   Parameters:
+   tracker - The dependency tracker instance
+   symbol - The symbol to count references for
+   pkg - The package to check references from"
+  (let ((ref-count 0))
+    ;; Look through all references in the tracker
+    (maphash (lambda (key refs)
+               (declare (ignore key))
+               ;; For each reference from the target package
+               (dolist (ref refs)
+                 (when (and (eq (reference.package ref) pkg)
+                          (equal (reference.name ref) symbol))
+                   (incf ref-count))))
+             (slot-value tracker 'references))
+    ref-count))
+
+
+(defun collect-export-references (tracker symbol)
+  "Collect information about where an exported symbol is referenced.
+   Returns list of packages that reference this exported symbol.
+   
+   Parameters:
+   tracker - The dependency tracker instance
+   symbol - The exported symbol to analyze"
+  (let ((referencing-packages nil))
+    ;; Examine all references
+    (maphash (lambda (key refs)
+               (declare (ignore key))
+               (dolist (ref refs)
+                 ;; When reference matches our symbol
+                 (when (equal (reference.name ref) symbol)
+                   ;; Record the referencing package
+                   (pushnew (package-name (reference.package ref))
+                           referencing-packages 
+                           :test #'string=))))
+             (slot-value tracker 'references))
+    ;; Return sorted list of referencing packages
+    (sort referencing-packages #'string<)))
+
+
+(defun find-package-definition-file (tracker pkg-name)
+  "Find the file containing the defpackage form for a package."
+  (let ((def-key (make-tracking-key pkg-name nil :package)))
+    (when-let ((defs (gethash def-key (slot-value tracker 'definitions))))
+      (definition.file (first defs)))))
+
+
+(defun detect-dependency-cycles (graph)
+  "Detect cycles in a dependency graph using depth-first search.
+   Returns list of cycles found in the graph.
+   
+   Parameters:
+   graph - Hash table mapping nodes to their dependencies
+   
+   Returns:
+   List of cycles, where each cycle is a list of nodes in cycle order.
+   
+   Algorithm:
+   1. Maintain visited and path sets during DFS traversal
+   2. When a back edge is found (visited node in current path), cycle detected
+   3. Record complete cycle path for reporting"
+  (let ((cycles nil)                          ; Accumulate detected cycles
+        (visited (make-hash-table :test 'equal)) ; Track all visited nodes
+        (path nil))                           ; Current DFS path
+    
+    (labels ((visit (node)
+               ;; Check node's status in current traversal
+               (let ((status (gethash node visited)))
+                 (cond
+                   ;; Already fully explored - no cycles here
+                   ((eq status :completed) nil)
+                   
+                   ;; Found node in current path - cycle detected
+                   ((eq status :in-progress)
+                    (let* ((cycle-start (position node path :test #'equal))
+                           (cycle (reverse (cons node (subseq path 0 cycle-start)))))
+                      (pushnew cycle cycles :test #'equal)))
+                   
+                   ;; New node - explore it
+                   (t
+                    (setf (gethash node visited) :in-progress)
+                    (push node path)
+                    ;; Recursively visit each dependency
+                    (dolist (dep (gethash node graph))
+                      (visit dep))
+                    (pop path)
+                    (setf (gethash node visited) :completed))))))
+      
+      ;; Start DFS from each unvisited node
+      (maphash (lambda (node deps)
+                 (declare (ignore deps))
+                 (unless (gethash node visited)
+                   (visit node)))
+               graph))
+    
+    ;; Return detected cycles sorted for consistent reporting
+    (sort cycles #'string< 
+          :key (lambda (cycle)
+                 (format nil "~{~A~^->~}" cycle)))))
+
+
+(defun list-all-symbols (pkg)
+  "List all symbols accessible in a package, including inherited ones.
+   Returns a fresh list to avoid package lock issues.
+   
+   Parameters:
+   pkg - A package designator (name or package object)
+   
+   Returns:
+   List of all symbols accessible in the package, with duplicates removed.
+   
+   Notes:
+   1. Includes internal, external, and inherited symbols
+   2. Handles both present and shadowed symbols
+   3. Returns fresh list to avoid modifying package data
+   4. Processes package designator safely"
+  
+  (let ((package (etypecase pkg
+                   (package pkg)
+                   (string (find-package pkg))
+                   (symbol (find-package pkg))))
+        (symbols nil))
+    
+    (unless package
+      (error "Invalid package designator: ~A" pkg))
+    
+    ;; Collect all accessible symbols
+    (do-symbols (sym package)
+      (push sym symbols))
+    
+    ;; Remove duplicates and sort for consistent output
+    (sort (remove-duplicates symbols) #'string< :key #'symbol-name)))
+
+
+(defun analyze-package-exports (tracker)
+  "Analyze runtime export patterns between packages.
+   Focuses on post-compilation metrics and relationships that inform
+   the architectural report. Records patterns that suggest potential
+   package organization improvements."
+  (let ((export-usage (make-hash-table :test 'equal))    ; Maps exports to reference patterns
+        (pkg-relationships (make-hash-table :test 'equal))) ; Maps packages to export dependencies
+    
+    ;; Phase 1: Build export usage patterns
+    (maphash (lambda (key refs)
+               (declare (ignore key))
+               (dolist (ref refs)
+                 (let* ((sym (reference.name ref))
+                        (home-pkg (symbol-package sym))
+                        (using-pkg (reference.package ref)))
+                   ;; Only track references to exported symbols
+                   (when (and home-pkg using-pkg
+                            (not (eq home-pkg using-pkg))
+                            (eq (nth-value 1 (find-symbol (symbol-name sym) home-pkg))
+                                :external))
+                     ;; Record which packages use exports from which other packages
+                     (pushnew (list (package-name home-pkg)     ; Source package
+                                   (package-name using-pkg)      ; Using package  
+                                   (symbol-name sym))            ; Symbol used
+                              (gethash (package-name home-pkg) export-usage)
+                              :test #'equal)))))
+             (slot-value tracker 'references))
+    
+    ;; Phase 2: Analyze usage patterns to detect package relationships
+    (maphash (lambda (source-pkg usages)
+               ;; Group usages by target package
+               (let ((pkg-usage (make-hash-table :test 'equal)))
+                 (dolist (usage usages)
+                   (destructuring-bind (source user sym) usage
+                     (declare (ignore source))
+                     (push sym (gethash user pkg-usage))))
+                 
+                 ;; Record significant relationships (using multiple exports)
+                 (maphash (lambda (user-pkg symbols)
+                           (when (> (length symbols) 2)  ; Using more than 2 exports suggests relationship
+                             (push (list user-pkg symbols)
+                                   (gethash source-pkg pkg-relationships))))
+                         pkg-usage)))
+             export-usage)
+    
+    ;; Phase 3: Update package metrics with export analysis
+    (maphash (lambda (pkg metrics)
+               (let ((exported-syms (get-package-exports tracker pkg))
+                     (dependent-pkgs 0)
+                     (export-refs 0))
+                 ;; Count packages depending on our exports
+                 (when-let (relationships (gethash pkg pkg-relationships))
+                   (setf dependent-pkgs (length relationships)
+                         export-refs (reduce #'+ relationships 
+                                           :key (lambda (r) (length (second r)))))
+                 ;; Update metrics
+                 (setf (gethash pkg (slot-value tracker 'package-metrics))
+                       (list :local-symbols (getf metrics :local-symbols)
+                             :inherited-symbols (getf metrics :inherited-symbols)
+                             :used-packages (getf metrics :used-packages)
+                             :exported-symbols (length exported-syms)
+                             :export-users dependent-pkgs
+                             :export-references export-refs)))))
+             (slot-value tracker 'package-metrics))
+    
+    ;; Phase 4: Record insights about package organization
+    (maphash (lambda (source-pkg relationships)
+               (let ((total-refs 0)
+                     (total-users 0))
+                 ;; Analyze usage patterns
+                 (dolist (rel relationships)
+                   (destructuring-bind (nil symbols) rel
+                     (incf total-users)
+                     (incf total-refs (length symbols)))
+                   
+                   ;; Record noteworthy patterns
+                   (when (> total-refs (* 3 total-users))  ; Avg > 3 refs per user
+                     (record-anomaly tracker
+                       :type :package-cohesion
+                       :severity :info
+                       :package source-pkg
+                       :description 
+                       (format nil "Package ~A provides core functionality to ~D other packages (~D refs)"
+                               source-pkg total-users total-refs))))))
+             pkg-relationships)))
+
+
+(defun analyze-type-relationships (tracker)
+  "Analyze runtime type dependencies that could impact maintainability.
+   Examines only successfully compiled and loaded class relationships.
+   Focused on structural patterns rather than validity checking.
+   
+   Analysis covers:
+   1. Slot type dependency cycles
+   2. Inheritance hierarchy cycles  
+   3. Complex specializer relationships
+   4. Cross-package type coupling"
+  
+  ;; Data structures for tracking relationships
+  (let ((type-metrics (make-hash-table :test 'equal))      ; For reporting metrics
+        (visited (make-hash-table :test 'eq))              ; For DFS traversal
+        (path nil))                                        ; Current DFS path
+
+    ;; Clear any existing type graph in tracker
+    (setf (slot-value tracker 'type-graph) (make-hash-table :test 'equal))
+
+    ;; Step 1: Build type dependency graph from runtime class relationships
+    (maphash (lambda (key def-list)
+               (declare (ignore key))
+               (dolist (def def-list)
+                 (when (eq (definition.type def) :structure/class/condition)
+                   (let* ((type-name (definition.name def))
+                          (class (find-class type-name nil)))
+                     (when (and class (typep class 'standard-class))
+                       ;; Get dependencies through slots and inheritance
+                       (let ((deps (get-type-dependencies class)))
+                         ;; Store in tracker slot instead of local variable
+                         (setf (gethash type-name (slot-value tracker 'type-graph)) deps)
+                         ;; Record metrics about the relationships
+                         (setf (gethash type-name type-metrics)
+                               (analyze-type-usage class deps))))))))
+             (slot-value tracker 'definitions))
+
+    ;; Step 2: Detect cycles using tracker's type graph
+    (labels ((visit (type-name)
+               (let ((status (gethash type-name visited)))
+                 (cond
+                   ((eq status :completed) nil)
+                   ((eq status :in-progress)
+                    (let* ((cycle-start (position type-name path :test #'equal))
+                           (cycle (reverse (cons type-name 
+                                               (subseq path 0 cycle-start)))))
+                      ;; Record cycle but only if it crosses package boundaries
+                      (when (complex-type-cycle-p cycle)
+                        (record-anomaly tracker
+                          :type :complex-type-dependency
+                          :severity :warning
+                          :package (symbol-package (car cycle))
+                          :context cycle
+                          :description
+                          (format nil "Complex type dependency cycle detected: ~{~A~^ -> ~}"
+                                  cycle)))))
+                   (t 
+                    (setf (gethash type-name visited) :in-progress)
+                    (push type-name path)
+                    ;; Use tracker's type graph instead of local variable
+                    (dolist (dep (gethash type-name (slot-value tracker 'type-graph)))
+                      (visit dep))
+                    (pop path)
+                    (setf (gethash type-name visited) :completed))))))
+
+      ;; Start DFS from each unvisited type using tracker's type graph
+      (maphash (lambda (type-name deps)
+                 (declare (ignore deps))
+                 (unless (gethash type-name visited)
+                   (visit type-name)))
+               (slot-value tracker 'type-graph)))
+
+    ;; Update tracker with type analysis metrics for reporting
+    (setf (slot-value tracker 'type-metrics) type-metrics)))
+
+
+(defun get-type-dependencies (class)
+  "Get all direct type dependencies for a class through slots and inheritance.
+   Returns list of dependent type names that are user-defined classes."
+  (let ((deps nil))
+    ;; Get slot type dependencies
+    (dolist (slot (c2mop:class-direct-slots class))
+      (let ((slot-type (c2mop:slot-definition-type slot)))
+        (when (and slot-type (find-class slot-type nil))
+          (pushnew slot-type deps))))
+    
+    ;; Get superclass dependencies
+    (dolist (super (c2mop:class-direct-superclasses class))
+      (pushnew (class-name super) deps))
+    
+    ;; Return only user-defined classes (exclude CL types)
+    (remove-if (lambda (type-name)
+                 (eq (symbol-package type-name)
+                     (find-package :common-lisp)))
+               deps)))
+
+
+(defun analyze-type-usage (class deps)
+  "Analyze how a class is used within the system.
+   Returns metrics alist with usage patterns."
+  (let* ((class-name (class-name class))
+         (pkg (symbol-package class-name))
+         (n-slots (length (c2mop:class-direct-slots class)))
+         (n-methods (length (c2mop:specializer-direct-methods class)))
+         (n-subclasses (length (c2mop:class-direct-subclasses class)))
+         (foreign-deps (remove-if (lambda (dep)
+                                   (eq (symbol-package dep) pkg))
+                                 deps)))
+    `((:total-slots . ,n-slots)
+      (:total-methods . ,n-methods) 
+      (:total-subclasses . ,n-subclasses)
+      (:cross-package-deps . ,(length foreign-deps)))))
+
+
+(defun complex-type-cycle-p (cycle)
+  "Returns true if cycle exhibits complex dependencies:
+   - Crosses package boundaries
+   - Involves 3 or more types
+   - Contains bidirectional relationships"
+  (and (> (length cycle) 2)
+       (> (length (remove-duplicates cycle 
+                                   :key #'symbol-package))
+          1)))
+
+
 #+ignore (defun detect-unused-definitions (tracker)  ;redo later, too many ways to reference a definition
   "Find user-created definitions that are never referenced."
   (let ((used-defs (make-hash-table :test 'equal)))
@@ -44,366 +470,3 @@
        (not (or (search "-P" name :from-end t) ; predicates
                 (search "COPY-" name))))          ; copiers
       (t t))))  ; Keep all other types of definitions
-
-
-(defun detect-redundant-package-uses (tracker)
-  "Find packages that are used but none of their symbols are referenced."
-  (maphash (lambda (using-pkg used-pkgs)
-             (dolist (used used-pkgs)
-               (unless (eq used "CL") ; Skip common-lisp package
-                 (let ((used-symbols nil))
-                   ;; Check all references from using-pkg
-                   (maphash (lambda (key refs)
-                             (declare (ignore key))
-                             (dolist (ref refs)
-                               (when (and (eq (reference.package ref) 
-                                            (find-package using-pkg))
-                                        (equal (package-name 
-                                               (symbol-package (reference.name ref)))
-                                              used))
-                                 (setf used-symbols t))))
-                           (slot-value tracker 'references))
-                   (unless used-symbols
-                     (record-anomaly tracker
-                       :type :redundant-package-use  
-                       :severity :warning
-                       :file using-pkg
-                       :package using-pkg
-                       :description (format nil "Package ~A uses but never references symbols from ~A"
-                                         using-pkg used)))))))
-           (slot-value tracker 'package-uses)))
-
-
-(defun detect-multiple-package-definitions (tracker)
-  "Find packages defined in multiple places (defpackage/make-package).
-   Records :info anomaly suggesting consolidation when appropriate.
-   Detects multiple definitions both within and across files."
-  (let ((pkg-defs (make-hash-table :test 'equal)))
-    ;; Group package definitions by normalized name 
-    (maphash (lambda (key def-list)
-               (declare (ignore key))
-               (dolist (def def-list)
-                 (when (and (eq (definition.type def) :package)
-                          (not (gensym-form-p (definition.name def))))
-                   (let ((pkg-name (package-designator-to-string (definition.name def))))
-                     (push def (gethash pkg-name pkg-defs))))))
-             (slot-value tracker 'definitions))
-    
-    ;; Record anomaly for packages with multiple definitions
-    (maphash (lambda (pkg-name defs)
-               (when (> (length defs) 1)
-                 (let ((def-files (mapcar #'definition.file defs))
-                       (def-forms (mapcar #'definition.context defs)))
-                   (record-anomaly tracker
-                     :type :multiple-package-definitions
-                     :severity :info
-                     :file def-files  
-                     :package pkg-name
-                     :context def-forms
-                     :description 
-                     (format nil "Package ~S has ~D definitions (~{~A~^, ~}). Consider consolidating."
-                             pkg-name
-                             (length defs)
-                             (mapcar #'project-pathname def-files))))))
-             pkg-defs)))
-
-
-(defun detect-suboptimal-package-placement (tracker)
-  "Analyze symbol usage patterns to detect definitions that might be
-   better placed in different packages based on their usage patterns.
-   Detects:
-   1. Symbols exclusively used in non-home packages
-   2. Symbols consistently referenced with package qualification"
-  (let ((usage-table (make-hash-table :test 'equal))
-        (project-packages (slot-value tracker 'project-owned-packages)))
-    
-    ;; Build usage patterns from definitions
-    (maphash 
-     (lambda (key def-list)
-       (declare (ignore key))
-       (dolist (def def-list)
-         (let* ((sym (definition.name def))
-                (pkg (definition.package def)))
-           ;; Only analyze project package symbols
-           (when (and pkg 
-                     (member pkg project-packages)
-                     (not (eq pkg (find-package :common-lisp))))
-             (let ((usage-key (format nil "~A:~A" 
-                                    (package-name pkg)
-                                    (if (symbolp sym)
-                                        (symbol-name sym)
-                                        sym))))
-               (setf (gethash usage-key usage-table)
-                     (cons def (make-hash-table :test 'equal))))))))
-     (slot-value tracker 'definitions))
-    
-    ;; Analyze reference patterns
-    (maphash 
-     (lambda (key refs)
-       (declare (ignore key))
-       (dolist (ref refs)
-         (let* ((sym (reference.name ref))
-                (sym-pkg (when (symbolp sym)
-                           (symbol-package sym)))
-                (usage-key (format nil "~A:~A" 
-                                   (if sym-pkg
-                                     (package-name sym-pkg)
-                                     "NIL")          ; Safe fallback for uninterned symbols
-                                   (if (symbolp sym)
-                                     (symbol-name sym)
-                                     sym))))
-           (when-let ((usage (gethash usage-key usage-table)))
-             (let ((refs-by-pkg (cdr usage)))
-               (push ref (gethash (package-name (reference.package ref))
-                                refs-by-pkg)))))))
-     (slot-value tracker 'references))
-    
-    ;; Record anomalies for suspicious patterns
-    (maphash 
-     (lambda (key usage)
-       (declare (ignore key))
-       (let* ((def (car usage))
-              (refs-by-pkg (cdr usage))
-              (sym (definition.name def))
-              (home-pkg (definition.package def)))
-         
-         ;; Skip certain definition types
-         (unless (member (definition.type def)
-                        '(:package :method :generic-function))
-           
-           ;; Check exclusive usage in non-home package
-           (when (= (hash-table-count refs-by-pkg) 1)
-             (let* ((using-pkg-name (car (alexandria:hash-table-keys refs-by-pkg)))
-                    (ref-count (length (gethash using-pkg-name refs-by-pkg))))
-               (when (and (not (string= using-pkg-name (package-name home-pkg)))
-                         (> ref-count 2))
-                 (record-anomaly tracker
-                   :type :suboptimal-package-placement
-                   :severity :info
-                   :file (definition.file def)
-                   :package home-pkg
-                   :context (definition.context def)
-                   :description 
-                   (format nil "Symbol ~A:~A is only used in package ~A (~D references)"
-                           (package-name home-pkg) sym using-pkg-name ref-count)))))
-           
-           ;; Check for consistent package qualification
-           (let ((qualified-count 0)
-                 (unqualified-count 0))
-             (maphash 
-              (lambda (pkg-name refs)
-                (declare (ignore pkg-name))
-                (dolist (ref refs)
-                  (if (eq (car (reference.visibility ref)) :inherited)
-                      (incf unqualified-count)
-                      (incf qualified-count))))
-              refs-by-pkg)
-             
-             (when (and (> (+ qualified-count unqualified-count) 3)
-                       (zerop unqualified-count)
-                       (> (hash-table-count refs-by-pkg) 1))
-               (record-anomaly tracker
-                 :type :consistent-package-qualification
-                 :severity :info
-                 :file (definition.file def)
-                 :package home-pkg
-                 :context (definition.context def)
-                 :description
-                 (format nil "Symbol ~A:~A is always referenced with package qualifier (~D refs)"
-                         (package-name home-pkg) sym qualified-count)))))))
-     usage-table)))
-
-
-(defun detect-shadowed-definitions (tracker)
-  "Find definitions that shadow inherited symbols from other packages.
-   Excludes valid CLOS method definitions that extend inherited generic functions."
-  (maphash 
-    (lambda (key defs)
-      (declare (ignore key))
-      (dolist (def defs)
-        (let ((sym-name (definition.name def))
-              (pkg (definition.package def)))
-          (when (and pkg (symbolp sym-name))
-            (multiple-value-bind (found-sym status)
-                (find-symbol (string sym-name) pkg)
-              (when (and found-sym 
-                        (eq status :inherited)
-                        (not (eq (definition.type def) :package))
-                        (not (and (eq (definition.type def) :method)
-                                 (fboundp sym-name)
-                                 (typep (fdefinition sym-name) 
-                                       'generic-function))))
-                (record-anomaly tracker
-                  :type :shadowed-definition
-                  :severity :warning
-                  :file (definition.file def)
-                  :package pkg
-                  :description (format nil 
-                                "Definition of ~A shadows inherited symbol from ~A"
-                                sym-name 
-                                (package-name (symbol-package found-sym))))))))))
-    (slot-value tracker 'definitions)))
-
-
-(defun detect-qualified-internal-references (tracker)
-  "Find package-qualified references to internal symbols."
-  (maphash (lambda (key refs)
-             (declare (ignore key))
-             (dolist (ref refs)
-               (let ((sym (reference.name ref))
-                     (pkg (reference.package ref)))
-                 (when (and (symbolp sym) 
-                          pkg
-                          (not (eq pkg (symbol-package sym))) ; Different package = qualified
-                          (eq (nth-value 1 (find-symbol (string sym) 
-                                                      (symbol-package sym)))
-                              :internal))
-                   (record-anomaly tracker
-                     :type :qualified-internal-reference
-                     :severity :warning
-                     :file (reference.file ref)
-                     :package pkg
-                     :description (format nil "Package-qualified reference to internal symbol ~A:~A"
-                                       (package-name (symbol-package sym))
-                                       sym))))))
-           (slot-value tracker 'references)))
-
-
-(defun detect-circular-type-dependencies (tracker)
-  "Find type definitions that form circular dependencies through slots/superclasses."
-  (let ((visited (make-hash-table :test 'equal))
-        (path nil))
-    (labels ((get-type-deps (class-name)
-               ;; Get dependencies from slots and superclasses
-               (when-let (class (find-class class-name nil))
-                 (union 
-                   ;; Direct slot types
-                   (loop for slot in (c2mop:class-direct-slots class)
-                         for slot-type = (c2mop:slot-definition-type slot)
-                         when (and slot-type (find-class slot-type nil))
-                         collect slot-type)
-                   ;; Direct superclasses 
-                   (c2mop:class-direct-superclasses class))))
-             
-             (detect-cycle (class)
-               (let ((status (gethash class visited)))
-                 (cond (status               ; Already visited
-                        (when (eq status :in-progress)
-                          ;; Found cycle - record the path
-                          (let* ((cycle-start (position class path))
-                                 (cycle (subseq path cycle-start)))
-                            (record-anomaly tracker
-                              :type :circular-type-dependency
-                              :severity :warning
-                              :file (car cycle)
-                              :description (format nil "Type dependency cycle detected: ~{~A~^ -> ~}" cycle)
-                              :context cycle)))
-                        nil)
-                       (t                    ; New node
-                        (setf (gethash class visited) :in-progress)
-                        (push class path)
-                        (dolist (dep (get-type-deps class))
-                          (detect-cycle dep))
-                        (pop path)
-                        (setf (gethash class visited) t)
-                        nil)))))
-      
-      ;; Check each defined type
-      (maphash (lambda (key defs)
-                 (declare (ignore key))
-                 (dolist (def defs)
-                   (when (eq (definition.type def) :structure/class/condition)
-                     (detect-cycle (definition.name def)))))
-               (slot-value tracker 'definitions)))))
-
-
-(defun detect-inline-package-references (tracker)
-  "Find direct references to package names in code.
-   This detects strings and keywords used as package designators,
-   which makes package renaming harder than using package variables.
-   Excludes references in own package definition contexts."
-  (maphash 
-    (lambda (key refs)
-      (declare (ignore key))
-      (dolist (ref refs)
-        (when (and (reference.name ref)  ; Check we have a name
-                  (or (stringp (reference.name ref))
-                      (keywordp (reference.name ref))))
-          ;; Only flag if reference isn't in its own package definition
-          (let ((context (reference.context ref)))
-            (unless (and (consp context)
-                        (member (first context) '(defpackage in-package make-package delete-package))
-                        ;; For package definition forms, check if defining same package
-                        (or (not (eq (first context) 'defpackage))
-                            (equal (string (second context))
-                                   (string (reference.name ref)))))
-              (record-anomaly tracker
-                :type :inline-package-reference
-                :severity :info
-                :file (reference.file ref)
-                :package (reference.package ref)
-                :description (format nil "Package name ~S referenced directly. Consider using a package variable instead"
-                                   (reference.name ref))
-                :context context))))))
-    (slot-value tracker 'references)))
-
-
-(defun detect-indirect-slot-access (tracker)
-  "Find slot-value calls that could use accessors instead."
-  (maphash 
-    (lambda (key refs)
-      (declare (ignore key))
-      (dolist (ref refs)
-        ;; Look for slot-value in function call contexts
-        (when (and (eq (reference.name ref) 'slot-value)
-                  (consp (reference.context ref)))
-          (let* ((call (reference.context ref))
-                 (slot-name (third call))
-                 (object (second call)))
-            (when (and slot-name 
-                      (symbolp slot-name)
-                      object)
-              ;; Try to determine object's class
-              (let ((class-name (cond
-                                  ((symbolp object) 
-                                   (ignore-errors 
-                                     (type-of (symbol-value object))))
-                                  ((and (consp object)
-                                        (eq (car object) 'make-instance))
-                                        (second object))
-                                  (t nil))))
-                ;; Check if accessor exists for this slot
-                (when (and class-name
-                         (find-class class-name nil)
-                         (c2mop:slot-definition-readers 
-                           (find slot-name
-                                (c2mop:class-slots (find-class class-name))
-                                :key #'c2mop:slot-definition-name)))
-                  (record-anomaly tracker
-                    :type :indirect-slot-access
-                    :severity :info
-                    :file (reference.file ref)
-                    :package (reference.package ref)
-                    :description 
-                      (format nil 
-                             "Indirect slot access (slot-value ~A '~A). Consider using accessor instead"
-                             object slot-name)
-                    :context (reference.context ref)))))))))
-    (slot-value tracker 'references)))
-
-
-(defun record-anomaly (tracker &key type severity file description package context)
-  "Record a new anomaly in the dependency tracker.
-   For :duplicate-definition type, files must be provided as list of all definition locations."
-  (let ((anomaly (make-instance 'anomaly 
-                               :type type 
-                               :severity severity 
-                               :file file
-                               :description description
-                               :package package
-                               :context context)))
-    (pushnew anomaly (gethash type (slot-value tracker 'anomalies))
-                     :test #'equal :key #'anomaly.file)
-    anomaly))
-
-

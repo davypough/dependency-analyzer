@@ -12,39 +12,6 @@
   "Default maximum width for formatted report output.")
 
 
-#+ignore (defun format-anomalies (stream tracker)
-  "Format all anomalies in a consistent way, grouped by type and severity."
-  (let ((found-anomalies nil))
-    ;; First get all anomaly types
-    (maphash (lambda (type anomaly-list)
-               (when anomaly-list
-                 (setf found-anomalies t)
-                 (format stream "~&~%~A Anomalies:~%" 
-                         (string-capitalize (symbol-name type)))
-                 ;; Group by severity within each type
-                 (loop for severity in '(:ERROR :WARNING :INFO)
-                       for severity-anomalies = (remove severity anomaly-list 
-                                                      :key #'anomaly.severity 
-                                                      :test-not #'eq)
-                       when severity-anomalies do
-                         (format stream "  ~A:~%" (string-upcase (symbol-name severity)))
-                         (dolist (a (reverse severity-anomalies)) ; Reverse to show in detection order
-                           (format stream "    ~A~%" (anomaly.description a))))))
-             (slot-value tracker 'anomalies))
-    ;; Return whether we found any anomalies
-    found-anomalies))
-
-
-#+ignore (defun simplify-path (pathname)
-  "Convert a pathname to a simplified string representation."
-  (if pathname
-      (let ((name (enough-namestring pathname)))
-        (if (char= (char name 0) #\/)
-            (subseq name 1)
-            name))
-      nil))
-
-
 (defun source-file-name (pathname)
   "Extract just the source file name from a pathname."
   (if pathname
@@ -229,6 +196,43 @@
                           :test 'equal)))))
              (slot-value tracker 'package-uses))
     result))
+
+
+(defun build-package-metrics-json (tracker)
+  ;; Current version only includes package metrics
+  ;; Need to add:
+  (let ((result (make-hash-table :test 'equal)))
+    (maphash (lambda (pkg metrics)
+               (setf (gethash pkg result)
+                     (alexandria:alist-hash-table
+                      `(("local_symbols" . ,(getf metrics :local-symbols))
+                        ("inherited_symbols" . ,(getf metrics :inherited-symbols))
+                        ("used_packages" . ,(getf metrics :used-packages))
+                        ("exported_symbols" . ,(getf metrics :exported-symbols))
+                        ("export_users" . ,(getf metrics :export-users))
+                        ("export_references" . ,(getf metrics :export-references))
+                        ("type_metrics" . ,(gethash pkg (slot-value tracker 'type-metrics))))  ; Add type metrics
+                      :test 'equal)))
+             (slot-value tracker 'package-metrics))
+    result))
+
+
+(defun validate-package-dependencies (pkg-graph)
+  "Validate package dependency graph data structure.
+   Returns t if valid, signals error with description if invalid."
+  (handler-case
+      (maphash (lambda (pkg deps)
+                 (unless (stringp pkg)
+                   (error "Package name must be a string: ~A" pkg))
+                 (unless (listp deps)
+                   (error "Dependencies must be a list: ~A" deps))
+                 (dolist (dep deps)
+                   (unless (stringp dep)
+                     (error "Dependency name must be a string: ~A" dep))))
+               pkg-graph)
+    (error (c)
+      (error "Invalid package dependency graph: ~A" c)))
+  t)
 
 
 (defmethod get-package-uses (&optional (tracker nil tracker-provided-p) package-name)

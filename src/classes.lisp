@@ -114,51 +114,48 @@
 
 
 (defclass dependency-tracker ()
-  ((definitions 
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps symbols to their definition locations")
-   (references
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps symbols to where they are used")
-   (anomalies
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps anomaly types to lists of detected anomalies")
-   (project-name
-    :initarg :project-name
-    :documentation "Name of the project being analyzed")
-   (project-packages
-    :initform nil
-    :documentation "List of all packages defined, used, or imported from by the project")
-   (project-owned-packages
-    :initform nil
-    :documentation "List of packages newly created by the project")
-   (project-root
-    :initarg :project-root
-    :documentation "Root directory of the project being analyzed")
-   (file-map
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps files to their contained definitions")
-   (package-uses
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps packages to the packages they use")
-   (package-exports
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps packages to their exported symbols")
-   (macro-bodies
-    :initform (make-hash-table :test 'equal)
-    :documentation "Maps macro names to symbols used in their bodies")
-   (file-cycles
-    :initform nil
-    :documentation "List of detected file dependency cycles")
-   (package-cycles
-    :initform nil
-    :documentation "List of detected package dependency cycles")
-   (subsystems
-    :initform nil
-    :documentation "ASDF :depends-on system dependencies determined from runtime analysis")
-   (pushit-symbols
-    :initform nil
-    :documentation "List of detected referring symbols in a form analyzed by pushit-transform"))
+  ((definitions :initform (make-hash-table :test 'equal)
+                :documentation "Maps symbols to their definition locations")
+   (references :initform (make-hash-table :test 'equal)
+               :documentation "Maps symbols to where they are used")
+   (anomalies :initform (make-hash-table :test 'equal)
+              :documentation "Maps anomaly types to lists of detected anomalies")
+   (project-name :initarg :project-name
+                 :documentation "Name of the project being analyzed")
+   (project-packages :initform nil
+                    :documentation "List of all packages defined, used, or imported from by the project")
+   (project-owned-packages :initform nil
+                          :documentation "List of packages newly created by the project")
+   (project-root :initarg :project-root
+                 :documentation "Root directory of the project being analyzed")
+   (file-map :initform (make-hash-table :test 'equal)
+             :documentation "Maps files to their contained definitions")
+   (package-uses :initform (make-hash-table :test 'equal)
+                :documentation "Maps packages to the packages they use")
+   (package-exports :initform (make-hash-table :test 'equal)
+                   :documentation "Maps packages to their exported symbols")
+   (macro-bodies :initform (make-hash-table :test 'equal)
+                :documentation "Maps macro names to symbols used in their bodies")
+   (file-cycles :initform nil
+                :documentation "List of detected file dependency cycles")
+   (package-cycles :initform nil
+                  :documentation "List of detected package dependency cycles")
+   (subsystems :initform nil
+               :documentation "ASDF :depends-on system dependencies determined from runtime analysis")
+   (pushit-symbols :initform nil
+                   :documentation "List of detected referring symbols in a form analyzed by pushit-transform")
+   (type-graph :initform (make-hash-table :test 'equal)
+               :documentation "Maps types to their dependencies for visualization")
+   (type-metrics :initform (make-hash-table :test 'equal)
+                   :documentation "Maps types to their usage metrics")
+   (package-metrics :initform (make-hash-table :test 'equal)
+                   :documentation "Maps packages to their usage metrics")
+   (package-graph :initform (make-hash-table :test 'equal)
+                 :documentation "Package dependency relationships for visualization")
+   (runtime-dependencies :initform (make-hash-table :test 'equal)
+                        :documentation "Maps system names to their runtime dependencies")
+   (package-details :initform (make-hash-table :test 'equal)
+                   :documentation "Detailed package symbol usage patterns"))
   (:documentation "Tracker for analyzing a user's project files."))
 
 

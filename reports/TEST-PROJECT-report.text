@@ -1,16 +1,18 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2025-02-17T19:06:08.679478Z
+Generated: 2025-02-19T02:34:01.089535Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
   Files: 1
-  Packages: 0
+  Packages: 4
   Definitions: 58
   References: 0
+  Total Symbols: 3984
+  Package Dependencies: 3
   Anomalies: 1
 
 
@@ -33,11 +35,7 @@ File Hierarchy:
 
 ANOMALIES AND ANALYSIS
 ------------------------------
-Warning Level Findings:
-
-  Definition Level:
-    Definition of *SPECIAL1* shadows inherited symbol from USER-PKG
-
+Info Level Findings:
 MAINTENANCE CONSIDERATIONS
 ------------------------------
 
@@ -48,6 +46,4 @@ System Dependencies:
 
 
 Package Dependencies:
-
-
 File Dependencies:

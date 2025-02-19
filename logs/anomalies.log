@@ -3,9 +3,10 @@ Filename: ANOMALIES.LOG
 The list of all anomalies detected during dependency analysis of the test-project project.
 
 ANOMALY>
-    :Description "Definition of *SPECIAL1* shadows inherited symbol from USER-PKG"
-    :Type :SHADOWED-DEFINITION
-    :Severity :WARNING
+    :Description "Package name #:TST referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (NICKNAMES TST TPKG)
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
 

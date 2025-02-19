@@ -256,17 +256,14 @@
 (defun record-export (tracker package-designator symbol)
   "Record a symbol as being exported from a package.
    Both package-designator and symbol can be either strings or symbols."
-  (let* ((pkg-name (etypecase package-designator
-                     (string package-designator)
-                     (package (package-name package-designator))
-                     (symbol (string package-designator))))
-         (pkg (find-package pkg-name))
+  (let* ((pkg-str (package-designator-to-string package-designator))
+         (pkg (find-package pkg-str))
          (sym (etypecase symbol
                 (string (intern symbol pkg))
                 (symbol (intern (symbol-name symbol) pkg)))))
     (when pkg
       (pushnew sym 
-               (gethash pkg-name 
+               (gethash pkg-str 
                        (slot-value tracker 'package-exports))
                :test #'eq))))
 

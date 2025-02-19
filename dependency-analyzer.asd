@@ -15,7 +15,7 @@
                 :components ((:file "init")
                              (:file "globals")
                              (:file "classes")
-                             (:file "shared")
+                             (:file "utils")
                              (:file "main")
                              (:file "definition-analysis")
                              (:file "reference-analysis")

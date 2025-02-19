@@ -1,6 +1,6 @@
-;;;; Filename:  shared.lisp
+;;;; Filename:  utils.lisp
 
-;;;; Code which is shared among the dependency analyzer files.
+;;;; Code which is shared among the dependency analyzer files plus utilities.
 
 
 (in-package :dep)
@@ -21,6 +21,17 @@
           relative
           (concatenate 'string "/" relative)))
       (namestring pathname))))
+
+
+(defun package-designator-to-string (designator)
+  "Convert a package designator to its string name, preserving case.
+   Valid designators are: package, string, symbol, or character.
+   Signals type-error if designator is invalid."
+  (etypecase designator
+    (package (package-name designator))
+    (string designator)
+    (symbol (string designator))
+    (character (string designator))))
 
 
 (defun make-tracking-key (designator &optional package-alias type qualifiers specializers)
@@ -179,3 +190,23 @@
   "Get all definitions in a file."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
     (gethash file (slot-value actual-tracker 'file-map))))
+
+
+(defun gensym-form-p (form)
+  "Detects if a form starts with gensym."
+  (and (consp form) (eq (car form) 'gensym)))
+
+
+(defun record-anomaly (tracker &key type severity file description package context)
+  "Record a new anomaly in the dependency tracker.
+   For :duplicate-definition type, files must be provided as list of all definition locations."
+  (let ((anomaly (make-instance 'anomaly 
+                               :type type 
+                               :severity severity 
+                               :file file
+                               :description description
+                               :package package
+                               :context context)))
+    (pushnew anomaly (gethash type (slot-value tracker 'anomalies))
+                     :test #'equal :key #'anomaly.file)
+    anomaly))
