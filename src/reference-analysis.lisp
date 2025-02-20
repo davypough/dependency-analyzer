@@ -46,28 +46,28 @@
                                      :definitions other-file-defs)))
                  (when (symbolp current-form)
                    ;; Process a symbol reference
-                   (unless (or (cl-symbol-p current-form)
+                   (unless (or (skip-item-p current-form)
                                (def*-name-p current-form context))
                      (if (potential-gf-reference-p current-form context)
                        ;; For potential generic function references in form, just set flag and continue walking
                        (setf gf-p t)
-                       ;; For non-generic functions, record reference if it has other-file-defs
-                       (let* ((sym-type (get-symbol-reference-type current-form))
-                              (sym-pkg (symbol-package current-form))
-                              (key (make-tracking-key current-form sym-pkg sym-type))
-                              (defs (gethash key (slot-value *current-tracker* 'definitions)))
-                              (other-file-defs (remove-if (lambda (def)
-                                                            (equal (definition.file def) (file parser)))
-                                                          defs)))
-                          (when other-file-defs
-                            (record-reference *current-tracker*
-                                              :name current-form
-                                              :file (file parser)
-                                              :type sym-type
-                                              :package sym-pkg
-                                              :context parent-context
-                                              :visibility (get-visibility current-form (current-package parser))
-                                              :definitions other-file-defs)))))))))
+                       ;; For non-generic functions, check if it's a valid reference type
+                       (when-let ((sym-type (get-symbol-reference-type current-form)))
+                         (let* ((sym-pkg (symbol-package current-form))
+                                (key (make-tracking-key current-form sym-pkg sym-type))
+                                (defs (gethash key (slot-value *current-tracker* 'definitions)))
+                                (other-file-defs (remove-if (lambda (def)
+                                                             (equal (definition.file def) (file parser)))
+                                                           defs)))
+                           (when other-file-defs
+                             (record-reference *current-tracker*
+                                               :name current-form
+                                               :file (file parser)
+                                               :type sym-type
+                                               :package sym-pkg
+                                               :context parent-context
+                                               :visibility (get-visibility current-form (current-package parser))
+                                               :definitions other-file-defs))))))))))
       ;; Walk the top-level-form first
       (walk-form top-level-form #'handle-reference)
       ;; Then analyze any method refs found
@@ -145,7 +145,7 @@
      :function)
     ((ignore-errors (find-class sym))    ;; Check for classes and structures
      :structure/class/condition)
-    ((and (subtypep sym t)    ;; Check for type declarations that aren't classes
+    ((and (ignore-errors (subtypep sym t))    ;; Check for type declarations that aren't classes
           (not (ignore-errors (find-class sym)))
           (not (cl-symbol-p sym)))
      :deftype)))

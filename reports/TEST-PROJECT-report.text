@@ -1,18 +1,18 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2025-02-19T22:24:49.409731Z
+Generated: 2025-02-20T19:07:30.080862Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
   Files: 1
-  Packages: 2
+  Packages: 4
   Definitions: 58
   References: 0
-  Total Symbols: 1956
-  Package Dependencies: 1
+  Total Symbols: 3984
+  Package Dependencies: 3
   Anomalies: 0
 
 
@@ -30,7 +30,7 @@ Package Hierarchy:
   No package dependencies found.
 
 File Hierarchy:
-└── defs.lisp
+-- defs.lisp
 
 
 ANOMALIES AND ANALYSIS

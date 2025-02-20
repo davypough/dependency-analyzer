@@ -409,7 +409,7 @@
         (when-let (package (find-package name))
           ;; Record nicknames directly from defpackage form
           (let ((options (cddr current-form)))
-            (loop for (option options) on options by #'cddr
+            (loop for option in options
                   when (eq (car option) :nicknames)
                   do (dolist (nickname (cdr option))
                        (record-definition *current-tracker*

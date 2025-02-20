@@ -128,18 +128,18 @@
   "Print an ASCII representation of a dependency tree."
   (declare (ignore last-child-p))
   (dolist (node (butlast roots))
-    (format stream "~&~A├── ~A~%" prefix (getf node :name))
+    (format stream "~&~A-- ~A~%" prefix (getf node :name))
     (print-ascii-tree stream 
                       (sort (getf node :children) #'string< 
                             :key (lambda (n) (getf n :name)))
-                      (concatenate 'string prefix "│   ")
+                      (concatenate 'string prefix "   ")
                       nil))
   (when-let ((last-node (car (last roots))))
-    (format stream "~&~A└── ~A~%" prefix (getf last-node :name))
+    (format stream "~&~A-- ~A~%" prefix (getf last-node :name))
     (print-ascii-tree stream 
                       (sort (getf last-node :children) #'string< 
                             :key (lambda (n) (getf n :name)))
-                      (concatenate 'string prefix "    ")
+                      (concatenate 'string prefix "   ")
                       t)))
 
 

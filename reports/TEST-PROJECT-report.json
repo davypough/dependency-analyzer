@@ -3,6 +3,18 @@
   "systems":{"test-project":["test-project"]},
   "package_metrics":
   {
+    "USER-PKG":
+    {
+      "local_symbols":68,
+      "inherited_symbols":978,
+      "used_packages":1
+    },
+    "TEST1-PKG":
+    {
+      "local_symbols":4,
+      "inherited_symbols":978,
+      "used_packages":1
+    },
     "TEST2-PKG":
     {
       "local_symbols":0,

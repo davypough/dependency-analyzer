@@ -145,13 +145,14 @@
 
 
 (defun skip-item-p (form)
-  "Return T if form should be skipped during definition and reference analysis."
+  "Return T if form should be skipped during reference analysis."
   (or (null form)
       (numberp form) 
       (stringp form)
       (keywordp form)
       (cl-symbol-p form)
-      (quoted-symbol-p form)))
+      (and (symbolp form)  ;skip uninterned symbols
+           (not (symbol-package form)))))
 
 
 (defun quoted-symbol-p (item)
