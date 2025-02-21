@@ -65,8 +65,8 @@
         (error-count 0)
         (warning-count 0)
         (info-count 0))
-    ;; Calculate package metrics
-    (maphash (lambda (pkg metrics)
+    ;; Calculate package metrics using package objects
+    (maphash (lambda (pkg metrics)  ; pkg is now package object
                (declare (ignore pkg))
                (incf total-packages)
                (incf total-symbols 
@@ -241,12 +241,12 @@
   
   ;; Package Dependencies
   (format stream "Package Dependencies:~%")
-  (maphash (lambda (pkg used-pkgs)
-             (format stream "~&~A " pkg)
+  (maphash (lambda (pkg used-pkgs)  ; pkg is package object
+             (format stream "~&~A " (package-name pkg))
              (when used-pkgs
                (format stream "uses")
                (dolist (used used-pkgs)
-                 (format stream " ~A" used)))
+                 (format stream " ~A" (package-name used))))
              (let ((metrics (gethash pkg (slot-value tracker 'package-metrics))))
                (when metrics
                  (format stream "~%  Metrics:")
@@ -256,7 +256,7 @@
                    (format stream "~%    Used by: ~D packages (~D references)"
                            (getf metrics :export-users)
                            (getf metrics :export-references)))))
-             (when-let (exports (get-package-exports tracker pkg))
+             (when-let (exports (get-package-exports tracker pkg))  ; Updated to take package object
                (format stream "~%  Exports:~%")
                (dolist (sym (sort exports #'string< :key #'symbol-name))
                  (format stream "    ~A~%" sym))))
@@ -302,16 +302,16 @@
         ;; Package metrics section
         (yason:with-object-element ("package_metrics")
           (yason:with-object ()
-            (maphash #'(lambda (pkg metrics)
-                        (yason:with-object-element (pkg)
-                          (yason:with-object ()
-                            (yason:encode-object-element "local_symbols" 
-                                                       (getf metrics :local-symbols))
-                            (yason:encode-object-element "inherited_symbols" 
-                                                       (getf metrics :inherited-symbols))
-                            (yason:encode-object-element "used_packages"
-                                                       (getf metrics :used-packages)))))
-                    (slot-value tracker 'package-metrics))))
+            (maphash #'(lambda (pkg metrics)  ; pkg is package object
+                         (yason:with-object-element ((package-name pkg))
+                           (yason:with-object ()
+                             (yason:encode-object-element "local_symbols" 
+                                                          (getf metrics :local-symbols))
+                             (yason:encode-object-element "inherited_symbols" 
+                                                          (getf metrics :inherited-symbols))
+                             (yason:encode-object-element "used_packages"
+                                                          (getf metrics :used-packages)))))
+                     (slot-value tracker 'package-metrics))))
         
         ;; Anomalies section
         (yason:with-object-element ("anomalies")

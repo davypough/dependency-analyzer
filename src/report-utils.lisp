@@ -69,57 +69,84 @@
 
 (defun build-package-dependency-tree (tracker)
   "Build a tree structure representing package dependencies.
-   Returns two values:
-   1. List of root package nodes
-   2. List of circular dependencies"
+   Includes project packages, their runtime dependencies, and system dependencies.
+   Returns (values roots cycles)."
   (let ((nodes (make-hash-table :test 'equal))
         (roots nil)
         (cycles nil))
-    (maphash (lambda (pkg used-pkgs)
-               (declare (ignore used-pkgs))
-               (setf (gethash pkg nodes)
-                     (list :name pkg
-                           :children nil
-                           :parents nil))
-               (dolist (used (get-package-uses tracker pkg))
-                 (unless (gethash used nodes)
-                   (setf (gethash used nodes)
-                         (list :name used
-                               :children nil
-                               :parents nil)))))
-             (slot-value tracker 'package-uses))
     
-    (maphash (lambda (pkg used-pkgs)
-               (declare (ignore pkg))
-               (when (member "COMMON-LISP" used-pkgs :test #'string=)
-                 (unless (gethash "COMMON-LISP" nodes)
-                   (setf (gethash "COMMON-LISP" nodes)
-                         (list :name "COMMON-LISP"
-                               :children nil
-                               :parents nil)))))
-             (slot-value tracker 'package-uses))
+    ;; First add CL package as it's always a root
+    (setf (gethash "COMMON-LISP" nodes)
+          (list :name "COMMON-LISP"
+                :children nil
+                :parents nil))
     
-    (maphash (lambda (pkg used-pkgs)
-               (let ((pkg-node (gethash pkg nodes)))
-                 (dolist (used used-pkgs)
-                   (when-let ((used-node (gethash used nodes)))
-                     (when (member pkg (get-package-uses tracker used))
-                       (pushnew (format nil "~A ↔ ~A" pkg used)
-                               cycles :test #'string=))
-                     (unless (member pkg (get-package-uses tracker used))
-                       (pushnew pkg-node (getf used-node :children)
-                               :test #'equal
-                               :key (lambda (n) (getf n :name)))
-                       (pushnew used-node (getf pkg-node :parents)
-                               :test #'equal
-                               :key (lambda (n) (getf n :name))))))))
-             (slot-value tracker 'package-uses))
+    ;; Add nodes for packages defined in our source
+    (maphash (lambda (pkg-name def-form)
+               (declare (ignore def-form))
+               (when-let* ((pkg (find-package pkg-name))
+                          (primary-name (package-name pkg)))
+                 (setf (gethash primary-name nodes)
+                       (list :name primary-name
+                            :children nil
+                            :parents nil))))
+             (slot-value tracker 'defined-packages))
     
-    (maphash (lambda (pkg node)
-               (declare (ignore pkg))
-               (when (null (getf node :parents))
-                 (push node roots)))
+    ;; Add nodes for all runtime dependencies
+    (maphash (lambda (pkg-name _)
+               (declare (ignore _))
+               (when-let ((pkg (find-package pkg-name)))
+                 ;; Get full package dependency closure
+                 (dolist (dep-pkg (package-use-list pkg))
+                   (let ((dep-name (package-name dep-pkg)))
+                     (unless (gethash dep-name nodes)
+                       (setf (gethash dep-name nodes)
+                             (list :name dep-name
+                                  :children nil
+                                  :parents nil)))))))
+             (slot-value tracker 'defined-packages))
+    
+    ;; Establish parent-child relationships
+    (maphash (lambda (_ node)
+               (declare (ignore _))
+               (let* ((pkg-name (getf node :name))
+                      (pkg (find-package pkg-name)))
+                 (when pkg  
+                   (dolist (used-pkg (package-use-list pkg))
+                     (let* ((used-name (package-name used-pkg))
+                            (used-node (gethash used-name nodes)))
+                       (when used-node
+                         ;; Check for cycles
+                         (when (member pkg (package-use-list used-pkg))
+                           (pushnew (format nil "~A ↔ ~A" pkg-name used-name)
+                                   cycles :test #'string=))
+                         ;; Record dependency
+                         (unless (member pkg (package-use-list used-pkg))
+                           (pushnew used-node (getf node :parents)
+                                   :test #'equal
+                                   :key (lambda (n) (getf n :name))))))))))
              nodes)
+    
+    ;; Find root packages - only COMMON-LISP and packages with no other parents
+    (maphash (lambda (_ node)
+               (declare (ignore _))
+               (let ((parents (getf node :parents))
+                     (name (getf node :name)))
+                 ;; A package is a root if it's COMMON-LISP or has no parents
+                 (when (or (string= name "COMMON-LISP")
+                          (null parents))
+                   (push node roots))))
+             nodes)
+    
+    ;; Calculate children relationships
+    (maphash (lambda (_ node)
+               (declare (ignore _))
+               (dolist (parent (getf node :parents))
+                 (pushnew node (getf parent :children)
+                         :test #'equal
+                         :key (lambda (n) (getf n :name)))))
+             nodes)
+    
     (values (sort roots #'string< :key (lambda (node) (getf node :name)))
             (sort cycles #'string<))))
 
@@ -241,14 +268,16 @@
     (gethash package-name (slot-value actual-tracker 'package-uses))))
 
 
-(defmethod get-package-exports (&optional (tracker nil tracker-provided-p) package-name)
-  "Get all symbols exported by a package."
-  (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
-    (mapcar #'(lambda (sym)
-                (if-let (pkg (find-package (string package-name)))
-                  (intern (symbol-name sym) pkg)
-                  sym))
-            (gethash (string package-name) (slot-value actual-tracker 'package-exports)))))
+(defmethod get-package-exports (&optional (tracker nil tracker-provided-p) pkg)
+  "Get all symbols exported by a package.
+   PKG: package object or designator"
+  (let* ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
+         (pkg-obj (if (packagep pkg) pkg (find-package pkg))))
+    (when pkg-obj  ; Verify valid package
+      (mapcar #'(lambda (sym)
+                  (intern (symbol-name sym) pkg-obj))
+              (gethash (package-name pkg-obj)  ; Keep string key for exports table
+                      (slot-value actual-tracker 'package-exports))))))
 
 
 (defmethod file-dependencies (&optional (tracker nil tracker-provided-p) file)

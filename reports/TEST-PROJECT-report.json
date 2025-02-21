@@ -6,6 +6,18 @@
     "USER-PKG":
     {
       "local_symbols":68,
+      "inherited_symbols":1185,
+      "used_packages":2
+    },
+    "COMMON-LISP":
+    {
+      "local_symbols":978,
+      "inherited_symbols":0,
+      "used_packages":0
+    },
+    "ALEXANDRIA":
+    {
+      "local_symbols":382,
       "inherited_symbols":978,
       "used_packages":1
     },
@@ -20,12 +32,6 @@
       "local_symbols":0,
       "inherited_symbols":978,
       "used_packages":1
-    },
-    "COMMON-LISP":
-    {
-      "local_symbols":978,
-      "inherited_symbols":0,
-      "used_packages":0
     }
   },
   "anomalies":

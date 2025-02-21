@@ -218,16 +218,13 @@
                             :context context
                             :qualifiers qualifiers
                             :specializers specializers))
-         ;; Generate appropriate key based on definition type
          (key (if (eq type :METHOD)
                  (make-tracking-key name package type qualifiers specializers)
                  (make-tracking-key name package type)))
-         ;; Look for existing definitions with this key
          (existing-defs (gethash key (slot-value tracker 'definitions)))
-         ;; Filter out definitions from same file
          (other-file-defs (remove-if (lambda (d)
-                                       (equal (definition.file d) file))
-                                     existing-defs)))
+                                      (equal (definition.file d) file))
+                                    existing-defs)))
     
     ;; Check for duplicates and record anomaly if found in other files
     (when other-file-defs
@@ -242,10 +239,21 @@
     
     ;; Store definition under the computed key
     (setf (gethash key (slot-value tracker 'definitions))
-      (cons def existing-defs))
+          (cons def existing-defs))
     ;; Add to file map
     (setf (gethash file (slot-value tracker 'file-map))
-      (cons def (gethash file (slot-value tracker 'file-map))))
+          (cons def (gethash file (slot-value tracker 'file-map))))
+    
+    ;; Special handling for package definitions
+    (when (eq type :package)
+      ;; Store the package definition
+      (setf (gethash (string name) (slot-value tracker 'defined-packages))
+            context)
+      ;; If package exists, record its exports
+      (when-let ((pkg (find-package name)))
+        (do-external-symbols (sym pkg)
+          (record-export tracker pkg sym))))
+    
     ;; Record exports for non-package definitions
     (unless (eq type :package)
       (when (eq status :external)

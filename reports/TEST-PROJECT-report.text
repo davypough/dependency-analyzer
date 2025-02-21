@@ -1,18 +1,18 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2025-02-20T19:07:30.080862Z
+Generated: 2025-02-21T23:44:51.608677Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
   Files: 1
-  Packages: 4
+  Packages: 5
   Definitions: 58
   References: 0
-  Total Symbols: 3984
-  Package Dependencies: 3
+  Total Symbols: 5551
+  Package Dependencies: 5
   Anomalies: 0
 
 
@@ -27,7 +27,12 @@ SYSTEM OVERVIEW
 
 
 Package Hierarchy:
-  No package dependencies found.
+-- COMMON-LISP
+   -- ALEXANDRIA
+      -- USER-PKG
+   -- TEST1-PKG
+   -- TEST2-PKG
+   -- USER-PKG
 
 File Hierarchy:
 -- defs.lisp

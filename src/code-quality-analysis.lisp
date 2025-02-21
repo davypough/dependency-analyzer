@@ -7,59 +7,86 @@
 
 
 (defun analyze-package-dependencies (tracker)
-  "Analyze runtime package relationships for anomalies and reporting metrics.
-   Generates INFO level anomalies for structural patterns,
-   WARNING level for potential issues, and 
-   ERROR level for definite problems."
+  "Analyze package relationships and metrics for the entire project ecosystem.
+   This includes packages we define, system packages we use, and external
+   dependencies. All relationships are verified using runtime information."
   
-  ;; Data structures for report metrics
-  (let ((package-metrics (make-hash-table :test 'equal))    ; For executive summary
-        (package-graph (make-hash-table :test 'equal))      ; For architectural overview
-        (package-details (make-hash-table :test 'equal)))   ; For detailed references
-
-    ;; Step 1: Collect package relationships and record metrics
-    (dolist (pkg (slot-value tracker 'project-packages))
-      (let* ((pkg-name (package-name pkg))
-             (used-packages (package-use-list pkg))
-             (local-symbols (count-if 
-                            (lambda (s) 
-                              (eq (symbol-package s) pkg))
-                            (list-all-symbols pkg)))
-             (inherited-symbols (count-if 
-                               (lambda (s)
-                                 (eq (nth-value 1 (find-symbol (symbol-name s) pkg))
-                                     :inherited))
-                               (list-all-symbols pkg))))
-
-        ;; Record metrics for reports
-        (setf (gethash pkg-name package-metrics)
-              (list :local-symbols local-symbols
-                    :inherited-symbols inherited-symbols
-                    :used-packages (length used-packages)))
-        
-        ;; Record dependency graph data
-        (setf (gethash pkg-name package-graph)
-              (mapcar #'package-name used-packages))
-        
-        ;; Record detailed symbol usage
-        (setf (gethash pkg-name package-details)
-              (analyze-package-usage tracker pkg))))
-
-    ;; Step 2: Analyze for anomalies
+  ;; Data structures for our analysis
+  (let ((package-metrics (make-hash-table :test 'eq))
+        (package-graph (make-hash-table :test 'equal))
+        (package-details (make-hash-table :test 'equal))
+        (all-project-packages (make-hash-table :test 'eq)))
+    
+    ;; First identify all packages involved in our project
+    (maphash (lambda (pkg-name def-form)
+               (declare (ignore def-form))
+               ;; Add each package we define
+               (when-let ((pkg (find-package pkg-name)))
+                 (setf (gethash pkg all-project-packages) t)
+                 ;; Also add all packages it uses
+                 (dolist (used (package-use-list pkg))
+                   (setf (gethash used all-project-packages) t))))
+             (slot-value tracker 'defined-packages))
+    
+    ;; Now analyze metrics for each package in our ecosystem
+    (maphash (lambda (pkg _)
+               (declare (ignore _))
+               ;; Calculate comprehensive metrics
+               (let* ((used-packages (package-use-list pkg))
+                      (local-symbols (count-if 
+                                    (lambda (s) 
+                                      (eq (symbol-package s) pkg))
+                                    (list-all-symbols pkg)))
+                      (inherited-symbols (count-if 
+                                        (lambda (s)
+                                          (eq (nth-value 1 
+                                               (find-symbol (symbol-name s) pkg))
+                                              :inherited))
+                                        (list-all-symbols pkg)))
+                      ;; Track exports and their usage
+                      (exports (loop for s being the external-symbols of pkg
+                                   collect s))
+                      (export-users (count-if 
+                                   (lambda (p) 
+                                     (intersection exports 
+                                                 (package-use-list p)))
+                                   (list-all-packages))))
+                 
+                 ;; Record complete package metrics
+                 (setf (gethash pkg package-metrics)
+                       (list :local-symbols local-symbols
+                             :inherited-symbols inherited-symbols
+                             :used-packages (length used-packages)
+                             :exported-symbols (length exports)
+                             :export-users export-users))
+                 
+                 ;; Record dependency relationships
+                 (setf (gethash (package-name pkg) package-graph)
+                       (mapcar #'package-name used-packages))
+                 
+                 ;; Record detailed symbol usage patterns
+                 (setf (gethash (package-name pkg) package-details)
+                       (analyze-package-usage tracker pkg))))
+             all-project-packages)
+    
+    ;; Analyze for dependency cycles between packages
     (let ((cycles (detect-dependency-cycles package-graph)))
       (when cycles
         (dolist (cycle cycles)
           (record-anomaly tracker
             :type :package-cycle
             :severity :warning
-            :file (mapcar (lambda (pkg)
-                           (find-package-definition-file tracker pkg))
+            :file (mapcar (lambda (pkg-name)
+                           (find-package-definition-file 
+                            tracker pkg-name))
                          cycle)
             :description 
-            (format nil "Package dependency cycle detected: ~{~A~^ -> ~}" cycle)
+            (format nil 
+                    "Package dependency cycle detected: ~{~A~^ -> ~}" 
+                    cycle)
             :context cycle))))
-
-    ;; Step 3: Update tracker with report data
+    
+    ;; Update tracker with analysis results
     (setf (slot-value tracker 'package-metrics) package-metrics
           (slot-value tracker 'package-graph) package-graph
           (slot-value tracker 'package-details) package-details)))

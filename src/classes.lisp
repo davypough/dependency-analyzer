@@ -119,21 +119,19 @@
    (references :initform (make-hash-table :test 'equal)
                :documentation "Maps symbols to where they are used")
    (anomalies :initform (make-hash-table :test 'equal)
-              :documentation "Maps anomaly types to lists of detected anomalies")
+               :documentation "Maps anomaly types to lists of detected anomalies")
    (project-name :initarg :project-name
                  :documentation "Name of the project being analyzed")
-   (project-packages :initform nil
-                    :documentation "List of all packages defined, used, or imported from by the project")
-   (project-owned-packages :initform nil
-                          :documentation "List of packages newly created by the project")
    (project-root :initarg :project-root
                  :documentation "Root directory of the project being analyzed")
    (file-map :initform (make-hash-table :test 'equal)
              :documentation "Maps files to their contained definitions")
-   (package-uses :initform (make-hash-table :test 'equal)
-                :documentation "Maps packages to the packages they use")
+   (defined-packages :initform (make-hash-table :test 'equal)
+                     :documentation "Maps package names to their definition forms")
+   (package-uses :initform (make-hash-table :test 'eq)
+                 :documentation "Maps packages to the packages they use")
    (package-exports :initform (make-hash-table :test 'equal)
-                   :documentation "Maps packages to their exported symbols")
+                    :documentation "Maps packages to their exported symbols")
    (macro-bodies :initform (make-hash-table :test 'equal)
                 :documentation "Maps macro names to symbols used in their bodies")
    (file-cycles :initform nil

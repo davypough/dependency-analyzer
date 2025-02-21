@@ -62,9 +62,8 @@
                                                  :project-name parent-dir-name
                                                  :project-root parent-pathname))
 
-          ;; Initialization: get all project-related packages
-          (setf (slot-value *current-tracker* 'project-packages)
-            (load-project-and-get-all-related-packages))
+          ;; Initialization, load user's project files for runtime analysis
+          (ensure-project-loaded)
 
           ;; First pass: analyze definitions
           (format t "~%First Pass - Collecting Definitions...~%")
@@ -84,7 +83,7 @@
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-package-symbols-in-file file-parser)))
 
-          ;; Post-pass analysis
+          ;; Post-pass quality analysis
           ;(detect-unused-definitions *current-tracker*)  ;maybe enhance later
           (analyze-package-dependencies *current-tracker*)
           (analyze-package-exports *current-tracker*)
@@ -117,35 +116,13 @@
           *current-tracker*)))))
 
 
-;;; Do a runtime snapshot, load the project,
-;;; and gather the newly introduced packages + their dependencies.
-(defun load-project-and-get-all-related-packages ()  ;(loader-fn)
-  "1) Record all packages before loading.
-   2) Call LOADER-FN (a function that loads/compiles your project).
-   3) Record all packages after loading.
-   4) Identify new packages introduced by the load.
-   5) Gather the transitive closure of dependencies from those packages.
-   Returns a list of all 'project-related' packages."
-  (let ((before (list-all-packages)))
-    ;; Delete FASL files before loading to ensure fresh compilation of user's project files
-    (delete-project-fasls :test-project)
-    (asdf:load-system :test-project)
-    ;; Analyze runtime :depends-on system dependencies
-    (setf (slot-value *current-tracker* 'subsystems)
-          (get-runtime-dependencies :test-project))
-    (let ((after (list-all-packages))
-          ;; Store all project-related packages in PROJECT-PACKAGES
-          (project-packages '()))
-      (let ((new-packages (set-difference after before :test #'eq)))
-        ;; Store just the new packages
-        (setf (slot-value *current-tracker* 'project-owned-packages) new-packages)
-        ;; For each newly introduced package, gather its full dependency closure.
-        (dolist (pkg new-packages)
-          (setq project-packages
-                (union project-packages
-                       (all-package-dependencies pkg)
-                       :test #'eq))))
-      project-packages)))
+(defun ensure-project-loaded ()
+  "Loads the project to ensure its runtime state is available for analysis.
+   Cleans up any old compiled files first to ensure fresh compilation."
+  (delete-project-fasls :test-project)
+  (asdf:load-system :test-project)
+  (setf (slot-value *current-tracker* 'subsystems)
+        (get-runtime-dependencies :test-project)))
 
 
 (defun get-runtime-dependencies (system-name)

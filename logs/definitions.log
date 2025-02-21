@@ -5,7 +5,7 @@ The list of all definitions identified in the test-project project.
 DEFINITION>
     :Name #:USER-PKG
     :Context (DEFPACKAGE #:USER-PKG
-               (:USE :CL))
+               (:USE :CL :ALEXANDRIA))
     :Type :PACKAGE
     :File /src/defs.lisp
 
@@ -99,7 +99,9 @@ DEFINITION>
 
 DEFINITION>
     :Name FN2A
-    :Context (DEFUN FN2A (X &OPTIONAL Y) (DECLARE (TYPE NUMBER X)) (LIST X Y))
+    :Context (DEFUN FN2A (X &OPTIONAL Y)
+               (DECLARE (TYPE NUMBER X))
+               (PROPER-LIST-P (LIST X Y)))
     :Type :FUNCTION
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
