@@ -84,7 +84,6 @@
               (parse-package-symbols-in-file file-parser)))
 
           ;; Post-pass quality analysis
-          ;(detect-unused-definitions *current-tracker*)  ;maybe enhance later
           (analyze-package-dependencies *current-tracker*)
           (analyze-package-exports *current-tracker*)
           (analyze-type-relationships *current-tracker*)
@@ -112,7 +111,11 @@
               (declare (special log-stream))
               (log-anomalies)))
           (in-package :dep)
-          (report)
+          
+          ;; Generate final report to terminal
+          (generate-report :text *current-tracker* :stream *standard-output*)
+          
+          ;; Return tracker for chaining
           *current-tracker*)))))
 
 

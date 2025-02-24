@@ -8,27 +8,11 @@
 (in-package #:dep)
 
 
-(defparameter *print-width* 80
-  "Default maximum width for formatted report output.")
-
-
 (defun source-file-name (pathname)
   "Extract just the source file name from a pathname."
   (if pathname
       (file-namestring pathname)
       nil))
-
-
-(defun string-to-dot-id (string)
-  "Convert a string to a valid DOT graph identifier."
-  (string-downcase
-   (with-output-to-string (s)
-     (loop for char across (or string "")
-           do (case char
-                ((#\Space #\/ #\\ #\. #\-)
-                 (write-char #\_ s))
-                (otherwise
-                 (write-char char s)))))))
 
 
 (defun build-file-dependency-tree (tracker)
@@ -234,98 +218,6 @@
                       t)))
 
 
-(defun build-file-dependency-json (tracker)
- "Build JSON structure for file dependencies."
- (let ((result (make-hash-table :test 'equal))
-       (is-dependency (make-hash-table :test 'equal)))
-   
-   ;; First pass unchanged
-   (maphash (lambda (file def-list)
-              (declare (ignore def-list))
-              (dolist (dep (file-dependencies tracker file))
-                (setf (gethash dep is-dependency) t)))
-            (slot-value tracker 'file-map))
-   
-   ;; Second pass enhanced with method reference details
-   (maphash (lambda (file def-list)
-              (declare (ignore def-list)) 
-              (unless (gethash file is-dependency)
-                (when-let ((file-str (project-pathname file))
-                           (deps (file-dependencies tracker file)))
-                  (let ((deps-with-refs 
-                          (mapcar (lambda (dep)
-                                   (let ((refs (collect-file-references tracker file dep)))
-                                     (alexandria:alist-hash-table
-                                      `(("file" . ,(project-pathname dep))
-                                        ("references" . 
-                                          ,(mapcar (lambda (ref)
-                                                    (alexandria:alist-hash-table
-                                                      `(("name" . ,(symbol-name (reference.name ref)))
-                                                        ("qualifiers" . ,(reference.qualifiers ref))
-                                                        ("arguments" . ,(reference.arguments ref)))
-                                                      :test 'equal))
-                                                  refs)))
-                                      :test 'equal)))
-                                 deps)))
-                    (setf (gethash file-str result)
-                      (alist-hash-table `(("depends_on" . ,deps-with-refs)) :test #'equal))))))
-            (slot-value tracker 'file-map))
-   result))
-
-
-(defun build-package-dependency-json (tracker)
-  "Build JSON structure for package dependencies."
-  (let ((result (make-hash-table :test 'equal)))
-    (maphash (lambda (pkg used-pkgs)
-               (let ((exports (mapcar #'symbol-name (get-package-exports tracker pkg))))
-                 (when (or used-pkgs exports)
-                   (setf (gethash pkg result)
-                         (alexandria:alist-hash-table
-                          (remove nil
-                                 `(,@(when used-pkgs `(("uses" . ,used-pkgs)))
-                                   ,@(when exports `(("exports" . ,exports)))))
-                          :test 'equal)))))
-             (slot-value tracker 'package-uses))
-    result))
-
-
-(defun build-package-metrics-json (tracker)
-  ;; Current version only includes package metrics
-  ;; Need to add:
-  (let ((result (make-hash-table :test 'equal)))
-    (maphash (lambda (pkg metrics)
-               (setf (gethash pkg result)
-                     (alexandria:alist-hash-table
-                      `(("local_symbols" . ,(getf metrics :local-symbols))
-                        ("inherited_symbols" . ,(getf metrics :inherited-symbols))
-                        ("used_packages" . ,(getf metrics :used-packages))
-                        ("exported_symbols" . ,(getf metrics :exported-symbols))
-                        ("export_users" . ,(getf metrics :export-users))
-                        ("export_references" . ,(getf metrics :export-references))
-                        ("type_metrics" . ,(gethash pkg (slot-value tracker 'type-metrics))))  ; Add type metrics
-                      :test 'equal)))
-             (slot-value tracker 'package-metrics))
-    result))
-
-
-(defun validate-package-dependencies (pkg-graph)
-  "Validate package dependency graph data structure.
-   Returns t if valid, signals error with description if invalid."
-  (handler-case
-      (maphash (lambda (pkg deps)
-                 (unless (stringp pkg)
-                   (error "Package name must be a string: ~A" pkg))
-                 (unless (listp deps)
-                   (error "Dependencies must be a list: ~A" deps))
-                 (dolist (dep deps)
-                   (unless (stringp dep)
-                     (error "Dependency name must be a string: ~A" dep))))
-               pkg-graph)
-    (error (c)
-      (error "Invalid package dependency graph: ~A" c)))
-  t)
-
-
 (defmethod get-package-uses (&optional (tracker nil tracker-provided-p) package-name)
   "Get all packages that a given package uses."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker))))
@@ -395,42 +287,6 @@
              (slot-value actual-tracker 'anomalies))
     (sort cycles #'string< :key (lambda (cycle)
                                  (format nil "~{~A~^->~}" cycle)))))
-
-
-(defun make-report-path (project-name format &key (overwrite t))
-  "Create a suitable report filepath for the given format.
-   Format should be one of :text, :json, or :dot.
-   Returns pathname. Signals error if reports/ directory missing."
-  (let* ((reports-dir (merge-pathnames #P"reports/" 
-                                      (asdf:system-source-directory :dependency-analyzer)))
-         (extension (ecase format
-                     (:text "text")
-                     (:json "json") 
-                     (:dot "dot")))
-         (base-name (format nil "~A-report" project-name))
-         (base-path (make-pathname :name base-name
-                                 :type extension
-                                 :defaults reports-dir)))
-    (unless (probe-file reports-dir)
-      (error "Reports directory not found: ~A" reports-dir))
-    (if overwrite
-        base-path
-        (loop for i from 1
-              for path = (make-pathname :name (format nil "~A(~D)" base-name i)
-                                      :type extension
-                                      :defaults reports-dir)
-              unless (probe-file path)
-              return path))))
-
-
-(defun report-to-file (pathname format tracker)
-  "Write report of given format to specified file.
-   Format should be one of :text, :json, or :dot."
-  (with-open-file (out pathname
-                   :direction :output
-                   :if-exists :supersede
-                   :if-does-not-exist :create)
-    (generate-report format tracker :stream out)))
 
 
 (defun build-class-dependency-tree (tracker)
