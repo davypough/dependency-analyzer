@@ -5,7 +5,7 @@
   {
     "USER-PKG":
     {
-      "local_symbols":68,
+      "local_symbols":72,
       "inherited_symbols":1185,
       "used_packages":2
     },
@@ -65,11 +65,36 @@
   },
   "dependencies":
   {
-    "packages":
-    {
-    },
     "files":
     {
+      "/src/refs.lisp":
+      {
+        "depends_on":["/src/defs.lisp"],
+        "references":
+        [
+          {
+            "name":"*param1*"
+          },
+          {
+            "name":"*param1*"
+          },
+          {
+            "name":"*param3*"
+          },
+          {
+            "name":"*param3*"
+          },
+          {
+            "name":"*special1*"
+          },
+          {
+            "name":"+const1+"
+          },
+          {
+            "name":"var1"
+          }
+        ]
+      }
     },
     "systems":{
       "test-project": [

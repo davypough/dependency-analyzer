@@ -31,6 +31,8 @@ digraph Dependencies {
     label="File Dependencies";
     style=dashed;
     node [style=filled,fillcolor=lightblue];
-    "defs_lisp" [label="/src/defs.lisp",fillcolor=lightgreen];
+    "defs_lisp" [label="/src/defs.lisp"];
+    "refs_lisp" [label="/src/refs.lisp",fillcolor=lightgreen];
+    *PARAM1* *PARAM1* *PARAM3* *PARAM3* *SPECIAL1* +CONST1+ VAR1    "refs_lisp" -> "defs_lisp";
   }
 }

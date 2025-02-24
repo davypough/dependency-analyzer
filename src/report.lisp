@@ -103,37 +103,76 @@
   (format stream "~V,,,'-<~A~>~%" 30 "")
   (format stream "~2%")
 
-  ;; Architectural Overview with package analysis
-  (format stream "ARCHITECTURAL OVERVIEW~%")
-  (format stream "~V,,,'-<~A~>~%" 30 "")
-  
-  ;; System Overview
-  (format stream "SYSTEM OVERVIEW~%")
-  (format stream "~V,,,'-<~A~>~%" 30 "")
-  (alexandria:when-let ((cycles (get-system-cycles tracker)))
-    (format stream "~%System Dependency Cycles:~%")
-    (format stream "The following systems have circular dependencies:~%")
-    (dolist (cycle cycles)
-      (format stream "  ~A~%" cycle)))
-  (format stream "~2%")
-  
-  ;; Package Architecture
-  (format stream "Package Hierarchy:~%")
+  ;; Clear section divider for architectural overview
+  (format stream "~2%ARCHITECTURAL ANALYSIS~%")
+  (format stream "~V,,,'-<~A~>~2%" 30 "")
+
+  ;; System Hierarchy Section
+  (format stream "System Hierarchy:~%")
+  (let ((system-name (slot-value tracker 'project-name)))
+    (let ((dependencies (gethash system-name (slot-value tracker 'subsystems))))
+      (if dependencies
+          (progn
+            (format stream "~&-- ~A~%" system-name)
+            (dolist (dep (sort (remove system-name dependencies :test #'string=) #'string<))
+              (format stream "   -- ~A~%" dep)))
+          (format stream "  No system dependencies found.~%"))))
+
+  ;; Package Hierarchy Section
+  (format stream "~2%Package Hierarchy:~%")
   (multiple-value-bind (roots cycles) 
       (build-package-dependency-tree tracker)
     (if roots
         (print-ascii-tree stream roots)
         (format stream "  No package dependencies found.~%"))
     (when cycles
-      (format stream "~%Note: Package relationships contain cyclical dependencies.~%
-                   This may be intentional but could affect maintainability.~%")))
-  
-  ;; File Architecture
-  (format stream "~%File Hierarchy:~%")
+      (format stream "~%Note: Package relationships contain cyclical dependencies.~%")))
+
+  ;; File Hierarchy Section  
+  (format stream "~2%File Hierarchy:~%")
   (if-let (file-roots (build-file-dependency-tree tracker))
     (print-ascii-tree stream file-roots)
     (format stream "  No file dependencies found.~%"))
-  (format stream "~2%")
+
+  ;; Add new Class Hierarchy section
+  (format stream "~2%Class Hierarchy:~%")
+  (multiple-value-bind (roots cycles) 
+      (build-class-dependency-tree tracker)
+    (if roots
+        (print-ascii-tree stream roots)
+        (format stream "  No CLOS class hierarchy found.~%"))
+    (when cycles
+      (format stream "~%Note: Class relationships contain cyclical dependencies.~%")))
+
+  ;; Add new Structure Hierarchy section after Class Hierarchy
+  (format stream "~2%Structure Hierarchy:~%")
+  (multiple-value-bind (roots cycles)
+      (build-structure-dependency-tree tracker)
+    (declare (ignore cycles))
+    (if roots
+        (print-ascii-tree stream roots)
+        (format stream "  No structure hierarchy found.~%")))
+
+  ;; Add new Condition Hierarchy section after Structure Hierarchy
+  (format stream "~2%Condition Hierarchy:~%")
+  (multiple-value-bind (roots cycles) 
+      (build-condition-dependency-tree tracker)
+    (if roots
+        (print-ascii-tree stream roots)
+        (format stream "  No condition hierarchy found.~%"))
+    ;; Conditions can have cycles due to multiple inheritance
+    (when cycles
+      (format stream "~%Note: Condition relationships contain cyclical dependencies.~%")))
+
+  ;; Replace the original Type Hierarchy section with one focused on deftype relationships
+  (format stream "~2%Type Hierarchy:~%")
+  (multiple-value-bind (roots cycles) 
+      (build-deftype-dependency-tree tracker)
+    (if roots
+        (print-ascii-tree stream roots)
+        (format stream "  No user-defined type relationships found.~%"))
+    (when cycles
+      (format stream "~%Note: Type definitions contain interdependencies.~%")))
 
   ;; Anomalies Section
   (format stream "ANOMALIES AND ANALYSIS~%")
@@ -239,29 +278,6 @@
   (format stream "System Dependencies:~%")
   (format stream "~2%")
   
-  ;; Package Dependencies
-  (format stream "Package Dependencies:~%")
-  (maphash (lambda (pkg used-pkgs)  ; pkg is package object
-             (format stream "~&~A " (package-name pkg))
-             (when used-pkgs
-               (format stream "uses")
-               (dolist (used used-pkgs)
-                 (format stream " ~A" (package-name used))))
-             (let ((metrics (gethash pkg (slot-value tracker 'package-metrics))))
-               (when metrics
-                 (format stream "~%  Metrics:")
-                 (format stream "~%    Exports: ~D symbols"
-                         (getf metrics :exported-symbols))
-                 (when (plusp (getf metrics :export-users 0))
-                   (format stream "~%    Used by: ~D packages (~D references)"
-                           (getf metrics :export-users)
-                           (getf metrics :export-references)))))
-             (when-let (exports (get-package-exports tracker pkg))  ; Updated to take package object
-               (format stream "~%  Exports:~%")
-               (dolist (sym (sort exports #'string< :key #'symbol-name))
-                 (format stream "    ~A~%" sym))))
-           (slot-value tracker 'package-uses))
-  
   ;; File Dependencies
   (format stream "File Dependencies:~%")
   (maphash (lambda (file definitions)
@@ -269,18 +285,37 @@
              (when-let (deps (file-dependencies tracker file))
                (dolist (dep deps)
                  (let* ((dep-line (format nil "~A depends on ~A" 
-                                          (project-pathname file)
-                                          (project-pathname dep)))
+                                      (project-pathname file)
+                                      (project-pathname dep)))
                         (refs (collect-file-references tracker file dep)))
                    (format stream "~A~%" dep-line)
                    (when refs
-                     (dolist (ref refs)
-                       (let ((name (reference.name ref))
-                             (quals (reference.qualifiers ref))
-                             (args (reference.arguments ref)))
-                         (format stream "    ~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]~%" 
-                                 name quals args))))
-                   (format stream "~%")))))
+                     ;; Start a new line with indentation
+                     (format stream "    ")
+                     ;; Track current line length
+                     (let ((line-length 4)  ; Starting after indentation
+                           (max-line-length 70))
+                       (loop for ref in refs
+                           for first-ref = t then nil
+                           for ref-text = (let ((name (reference.name ref))
+                                              (quals (reference.qualifiers ref))
+                                              (args (reference.arguments ref)))
+                                          (format nil "~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]"
+                                                  name quals args))
+                           do (let ((ref-length (length ref-text)))
+                                ;; If this ref would exceed line length, start new line
+                                (when (and (not first-ref)
+                                         (> (+ line-length ref-length 1) max-line-length))
+                                  (format stream "~%    ")
+                                  (setf line-length 4))
+                                ;; Add space between refs unless first on line
+                                (unless (= line-length 4)
+                                  (write-char #\Space stream)
+                                  (incf line-length))
+                                ;; Write the reference
+                                (write-string ref-text stream)
+                                (incf line-length ref-length)))))
+                   (format stream "~2%")))))
            (slot-value tracker 'file-map))
   
   ;; Return value
@@ -355,18 +390,6 @@
         ;; Dependencies sections
         (yason:with-object-element ("dependencies")
           (yason:with-object ()
-            ;; Package dependencies
-            (yason:with-object-element ("packages")
-              (yason:with-object ()
-                (maphash #'(lambda (pkg deps)
-                            (yason:with-object-element (pkg)
-                              (yason:with-object ()
-                                (yason:encode-object-element "uses" deps)
-                                (when-let (exports (get-package-exports tracker pkg))
-                                  (yason:encode-object-element "exports"
-                                    (mapcar #'symbol-name exports))))))
-                        (slot-value tracker 'package-uses))))
-            
             ;; File dependencies
             (yason:with-object-element ("files")
               (yason:with-object ()
@@ -535,12 +558,8 @@
                           (dep-id (string-to-dot-id dep-name))
                           (refs (collect-file-references tracker file dep))
                           (label (when refs
-                                 (format nil "~{~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]~^,\\n~}"
-                                         (mapcar (lambda (r)
-                                                 (list (reference.name r)
-                                                       (reference.qualifiers r)
-                                                       (reference.arguments r)))
-                                                refs)))))
+                                 (format stream "    ~{~A~^ ~}" 
+                                                (mapcar #'reference.name refs)))))
                      (format stream "    \"~A\" -> \"~A\"~@[ [label=\"~A\"]~];~%"
                              file-id dep-id 
                              (when label 

@@ -1,17 +1,17 @@
 ----------------------------------------------------------------------
 Dependency Analysis Report
 Project: test-project
-Generated: 2025-02-21T23:44:51.608677Z
+Generated: 2025-02-24T02:09:33.660521Z
 ----------------------------------------------------------------------
 
 EXECUTIVE SUMMARY
 ------------------------------
 Project Statistics:
-  Files: 1
+  Files: 2
   Packages: 5
-  Definitions: 58
-  References: 0
-  Total Symbols: 5551
+  Definitions: 62
+  References: 7
+  Total Symbols: 5555
   Package Dependencies: 5
   Anomalies: 0
 
@@ -20,10 +20,13 @@ SYSTEM DETAILS
 ------------------------------
 
 
-ARCHITECTURAL OVERVIEW
+
+
+ARCHITECTURAL ANALYSIS
 ------------------------------
-SYSTEM OVERVIEW
-------------------------------
+
+System Hierarchy:
+-- test-project
 
 
 Package Hierarchy:
@@ -34,10 +37,31 @@ Package Hierarchy:
    -- TEST2-PKG
    -- USER-PKG
 
+
 File Hierarchy:
--- defs.lisp
+-- refs.lisp
+   -- defs.lisp
 
 
+Class Hierarchy:
+-- NAMED-POINT
+   -- MONITORED-POINT
+
+Note: Class relationships contain cyclical dependencies.
+
+
+Structure Hierarchy:
+-- POINT
+
+
+Condition Hierarchy:
+-- INVALID-POINT
+
+
+Type Hierarchy:
+-- POS-INTEGER
+-- SIZED-VECTOR
+-- STRING-OR-SYMBOL
 ANOMALIES AND ANALYSIS
 ------------------------------
 MAINTENANCE CONSIDERATIONS
@@ -49,5 +73,7 @@ DETAILED REFERENCES
 System Dependencies:
 
 
-Package Dependencies:
 File Dependencies:
+/src/refs.lisp depends on /src/defs.lisp
+    *PARAM1* *PARAM1* *PARAM3* *PARAM3* *SPECIAL1* +CONST1+ VAR1
+

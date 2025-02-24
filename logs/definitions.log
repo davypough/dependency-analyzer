@@ -50,6 +50,24 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
+    :Name *PARAM2*
+    :Context (DEFPARAMETER *PARAM2*
+               (DEFPARAMETER *PARAM3* 0)
+               "Embedded definition")
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *PARAM3*
+    :Context (DEFPARAMETER *PARAM3* 0)
+    :Type :VARIABLE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
     :Name #:TEST1-PKG
     :Context (DEFPACKAGE #:TEST1-PKG
                (:NICKNAMES :T1PKG)
@@ -565,6 +583,22 @@ DEFINITION>
                  (POINT-TIMESTAMP *LAST-EMBEDDED-POINT*)))
     :Type :FUNCTION
     :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *PARAM4*
+    :Context (DEFPARAMETER *PARAM4* (LIST *PARAM3*))
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name FUN1
+    :Context (DEFUN FUN1 (&OPTIONAL (X *PARAM1*)) (PRINT X) *PARAM3*)
+    :Type :FUNCTION
+    :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 

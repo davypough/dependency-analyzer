@@ -11,11 +11,14 @@
 (defpackage #:dependency-analyzer
   (:use #:cl #:alexandria)
   (:nicknames #:dep)
-  (:export #:analyze #:pushit
+  (:export #:analyze
      ;; Development
      #:prt
      #:delete-fasl
-     #:dep))
+     #:flat
+     #:dep
+     #:debug-let*
+     #:debug-let))
 
 
 (in-package :dep)

@@ -34,33 +34,44 @@
     (character (string designator))))
 
 
-(defun make-tracking-key (designator &optional package-alias type qualifiers specializers)
-  "Create a lookup key for a designator with optional package name, type & method info.
-   For methods and generic functions, always includes qualifiers and specializers parts, even if nil.
-   DESIGNATOR can be symbol, package designator, or (setf symbol) form.
-   PACKAGE-ALIAS is a package designator--eg, \"FOO\", :foo, #:foo, or package object.
-   TYPE is one of +valid-definition-types+ of DESIGNATOR.
-   QUALIFIERS is a list of method qualifiers in their significant order.
-   SPECIALIZERS is a list of specializer types."
-  (let ((name (format nil "~A" designator))
-        (pkg-name (typecase package-alias
-                    (package (package-name package-alias))
-                    (null nil)
-                    (t (or (package-name package-alias) (string package-alias))))))
+(defun make-tracking-key (designator &optional package type qualifiers specializers)
+  "Create a lookup key for a designator with optional package, type & method info.
+   For methods and generic functions, includes qualifiers and specializers.
+   
+   Parameters:
+   DESIGNATOR - Symbol, package designator, or (setf symbol) form
+   PACKAGE - Package object or nil
+   TYPE - One of +valid-definition-types+ or nil
+   QUALIFIERS - List of method qualifiers in order
+   SPECIALIZERS - List of specializer types"
+  (let ((name (typecase designator
+                (symbol (symbol-name designator))
+                (string designator)
+                (cons (format nil "(~A ~A)" 
+                            (car designator)
+                            (cadr designator)))
+                (t (princ-to-string designator))))
+        (pkg-name (when package
+                   (etypecase package
+                     (package (package-name package))
+                     (string package)
+                     (symbol (string package))))))
     
     (when (and type (not (member type +valid-definition-types+)))
-      (error "Invalid definition type in make-tracking-key~%  designator: ~S~%  package-alias: ~S~%  type: ~S"
-             designator package-alias type))
+      (error "Invalid definition type in make-tracking-key:~%  designator: ~S~%  package: ~S~%  type: ~S"
+             designator package type))
     
     (let ((key (format nil "~A|~A|~A" name (or pkg-name "") (or type ""))))
-      (when (or (member type '(:METHOD :GENERIC-FUNCTION)) qualifiers specializers)
-        ;; Preserve qualifier order as it is significant
+      ;; Add method-specific info if needed
+      (when (or (member type '(:METHOD :GENERIC-FUNCTION)) 
+                qualifiers specializers)
+        ;; Add qualifiers preserving order
         (setf key (format nil "~A|(~{~A~^ ~})" key (or qualifiers nil)))
-        ;; Sort specializers using printed representation for comparison
+        ;; Add specializers in sorted order
         (let ((sorted-specs (sort (copy-list (or specializers nil)) 
-                                  #'string<
-                                  :key (lambda (spec)
-                                         (format nil "~S" spec)))))
+                                 #'string<
+                                 :key (lambda (spec)
+                                        (format nil "~S" spec)))))
           (setf key (format nil "~A|(~{~A~^ ~})" key sorted-specs))))
       key)))
 
@@ -101,9 +112,14 @@
 (defun walk-form (form handler)
   "Walk a form calling HANDLER on each subform with context and parent context info.
    FORM - The form to analyze
-   HANDLER - Function taking (form context parent-context)"
+   HANDLER - Function taking (form context parent-context)
+   
+   Special handling:
+   - Skips regular quoted forms since they are pure data
+   - Processes backquoted forms since commas allow evaluation"
   (labels ((walk (x context parent-context)
-             (unless (skip-item-p x)  ;skip non-referring items
+             (unless (or (skip-item-p x)    ; Skip basic non-referring items
+                        (quoted-symbol-p x)) ; Skip quoted forms but allow backquoted ones
                (funcall handler x context parent-context)  
                ;; Recursively process subforms
                (typecase x

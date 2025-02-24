@@ -1,3 +1,121 @@
 Filename: REFERENCES.LOG
 
 The list of all references to definitions in other files for the test-project project.
+REFERENCE>
+    :Name *SPECIAL1*
+    :Context (LIST *SPECIAL1* *PARAM1* +CONST1+ 'VAR1)
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name *SPECIAL1*
+                        :Context (DEFVAR *SPECIAL1* 0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name *PARAM1*
+    :Context (&OPTIONAL (X *PARAM1*))
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name *PARAM1*
+                        :Context (DEFPARAMETER *PARAM1*
+                                   100
+                                   "Parameter must have initial value")
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name *PARAM1*
+    :Context (LIST *SPECIAL1* *PARAM1* +CONST1+ 'VAR1)
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name *PARAM1*
+                        :Context (DEFPARAMETER *PARAM1*
+                                   100
+                                   "Parameter must have initial value")
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name +CONST1+
+    :Context (LIST *SPECIAL1* *PARAM1* +CONST1+ 'VAR1)
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name +CONST1+
+                        :Context (DEFCONSTANT +CONST1+
+                                   1
+                                   "Constants use plus signs")
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name *PARAM3*
+    :Context (DEFUN FUN1 (&OPTIONAL (X *PARAM1*)) (PRINT X) *PARAM3*)
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name *PARAM3*
+                        :Context (DEFPARAMETER *PARAM3* 0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name *PARAM3*
+    :Context (DEFPARAMETER *PARAM4* (LIST *PARAM3*))
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name *PARAM3*
+                        :Context (DEFPARAMETER *PARAM3* 0)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name VAR1
+    :Context (SETF VAR1 1)
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name VAR1
+                        :Context (SETF (SYMBOL-VALUE 'VAR1) 42)
+                        :Type :VARIABLE
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
