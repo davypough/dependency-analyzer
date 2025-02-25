@@ -72,21 +72,27 @@
               (parse-definitions-in-file file-parser)))
 
           ;; Second pass: analyze references  
-          (format t "~%Second Pass - Analyzing References...~%") 
+          (format t "~%Second Pass - Collecting References...~%") 
           (dolist (file source-files)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-references-in-file file-parser)))
 
           ;; Third pass: package-symbol analysis
-          (format t "~%Third Pass - Analyzing Package/Symbol Consistency...~2%")
+          (format t "~%Third Pass - Analyzing Package/Symbol Consistency...~%")
           (dolist (file source-files)
             (let ((file-parser (make-instance 'file-parser :file file)))
               (parse-package-symbols-in-file file-parser)))
 
           ;; Post-pass quality analysis
+          (format t "~%Quality Review - Analyzing Code Dependencies...~2%")
           (analyze-package-dependencies *current-tracker*)
           (analyze-package-exports *current-tracker*)
           (analyze-type-relationships *current-tracker*)
+          ;; Add our new hierarchy cycle analysis functions
+          (analyze-class-hierarchies *current-tracker*)
+          (analyze-condition-hierarchies *current-tracker*)
+          (analyze-type-hierarchies *current-tracker*)
+          (analyze-structure-hierarchies *current-tracker*)
 
           ;; Log final definitions, references, anomalies
           (let ((*print-circle* nil) ;disable circular notation
@@ -113,7 +119,7 @@
           (in-package :dep)
           
           ;; Generate final report to terminal
-          (generate-report :text *current-tracker* :stream *standard-output*)
+          (report)  ;(generate-report :text *current-tracker* :stream *standard-output*)
           
           ;; Return tracker for chaining
           *current-tracker*)))))

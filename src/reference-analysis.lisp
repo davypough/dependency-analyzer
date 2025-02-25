@@ -27,10 +27,11 @@
 
 (defun analyze-reference-form (parser top-level-form)
   "Analyze source top-level-forms, recording references to definitions in different files."
-  (let ((gf-p nil))  
+  (let ((gf-p nil))
     (labels ((handle-reference (current-form context parent-context)
                (if (and (typep current-form '(or character package string symbol))
                         (find-package current-form))
+                        
                  ;; Process a package designator - create single reference to all definitions
                  (let* ((key (make-tracking-key current-form nil :package))
                         (defs (gethash key (slot-value *current-tracker* 'definitions)))
@@ -44,9 +45,9 @@
                                      :file (file parser)
                                      :context parent-context
                                      :definitions other-file-defs)))
+                 ;; Process a symbol reference
                  (when (symbolp current-form)
-                   ;; Process a symbol reference
-                   (unless (or (skip-item-p current-form)
+                   (unless (or (keywordp current-form)  ;(skip-item-p current-form)
                                (def*-name-p current-form context))
                      (if (potential-gf-reference-p current-form context)
                        ;; For potential generic function references in form, just set flag and continue walking

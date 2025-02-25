@@ -488,12 +488,370 @@
              (slot-value tracker 'definitions))))
 
 
-#+ignore (defun user-defined-p (def)  ;keep to use later for detecting unused definitions
-  "Check if definition appears to be explicitly defined by user rather than auto-generated."
-  (let ((name (string (definition.name def))))
-    (case (definition.type def)
-      (:function 
-       ;; Filter out structure accessors/predicates/copiers
-       (not (or (search "-P" name :from-end t) ; predicates
-                (search "COPY-" name))))          ; copiers
-      (t t))))  ; Keep all other types of definitions
+(defun analyze-class-hierarchies (tracker)
+  "Analyze CLOS class inheritance hierarchies to detect cycles.
+   Uses depth-first search to identify true circular inheritance dependencies.
+   Records findings in the class-cycles slot of the tracker and as anomalies."
+  
+  ;; Data structures for tracking visited classes and their states
+  (let ((classes-seen (make-hash-table :test 'eq))
+        (cycles nil))
+    
+    ;; First identify all user-defined classes
+    (maphash (lambda (key def-list)
+               (declare (ignore key))
+               (dolist (def def-list)
+                 (when (eq (definition.type def) :structure/class/condition)
+                   (let* ((type-name (definition.name def))
+                          (class (find-class type-name nil)))
+                     ;; Only process if it's a standard-class (not structure or condition)
+                     (when (and class 
+                               (typep class 'standard-class)
+                               (not (eq (class-name class) 'standard-object)))
+                       (check-class-cycles class nil classes-seen cycles))))))
+             (slot-value tracker 'definitions))
+    
+    ;; Store detected cycles in the tracker
+    (setf (slot-value tracker 'class-cycles) cycles)
+    
+    ;; Record each cycle as an anomaly
+    (dolist (cycle cycles)
+      (record-anomaly tracker
+        :type :class-inheritance-cycle
+        :severity :warning
+        :description (format nil "Class inheritance cycle detected: ~A" cycle)
+        :context cycle
+        :package (when (search " -> " cycle)
+                  ;; Extract first class name from cycle string
+                  (let* ((first-class-name (subseq cycle 0 (search " -> " cycle)))
+                         (class-sym (find-symbol first-class-name)))
+                    (when class-sym
+                      (symbol-package class-sym))))))
+    
+    ;; Return the cycles for chaining
+    cycles))
+
+
+(defun check-class-cycles (class path classes-seen cycles)
+  "Recursive depth-first search to detect cycles in class inheritance.
+   CLASS - The class being examined
+   PATH - List of classes in the current inheritance path
+   CLASSES-SEEN - Hash table tracking visited classes and their status
+   CYCLES - List to collect detected cycles
+   
+   Returns the updated CYCLES list."
+  
+  ;; Get class status from the cache
+  (let ((status (gethash class classes-seen)))
+    (cond
+      ;; Already fully explored - no cycles here
+      ((eq status :completed) cycles)
+      
+      ;; Found class in current path - cycle detected
+      ((eq status :in-progress)
+       (let* ((cycle-start (position class path :test #'eq))
+              (cycle-classes (reverse (cons class (subseq path 0 cycle-start))))
+              (cycle-names (mapcar #'class-name cycle-classes)))
+         (pushnew (format nil "~{~A~^ -> ~}" cycle-names)
+                 cycles
+                 :test #'string=)))
+      
+      ;; New class - explore it
+      (t
+       (setf (gethash class classes-seen) :in-progress)
+       (let ((updated-path (cons class path)))
+         ;; Recursively check each superclass
+         (dolist (superclass (c2mop:class-direct-superclasses class))
+           ;; Skip standard-object as it's the root of all CLOS classes
+           (unless (eq (class-name superclass) 'standard-object)
+             (setq cycles (check-class-cycles superclass updated-path classes-seen cycles)))))
+       
+       ;; Mark as fully explored after checking all superclasses
+       (setf (gethash class classes-seen) :completed)
+       cycles))))
+
+
+(defun analyze-condition-hierarchies (tracker)
+  "Analyze condition inheritance hierarchies to detect cycles.
+   Uses depth-first search to identify circular inheritance dependencies.
+   Records findings in the condition-cycles slot of the tracker and as anomalies."
+  
+  ;; Data structures for tracking visited conditions and their states
+  (let ((conditions-seen (make-hash-table :test 'eq))
+        (cycles nil))
+    
+    ;; Identify all user-defined condition classes
+    (maphash (lambda (key def-list)
+               (declare (ignore key))
+               (dolist (def def-list)
+                 (when (eq (definition.type def) :structure/class/condition)
+                   (let* ((type-name (definition.name def))
+                          (class (find-class type-name nil)))
+                     ;; Only process if it's a condition
+                     (when (and class 
+                               (not (eq (class-name class) 'condition))
+                               (subtypep type-name 'condition))
+                       (check-condition-cycles class nil conditions-seen cycles))))))
+             (slot-value tracker 'definitions))
+    
+    ;; Store detected cycles in the tracker
+    (setf (slot-value tracker 'condition-cycles) cycles)
+    
+    ;; Record each cycle as an anomaly
+    (dolist (cycle cycles)
+      (record-anomaly tracker
+        :type :condition-inheritance-cycle
+        :severity :warning
+        :description (format nil "Condition inheritance cycle detected: ~A" cycle)
+        :context cycle
+        :package (when (search " -> " cycle)
+                  ;; Extract first condition name from cycle string
+                  (let* ((first-condition-name (subseq cycle 0 (search " -> " cycle)))
+                         (condition-sym (find-symbol first-condition-name)))
+                    (when condition-sym
+                      (symbol-package condition-sym))))))
+    
+    ;; Return the cycles for chaining
+    cycles))
+
+
+(defun check-condition-cycles (condition path conditions-seen cycles)
+  "Recursive depth-first search to detect cycles in condition inheritance.
+   CONDITION - The condition class being examined
+   PATH - List of conditions in the current inheritance path
+   CONDITIONS-SEEN - Hash table tracking visited conditions and their status
+   CYCLES - List to collect detected cycles
+   
+   Returns the updated CYCLES list."
+  
+  ;; Get condition status from the cache
+  (let ((status (gethash condition conditions-seen)))
+    (cond
+      ;; Already fully explored - no cycles here
+      ((eq status :completed) cycles)
+      
+      ;; Found condition in current path - cycle detected
+      ((eq status :in-progress)
+       (let* ((cycle-start (position condition path :test #'eq))
+              (cycle-conditions (reverse (cons condition (subseq path 0 cycle-start))))
+              (cycle-names (mapcar #'class-name cycle-conditions)))
+         (pushnew (format nil "~{~A~^ -> ~}" cycle-names)
+                 cycles
+                 :test #'string=)))
+      
+      ;; New condition - explore it
+      (t
+       (setf (gethash condition conditions-seen) :in-progress)
+       (let ((updated-path (cons condition path)))
+         ;; Recursively check each superclass
+         (dolist (superclass (c2mop:class-direct-superclasses condition))
+           ;; Skip built-in condition classes to focus on user-defined relationships
+           (unless (eq (symbol-package (class-name superclass))
+                       (find-package :common-lisp))
+             (setq cycles (check-condition-cycles superclass updated-path conditions-seen cycles)))))
+       
+       ;; Mark as fully explored after checking all superclasses
+       (setf (gethash condition conditions-seen) :completed)
+       cycles))))
+
+
+(defun analyze-type-hierarchies (tracker)
+  "Analyze type definition relationships to detect cycles.
+   Focuses on types defined with deftype, examining how user-defined
+   types reference each other in their definitions.
+   Records findings in the type-cycles slot of the tracker and as anomalies."
+  
+  ;; First build a graph of type dependencies
+  (let ((type-graph (make-hash-table :test 'equal))
+        (types-seen (make-hash-table :test 'equal))
+        (cycles nil))
+    
+    ;; Identify all deftype relationships
+    (maphash (lambda (key def-list)
+               (declare (ignore key))
+               (dolist (def def-list)
+                 (when (eq (definition.type def) :deftype)
+                   (let* ((type-name (definition.name def))
+                          (context (definition.context def))
+                          (type-expr (and (>= (length context) 3) (third context))))
+                     
+                     ;; Initialize this type's entry in the graph
+                     (unless (gethash type-name type-graph)
+                       (setf (gethash type-name type-graph) nil))
+                     
+                     ;; Extract referenced types from type expression
+                     (when (and (listp type-expr)
+                                (eq (car type-expr) 'quote))
+                       (let ((spec (cadr type-expr)))
+                         ;; Handle different type specifier forms
+                         (when (listp spec)
+                           (case (car spec)
+                             ;; Union types - all component types are "dependencies"
+                             ((or)
+                              (dolist (ref-type (cdr spec))
+                                (when (and (symbolp ref-type)
+                                           (not (eq (symbol-package ref-type)
+                                                    (find-package :common-lisp))))
+                                  (push ref-type (gethash type-name type-graph)))))
+                             ;; Refinement types - base type is dependency
+                             ((integer rational float real number)
+                              (when (and (symbolp (car spec))
+                                         (not (eq (symbol-package (car spec))
+                                                  (find-package :common-lisp))))
+                                (push (car spec) (gethash type-name type-graph))))))))))))
+             (slot-value tracker 'definitions))
+    
+    ;; Now perform DFS on the type graph to find cycles
+    (maphash (lambda (type-name _)
+               (declare (ignore _))
+               (unless (gethash type-name types-seen)
+                 (check-type-cycles type-name nil type-graph types-seen cycles)))
+             type-graph)
+    
+    ;; Store detected cycles in the tracker
+    (setf (slot-value tracker 'type-cycles) cycles)
+    
+    ;; Record each cycle as an anomaly
+    (dolist (cycle cycles)
+      (record-anomaly tracker
+        :type :type-definition-cycle
+        :severity :warning
+        :description (format nil "Type definition cycle detected: ~A" cycle)
+        :context cycle
+        :package (when (search " -> " cycle)
+                  ;; Extract first type name from cycle string
+                  (let* ((first-type-name (subseq cycle 0 (search " -> " cycle)))
+                         (type-sym (find-symbol first-type-name)))
+                    (when type-sym
+                      (symbol-package type-sym))))))
+    
+    ;; Return the cycles for chaining
+    cycles))
+
+
+(defun check-type-cycles (type-name path type-graph types-seen cycles)
+  "Recursive depth-first search to detect cycles in type definitions.
+   TYPE-NAME - The type being examined
+   PATH - List of types in the current dependency path
+   TYPE-GRAPH - Hash table mapping type names to their dependencies
+   TYPES-SEEN - Hash table tracking visited types and their status
+   CYCLES - List to collect detected cycles
+   
+   Returns the updated CYCLES list."
+  
+  ;; Get type status from the cache
+  (let ((status (gethash type-name types-seen)))
+    (cond
+      ;; Already fully explored - no cycles here
+      ((eq status :completed) cycles)
+      
+      ;; Found type in current path - cycle detected
+      ((eq status :in-progress)
+       (let* ((cycle-start (position type-name path :test #'equal))
+              (cycle-types (reverse (cons type-name (subseq path 0 cycle-start)))))
+         (pushnew (format nil "~{~A~^ -> ~}" cycle-types)
+                 cycles
+                 :test #'string=)))
+      
+      ;; New type - explore it
+      (t
+       (setf (gethash type-name types-seen) :in-progress)
+       (let ((updated-path (cons type-name path)))
+         ;; Recursively check each referenced type
+         (dolist (ref-type (gethash type-name type-graph))
+           (when (gethash ref-type type-graph) ; Only check user-defined types
+             (setq cycles (check-type-cycles ref-type updated-path type-graph types-seen cycles)))))
+       
+       ;; Mark as fully explored after checking all dependencies
+       (setf (gethash type-name types-seen) :completed)
+       cycles))))
+
+
+(defun analyze-structure-hierarchies (tracker)
+  "Analyze structure inheritance hierarchies.
+   While structures use single inheritance and shouldn't form cycles,
+   this function maintains consistency with our cycle detection approach.
+   Records findings in the structure-cycles slot of the tracker and as anomalies."
+  
+  ;; Structures typically can't have cycles due to single inheritance,
+  ;; but we'll check anyway for consistency and completeness
+  (let ((structures-seen (make-hash-table :test 'eq))
+        (cycles nil))
+    
+    ;; Identify all structure definitions
+    (maphash (lambda (key def-list)
+               (declare (ignore key))
+               (dolist (def def-list)
+                 (when (eq (definition.type def) :structure/class/condition)
+                   (let* ((type-name (definition.name def))
+                          (class (find-class type-name nil)))
+                     ;; Only process if it's a structure-class
+                     (when (and class 
+                               (typep class 'structure-class)
+                               (not (eq (class-name class) 'structure-object)))
+                       (check-structure-cycles class nil structures-seen cycles))))))
+             (slot-value tracker 'definitions))
+    
+    ;; Store detected cycles in the tracker
+    (setf (slot-value tracker 'structure-cycles) cycles)
+    
+    ;; Record each cycle as an anomaly (unlikely but for consistency)
+    (dolist (cycle cycles)
+      (record-anomaly tracker
+        :type :structure-inheritance-cycle
+        :severity :error  ;; Structures shouldn't have cycles, so this is an error
+        :description (format nil "Structure inheritance cycle detected: ~A" cycle)
+        :context cycle
+        :package (when (search " -> " cycle)
+                  ;; Extract first structure name from cycle string
+                  (let* ((first-structure-name (subseq cycle 0 (search " -> " cycle)))
+                         (structure-sym (find-symbol first-structure-name)))
+                    (when structure-sym
+                      (symbol-package structure-sym))))))
+    
+    ;; Return the cycles for chaining
+    cycles))
+
+
+(defun check-structure-cycles (structure path structures-seen cycles)
+  "Recursive depth-first search to detect cycles in structure inheritance.
+   While structures use single inheritance and shouldn't form cycles,
+   this function implements the same pattern as our other hierarchy checks.
+   
+   STRUCTURE - The structure class being examined
+   PATH - List of structures in the current inheritance path
+   STRUCTURES-SEEN - Hash table tracking visited structures and their status
+   CYCLES - List to collect detected cycles
+   
+   Returns the updated CYCLES list."
+  
+  ;; Get structure status from the cache
+  (let ((status (gethash structure structures-seen)))
+    (cond
+      ;; Already fully explored - no cycles here
+      ((eq status :completed) cycles)
+      
+      ;; Found structure in current path - cycle detected
+      ;; (this shouldn't happen with single inheritance structures,
+      ;; but we'll check anyway for robustness)
+      ((eq status :in-progress)
+       (let* ((cycle-start (position structure path :test #'eq))
+              (cycle-structures (reverse (cons structure (subseq path 0 cycle-start))))
+              (cycle-names (mapcar #'class-name cycle-structures)))
+         (pushnew (format nil "~{~A~^ -> ~}" cycle-names)
+                 cycles
+                 :test #'string=)))
+      
+      ;; New structure - explore it
+      (t
+       (setf (gethash structure structures-seen) :in-progress)
+       (let ((updated-path (cons structure path)))
+         ;; Structures only have one direct superclass
+         (when-let ((superclass (first (c2mop:class-direct-superclasses structure))))
+           ;; Skip structure-object to avoid trivial dependencies
+           (unless (eq (class-name superclass) 'structure-object)
+             (setq cycles (check-structure-cycles superclass updated-path structures-seen cycles)))))
+       
+       ;; Mark as fully explored after checking superclass
+       (setf (gethash structure structures-seen) :completed)
+       cycles))))

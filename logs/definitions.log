@@ -43,6 +43,14 @@ DEFINITION>
 
 DEFINITION>
     :Name VAR1
+    :Context (SETF (SYMBOL-VALUE 'VAR1) 1)
+    :Type :VARIABLE
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name VAR1
     :Context (SETF (SYMBOL-VALUE 'VAR1) 42)
     :Type :VARIABLE
     :File /src/defs.lisp
@@ -96,6 +104,48 @@ DEFINITION>
     :Name "T2PKG"
     :Context (MAKE-PACKAGE :TEST2-PKG :NICKNAMES '("T2PKG") :USE
                            '("COMMON-LISP"))
+    :Type :PACKAGE
+    :File /src/defs.lisp
+
+DEFINITION>
+    :Name #:TEST3-PKG
+    :Context (DEFPACKAGE #:TEST3-PKG
+               (:NICKNAMES :T3PKG)
+               (:USE :CL :ALEXANDRIA)
+               (:DOCUMENTATION "Demonstrates import-from packages")
+               (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
+               (:EXPORT #:VAR1 #:PROCESS-DATA))
+    :Type :PACKAGE
+    :File /src/defs.lisp
+
+DEFINITION>
+    :Name :T3PKG
+    :Context (DEFPACKAGE #:TEST3-PKG
+               (:NICKNAMES :T3PKG)
+               (:USE :CL :ALEXANDRIA)
+               (:DOCUMENTATION "Demonstrates import-from packages")
+               (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
+               (:EXPORT #:VAR1 #:PROCESS-DATA))
+    :Type :PACKAGE
+    :File /src/defs.lisp
+
+DEFINITION>
+    :Name #:TEST4-PKG
+    :Context (DEFPACKAGE #:TEST4-PKG
+               (:USE :CL :TEST1-PKG)
+               (:SHADOW #:VAR1)
+               (:SHADOWING-IMPORT-FROM :ALEXANDRIA #:WHEN-LET)
+               (:EXPORT #:SHADOW-TEST))
+    :Type :PACKAGE
+    :File /src/defs.lisp
+
+DEFINITION>
+    :Name #:TEST5-PKG
+    :Context (DEFPACKAGE #:TEST5-PKG
+               (:USE :CL)
+               (:INTERN #:INTERNAL-ONLY)
+               (:EXPORT #:PUBLIC-API)
+               (:DOCUMENTATION "Package for testing comprehensive symbol visibility analysis"))
     :Type :PACKAGE
     :File /src/defs.lisp
 
@@ -597,6 +647,17 @@ DEFINITION>
 DEFINITION>
     :Name FUN1
     :Context (DEFUN FUN1 (&OPTIONAL (X *PARAM1*)) (PRINT X) *PARAM3*)
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name PACKAGE-TEST
+    :Context (DEFUN PACKAGE-TEST (&OPTIONAL (PKG :TEST3-PKG))
+               (FORMAT NIL "~A has ~D symbols~%" PKG
+                       (LOOP FOR SYM BEING THE SYMBOLS OF (FIND-PACKAGE PKG)
+                             COUNT T)))
     :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">

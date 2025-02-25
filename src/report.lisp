@@ -103,47 +103,64 @@
     (print-ascii-tree *standard-output* file-roots)
     (format t "  No file dependencies found.~%"))
 
-  ;; Class Hierarchy section
+  ;; Class Hierarchy section - modified to use recorded cycles
   (format t "~2%Class Hierarchy:~%")
-  (multiple-value-bind (roots cycles) 
+  (multiple-value-bind (roots _) ; We'll ignore the second return value
       (build-class-dependency-tree *current-tracker*)
+    (declare (ignore _))
     (if roots
         (print-ascii-tree *standard-output* roots)
         (format t "  No CLOS class hierarchy found.~%"))
-    (when cycles
-      (format t "~%Note: Class relationships contain cyclical dependencies.~%")))
+    ;; Now use the pre-recorded cycles instead of detecting them again
+    (when-let ((cycles (slot-value *current-tracker* 'class-cycles)))
+      (format t "~%Note: Class relationships contain cyclical dependencies:~%")
+      (dolist (cycle cycles)
+        (format t "  ~A~%" cycle))))
 
-  ;; Structure Hierarchy section
+  ;; Structure Hierarchy section - modified to use recorded cycles
   (format t "~2%Structure Hierarchy:~%")
-  (multiple-value-bind (roots cycles)
+  (multiple-value-bind (roots _) ; Ignore second return value
       (build-structure-dependency-tree *current-tracker*)
-    (declare (ignore cycles))
+    (declare (ignore _))
     (if roots
         (print-ascii-tree *standard-output* roots)
-        (format t "  No structure hierarchy found.~%")))
+        (format t "  No structure hierarchy found.~%"))
+    ;; Structures typically don't have cycles, but we'll check anyway
+    (when-let ((cycles (slot-value *current-tracker* 'structure-cycles)))
+      (format t "~%Note: Structure relationships contain cyclical dependencies:~%")
+      (dolist (cycle cycles)
+        (format t "  ~A~%" cycle))))
 
-  ;; Condition Hierarchy section
+  ;; Condition Hierarchy section - modified to use recorded cycles
   (format t "~2%Condition Hierarchy:~%")
-  (multiple-value-bind (roots cycles) 
+  (multiple-value-bind (roots _) ; Ignore second return value
       (build-condition-dependency-tree *current-tracker*)
+    (declare (ignore _))
     (if roots
         (print-ascii-tree *standard-output* roots)
         (format t "  No condition hierarchy found.~%"))
-    (when cycles
-      (format t "~%Note: Condition relationships contain cyclical dependencies.~%")))
+    ;; Use the pre-recorded condition cycles
+    (when-let ((cycles (slot-value *current-tracker* 'condition-cycles)))
+      (format t "~%Note: Condition relationships contain cyclical dependencies:~%")
+      (dolist (cycle cycles)
+        (format t "  ~A~%" cycle))))
 
-  ;; Type Hierarchy section focused on deftype relationships
+  ;; Type Hierarchy section - modified to use recorded cycles
   (format t "~2%Type Hierarchy:~%")
-  (multiple-value-bind (roots cycles) 
+  (multiple-value-bind (roots _) ; Ignore second return value
       (build-deftype-dependency-tree *current-tracker*)
+    (declare (ignore _))
     (if roots
         (print-ascii-tree *standard-output* roots)
         (format t "  No user-defined type relationships found.~%"))
-    (when cycles
-      (format t "~%Note: Type definitions contain interdependencies.~%")))
+    ;; Use the pre-recorded type cycles
+    (when-let ((cycles (slot-value *current-tracker* 'type-cycles)))
+      (format t "~%Note: Type definitions contain interdependencies:~%")
+      (dolist (cycle cycles)
+        (format t "  ~A~%" cycle))))
 
   ;; Anomalies Section
-  (format t "ANOMALIES AND ANALYSIS~%")
+  (format t "~%ANOMALIES AND ANALYSIS~2%")
   (format t "~V,,,'-<~A~>~%" 30 "")
   (flet ((print-anomaly (a indent)
            (format t "~A~A~%" indent (anomaly.description a))

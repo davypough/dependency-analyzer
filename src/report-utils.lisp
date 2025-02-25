@@ -292,10 +292,9 @@
 (defun build-class-dependency-tree (tracker)
   "Build a tree structure representing CLOS class inheritance relationships.
    Only includes classes of type standard-class, filtering out structures and conditions.
-   Returns (values roots cycles)."
+   No longer performs cycle detection as that's handled by analyze-class-hierarchies."
   (let ((nodes (make-hash-table :test 'equal))
-        (roots nil)
-        (cycles nil))
+        (roots nil))
     
     ;; First create nodes only for CLOS classes
     (maphash (lambda (key def-list)
@@ -324,11 +323,7 @@
                        ;; Only establish relationship if superclass is in our nodes
                        (when (and super-node 
                                  (not (eq super-name 'standard-object)))
-                         ;; Check for cycles
-                         (when (member class (c2mop:class-direct-subclasses super))
-                           (pushnew (format nil "~A ↔ ~A" type-name super-name)
-                                   cycles :test #'string=))
-                         ;; Record inheritance
+                         ;; Record inheritance without checking for cycles
                          (pushnew super-node (getf node :parents)
                                  :test #'equal
                                  :key (lambda (n) (getf n :name)))))))))
@@ -351,8 +346,8 @@
                          :key (lambda (n) (getf n :name)))))
              nodes)
     
-    (values (sort roots #'string< :key (lambda (node) (getf node :name)))
-            (sort cycles #'string<))))
+    ;; Return just the roots - cycle detection now handled elsewhere
+    (values (sort roots #'string< :key (lambda (node) (getf node :name))) nil)))
 
 
 (defun build-structure-dependency-tree (tracker)

@@ -138,6 +138,14 @@
                 :documentation "List of detected file dependency cycles")
    (package-cycles :initform nil
                   :documentation "List of detected package dependency cycles")
+   (class-cycles :initform nil
+                :documentation "List of detected class inheritance cycles")
+   (condition-cycles :initform nil
+                    :documentation "List of detected condition inheritance cycles")
+   (type-cycles :initform nil
+               :documentation "List of detected type definition cycles")
+   (structure-cycles :initform nil
+                    :documentation "List of detected structure inheritance cycles")
    (subsystems :initform nil
                :documentation "ASDF :depends-on system dependencies determined from runtime analysis")
    (pushit-symbols :initform nil

@@ -225,7 +225,7 @@
          (other-file-defs (remove-if (lambda (d)
                                       (equal (definition.file d) file))
                                     existing-defs)))
-    
+
     ;; Check for duplicates and record anomaly if found in other files
     (when other-file-defs
       (let ((def-files (mapcar #'definition.file other-file-defs)))

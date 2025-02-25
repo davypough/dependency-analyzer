@@ -118,7 +118,7 @@
    - Skips regular quoted forms since they are pure data
    - Processes backquoted forms since commas allow evaluation"
   (labels ((walk (x context parent-context)
-             (unless (or (skip-item-p x)    ; Skip basic non-referring items
+             (unless (or (skip-item-p x)    ; Skip basic non-definitional & non-referring items
                         (quoted-symbol-p x)) ; Skip quoted forms but allow backquoted ones
                (funcall handler x context parent-context)  
                ;; Recursively process subforms
@@ -161,11 +161,10 @@
 
 
 (defun skip-item-p (form)
-  "Return T if form should be skipped during reference analysis."
+  "Return T if form should be skipped during definition and reference analysis."
   (or (null form)
       (numberp form) 
       (stringp form)
-      (keywordp form)
       (cl-symbol-p form)
       (and (symbolp form)  ;skip uninterned symbols
            (not (symbol-package form)))))

@@ -85,13 +85,21 @@
                                              (make-pathname :name :wild 
                                                             :type (pathname-type filespec)
                                                             :directory '(:relative :wild-inferiors)))))
-            ;; Copy files to the new directory
-            (dolist (file files)
-              (let ((dest-file (merge-pathnames (file-namestring file) new-dir)))
-                ;; Ensure the directory for the destination file exists
-                (ensure-directories-exist dest-file)
-                ;; Copy the file
-                (uiop:copy-file file dest-file)))))))
+;            (uiop:run-program `("C:\\Program Files\\7-Zip\\7z.exe"
+;                                "a"
+;                                "dependency-analyzer.zip"
+;                                ,@(mapcar #'namestring files)
+;                                "-bso0")
+;                              :directory new-dir
+;                              :output t
+;                              :error-output t)))))
+           ;; Copy files to the new directory
+           (dolist (file files)
+             (let ((dest-file (merge-pathnames (file-namestring file) new-dir)))
+               ;; Ensure the directory for the destination file exists
+               (ensure-directories-exist dest-file)
+               ;; Copy the file
+               (uiop:copy-file file dest-file)))))))
     ;; Return the path of the new directory
     absolute-new-dir))
 
