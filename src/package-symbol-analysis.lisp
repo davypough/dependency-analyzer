@@ -29,9 +29,6 @@
                  ;; Analyze symbol references within current context
                  (validate-symbol-references parser form)
                  
-                 ;; Check for direct package references
-                 (analyze-package-references parser form)
-                 
                  ;; Update package context if needed
                  (when (and (consp form) (eq (car form) 'in-package))
                    (eval form)
@@ -221,43 +218,3 @@
       (find-symbol name pkg)
     (and sym (eq status :external))))
 
-
-(defun analyze-package-references (parser form)
-  "Analyzes direct references to package names in source code.
-   Identifies cases where package variables might be preferable.
-   Works with runtime package state to validate references."
-  (walk-form form
-    (lambda (current-form context parent-context)
-      (when (and (or (stringp current-form)     ; "PACKAGE"
-                     (keywordp current-form)     ; :package
-                     (and (symbolp current-form) ; #:package
-                          (not (symbol-package current-form))))
-                 (find-package (string current-form)))
-        
-        (let ((current-pkg (current-package parser))
-              (current-file (file parser)))
-          
-          ;; Skip references in package definition contexts
-          (unless (and (consp context)
-                      (member (first context) 
-                              '(defpackage in-package make-package delete-package))
-                      ;; For package definitions, check if defining same package
-                      (or (not (eq (first context) 'defpackage))
-                          (equal (string (second context))
-                                 (string current-form))))
-            
-            ;; Skip references in import/export forms
-            (unless (and (consp parent-context)
-                        (member (first parent-context)
-                                '(:use :import-from :export)))
-              
-              ;; Record direct package reference
-              (record-anomaly *current-tracker*
-                :type :inline-package-reference
-                :severity :info
-                :file current-file
-                :package current-pkg
-                :description 
-                (format nil "Package name ~S referenced directly. Consider using a package variable instead"
-                        current-form)
-                :context context))))))))
