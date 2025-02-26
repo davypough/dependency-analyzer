@@ -224,6 +224,5 @@
                                :description description
                                :package package
                                :context context)))
-    (pushnew anomaly (gethash type (slot-value tracker 'anomalies))
-                     :test #'equal :key #'anomaly.file)
+    (push anomaly (slot-value tracker 'anomalies))
     anomaly))

@@ -12,6 +12,30 @@ ANOMALY>
 
 
 ANOMALY>
+    :Description "Package name :ALEXANDRIA referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (USE CL ALEXANDRIA)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "COMMON-LISP-USER">
+
+ANOMALY>
+    :Description "Package name :ALEXANDRIA referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (USE CL ALEXANDRIA)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :ALEXANDRIA referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (SHADOWING-IMPORT-FROM ALEXANDRIA WHEN-LET)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
     :Description "Package name :CL referenced directly. Consider using a package variable instead"
     :Type :INLINE-PACKAGE-REFERENCE
     :Severity :INFO
@@ -20,10 +44,250 @@ ANOMALY>
     :Package #<PACKAGE "COMMON-LISP-USER">
 
 ANOMALY>
+    :Description "Package name :CL referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (USE CL)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :CL referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (USE CL ALEXANDRIA)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :CL referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (USE CL TEST1-PKG)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :CL referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (USE CL)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :T1PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (NICKNAMES T1PKG)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :T1PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE T1PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :T3PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (NICKNAMES T3PKG)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST1-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (USE CL TEST1-PKG)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
     :Description "Package name :TEST1-PKG referenced directly. Consider using a package variable instead"
     :Type :INLINE-PACKAGE-REFERENCE
     :Severity :INFO
     :Context (FIND-PACKAGE TEST1-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST1-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE TEST1-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST1-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-SYMBOL VAR1 TEST1-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST1-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE TEST1-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST1-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST3-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST1-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST2-PKG TEST3-PKG TEST4-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST2-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE TEST2-PKG)
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST2-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST2-PKG TEST3-PKG TEST4-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST3-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE TEST3-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST3-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-SYMBOL VAR1 TEST3-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST3-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE TEST3-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST3-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (PKG TEST3-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST3-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST3-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST3-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST2-PKG TEST3-PKG TEST4-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST4-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE TEST4-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST4-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-SYMBOL VAR1 TEST4-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST4-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (PKG-NAME TEST4-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST4-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST2-PKG TEST3-PKG TEST4-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST5-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST5-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST3-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :TEST5-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (LIST TEST1-PKG TEST2-PKG TEST3-PKG TEST4-PKG TEST5-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :USER-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE USER-PKG)
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package name :USER-PKG referenced directly. Consider using a package variable instead"
+    :Type :INLINE-PACKAGE-REFERENCE
+    :Severity :INFO
+    :Context (FIND-PACKAGE USER-PKG)
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
 

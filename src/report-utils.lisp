@@ -280,13 +280,11 @@
   "Get all recorded system dependency cycles from the tracker."
   (let ((actual-tracker (if tracker-provided-p tracker (ensure-tracker)))
         (cycles nil))
-    (maphash (lambda (type anomaly-list)
-               (when (eq type :system-cycle)
-                 (dolist (a anomaly-list)
-                   (push (anomaly.context a) cycles))))
-             (slot-value actual-tracker 'anomalies))
+    (dolist (a (slot-value actual-tracker 'anomalies))
+      (when (eq (anomaly.type a) :system-cycle)
+        (push (anomaly.context a) cycles)))
     (sort cycles #'string< :key (lambda (cycle)
-                                 (format nil "~{~A~^->~}" cycle)))))
+                               (format nil "~{~A~^->~}" cycle)))))
 
 
 (defun build-class-dependency-tree (tracker)

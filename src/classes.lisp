@@ -118,8 +118,8 @@
                 :documentation "Maps symbols to their definition locations")
    (references :initform (make-hash-table :test 'equal)
                :documentation "Maps symbols to where they are used")
-   (anomalies :initform (make-hash-table :test 'equal)
-               :documentation "Maps anomaly types to lists of detected anomalies")
+   (anomalies :initform nil
+               :documentation "List of all detected anomalies")
    (project-name :initarg :project-name
                  :documentation "Name of the project being analyzed")
    (project-root :initarg :project-root
@@ -177,7 +177,7 @@
                         (incf count (length refs)))
                       (slot-value tracker 'references))
               count)
-            (hash-table-count (slot-value tracker 'anomalies))
+            (length (slot-value tracker 'anomalies))
             (hash-table-count (slot-value tracker 'file-map)))))
 
 

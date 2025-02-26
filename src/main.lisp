@@ -231,16 +231,24 @@
   (format log-stream "Filename: ANOMALIES.LOG")
   (format log-stream "~2%The list of all anomalies detected during dependency analysis of the ~A project.~2%"
           (slot-value *current-tracker* 'project-name))
-  (let ((anomaly-types nil))
-    ;; Collect all anomaly types
-    (maphash (lambda (type anomaly-list)
-               (declare (ignore anomaly-list))
-               (push type anomaly-types))
-             (slot-value *current-tracker* 'anomalies))
-    ;; Process each type in sorted order
-    (dolist (type (sort anomaly-types #'string< :key #'symbol-name))
-      (when-let (anomalies-of-type (gethash type (slot-value *current-tracker* 'anomalies)))
-        (dolist (anomaly (sort anomalies-of-type #'string< 
-                               :key #'anomaly.description))
-          (print-anomaly anomaly log-stream 0))
-        (terpri log-stream)))))
+  
+  ;; Group anomalies by type for consistent output
+  (let ((anomalies-by-type (make-hash-table)))
+    ;; Group all anomalies by their type
+    (dolist (anomaly (slot-value *current-tracker* 'anomalies))
+      (push anomaly (gethash (anomaly.type anomaly) anomalies-by-type)))
+    
+    ;; Get all anomaly types for sorting
+    (let ((anomaly-types nil))
+      (maphash (lambda (type anomaly-list)
+                 (declare (ignore anomaly-list))
+                 (push type anomaly-types))
+               anomalies-by-type)
+      
+      ;; Process each type in sorted order
+      (dolist (type (sort anomaly-types #'string< :key #'symbol-name))
+        (when-let (anomalies-of-type (gethash type anomalies-by-type))
+          (dolist (anomaly (sort anomalies-of-type #'string< 
+                                 :key #'anomaly.description))
+            (print-anomaly anomaly log-stream 0))
+          (terpri log-stream))))))
