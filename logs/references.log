@@ -2,8 +2,160 @@ Filename: REFERENCES.LOG
 
 The list of all references to definitions in other files for the test-project project.
 REFERENCE>
+    :Name GF1
+    :Context (LET ((TEST-VALUE 10))
+               (GF1
+                (IF (> *SPECIAL1* 5)
+                    "string-case"
+                    TEST-VALUE)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (10)
+    :Definitions
+                    DEFINITION>
+                        :Name GF1
+                        :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NUMBER)
+
+REFERENCE>
+    :Name GF1
+    :Context (LET ((VALUES-TO-TEST (LIST 42 "text" (CONS 1 2))))
+               (MAPCAR #'GF1 VALUES-TO-TEST))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (42)
+    :Definitions
+                    DEFINITION>
+                        :Name GF1
+                        :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NUMBER)
+
+REFERENCE>
+    :Name GF1
+    :Context (GF1 42)
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (42)
+    :Definitions
+                    DEFINITION>
+                        :Name GF1
+                        :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NUMBER)
+
+REFERENCE>
+    :Name GF1
+    :Context (GF1 "hello")
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments ("hello")
+    :Definitions
+                    DEFINITION>
+                        :Name GF1
+                        :Context (DEFMETHOD GF1 ((X STRING))
+                                   (CONCATENATE 'STRING X X))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (STRING)
+
+REFERENCE>
+    :Name GF2
+    :Context (LET ((NUM 5))
+               (GF2 NUM 30))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Qualifiers (:BEFORE)
+    :Arguments (5 30)
+    :Definitions
+                    DEFINITION>
+                        :Name GF2
+                        :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y)
+                                   (CHECK-TYPE Y NUMBER))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Qualifiers (:BEFORE)
+                        :Specializers (NUMBER T)
+
+REFERENCE>
+    :Name GF2
+    :Context (GF2 10 20)
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Qualifiers (:BEFORE)
+    :Arguments (10 20)
+    :Definitions
+                    DEFINITION>
+                        :Name GF2
+                        :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y)
+                                   (CHECK-TYPE Y NUMBER))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Qualifiers (:BEFORE)
+                        :Specializers (NUMBER T)
+
+REFERENCE>
+    :Name GF2
+    :Context (LET ((NUM 5))
+               (GF2 NUM 30))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (5 30)
+    :Definitions
+                    DEFINITION>
+                        :Name GF2
+                        :Context (DEFMETHOD GF2 ((X NUMBER) Y) (LIST X Y))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NUMBER T)
+
+REFERENCE>
+    :Name GF2
+    :Context (GF2 10 20)
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (10 20)
+    :Definitions
+                    DEFINITION>
+                        :Name GF2
+                        :Context (DEFMETHOD GF2 ((X NUMBER) Y) (LIST X Y))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NUMBER T)
+
+REFERENCE>
     :Name *SPECIAL1*
-    :Context (LIST *SPECIAL1* *PARAM1* +CONST1+ 'VAR1)
+    :Context (IF (> *SPECIAL1* 5)
+                 "string-case"
+                 TEST-VALUE)
     :Type :VARIABLE
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -18,476 +170,21 @@ REFERENCE>
                         :Status :INTERNAL
 
 REFERENCE>
-    :Name *PARAM1*
-    :Context (&OPTIONAL (X *PARAM1*))
-    :Type :VARIABLE
+    :Name GF1
+    :Context (GF1 (MAKE-INSTANCE 'NAMED-POINT :NAME "origin" :U 0 :V 0))
+    :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Arguments (#<NAMED-POINT {1104F2FC33}>)
     :Definitions
                     DEFINITION>
-                        :Name *PARAM1*
-                        :Context (DEFPARAMETER *PARAM1*
-                                   100
-                                   "Parameter must have initial value")
-                        :Type :VARIABLE
+                        :Name GF1
+                        :Context (DEFMETHOD GF1 ((X NAMED-POINT))
+                                   (LIST 'NAMED-POINT (POINT-NAME X)
+                                         (POINT-U X) (POINT-V X)))
+                        :Type :METHOD
                         :File /src/defs.lisp
                         :Package #<PACKAGE "USER-PKG">
                         :Status :INTERNAL
-
-REFERENCE>
-    :Name *PARAM1*
-    :Context (LIST *SPECIAL1* *PARAM1* +CONST1+ 'VAR1)
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
-    :Definitions
-                    DEFINITION>
-                        :Name *PARAM1*
-                        :Context (DEFPARAMETER *PARAM1*
-                                   100
-                                   "Parameter must have initial value")
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name +CONST1+
-    :Context (LIST *SPECIAL1* *PARAM1* +CONST1+ 'VAR1)
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
-    :Definitions
-                    DEFINITION>
-                        :Name +CONST1+
-                        :Context (DEFCONSTANT +CONST1+
-                                   1
-                                   "Constants use plus signs")
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name *PARAM3*
-    :Context (DEFUN FUN1 (&OPTIONAL (X *PARAM1*)) (PRINT X) *PARAM3*)
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
-    :Definitions
-                    DEFINITION>
-                        :Name *PARAM3*
-                        :Context (DEFPARAMETER *PARAM3* 0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name *PARAM3*
-    :Context (DEFPARAMETER *PARAM4* (LIST *PARAM3*))
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
-    :Definitions
-                    DEFINITION>
-                        :Name *PARAM3*
-                        :Context (DEFPARAMETER *PARAM3* 0)
-                        :Type :VARIABLE
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-
-REFERENCE>
-    :Name :TEST1-PKG
-    :Context (ALL-PKGS
-              (LIST :TEST1-PKG :TEST2-PKG :TEST3-PKG :TEST4-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST1-PKG
-                        :Context (DEFPACKAGE #:TEST1-PKG
-                                   (:NICKNAMES :T1PKG)
-                                   (:USE :CL)
-                                   (:EXPORT #:VAR1
-                                            #:PARAM1
-                                            #:+CONST1+
-                                            #:*SPECIAL1*))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST1-PKG
-    :Context (MAPCAR #'FIND-PACKAGE (LIST :TEST1-PKG :TEST3-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST1-PKG
-                        :Context (DEFPACKAGE #:TEST1-PKG
-                                   (:NICKNAMES :T1PKG)
-                                   (:USE :CL)
-                                   (:EXPORT #:VAR1
-                                            #:PARAM1
-                                            #:+CONST1+
-                                            #:*SPECIAL1*))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST1-PKG
-    :Context (MEMBER (FIND-PACKAGE :TEST1-PKG) (PACKAGE-USE-LIST PKG3))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST1-PKG
-                        :Context (DEFPACKAGE #:TEST1-PKG
-                                   (:NICKNAMES :T1PKG)
-                                   (:USE :CL)
-                                   (:EXPORT #:VAR1
-                                            #:PARAM1
-                                            #:+CONST1+
-                                            #:*SPECIAL1*))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST1-PKG
-    :Context (SYM1 (FIND-SYMBOL "VAR1" :TEST1-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST1-PKG
-                        :Context (DEFPACKAGE #:TEST1-PKG
-                                   (:NICKNAMES :T1PKG)
-                                   (:USE :CL)
-                                   (:EXPORT #:VAR1
-                                            #:PARAM1
-                                            #:+CONST1+
-                                            #:*SPECIAL1*))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST1-PKG
-    :Context (PACKAGE-NAME (FIND-PACKAGE :TEST1-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST1-PKG
-                        :Context (DEFPACKAGE #:TEST1-PKG
-                                   (:NICKNAMES :T1PKG)
-                                   (:USE :CL)
-                                   (:EXPORT #:VAR1
-                                            #:PARAM1
-                                            #:+CONST1+
-                                            #:*SPECIAL1*))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST1-PKG
-    :Context (FIND-PACKAGE :TEST1-PKG)
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST1-PKG
-                        :Context (DEFPACKAGE #:TEST1-PKG
-                                   (:NICKNAMES :T1PKG)
-                                   (:USE :CL)
-                                   (:EXPORT #:VAR1
-                                            #:PARAM1
-                                            #:+CONST1+
-                                            #:*SPECIAL1*))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :T1PKG
-    :Context (FIND-PACKAGE :T1PKG)
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name :T1PKG
-                        :Context (DEFPACKAGE #:TEST1-PKG
-                                   (:NICKNAMES :T1PKG)
-                                   (:USE :CL)
-                                   (:EXPORT #:VAR1
-                                            #:PARAM1
-                                            #:+CONST1+
-                                            #:*SPECIAL1*))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST3-PKG
-    :Context (ALL-PKGS
-              (LIST :TEST1-PKG :TEST2-PKG :TEST3-PKG :TEST4-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST3-PKG
-                        :Context (DEFPACKAGE #:TEST3-PKG
-                                   (:NICKNAMES :T3PKG)
-                                   (:USE :CL :ALEXANDRIA)
-                                   (:DOCUMENTATION "Demonstrates import-from packages")
-                                   (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
-                                   (:EXPORT #:VAR1 #:PROCESS-DATA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST3-PKG
-    :Context (MAPCAR #'FIND-PACKAGE (LIST :TEST1-PKG :TEST3-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST3-PKG
-                        :Context (DEFPACKAGE #:TEST3-PKG
-                                   (:NICKNAMES :T3PKG)
-                                   (:USE :CL :ALEXANDRIA)
-                                   (:DOCUMENTATION "Demonstrates import-from packages")
-                                   (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
-                                   (:EXPORT #:VAR1 #:PROCESS-DATA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST3-PKG
-    :Context (&OPTIONAL (PKG :TEST3-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST3-PKG
-                        :Context (DEFPACKAGE #:TEST3-PKG
-                                   (:NICKNAMES :T3PKG)
-                                   (:USE :CL :ALEXANDRIA)
-                                   (:DOCUMENTATION "Demonstrates import-from packages")
-                                   (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
-                                   (:EXPORT #:VAR1 #:PROCESS-DATA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST3-PKG
-    :Context (PKG3 (FIND-PACKAGE :TEST3-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST3-PKG
-                        :Context (DEFPACKAGE #:TEST3-PKG
-                                   (:NICKNAMES :T3PKG)
-                                   (:USE :CL :ALEXANDRIA)
-                                   (:DOCUMENTATION "Demonstrates import-from packages")
-                                   (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
-                                   (:EXPORT #:VAR1 #:PROCESS-DATA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST3-PKG
-    :Context (SYM (FIND-SYMBOL "VAR1" :TEST3-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST3-PKG
-                        :Context (DEFPACKAGE #:TEST3-PKG
-                                   (:NICKNAMES :T3PKG)
-                                   (:USE :CL :ALEXANDRIA)
-                                   (:DOCUMENTATION "Demonstrates import-from packages")
-                                   (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
-                                   (:EXPORT #:VAR1 #:PROCESS-DATA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST3-PKG
-    :Context (FIND-PACKAGE :TEST3-PKG)
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST3-PKG
-                        :Context (DEFPACKAGE #:TEST3-PKG
-                                   (:NICKNAMES :T3PKG)
-                                   (:USE :CL :ALEXANDRIA)
-                                   (:DOCUMENTATION "Demonstrates import-from packages")
-                                   (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
-                                   (:EXPORT #:VAR1 #:PROCESS-DATA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST4-PKG
-    :Context (ALL-PKGS
-              (LIST :TEST1-PKG :TEST2-PKG :TEST3-PKG :TEST4-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST4-PKG
-                        :Context (DEFPACKAGE #:TEST4-PKG
-                                   (:USE :CL :TEST1-PKG)
-                                   (:SHADOW #:VAR1)
-                                   (:SHADOWING-IMPORT-FROM :ALEXANDRIA
-                                                           #:WHEN-LET)
-                                   (:EXPORT #:SHADOW-TEST))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST4-PKG
-    :Context ((PKG-NAME :TEST4-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST4-PKG
-                        :Context (DEFPACKAGE #:TEST4-PKG
-                                   (:USE :CL :TEST1-PKG)
-                                   (:SHADOW #:VAR1)
-                                   (:SHADOWING-IMPORT-FROM :ALEXANDRIA
-                                                           #:WHEN-LET)
-                                   (:EXPORT #:SHADOW-TEST))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST4-PKG
-    :Context (SYM2 (FIND-SYMBOL "VAR1" :TEST4-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST4-PKG
-                        :Context (DEFPACKAGE #:TEST4-PKG
-                                   (:USE :CL :TEST1-PKG)
-                                   (:SHADOW #:VAR1)
-                                   (:SHADOWING-IMPORT-FROM :ALEXANDRIA
-                                                           #:WHEN-LET)
-                                   (:EXPORT #:SHADOW-TEST))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST4-PKG
-    :Context (FIND-PACKAGE :TEST4-PKG)
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST4-PKG
-                        :Context (DEFPACKAGE #:TEST4-PKG
-                                   (:USE :CL :TEST1-PKG)
-                                   (:SHADOW #:VAR1)
-                                   (:SHADOWING-IMPORT-FROM :ALEXANDRIA
-                                                           #:WHEN-LET)
-                                   (:EXPORT #:SHADOW-TEST))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST5-PKG
-    :Context (ALL-PKGS
-              (LIST :TEST1-PKG :TEST2-PKG :TEST3-PKG :TEST4-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST5-PKG
-                        :Context (DEFPACKAGE #:TEST5-PKG
-                                   (:USE :CL)
-                                   (:INTERN #:INTERNAL-ONLY)
-                                   (:EXPORT #:PUBLIC-API)
-                                   (:DOCUMENTATION "Package for testing comprehensive symbol visibility analysis"))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST5-PKG
-    :Context (MAPCAR #'FIND-PACKAGE (LIST :TEST1-PKG :TEST3-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST5-PKG
-                        :Context (DEFPACKAGE #:TEST5-PKG
-                                   (:USE :CL)
-                                   (:INTERN #:INTERNAL-ONLY)
-                                   (:EXPORT #:PUBLIC-API)
-                                   (:DOCUMENTATION "Package for testing comprehensive symbol visibility analysis"))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST5-PKG
-    :Context (FIND-PACKAGE :TEST5-PKG)
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:TEST5-PKG
-                        :Context (DEFPACKAGE #:TEST5-PKG
-                                   (:USE :CL)
-                                   (:INTERN #:INTERNAL-ONLY)
-                                   (:EXPORT #:PUBLIC-API)
-                                   (:DOCUMENTATION "Package for testing comprehensive symbol visibility analysis"))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :USER-PKG
-    :Context (*PACKAGE* (FIND-PACKAGE :USER-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:USER-PKG
-                        :Context (DEFPACKAGE #:USER-PKG
-                                   (:USE :CL :ALEXANDRIA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :USER-PKG
-    :Context (*PACKAGE* (FIND-PACKAGE :USER-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name #:USER-PKG
-                        :Context (DEFPACKAGE #:USER-PKG
-                                   (:USE :CL :ALEXANDRIA))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
-
-REFERENCE>
-    :Name :TEST2-PKG
-    :Context (ALL-PKGS
-              (LIST :TEST1-PKG :TEST2-PKG :TEST3-PKG :TEST4-PKG :TEST5-PKG))
-    :Type :PACKAGE
-    :File /src/refs.lisp
-    :Definitions
-                    DEFINITION>
-                        :Name :TEST2-PKG
-                        :Context (MAKE-PACKAGE :TEST2-PKG :NICKNAMES '("T2PKG")
-                                               :USE '("COMMON-LISP"))
-                        :Type :PACKAGE
-                        :File /src/defs.lisp
+                        :Specializers (NAMED-POINT)
 

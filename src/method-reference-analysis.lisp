@@ -110,6 +110,52 @@
     ((eq specializer 'package) (find-package :common-lisp))
     ((eq specializer 'symbol) 'mock-symbol)
     
+    ;; Handle CLOS classes through instantiation with default values
+    (t
+     (let ((class (find-class specializer nil)))
+       (when class
+         ;; Create a fully initialized instance for any user-defined class
+         (if (eq (symbol-package (class-name class)) 
+                (find-package :common-lisp))
+             ;; For CL classes, use standard approach
+             (handler-case (make-instance class)
+               (error () (allocate-instance class)))
+             ;; For user classes, properly initialize ALL slots
+             (let ((slots (c2mop:class-slots class))
+                   (instance (allocate-instance class)))
+               ;; Manually set values for all slots
+               (dolist (slot slots)
+                 (let ((slot-name (c2mop:slot-definition-name slot)))
+                   (setf (slot-value instance slot-name)
+                         (case slot-name
+                           ((name title label) "mock-value")
+                           ((x y z u v index position) 0)
+                           ((list items elements) nil)
+                           ((flag enabled active) t)
+                           (otherwise "mock")))))
+               instance)))))))
+
+
+#+ignore (defun create-mock-instance (specializer)
+  "Create a minimal instance sufficient for method dispatch.
+   SPECIALIZER - A type specifier from method parameter list.
+   Returns instance that satisfies typep for the specializer."
+  
+  (cond
+    ;; Handle EQL specializer: (eql value)
+    ((and (consp specializer)
+          (eq (car specializer) 'eql))
+     (cadr specializer))  ; Return the actual value
+    
+    ;; Handle built-in types with specific constructors
+    ((eq specializer 'string) "")
+    ((eq specializer 'number) 0)
+    ((eq specializer 'vector) (vector))
+    ((eq specializer 'array) (make-array 0))
+    ((eq specializer 'hash-table) (make-hash-table))
+    ((eq specializer 'package) (find-package :common-lisp))
+    ((eq specializer 'symbol) 'mock-symbol)
+    
     ;; Handle CLOS classes through instantiation
     (t
      (let ((class (find-class specializer nil)))

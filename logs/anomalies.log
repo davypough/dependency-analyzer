@@ -2,12 +2,3 @@ Filename: ANOMALIES.LOG
 
 The list of all anomalies detected during dependency analysis of the test-project project.
 
-ANOMALY>
-    :Description "VAR1 also defined in (d:/quicklisp/local-projects/test-project/src/defs.lisp)"
-    :Type :DUPLICATE-DEFINITION
-    :Severity :WARNING
-    :Context (SETF (SYMBOL-VALUE 'VAR1) 1)
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-
-

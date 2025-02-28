@@ -208,6 +208,7 @@
   
   ;; File Dependencies
   (format t "File Dependencies:~%")
+  ;; File Dependencies
   (maphash (lambda (file definitions)
              (declare (ignore definitions))
              (when-let (deps (file-dependencies *current-tracker* file))
@@ -225,11 +226,7 @@
                            (max-line-length 70))
                        (loop for ref in refs
                              for first-ref = t then nil
-                             for ref-text = (let ((name (reference.name ref))
-                                                (quals (reference.qualifiers ref))
-                                                (args (reference.arguments ref)))
-                                            (format nil "~A~@[ ~{~A~^ ~}~]~@[ ~{~S ~S~^ ~}~]"
-                                                    name quals args))
+                             for ref-text = (format nil "~A" (reference.name ref))
                              do (let ((ref-length (length ref-text)))
                                   ;; If this ref would exceed line length, start new line
                                   (when (and (not first-ref)

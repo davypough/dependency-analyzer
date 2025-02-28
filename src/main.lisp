@@ -62,8 +62,10 @@
                                                  :project-name parent-dir-name
                                                  :project-root parent-pathname))
 
-          ;; Initialization, load user's project files for runtime analysis
-          (ensure-project-loaded)
+          ;; Initialization,
+          (ensure-project-loaded)  ;load user's project files for runtime analysis
+          (dolist (file source-files)  
+            (setf (gethash file (slot-value *current-tracker* 'file-map)) nil))  ;initialize file-map
 
           ;; First pass: analyze definitions
           (format t "~%First Pass - Collecting Definitions...~%")

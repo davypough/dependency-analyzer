@@ -43,14 +43,6 @@ DEFINITION>
 
 DEFINITION>
     :Name VAR1
-    :Context (SETF (SYMBOL-VALUE 'VAR1) 1)
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name VAR1
     :Context (SETF (SYMBOL-VALUE 'VAR1) 42)
     :Type :VARIABLE
     :File /src/defs.lisp
@@ -225,6 +217,14 @@ DEFINITION>
 
 DEFINITION>
     :Name MY-PLUS
+    :Context (DEFUN MY-PLUS (A B) (+ A B))
+    :Type :FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name MY-PLUS
     :Context (DEFINE-COMPILER-MACRO MY-PLUS
                  (&WHOLE FORM A B)
                (IF (AND (NUMBERP A) (NUMBERP B))
@@ -242,128 +242,6 @@ DEFINITION>
                          (DECLARE (IGNORE ENV))
                          `(LIST ,(SECOND FORM))))
     :Type :MACRO
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name GF1
-    :Context (DEFGENERIC GF1
-                 (X)
-               (:DOCUMENTATION "Basic generic function"))
-    :Type :GENERIC-FUNCTION
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name GF2
-    :Context (DEFGENERIC GF2
-                 (X Y)
-               (:DOCUMENTATION "Generic function with multiple arguments")
-               (:METHOD-COMBINATION STANDARD)
-               (:GENERIC-FUNCTION-CLASS STANDARD-GENERIC-FUNCTION))
-    :Type :GENERIC-FUNCTION
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name (SETF GF3)
-    :Context (DEFGENERIC (SETF GF3)
-                 (NEW-VALUE OBJ)
-               (:DOCUMENTATION "Setf generic function"))
-    :Type :GENERIC-FUNCTION
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name GF1
-    :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
-    :Type :METHOD
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-    :Specializers (NUMBER)
-
-DEFINITION>
-    :Name GF1
-    :Context (DEFMETHOD GF1 ((X STRING)) (CONCATENATE 'STRING X X))
-    :Type :METHOD
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-    :Specializers (STRING)
-
-DEFINITION>
-    :Name GF2
-    :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y) (CHECK-TYPE Y NUMBER))
-    :Type :METHOD
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-    :Qualifiers (:BEFORE)
-    :Specializers (NUMBER T)
-
-DEFINITION>
-    :Name (SETF GF3)
-    :Context (DEFMETHOD (SETF GF3) :AROUND (NEW-VALUE (OBJ CONS))
-               (IF (NUMBERP NEW-VALUE)
-                   (CALL-NEXT-METHOD)
-                   (ERROR "Invalid value")))
-    :Type :METHOD
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-    :Qualifiers (:AROUND)
-    :Specializers (T CONS)
-
-DEFINITION>
-    :Name TODAY
-    :Context (DEFINE-SYMBOL-MACRO TODAY (GET-UNIVERSAL-TIME))
-    :Type :SYMBOL-MACRO
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name PI/2
-    :Context (DEFINE-SYMBOL-MACRO PI/2 (/ PI 2))
-    :Type :SYMBOL-MACRO
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name EMPTY-LIST
-    :Context (DEFINE-SYMBOL-MACRO EMPTY-LIST NIL)
-    :Type :SYMBOL-MACRO
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name POS-INTEGER
-    :Context (DEFTYPE POS-INTEGER () '(INTEGER 1 *))
-    :Type :DEFTYPE
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name SIZED-VECTOR
-    :Context (DEFTYPE SIZED-VECTOR (ELEMENT-TYPE SIZE)
-               `(VECTOR ,ELEMENT-TYPE ,SIZE))
-    :Type :DEFTYPE
-    :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name STRING-OR-SYMBOL
-    :Context (DEFTYPE STRING-OR-SYMBOL () '(OR STRING SYMBOL))
-    :Type :DEFTYPE
     :File /src/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
@@ -547,6 +425,167 @@ DEFINITION>
     :Specializers (INVALID-POINT)
 
 DEFINITION>
+    :Name GF1
+    :Context (DEFGENERIC GF1
+                 (X)
+               (:DOCUMENTATION "Basic generic function"))
+    :Type :GENERIC-FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name GF2
+    :Context (DEFGENERIC GF2
+                 (X Y)
+               (:DOCUMENTATION "Generic function with multiple arguments")
+               (:METHOD-COMBINATION STANDARD)
+               (:GENERIC-FUNCTION-CLASS STANDARD-GENERIC-FUNCTION))
+    :Type :GENERIC-FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name (SETF GF3)
+    :Context (DEFGENERIC (SETF GF3)
+                 (NEW-VALUE OBJ)
+               (:DOCUMENTATION "Setf generic function"))
+    :Type :GENERIC-FUNCTION
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name GF1
+    :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (NUMBER)
+
+DEFINITION>
+    :Name GF1
+    :Context (DEFMETHOD GF1 ((X STRING)) (CONCATENATE 'STRING X X))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (STRING)
+
+DEFINITION>
+    :Name GF1
+    :Context (DEFMETHOD GF1 ((X CONS)) (LIST 'CONS-PROCESSED X))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (CONS)
+
+DEFINITION>
+    :Name GF1
+    :Context (DEFMETHOD GF1 ((X NAMED-POINT))
+               (LIST 'NAMED-POINT (POINT-NAME X) (POINT-U X) (POINT-V X)))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (NAMED-POINT)
+
+DEFINITION>
+    :Name GF2
+    :Context (DEFMETHOD GF2 ((X NUMBER) Y) (LIST X Y))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (NUMBER T)
+
+DEFINITION>
+    :Name GF2
+    :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y) (CHECK-TYPE Y NUMBER))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Qualifiers (:BEFORE)
+    :Specializers (NUMBER T)
+
+DEFINITION>
+    :Name (SETF GF3)
+    :Context (DEFMETHOD (SETF GF3) (NEW-VALUE (OBJ CONS))
+               (SETF (CAR OBJ) NEW-VALUE)
+               NEW-VALUE)
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (T CONS)
+
+DEFINITION>
+    :Name (SETF GF3)
+    :Context (DEFMETHOD (SETF GF3) :AROUND (NEW-VALUE (OBJ CONS))
+               (IF (NUMBERP NEW-VALUE)
+                   (CALL-NEXT-METHOD)
+                   (ERROR "Invalid value")))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Qualifiers (:AROUND)
+    :Specializers (T CONS)
+
+DEFINITION>
+    :Name TODAY
+    :Context (DEFINE-SYMBOL-MACRO TODAY (GET-UNIVERSAL-TIME))
+    :Type :SYMBOL-MACRO
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name PI/2
+    :Context (DEFINE-SYMBOL-MACRO PI/2 (/ PI 2))
+    :Type :SYMBOL-MACRO
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name EMPTY-LIST
+    :Context (DEFINE-SYMBOL-MACRO EMPTY-LIST NIL)
+    :Type :SYMBOL-MACRO
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name POS-INTEGER
+    :Context (DEFTYPE POS-INTEGER () '(INTEGER 1 *))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name SIZED-VECTOR
+    :Context (DEFTYPE SIZED-VECTOR (ELEMENT-TYPE SIZE)
+               `(VECTOR ,ELEMENT-TYPE ,SIZE))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name STRING-OR-SYMBOL
+    :Context (DEFTYPE STRING-OR-SYMBOL () '(OR STRING SYMBOL))
+    :Type :DEFTYPE
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
     :Name *EMBEDDED-COUNT*
     :Context (DEFVAR *EMBEDDED-COUNT* 0 "Counter for embedded functions")
     :Type :VARIABLE
@@ -633,33 +672,6 @@ DEFINITION>
                  (POINT-TIMESTAMP *LAST-EMBEDDED-POINT*)))
     :Type :FUNCTION
     :File /src/defs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name *PARAM4*
-    :Context (DEFPARAMETER *PARAM4* (LIST *PARAM3*))
-    :Type :VARIABLE
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name FUN1
-    :Context (DEFUN FUN1 (&OPTIONAL (X *PARAM1*)) (PRINT X) *PARAM3*)
-    :Type :FUNCTION
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name PACKAGE-TEST
-    :Context (DEFUN PACKAGE-TEST (&OPTIONAL (PKG :TEST3-PKG))
-               (FORMAT NIL "~A has ~D symbols~%" PKG
-                       (LOOP FOR SYM BEING THE SYMBOLS OF (FIND-PACKAGE PKG)
-                             COUNT T)))
-    :Type :FUNCTION
-    :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
