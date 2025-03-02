@@ -12,15 +12,22 @@
 
 (defun project-pathname (pathname)
   "Convert a pathname to a string representation relative to project root.
-   Returns a path starting with / that is relative to the project root.
-   E.g., /source/file.lisp instead of /path/to/project/source/file.lisp"
+   Uses ASDF's facilities when possible for better cross-platform compatibility."
   (when pathname
     (if-let (project-root (slot-value *current-tracker* 'project-root))
       (let ((relative (enough-namestring pathname project-root)))
         (if (char= (char relative 0) #\/)
           relative
           (concatenate 'string "/" relative)))
+      ;; Fallback case - just use the namestring
       (namestring pathname))))
+
+
+(defun normalize-pathname-for-display (pathname)
+  "Normalize a pathname for consistent display across platforms.
+   Always uses forward slashes regardless of operating system."
+  (let ((namestring (namestring pathname)))
+    (substitute #\/ #\\ namestring)))
 
 
 (defun package-designator-to-string (designator)

@@ -59,68 +59,6 @@
   `(debug-let* ,bindings ,@body))
 
 
-(defun flatten-directories (input-directories output-directory &optional (filespecs '("*.lisp")))
-  "Collect all files matching FILESPECS from INPUT-DIRECTORIES and their subdirectories,
-   and copy them into a new directory named 'flattened-files' in the current working directory.
-   INPUT-DIRECTORIES can be a single directory or a list of directories.
-   FILESPECS can be either a single string filespec or a list of filespecs."
-  (let* ((input-dirs (if (listp input-directories) input-directories (list input-directories)))
-         (new-dir (uiop:ensure-directory-pathname
-                   (make-pathname :name "flattened-files"
-                                  :defaults output-directory)))
-         (absolute-new-dir (uiop:native-namestring new-dir))
-         ;; Ensure filespecs is a list
-         (filespec-list (if (listp filespecs) filespecs (list filespecs))))
-    ;; Delete the existing new directory if it exists
-    (when (uiop:directory-exists-p new-dir)
-      (uiop:delete-directory-tree new-dir :validate t))
-    ;; Ensure the new directory exists
-    (ensure-directories-exist new-dir)
-    ;; Collect and copy files for each filespec from each input directory
-    (dolist (input-dir input-dirs)
-      (let ((input-dir-path (uiop:ensure-directory-pathname 
-                             (uiop:native-namestring input-dir))))
-        (dolist (filespec filespec-list)
-          (let ((files (uiop:directory-files input-dir-path 
-                                             (make-pathname :name :wild 
-                                                            :type (pathname-type filespec)
-                                                            :directory '(:relative :wild-inferiors)))))
-;            (uiop:run-program `("C:\\Program Files\\7-Zip\\7z.exe"
-;                                "a"
-;                                "dependency-analyzer.zip"
-;                                ,@(mapcar #'namestring files)
-;                                "-bso0")
-;                              :directory new-dir
-;                              :output t
-;                              :error-output t)))))
-           ;; Copy files to the new directory
-           (dolist (file files)
-             (let ((dest-file (merge-pathnames (file-namestring file) new-dir)))
-               ;; Ensure the directory for the destination file exists
-               (ensure-directories-exist dest-file)
-               ;; Copy the file
-               (uiop:copy-file file dest-file)))))))
-    ;; Return the path of the new directory
-    absolute-new-dir))
-
-
-(defun flat ()
-  "Collects all the files for uploading to Claude."
-  (let ((in-dir1 "D:/quicklisp/local-projects/dependency-analyzer/")
-        (in-dir2 "D:/quicklisp/local-projects/test-project/")
-        (out-dir "D:/Users Data/Dave/Desktop/"))
-    (flatten-directories (list in-dir1 in-dir2) out-dir '("*.lisp" "*.asd" "*.log" "*.text" "*.json" "*.dot"))))
-
-
-(defun delete-fasl ()
-  "Delete FASL files for the dependency-analyzer system from the SBCL Windows cache directory."
-  (let ((cache-dir "C:\\Users\\user\\AppData\\Local\\cache\\common-lisp\\sbcl-2.4.9-win-x64\\D\\quicklisp\\local-projects\\dependency-analyzer\\src\\"))
-    (let ((fasl-files (directory (merge-pathnames "*.fasl" cache-dir))))
-      (dolist (file fasl-files t)
-        (ignore-errors
-          (delete-file file))))))
-
-
 (defun delete-project-fasls (system-name)
   "Delete FASL files for SYSTEM-NAME by:
    1. Finding the system's source module
@@ -147,15 +85,12 @@
 
 
 (defun dep ()
-  "Fresh reloads the dependency-analyzer system to continue testing."
-  ;(asdf:load-system :test-project)
-  (unwind-protect 
-    (progn (delete-fasl)
-           (ql:quickload :dependency-analyzer :verbose t)
-           (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
-                    "d:/quicklisp/local-projects/test-project/src"))
-                    ;:test-project-package))
-    (in-package :dep)))
+  "Simple loading and running the dependency-analyzer on :test-project during development"
+  (delete-project-fasls :dependency-analyzer)
+  (asdf:load-system :dependency-analyzer :verbose t)
+  (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
+           :test-project)
+  (in-package :dep))
 
 
 (defgeneric show (object &rest rest)
@@ -198,3 +133,58 @@
   (format t "~&~S~%" object)
   t)
 
+
+;;;;;;;;;;;; Get all project files for upload to Claude ;;;;;;;;;;;;;;;
+
+
+(defun flatten-directories (input-directories output-directory &optional (filespecs '("*.lisp")))
+  "Collect all files matching FILESPECS from INPUT-DIRECTORIES and their subdirectories,
+   and copy them into a new directory named 'flattened-files' in the current working directory.
+   INPUT-DIRECTORIES can be a single directory or a list of directories.
+   FILESPECS can be either a single string filespec or a list of filespecs."
+  (let* ((input-dirs (if (listp input-directories) input-directories (list input-directories)))
+         (new-dir (uiop:ensure-directory-pathname
+                   (make-pathname :name "flattened-files"
+                                  :defaults output-directory)))
+         (absolute-new-dir (uiop:native-namestring new-dir))
+         ;; Ensure filespecs is a list
+         (filespec-list (if (listp filespecs) filespecs (list filespecs))))
+    ;; Delete the existing new directory if it exists
+    (when (uiop:directory-exists-p new-dir)
+      (uiop:delete-directory-tree new-dir :validate t))
+    ;; Ensure the new directory exists
+    (ensure-directories-exist new-dir)
+    ;; Collect and copy files for each filespec from each input directory
+    (dolist (input-dir input-dirs)
+      (let ((input-dir-path (uiop:ensure-directory-pathname 
+                             (uiop:native-namestring input-dir))))
+        (dolist (filespec filespec-list)
+          (let ((files (uiop:directory-files input-dir-path 
+                                             (make-pathname :name :wild 
+                                                            :type (pathname-type filespec)
+                                                            :directory '(:relative :wild-inferiors)))))
+;            (uiop:run-program `("C:\\Program Files\\7-Zip\\7z.exe"  ;but Claude can't accept zip file
+;                                "a"
+;                                "dependency-analyzer.zip"
+;                                ,@(mapcar #'namestring files)
+;                                "-bso0")
+;                              :directory new-dir
+;                              :output t
+;                              :error-output t)))))
+           ;; Copy files to the new directory
+           (dolist (file files)
+             (let ((dest-file (merge-pathnames (file-namestring file) new-dir)))
+               ;; Ensure the directory for the destination file exists
+               (ensure-directories-exist dest-file)
+               ;; Copy the file
+               (uiop:copy-file file dest-file)))))))
+    ;; Return the path of the new directory
+    absolute-new-dir))
+
+
+(defun flat ()
+  "Flattens directory files in Windows for easy upload to Claude"
+  (let ((in-dir1 "D:/quicklisp/local-projects/dependency-analyzer/")
+        (in-dir2 "D:/quicklisp/local-projects/test-project/")
+        (out-dir "D:/Users Data/Dave/Desktop/"))
+    (flatten-directories (list in-dir1 in-dir2) out-dir '("*.lisp" "*.asd" "*.log" "*.text" "*.json" "*.dot"))))

@@ -8,7 +8,7 @@
 (in-package #:dep)
 
 
-(defun report ()
+(defun report (system-designator)
   "Generate a comprehensive dependency report for the current project.
    Displays the analysis results directly to *standard-output*."
   (unless *current-tracker*
@@ -58,7 +58,22 @@
 
   (format t "~2%SYSTEM DETAILS~%")
   (format t "~V,,,'-<~A~>~%" 30 "")
-  (format t "~2%")
+  (let ((sys-info (get-system-details system-designator)))
+    (format t "Name: ~A~%" (getf sys-info :name))
+    (when (getf sys-info :version)
+      (format t "Version: ~A~%" (getf sys-info :version)))
+    (when (getf sys-info :author)
+      (format t "Author: ~A~%" (getf sys-info :author)))
+    (when (getf sys-info :license)
+      (format t "License: ~A~%" (getf sys-info :license)))
+    (when (getf sys-info :description)
+      (format t "Description: ~A~%" (getf sys-info :description)))
+    (format t "Dependencies:~%")
+    (let ((deps (getf sys-info :dependencies)))
+      (if deps
+        (dolist (dep deps)
+          (format t "  - ~A~%" dep))
+        (format t "  No dependencies~%"))))
 
   ;; Clear section divider for architectural overview
   (format t "~2%ARCHITECTURAL ANALYSIS~%")

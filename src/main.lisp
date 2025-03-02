@@ -16,135 +16,174 @@
        ,@body)))
 
 
-(defun analyze (source-dir)
-  "Analyze source files in a directory for dependencies.
-   Project must be loaded first for reliable analysis.
+(defun analyze (system-designator)
+  "Analyze a system for dependencies.
+   System must be loaded first for reliable analysis.
+   SYSTEM-DESIGNATOR can be a keyword, string, or symbol
+   as accepted by asdf:find-system.
    Returns tracker instance with analysis results."
-  (unless (stringp source-dir)
-    (format t "~2%Note that the source directory must be a string, got ~S instead.~2%" source-dir)
+  (unless (asdf:find-system system-designator nil)
+    (format t "~2%System ~S not found. Please ensure the system is correctly defined in ASDF.~2%" 
+            system-designator)
     (return-from analyze))
-  (let ((source-pathname (pathname source-dir)))
-    (unless (cdr (pathname-directory source-pathname))  ; Check for parent dir
-      (format t "~2%Note that the source directory must have a parent directory, got a root directory ~S instead.~2%" source-dir)
-      (return-from analyze))
-    (let ((parent-pathname (make-pathname :directory (if (pathname-name source-pathname)
-                                                       (pathname-directory source-pathname)
-                                                       (butlast (pathname-directory source-pathname)))
-                                          :name nil
-                                          :type nil))
-          (parent-dir-name (car (last (pathname-directory source-pathname))))
-          (logs-dir (merge-pathnames "logs/" (asdf:system-source-directory :dependency-analyzer))))
+  
+  ;; Load the system to ensure all runtime information is available
+  (asdf:load-system system-designator)
+  
+  ;; Get system information from ASDF
+  (let* ((system (asdf:find-system system-designator))
+         (system-name (asdf:component-name system))
+         (source-pathname (asdf:system-source-directory system))
+         ;; Define these variables for compatibility with existing code
+         (parent-pathname source-pathname)
+         (parent-dir-name system-name)
+         (logs-dir (merge-pathnames "logs/" (asdf:system-source-directory :dependency-analyzer)))
+         ;; Collect source files from system components
+         (source-files (collect-system-source-files system)))
     
-      ;; Verify source directory exists  
-      (unless (ignore-errors (truename source-pathname))
-        (format t "~2%The provided source directory ~A does not exist." source-dir)
-        (format t "~%Please verify the directory containing the source files for the project.~2%")
-        (return-from analyze))
+    (unless source-files
+      (format t "~2%Can't find lisp source files in system ~A." system-name)
+      (format t "~%Please verify the system definition includes valid source components.~2%")
+      (return-from analyze))
+    
+    (format t "~2%Found source files:~%~{  ~A~%~}~%" source-files)
+    
+    ;; Begin analysis
+    (with-dependency-tracker ((make-instance 'dependency-tracker
+                                           :project-name parent-dir-name
+                                           :project-root parent-pathname))
+      
+      ;; Initialization
+      (ensure-project-loaded system-designator)  ;modified to use system designator
+      (dolist (file source-files)  
+        (setf (gethash file (slot-value *current-tracker* 'file-map)) nil))  ;initialize file-map
 
-      ;; Collect all source files
-      (let ((source-files
-              (mapcan (lambda (ext)
-                         (directory (make-pathname :defaults source-pathname
-                                                   :directory (append (pathname-directory source-pathname)
-                                                                      '(:wild-inferiors))
-                                                   :name :wild
-                                                   :type ext)))
-                      '("lisp" "lsp" "cl"))))
-        (unless source-files
-          (format t "~2%Can't find lisp source files (with extension .lisp, .lsp, or .cl) in ~A." source-dir)
-          (format t "~%Please verify the source directory and valid file extensions for analysis.~2%")
-          (return-from analyze))
+      ;; First pass: analyze definitions
+      (format t "~%First Pass - Collecting Definitions...~%")
+      (dolist (file source-files)
+        (let ((file-parser (make-instance 'file-parser :file file)))
+          (parse-definitions-in-file file-parser)))
 
-        (format t "~2%Found source files:~%~{  ~A~%~}~%" source-files)
+      ;; Second pass: analyze references  
+      (format t "~%Second Pass - Collecting References...~%") 
+      (dolist (file source-files)
+        (let ((file-parser (make-instance 'file-parser :file file)))
+          (parse-references-in-file file-parser)))
 
-        ;; Begin analysis
-        (with-dependency-tracker ((make-instance 'dependency-tracker
-                                                 :project-name parent-dir-name
-                                                 :project-root parent-pathname))
+      ;; Third pass: package-symbol analysis
+      (format t "~%Third Pass - Analyzing Package/Symbol Consistency...~%")
+      (dolist (file source-files)
+        (let ((file-parser (make-instance 'file-parser :file file)))
+          (parse-package-symbols-in-file file-parser)))
 
-          ;; Initialization,
-          (ensure-project-loaded)  ;load user's project files for runtime analysis
-          (dolist (file source-files)  
-            (setf (gethash file (slot-value *current-tracker* 'file-map)) nil))  ;initialize file-map
+      ;; Post-pass quality analysis
+      (format t "~%Quality Review - Analyzing Code Dependencies...~2%")
+      (analyze-package-dependencies *current-tracker*)
+      (analyze-package-exports *current-tracker*)
+      (analyze-type-relationships *current-tracker*)
+      ;; Add our new hierarchy cycle analysis functions
+      (analyze-class-hierarchies *current-tracker*)
+      (analyze-condition-hierarchies *current-tracker*)
+      (analyze-type-hierarchies *current-tracker*)
+      (analyze-structure-hierarchies *current-tracker*)
 
-          ;; First pass: analyze definitions
-          (format t "~%First Pass - Collecting Definitions...~%")
-          (dolist (file source-files)
-            (let ((file-parser (make-instance 'file-parser :file file)))
-              (parse-definitions-in-file file-parser)))
-
-          ;; Second pass: analyze references  
-          (format t "~%Second Pass - Collecting References...~%") 
-          (dolist (file source-files)
-            (let ((file-parser (make-instance 'file-parser :file file)))
-              (parse-references-in-file file-parser)))
-
-          ;; Third pass: package-symbol analysis
-          (format t "~%Third Pass - Analyzing Package/Symbol Consistency...~%")
-          (dolist (file source-files)
-            (let ((file-parser (make-instance 'file-parser :file file)))
-              (parse-package-symbols-in-file file-parser)))
-
-          ;; Post-pass quality analysis
-          (format t "~%Quality Review - Analyzing Code Dependencies...~2%")
-          (analyze-package-dependencies *current-tracker*)
-          (analyze-package-exports *current-tracker*)
-          (analyze-type-relationships *current-tracker*)
-          ;; Add our new hierarchy cycle analysis functions
-          (analyze-class-hierarchies *current-tracker*)
-          (analyze-condition-hierarchies *current-tracker*)
-          (analyze-type-hierarchies *current-tracker*)
-          (analyze-structure-hierarchies *current-tracker*)
-
-          ;; Log final definitions, references, anomalies
-          (let ((*print-circle* nil) ;disable circular notation
-                (*print-length* 10)  ;limit list length
-                (*print-level* 5))  ;limit depth
-            (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir)
-                                        :direction :output
-                                        :if-exists :supersede
-                                        :if-does-not-exist :create)
-              (declare (special log-stream))
-              (log-definitions))
-            (with-open-file (log-stream (merge-pathnames "references.log" logs-dir)
-                                        :direction :output 
-                                        :if-exists :supersede
-                                        :if-does-not-exist :create)
-              (declare (special log-stream))
-              (log-references))
-            (with-open-file (log-stream (merge-pathnames "anomalies.log" logs-dir)
-                                        :direction :output
-                                        :if-exists :supersede
-                                        :if-does-not-exist :create)
-              (declare (special log-stream))
-              (log-anomalies)))
-          (in-package :dep)
+      ;; Log final definitions, references, anomalies
+      (let ((*print-circle* nil) ;disable circular notation
+            (*print-length* 10)  ;limit list length
+            (*print-level* 5))  ;limit depth
+        (with-open-file (log-stream (merge-pathnames "definitions.log" logs-dir)
+                                    :direction :output
+                                    :if-exists :supersede
+                                    :if-does-not-exist :create)
+          (declare (special log-stream))
+          (log-definitions))
+        (with-open-file (log-stream (merge-pathnames "references.log" logs-dir)
+                                    :direction :output 
+                                    :if-exists :supersede
+                                    :if-does-not-exist :create)
+          (declare (special log-stream))
+          (log-references))
+        (with-open-file (log-stream (merge-pathnames "anomalies.log" logs-dir)
+                                    :direction :output
+                                    :if-exists :supersede
+                                    :if-does-not-exist :create)
+          (declare (special log-stream))
+          (log-anomalies)))
+      (in-package :dep)
           
-          ;; Generate final report to terminal
-          (report)  ;(generate-report :text *current-tracker* :stream *standard-output*)
+      ;; Generate final report to terminal
+      (report system-designator)
           
-          ;; Return tracker for chaining
-          *current-tracker*)))))
+      ;; Return tracker for chaining
+      *current-tracker*)))
 
 
-(defun ensure-project-loaded ()
+(defun collect-system-source-files (system)
+  "Extract all source file pathnames from an ASDF system."
+  (let ((files '()))
+    (labels ((collect-component-files (component)
+               (typecase component
+                 (asdf:source-file 
+                  (when (member (pathname-type (asdf:component-pathname component))
+                                '("lisp" "lsp" "cl") :test #'string-equal)
+                    (push (asdf:component-pathname component) files)))
+                 (asdf:module
+                  (map nil #'collect-component-files (asdf:component-children component))))))
+      (collect-component-files system))
+    files))
+
+
+(defun ensure-project-loaded (system-designator)
   "Loads the project to ensure its runtime state is available for analysis.
    Cleans up any old compiled files first to ensure fresh compilation."
-  (delete-project-fasls :test-project)
-  (asdf:load-system :test-project)
+  (delete-project-fasls system-designator)
+  (asdf:load-system system-designator :force t)
   (setf (slot-value *current-tracker* 'subsystems)
-        (get-runtime-dependencies :test-project)))
+        (get-runtime-dependencies system-designator)))
 
 
-(defun get-runtime-dependencies (system-name)
+(defun get-system-details (system-designator)
+  "Gather comprehensive information about an ASDF system for reporting."
+  (let* ((system (asdf:find-system system-designator))
+         (author (asdf:system-author system))
+         (description (asdf:system-description system))
+         (version (asdf:component-version system))
+         (license (asdf:system-license system))
+         (dependencies (asdf:system-depends-on system)))
+    
+    (list :name (asdf:component-name system)
+          :author author
+          :description description
+          :version version
+          :license license
+          :dependencies dependencies)))
+
+
+(defun get-environment-info ()
+  "Get information about the current Lisp environment for reporting."
+  (list :implementation (lisp-implementation-type)
+        :version (lisp-implementation-version)
+        :machine-type (machine-type)
+        :machine-version (machine-version)
+        :features *features*
+        :pathname-separator (pathname-separator)))
+
+
+(defun pathname-separator ()
+  "Return the pathname separator character for the current platform."
+  #+windows "\\"
+  #-windows "/")
+
+
+(defun get-runtime-dependencies (system-designator)
   "Get runtime dependencies as a hash table mapping systems to dependency lists"
   (let ((result (make-hash-table :test 'equal))
-        (sys (asdf:find-system system-name)))
-    (setf (gethash (asdf:primary-system-name system-name) result)
+        (sys (asdf:find-system system-designator)))
+    (setf (gethash (asdf:primary-system-name system-designator) result)
           (remove-duplicates 
            (mapcar #'(lambda (dep)
-                       (asdf:primary-system-name (second dep)))
-                   (asdf:component-depends-on 'asdf:load-op sys))
+                      (asdf:primary-system-name (second dep)))
+                  (asdf:component-depends-on 'asdf:load-op sys))
            :test #'string=))
     result))
 

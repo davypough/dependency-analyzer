@@ -124,7 +124,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<NAMED-POINT {11043FEDB3}>)
+    :Arguments (#<NAMED-POINT {11037ACF43}>)
     :Definitions
                     DEFINITION>
                         :Name POINT-V
@@ -148,7 +148,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<NAMED-POINT {11043FEDB3}>)
+    :Arguments (#<NAMED-POINT {11037ACF43}>)
     :Definitions
                     DEFINITION>
                         :Name POINT-U
@@ -173,7 +173,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<MONITORED-POINT {11045D7723}>)
+    :Arguments (#<MONITORED-POINT {1103994403}>)
     :Definitions
                     DEFINITION>
                         :Name POINT-NAME
@@ -197,7 +197,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<NAMED-POINT {11043FEDB3}>)
+    :Arguments (#<NAMED-POINT {11037ACF43}>)
     :Definitions
                     DEFINITION>
                         :Name POINT-NAME
@@ -247,7 +247,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<INVALID-POINT {110450BCD3}>)
+    :Arguments (#<INVALID-POINT {11038D79F3}>)
     :Definitions
                     DEFINITION>
                         :Name POINT-ERROR-VALUE
@@ -273,7 +273,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<INVALID-POINT {110450BCD3}>)
+    :Arguments (#<INVALID-POINT {11038D79F3}>)
     :Definitions
                     DEFINITION>
                         :Name POINT-ERROR-REASON
@@ -344,7 +344,7 @@ REFERENCE>
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<MONITORED-POINT {11045D7723}>)
+    :Arguments (#<MONITORED-POINT {1103994403}>)
     :Definitions
                     DEFINITION>
                         :Name POINT-TIMESTAMP
