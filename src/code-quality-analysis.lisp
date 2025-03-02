@@ -497,7 +497,7 @@
   (let ((classes-seen (make-hash-table :test 'eq))
         (cycles nil))
     
-    ;; First identify all user-defined classes
+    ;; First identify all user-defined classes and collect cycles
     (maphash (lambda (key def-list)
                (declare (ignore key))
                (dolist (def def-list)
@@ -506,27 +506,23 @@
                           (class (find-class type-name nil)))
                      ;; Only process if it's a standard-class (not structure or condition)
                      (when (and class 
-                               (typep class 'standard-class)
-                               (not (eq (class-name class) 'standard-object)))
-                       (check-class-cycles class nil classes-seen cycles))))))
+                                (typep class 'standard-class)
+                                (not (eq (class-name class) 'standard-object)))
+                       ;; Explicitly capture the updated cycles list
+                       (setf cycles (check-class-cycles class nil classes-seen cycles)))))))
              (slot-value tracker 'definitions))
     
     ;; Store detected cycles in the tracker
     (setf (slot-value tracker 'class-cycles) cycles)
     
-    ;; Record each cycle as an anomaly
+    ;; Record each cycle as an anomaly without specifying a primary package
     (dolist (cycle cycles)
       (record-anomaly tracker
         :type :class-inheritance-cycle
         :severity :warning
-        :description (format nil "Class inheritance cycle detected: ~A" cycle)
+        :description (format nil "Class inheritance cycle detected: ~{~S~^ -> ~}" cycle)
         :context cycle
-        :package (when (search " -> " cycle)
-                  ;; Extract first class name from cycle string
-                  (let* ((first-class-name (subseq cycle 0 (search " -> " cycle)))
-                         (class-sym (find-symbol first-class-name)))
-                    (when class-sym
-                      (symbol-package class-sym))))))
+        :package nil))
     
     ;; Return the cycles for chaining
     cycles))
@@ -552,9 +548,8 @@
        (let* ((cycle-start (position class path :test #'eq))
               (cycle-classes (reverse (cons class (subseq path 0 cycle-start))))
               (cycle-names (mapcar #'class-name cycle-classes)))
-         (pushnew (format nil "~{~A~^ -> ~}" cycle-names)
-                 cycles
-                 :test #'string=)))
+         ;; Store as list of symbols instead of formatted string
+         (pushnew cycle-names cycles :test #'equal)))
       
       ;; New class - explore it
       (t
@@ -591,7 +586,8 @@
                      (when (and class 
                                (not (eq (class-name class) 'condition))
                                (subtypep type-name 'condition))
-                       (check-condition-cycles class nil conditions-seen cycles))))))
+                       ;; Explicitly capture updated cycles
+                       (setf cycles (check-condition-cycles class nil conditions-seen cycles)))))))
              (slot-value tracker 'definitions))
     
     ;; Store detected cycles in the tracker
@@ -602,14 +598,9 @@
       (record-anomaly tracker
         :type :condition-inheritance-cycle
         :severity :warning
-        :description (format nil "Condition inheritance cycle detected: ~A" cycle)
+        :description (format nil "Condition inheritance cycle detected: ~{~S~^ -> ~}" cycle)
         :context cycle
-        :package (when (search " -> " cycle)
-                  ;; Extract first condition name from cycle string
-                  (let* ((first-condition-name (subseq cycle 0 (search " -> " cycle)))
-                         (condition-sym (find-symbol first-condition-name)))
-                    (when condition-sym
-                      (symbol-package condition-sym))))))
+        :package nil))
     
     ;; Return the cycles for chaining
     cycles))
@@ -635,9 +626,7 @@
        (let* ((cycle-start (position condition path :test #'eq))
               (cycle-conditions (reverse (cons condition (subseq path 0 cycle-start))))
               (cycle-names (mapcar #'class-name cycle-conditions)))
-         (pushnew (format nil "~{~A~^ -> ~}" cycle-names)
-                 cycles
-                 :test #'string=)))
+         (pushnew cycle-names cycles :test #'equal)))
       
       ;; New condition - explore it
       (t
@@ -705,7 +694,8 @@
     (maphash (lambda (type-name _)
                (declare (ignore _))
                (unless (gethash type-name types-seen)
-                 (check-type-cycles type-name nil type-graph types-seen cycles)))
+                 ;; Explicitly capture updated cycles
+                 (setf cycles (check-type-cycles type-name nil type-graph types-seen cycles))))
              type-graph)
     
     ;; Store detected cycles in the tracker
@@ -716,14 +706,9 @@
       (record-anomaly tracker
         :type :type-definition-cycle
         :severity :warning
-        :description (format nil "Type definition cycle detected: ~A" cycle)
+        :description (format nil "Type definition cycle detected: ~{~S~^ -> ~}" cycle)
         :context cycle
-        :package (when (search " -> " cycle)
-                  ;; Extract first type name from cycle string
-                  (let* ((first-type-name (subseq cycle 0 (search " -> " cycle)))
-                         (type-sym (find-symbol first-type-name)))
-                    (when type-sym
-                      (symbol-package type-sym))))))
+        :package nil))
     
     ;; Return the cycles for chaining
     cycles))
@@ -749,9 +734,8 @@
       ((eq status :in-progress)
        (let* ((cycle-start (position type-name path :test #'equal))
               (cycle-types (reverse (cons type-name (subseq path 0 cycle-start)))))
-         (pushnew (format nil "~{~A~^ -> ~}" cycle-types)
-                 cycles
-                 :test #'string=)))
+         ;; Store as list of symbols instead of formatted string
+         (pushnew cycle-types cycles :test #'equal)))
       
       ;; New type - explore it
       (t
@@ -789,7 +773,8 @@
                      (when (and class 
                                (typep class 'structure-class)
                                (not (eq (class-name class) 'structure-object)))
-                       (check-structure-cycles class nil structures-seen cycles))))))
+                       ;; Explicitly capture updated cycles
+                       (setf cycles (check-structure-cycles class nil structures-seen cycles)))))))
              (slot-value tracker 'definitions))
     
     ;; Store detected cycles in the tracker
@@ -800,14 +785,9 @@
       (record-anomaly tracker
         :type :structure-inheritance-cycle
         :severity :error  ;; Structures shouldn't have cycles, so this is an error
-        :description (format nil "Structure inheritance cycle detected: ~A" cycle)
+        :description (format nil "Structure inheritance cycle detected: ~{~S~^ -> ~}" cycle)
         :context cycle
-        :package (when (search " -> " cycle)
-                  ;; Extract first structure name from cycle string
-                  (let* ((first-structure-name (subseq cycle 0 (search " -> " cycle)))
-                         (structure-sym (find-symbol first-structure-name)))
-                    (when structure-sym
-                      (symbol-package structure-sym))))))
+        :package nil))
     
     ;; Return the cycles for chaining
     cycles))
@@ -838,9 +818,8 @@
        (let* ((cycle-start (position structure path :test #'eq))
               (cycle-structures (reverse (cons structure (subseq path 0 cycle-start))))
               (cycle-names (mapcar #'class-name cycle-structures)))
-         (pushnew (format nil "~{~A~^ -> ~}" cycle-names)
-                 cycles
-                 :test #'string=)))
+         ;; Store as list of symbols instead of formatted string
+         (pushnew cycle-names cycles :test #'equal)))
       
       ;; New structure - explore it
       (t

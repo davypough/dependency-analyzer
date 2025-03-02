@@ -394,6 +394,51 @@
 
     ;; Record reference for each matching method
     (dolist (method (compute-applicable-methods gf args))
+      (let* ((specs (mapcar (lambda (specializer)
+                              ;; Handle different specializer types
+                              (typecase specializer
+                                ;; For EQL specializers, create (eql value) form
+                                (c2mop:eql-specializer
+                                 `(eql ,(c2mop:eql-specializer-object specializer)))
+                                ;; For class specializers, just use class name
+                                (t (class-name specializer))))
+                            (c2mop:method-specializers method)))
+             (quals (method-qualifiers method))
+             ;; Build lookup key to find method definition
+             (key (make-tracking-key gf-name
+                                   (symbol-package gf-name)
+                                   :method 
+                                   quals 
+                                   specs))
+             (defs (gethash key (slot-value *current-tracker* 'definitions)))
+             ;; Filter out definitions from same file before recording reference
+             (other-file-defs (remove-if (lambda (def)
+                                           (equal (definition.file def) 
+                                                  (file parser)))
+                                          defs)))
+        (when other-file-defs  ; Only record if we have defs from other files
+          (record-reference *current-tracker*
+                            :name gf-name
+                            :type :method
+                            :file (file parser)
+                            :context form
+                            :package pkg
+                            :qualifiers quals
+                            :arguments args 
+                            :definitions other-file-defs))))))
+
+
+#+ignore (defun record-method-reference (parser form gf args)
+  "Record reference from method ref to its matching definition.
+   PARSER - File parser instance for current file context
+   FORM - Original source form containing the ref 
+   GF - Generic function being called
+   ARGS - List of argument values/mock instances to match"
+  (let ((gf-name (c2mop:generic-function-name gf))
+        (pkg (current-package parser)))
+
+    ;; Record reference for each matching method
+    (dolist (method (compute-applicable-methods gf args))
       (let* ((specs (mapcar #'class-name (c2mop:method-specializers method)))
              (quals (method-qualifiers method))
              ;; Build lookup key to find method definition

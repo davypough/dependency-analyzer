@@ -537,6 +537,27 @@ DEFINITION>
     :Specializers (T CONS)
 
 DEFINITION>
+    :Name PROCESS-VAR
+    :Context (DEFMETHOD PROCESS-VAR
+                        ((VALUE (EQL *SPECIAL1*)) &OPTIONAL (LIMIT *PARAM1*))
+               "Method specialized to handle specifically the *special1* value"
+               (LIST VALUE LIMIT))
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers ((EQL *SPECIAL1*))
+
+DEFINITION>
+    :Name TEST-METHOD
+    :Context (DEFMETHOD TEST-METHOD ((X STRING)) X)
+    :Type :METHOD
+    :File /src/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (STRING)
+
+DEFINITION>
     :Name TODAY
     :Context (DEFINE-SYMBOL-MACRO TODAY (GET-UNIVERSAL-TIME))
     :Type :SYMBOL-MACRO

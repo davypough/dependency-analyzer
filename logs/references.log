@@ -2,189 +2,359 @@ Filename: REFERENCES.LOG
 
 The list of all references to definitions in other files for the test-project project.
 REFERENCE>
-    :Name GF1
-    :Context (LET ((TEST-VALUE 10))
-               (GF1
-                (IF (> *SPECIAL1* 5)
-                    "string-case"
-                    TEST-VALUE)))
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Arguments (10)
-    :Definitions
-                    DEFINITION>
-                        :Name GF1
-                        :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Specializers (NUMBER)
-
-REFERENCE>
-    :Name GF1
-    :Context (LET ((VALUES-TO-TEST (LIST 42 "text" (CONS 1 2))))
-               (MAPCAR #'GF1 VALUES-TO-TEST))
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Arguments (42)
-    :Definitions
-                    DEFINITION>
-                        :Name GF1
-                        :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Specializers (NUMBER)
-
-REFERENCE>
-    :Name GF1
-    :Context (GF1 42)
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Arguments (42)
-    :Definitions
-                    DEFINITION>
-                        :Name GF1
-                        :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Specializers (NUMBER)
-
-REFERENCE>
-    :Name GF1
-    :Context (GF1 "hello")
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Arguments ("hello")
-    :Definitions
-                    DEFINITION>
-                        :Name GF1
-                        :Context (DEFMETHOD GF1 ((X STRING))
-                                   (CONCATENATE 'STRING X X))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Specializers (STRING)
-
-REFERENCE>
-    :Name GF2
-    :Context (LET ((NUM 5))
-               (GF2 NUM 30))
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Qualifiers (:BEFORE)
-    :Arguments (5 30)
-    :Definitions
-                    DEFINITION>
-                        :Name GF2
-                        :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y)
-                                   (CHECK-TYPE Y NUMBER))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Qualifiers (:BEFORE)
-                        :Specializers (NUMBER T)
-
-REFERENCE>
-    :Name GF2
-    :Context (GF2 10 20)
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Qualifiers (:BEFORE)
-    :Arguments (10 20)
-    :Definitions
-                    DEFINITION>
-                        :Name GF2
-                        :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y)
-                                   (CHECK-TYPE Y NUMBER))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Qualifiers (:BEFORE)
-                        :Specializers (NUMBER T)
-
-REFERENCE>
-    :Name GF2
-    :Context (LET ((NUM 5))
-               (GF2 NUM 30))
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Arguments (5 30)
-    :Definitions
-                    DEFINITION>
-                        :Name GF2
-                        :Context (DEFMETHOD GF2 ((X NUMBER) Y) (LIST X Y))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Specializers (NUMBER T)
-
-REFERENCE>
-    :Name GF2
-    :Context (GF2 10 20)
-    :Type :METHOD
-    :File /src/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Arguments (10 20)
-    :Definitions
-                    DEFINITION>
-                        :Name GF2
-                        :Context (DEFMETHOD GF2 ((X NUMBER) Y) (LIST X Y))
-                        :Type :METHOD
-                        :File /src/defs.lisp
-                        :Package #<PACKAGE "USER-PKG">
-                        :Status :INTERNAL
-                        :Specializers (NUMBER T)
-
-REFERENCE>
-    :Name *SPECIAL1*
-    :Context (IF (> *SPECIAL1* 5)
-                 "string-case"
-                 TEST-VALUE)
-    :Type :VARIABLE
+    :Name MAKE-POINT
+    :Context (TYPEP (MAKE-POINT 1 2) 'POINT)
+    :Type :FUNCTION
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
     :Definitions
                     DEFINITION>
-                        :Name *SPECIAL1*
-                        :Context (DEFVAR *SPECIAL1* 0)
-                        :Type :VARIABLE
+                        :Name MAKE-POINT
+                        :Context (DEFSTRUCT
+                                     (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
+                                   (X 0 :TYPE NUMBER)
+                                   (Y 0 :TYPE NUMBER))
+                        :Type :FUNCTION
                         :File /src/defs.lisp
                         :Package #<PACKAGE "USER-PKG">
                         :Status :INTERNAL
 
 REFERENCE>
-    :Name GF1
-    :Context (GF1 (MAKE-INSTANCE 'NAMED-POINT :NAME "origin" :U 0 :V 0))
+    :Name MAKE-POINT
+    :Context (PT (MAKE-POINT 10 20))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name MAKE-POINT
+                        :Context (DEFSTRUCT
+                                     (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
+                                   (X 0 :TYPE NUMBER)
+                                   (Y 0 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name POINT-X
+    :Context (LIST (POINT-X PT) (POINT-Y PT) (POINT-P PT) (COPY-POINT PT))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-X
+                        :Context (DEFSTRUCT
+                                     (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
+                                   (X 0 :TYPE NUMBER)
+                                   (Y 0 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name POINT-Y
+    :Context (LIST (POINT-X PT) (POINT-Y PT) (POINT-P PT) (COPY-POINT PT))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-Y
+                        :Context (DEFSTRUCT
+                                     (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
+                                   (X 0 :TYPE NUMBER)
+                                   (Y 0 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name POINT-P
+    :Context (LIST (POINT-X PT) (POINT-Y PT) (POINT-P PT) (COPY-POINT PT))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-P
+                        :Context (DEFSTRUCT
+                                     (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
+                                   (X 0 :TYPE NUMBER)
+                                   (Y 0 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name COPY-POINT
+    :Context (LIST (POINT-X PT) (POINT-Y PT) (POINT-P PT) (COPY-POINT PT))
+    :Type :FUNCTION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name COPY-POINT
+                        :Context (DEFSTRUCT
+                                     (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
+                                   (X 0 :TYPE NUMBER)
+                                   (Y 0 :TYPE NUMBER))
+                        :Type :FUNCTION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name POINT-V
+    :Context (LET ((NAMED-PT
+                    (MAKE-INSTANCE 'NAMED-POINT :NAME "origin" :U 0 :V 0)))
+               (LIST (POINT-NAME NAMED-PT) (POINT-U NAMED-PT)
+                     (POINT-V NAMED-PT)))
     :Type :METHOD
     :File /src/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<NAMED-POINT {1104F2FC33}>)
+    :Arguments (#<NAMED-POINT {11043FEDB3}>)
     :Definitions
                     DEFINITION>
-                        :Name GF1
-                        :Context (DEFMETHOD GF1 ((X NAMED-POINT))
-                                   (LIST 'NAMED-POINT (POINT-NAME X)
-                                         (POINT-U X) (POINT-V X)))
+                        :Name POINT-V
+                        :Context (DEFCLASS NAMED-POINT NIL
+                                           ((NAME :INITARG :NAME :ACCESSOR
+                                             POINT-NAME)
+                                            (U :INITARG :U :ACCESSOR POINT-U)
+                                            (V :INITARG :V :ACCESSOR POINT-V)))
                         :Type :METHOD
                         :File /src/defs.lisp
                         :Package #<PACKAGE "USER-PKG">
                         :Status :INTERNAL
                         :Specializers (NAMED-POINT)
+
+REFERENCE>
+    :Name POINT-U
+    :Context (LET ((NAMED-PT
+                    (MAKE-INSTANCE 'NAMED-POINT :NAME "origin" :U 0 :V 0)))
+               (LIST (POINT-NAME NAMED-PT) (POINT-U NAMED-PT)
+                     (POINT-V NAMED-PT)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (#<NAMED-POINT {11043FEDB3}>)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-U
+                        :Context (DEFCLASS NAMED-POINT NIL
+                                           ((NAME :INITARG :NAME :ACCESSOR
+                                             POINT-NAME)
+                                            (U :INITARG :U :ACCESSOR POINT-U)
+                                            (V :INITARG :V :ACCESSOR POINT-V)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NAMED-POINT)
+
+REFERENCE>
+    :Name POINT-NAME
+    :Context (LET ((MON-PT
+                    (MAKE-INSTANCE 'MONITORED-POINT :NAME "tracked" :U 5 :V
+                                   10)))
+               (LIST (TYPEP MON-PT 'NAMED-POINT) (POINT-NAME MON-PT)
+                     (POINT-TIMESTAMP MON-PT)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (#<MONITORED-POINT {11045D7723}>)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-NAME
+                        :Context (DEFCLASS NAMED-POINT NIL
+                                           ((NAME :INITARG :NAME :ACCESSOR
+                                             POINT-NAME)
+                                            (U :INITARG :U :ACCESSOR POINT-U)
+                                            (V :INITARG :V :ACCESSOR POINT-V)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NAMED-POINT)
+
+REFERENCE>
+    :Name POINT-NAME
+    :Context (LET ((NAMED-PT
+                    (MAKE-INSTANCE 'NAMED-POINT :NAME "origin" :U 0 :V 0)))
+               (LIST (POINT-NAME NAMED-PT) (POINT-U NAMED-PT)
+                     (POINT-V NAMED-PT)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (#<NAMED-POINT {11043FEDB3}>)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-NAME
+                        :Context (DEFCLASS NAMED-POINT NIL
+                                           ((NAME :INITARG :NAME :ACCESSOR
+                                             POINT-NAME)
+                                            (U :INITARG :U :ACCESSOR POINT-U)
+                                            (V :INITARG :V :ACCESSOR POINT-V)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (NAMED-POINT)
+
+REFERENCE>
+    :Name INVALID-POINT
+    :Context (HANDLER-CASE
+              (ERROR 'INVALID-POINT :REASON "Coordinates out of bounds" :VALUE
+                     '(100 100))
+              (INVALID-POINT (C)
+               (LIST (POINT-ERROR-REASON C) (POINT-ERROR-VALUE C))))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name INVALID-POINT
+                        :Context (DEFINE-CONDITION INVALID-POINT
+                                     (ERROR)
+                                     ((REASON :INITARG :REASON :READER
+                                       POINT-ERROR-REASON)
+                                      (VALUE :INITARG :VALUE :READER
+                                       POINT-ERROR-VALUE)))
+                        :Type :STRUCTURE/CLASS/CONDITION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name POINT-ERROR-VALUE
+    :Context (HANDLER-CASE
+              (ERROR 'INVALID-POINT :REASON "Coordinates out of bounds" :VALUE
+                     '(100 100))
+              (INVALID-POINT (C)
+               (LIST (POINT-ERROR-REASON C) (POINT-ERROR-VALUE C))))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (#<INVALID-POINT {110450BCD3}>)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-ERROR-VALUE
+                        :Context (DEFINE-CONDITION INVALID-POINT
+                                     (ERROR)
+                                     ((REASON :INITARG :REASON :READER
+                                       POINT-ERROR-REASON)
+                                      (VALUE :INITARG :VALUE :READER
+                                       POINT-ERROR-VALUE)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (INVALID-POINT)
+
+REFERENCE>
+    :Name POINT-ERROR-REASON
+    :Context (HANDLER-CASE
+              (ERROR 'INVALID-POINT :REASON "Coordinates out of bounds" :VALUE
+                     '(100 100))
+              (INVALID-POINT (C)
+               (LIST (POINT-ERROR-REASON C) (POINT-ERROR-VALUE C))))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (#<INVALID-POINT {110450BCD3}>)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-ERROR-REASON
+                        :Context (DEFINE-CONDITION INVALID-POINT
+                                     (ERROR)
+                                     ((REASON :INITARG :REASON :READER
+                                       POINT-ERROR-REASON)
+                                      (VALUE :INITARG :VALUE :READER
+                                       POINT-ERROR-VALUE)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (INVALID-POINT)
+
+REFERENCE>
+    :Name NAMED-POINT
+    :Context (TYPECASE (MAKE-INSTANCE 'NAMED-POINT)
+               (NAMED-POINT :NAMED)
+               (POINT :POINT)
+               (T :OTHER))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name NAMED-POINT
+                        :Context (DEFCLASS NAMED-POINT NIL
+                                           ((NAME :INITARG :NAME :ACCESSOR
+                                             POINT-NAME)
+                                            (U :INITARG :U :ACCESSOR POINT-U)
+                                            (V :INITARG :V :ACCESSOR POINT-V)))
+                        :Type :STRUCTURE/CLASS/CONDITION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name POINT
+    :Context (TYPECASE (MAKE-INSTANCE 'NAMED-POINT)
+               (NAMED-POINT :NAMED)
+               (POINT :POINT)
+               (T :OTHER))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Visibility (:LOCAL #<PACKAGE "USER-PKG">)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT
+                        :Context (DEFSTRUCT
+                                     (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
+                                   (X 0 :TYPE NUMBER)
+                                   (Y 0 :TYPE NUMBER))
+                        :Type :STRUCTURE/CLASS/CONDITION
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+
+REFERENCE>
+    :Name POINT-TIMESTAMP
+    :Context (LET ((MON-PT
+                    (MAKE-INSTANCE 'MONITORED-POINT :NAME "tracked" :U 5 :V
+                                   10)))
+               (LIST (TYPEP MON-PT 'NAMED-POINT) (POINT-NAME MON-PT)
+                     (POINT-TIMESTAMP MON-PT)))
+    :Type :METHOD
+    :File /src/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Arguments (#<MONITORED-POINT {11045D7723}>)
+    :Definitions
+                    DEFINITION>
+                        :Name POINT-TIMESTAMP
+                        :Context (DEFCLASS MONITORED-POINT (NAMED-POINT)
+                                           ((TIMESTAMP :INITFORM
+                                             (GET-UNIVERSAL-TIME) :READER
+                                             POINT-TIMESTAMP)))
+                        :Type :METHOD
+                        :File /src/defs.lisp
+                        :Package #<PACKAGE "USER-PKG">
+                        :Status :INTERNAL
+                        :Specializers (MONITORED-POINT)
 
