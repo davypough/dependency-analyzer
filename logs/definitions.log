@@ -1,19 +1,74 @@
 Filename: DEFINITIONS.LOG
 
-The list of all definitions identified in the test-project project.
+The list of all definitions identified in the dependency-analyzer-test project.
+
+DEFINITION>
+    :Name *PARAM4*
+    :Context (DEFPARAMETER *PARAM4* (LIST *PARAM3*))
+    :Type :VARIABLE
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name FUN1
+    :Context (DEFUN FUN1 (&OPTIONAL (X *PARAM1*)) (PRINT X) *PARAM3*)
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name TEST-VARS
+    :Context (DEFUN TEST-VARS ()
+               "Function that uses *SPECIAL1* and *PARAM1* variables."
+               (LIST *SPECIAL1* *PARAM1*))
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name PACKAGE-TEST
+    :Context (DEFUN PACKAGE-TEST (&OPTIONAL (PKG :TEST3-PKG))
+               (FORMAT NIL "~A has ~D symbols~%" PKG
+                       (LOOP FOR SYM BEING THE SYMBOLS OF (FIND-PACKAGE PKG)
+                             COUNT T)))
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name TEST-POINT
+    :Context (DEFCLASS TEST-POINT (MONITORED-POINT) NIL)
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name TEST-SIZED-VECTOR
+    :Context (DEFUN TEST-SIZED-VECTOR (VEC)
+               (DECLARE (TYPE (SIZED-VECTOR T *) VEC))
+               (ARRAY-DIMENSIONS VEC))
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
 
 DEFINITION>
     :Name #:USER-PKG
     :Context (DEFPACKAGE #:USER-PKG
                (:USE :CL :ALEXANDRIA))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name *SPECIAL1*
     :Context (DEFVAR *SPECIAL1* 0)
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -21,7 +76,7 @@ DEFINITION>
     :Name *SPECIAL2*
     :Context (DEFVAR *SPECIAL2* "Special variable without initialization")
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -29,7 +84,7 @@ DEFINITION>
     :Name *PARAM1*
     :Context (DEFPARAMETER *PARAM1* 100 "Parameter must have initial value")
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -37,7 +92,7 @@ DEFINITION>
     :Name +CONST1+
     :Context (DEFCONSTANT +CONST1+ 1 "Constants use plus signs")
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -45,7 +100,7 @@ DEFINITION>
     :Name VAR1
     :Context (SETF (SYMBOL-VALUE 'VAR1) 42)
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -55,7 +110,7 @@ DEFINITION>
                (DEFPARAMETER *PARAM3* 0)
                "Embedded definition")
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -63,7 +118,7 @@ DEFINITION>
     :Name *PARAM3*
     :Context (DEFPARAMETER *PARAM3* 0)
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -74,7 +129,7 @@ DEFINITION>
                (:USE :CL)
                (:EXPORT #:VAR1 #:PARAM1 #:+CONST1+ #:*SPECIAL1*))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name :T1PKG
@@ -83,21 +138,21 @@ DEFINITION>
                (:USE :CL)
                (:EXPORT #:VAR1 #:PARAM1 #:+CONST1+ #:*SPECIAL1*))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name :TEST2-PKG
     :Context (MAKE-PACKAGE :TEST2-PKG :NICKNAMES '("T2PKG") :USE
                            '("COMMON-LISP"))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name "T2PKG"
     :Context (MAKE-PACKAGE :TEST2-PKG :NICKNAMES '("T2PKG") :USE
                            '("COMMON-LISP"))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name #:TEST3-PKG
@@ -108,7 +163,7 @@ DEFINITION>
                (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
                (:EXPORT #:VAR1 #:PROCESS-DATA))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name :T3PKG
@@ -119,7 +174,7 @@ DEFINITION>
                (:IMPORT-FROM #:TEST1-PKG #:VAR1 #:PARAM1)
                (:EXPORT #:VAR1 #:PROCESS-DATA))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name #:TEST4-PKG
@@ -129,7 +184,7 @@ DEFINITION>
                (:SHADOWING-IMPORT-FROM :ALEXANDRIA #:WHEN-LET)
                (:EXPORT #:SHADOW-TEST))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name #:TEST5-PKG
@@ -139,13 +194,13 @@ DEFINITION>
                (:EXPORT #:PUBLIC-API)
                (:DOCUMENTATION "Package for testing comprehensive symbol visibility analysis"))
     :Type :PACKAGE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
 
 DEFINITION>
     :Name FN1
     :Context (DEFUN FN1 (X) X)
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -153,7 +208,7 @@ DEFINITION>
     :Name (SETF FN1)
     :Context (DEFUN (SETF FN1) (NEW-VAL X) (SETF (CAR X) NEW-VAL))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -163,7 +218,7 @@ DEFINITION>
                (DECLARE (TYPE NUMBER X))
                (PROPER-LIST-P (LIST X Y)))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -171,7 +226,7 @@ DEFINITION>
     :Name FN2B
     :Context (DEFUN FN2B (X &KEY Z) (DECLARE (TYPE NUMBER X)) (LIST X Z))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -185,7 +240,7 @@ DEFINITION>
                     (:MOST-SPECIFIC-FIRST `(CALL-METHOD ,#))
                     (:MOST-SPECIFIC-LAST `(CALL-METHOD ,#)))))
     :Type :METHOD-COMBINATION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -193,7 +248,7 @@ DEFINITION>
     :Name FN3
     :Context (SETF (SYMBOL-FUNCTION 'FN3) #'(LAMBDA (X) (* X 2)))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -203,7 +258,7 @@ DEFINITION>
                `(LET ((,VAR T))
                   ,@BODY))
     :Type :MACRO
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -211,7 +266,7 @@ DEFINITION>
     :Name INCF-BY
     :Context (DEFINE-MODIFY-MACRO INCF-BY (N) +)
     :Type :MACRO
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -219,7 +274,7 @@ DEFINITION>
     :Name MY-PLUS
     :Context (DEFUN MY-PLUS (A B) (+ A B))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -231,7 +286,7 @@ DEFINITION>
                    (+ A B)
                    FORM))
     :Type :MACRO
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -242,7 +297,7 @@ DEFINITION>
                          (DECLARE (IGNORE ENV))
                          `(LIST ,(SECOND FORM))))
     :Type :MACRO
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -252,7 +307,7 @@ DEFINITION>
                (X 0 :TYPE NUMBER)
                (Y 0 :TYPE NUMBER))
     :Type :STRUCTURE/CLASS/CONDITION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -262,7 +317,7 @@ DEFINITION>
                (X 0 :TYPE NUMBER)
                (Y 0 :TYPE NUMBER))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -272,7 +327,7 @@ DEFINITION>
                (X 0 :TYPE NUMBER)
                (Y 0 :TYPE NUMBER))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -282,7 +337,7 @@ DEFINITION>
                (X 0 :TYPE NUMBER)
                (Y 0 :TYPE NUMBER))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -292,7 +347,7 @@ DEFINITION>
                (X 0 :TYPE NUMBER)
                (Y 0 :TYPE NUMBER))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -302,7 +357,7 @@ DEFINITION>
                (X 0 :TYPE NUMBER)
                (Y 0 :TYPE NUMBER))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -313,7 +368,7 @@ DEFINITION>
                         (U :INITARG :U :ACCESSOR POINT-U)
                         (V :INITARG :V :ACCESSOR POINT-V)))
     :Type :STRUCTURE/CLASS/CONDITION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -324,7 +379,7 @@ DEFINITION>
                         (U :INITARG :U :ACCESSOR POINT-U)
                         (V :INITARG :V :ACCESSOR POINT-V)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NAMED-POINT)
@@ -336,7 +391,7 @@ DEFINITION>
                         (U :INITARG :U :ACCESSOR POINT-U)
                         (V :INITARG :V :ACCESSOR POINT-V)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NAMED-POINT)
@@ -348,7 +403,7 @@ DEFINITION>
                         (U :INITARG :U :ACCESSOR POINT-U)
                         (V :INITARG :V :ACCESSOR POINT-V)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NAMED-POINT)
@@ -360,7 +415,7 @@ DEFINITION>
                         (U :INITARG :U :ACCESSOR POINT-U)
                         (V :INITARG :V :ACCESSOR POINT-V)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NAMED-POINT)
@@ -372,7 +427,7 @@ DEFINITION>
                         (U :INITARG :U :ACCESSOR POINT-U)
                         (V :INITARG :V :ACCESSOR POINT-V)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NAMED-POINT)
@@ -384,7 +439,7 @@ DEFINITION>
                         (U :INITARG :U :ACCESSOR POINT-U)
                         (V :INITARG :V :ACCESSOR POINT-V)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NAMED-POINT)
@@ -396,7 +451,7 @@ DEFINITION>
                  ((REASON :INITARG :REASON :READER POINT-ERROR-REASON)
                   (VALUE :INITARG :VALUE :READER POINT-ERROR-VALUE)))
     :Type :STRUCTURE/CLASS/CONDITION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -407,7 +462,7 @@ DEFINITION>
                  ((REASON :INITARG :REASON :READER POINT-ERROR-REASON)
                   (VALUE :INITARG :VALUE :READER POINT-ERROR-VALUE)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (INVALID-POINT)
@@ -419,7 +474,7 @@ DEFINITION>
                  ((REASON :INITARG :REASON :READER POINT-ERROR-REASON)
                   (VALUE :INITARG :VALUE :READER POINT-ERROR-VALUE)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (INVALID-POINT)
@@ -430,7 +485,7 @@ DEFINITION>
                  (X)
                (:DOCUMENTATION "Basic generic function"))
     :Type :GENERIC-FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -442,7 +497,7 @@ DEFINITION>
                (:METHOD-COMBINATION STANDARD)
                (:GENERIC-FUNCTION-CLASS STANDARD-GENERIC-FUNCTION))
     :Type :GENERIC-FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -452,7 +507,7 @@ DEFINITION>
                  (NEW-VALUE OBJ)
                (:DOCUMENTATION "Setf generic function"))
     :Type :GENERIC-FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -460,7 +515,7 @@ DEFINITION>
     :Name GF1
     :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NUMBER)
@@ -469,7 +524,7 @@ DEFINITION>
     :Name GF1
     :Context (DEFMETHOD GF1 ((X STRING)) (CONCATENATE 'STRING X X))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (STRING)
@@ -478,7 +533,7 @@ DEFINITION>
     :Name GF1
     :Context (DEFMETHOD GF1 ((X CONS)) (LIST 'CONS-PROCESSED X))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (CONS)
@@ -488,7 +543,7 @@ DEFINITION>
     :Context (DEFMETHOD GF1 ((X NAMED-POINT))
                (LIST 'NAMED-POINT (POINT-NAME X) (POINT-U X) (POINT-V X)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NAMED-POINT)
@@ -497,7 +552,7 @@ DEFINITION>
     :Name GF2
     :Context (DEFMETHOD GF2 ((X NUMBER) Y) (LIST X Y))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (NUMBER T)
@@ -506,7 +561,7 @@ DEFINITION>
     :Name GF2
     :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y) (CHECK-TYPE Y NUMBER))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Qualifiers (:BEFORE)
@@ -518,7 +573,7 @@ DEFINITION>
                (SETF (CAR OBJ) NEW-VALUE)
                NEW-VALUE)
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (T CONS)
@@ -530,7 +585,7 @@ DEFINITION>
                    (CALL-NEXT-METHOD)
                    (ERROR "Invalid value")))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Qualifiers (:AROUND)
@@ -539,20 +594,20 @@ DEFINITION>
 DEFINITION>
     :Name PROCESS-VAR
     :Context (DEFMETHOD PROCESS-VAR
-                        ((VALUE (EQL *SPECIAL1*)) &OPTIONAL (LIMIT *PARAM1*))
+                        ((VALUE (EQL '*SPECIAL1*)) &OPTIONAL (LIMIT *PARAM1*))
                "Method specialized to handle specifically the *special1* value"
                (LIST VALUE LIMIT))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers ((EQL *SPECIAL1*))
+    :Specializers ((EQL '*SPECIAL1*))
 
 DEFINITION>
     :Name TEST-METHOD
     :Context (DEFMETHOD TEST-METHOD ((X STRING)) X)
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (STRING)
@@ -561,7 +616,7 @@ DEFINITION>
     :Name TODAY
     :Context (DEFINE-SYMBOL-MACRO TODAY (GET-UNIVERSAL-TIME))
     :Type :SYMBOL-MACRO
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -569,7 +624,7 @@ DEFINITION>
     :Name PI/2
     :Context (DEFINE-SYMBOL-MACRO PI/2 (/ PI 2))
     :Type :SYMBOL-MACRO
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -577,7 +632,7 @@ DEFINITION>
     :Name EMPTY-LIST
     :Context (DEFINE-SYMBOL-MACRO EMPTY-LIST NIL)
     :Type :SYMBOL-MACRO
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -585,7 +640,7 @@ DEFINITION>
     :Name POS-INTEGER
     :Context (DEFTYPE POS-INTEGER () '(INTEGER 1 *))
     :Type :DEFTYPE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -594,7 +649,7 @@ DEFINITION>
     :Context (DEFTYPE SIZED-VECTOR (ELEMENT-TYPE SIZE)
                `(VECTOR ,ELEMENT-TYPE ,SIZE))
     :Type :DEFTYPE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -602,7 +657,7 @@ DEFINITION>
     :Name STRING-OR-SYMBOL
     :Context (DEFTYPE STRING-OR-SYMBOL () '(OR STRING SYMBOL))
     :Type :DEFTYPE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -610,7 +665,7 @@ DEFINITION>
     :Name *EMBEDDED-COUNT*
     :Context (DEFVAR *EMBEDDED-COUNT* 0 "Counter for embedded functions")
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -618,7 +673,7 @@ DEFINITION>
     :Name *LAST-EMBEDDED-POINT*
     :Context (DEFVAR *LAST-EMBEDDED-POINT* NIL "Storage for last point object")
     :Type :VARIABLE
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -629,7 +684,7 @@ DEFINITION>
                (DEFUN GET-EMBEDDED-COUNT () *EMBEDDED-COUNT*)
                (VALUES #'RESET-EMBEDDED-COUNT #'GET-EMBEDDED-COUNT))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -637,7 +692,7 @@ DEFINITION>
     :Name RESET-EMBEDDED-COUNT
     :Context (DEFUN RESET-EMBEDDED-COUNT () (SETF *EMBEDDED-COUNT* 0))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -645,7 +700,7 @@ DEFINITION>
     :Name GET-EMBEDDED-COUNT
     :Context (DEFUN GET-EMBEDDED-COUNT () *EMBEDDED-COUNT*)
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -655,7 +710,7 @@ DEFINITION>
                        ((TIMESTAMP :INITFORM (GET-UNIVERSAL-TIME) :READER
                          POINT-TIMESTAMP)))
     :Type :STRUCTURE/CLASS/CONDITION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
@@ -665,7 +720,7 @@ DEFINITION>
                        ((TIMESTAMP :INITFORM (GET-UNIVERSAL-TIME) :READER
                          POINT-TIMESTAMP)))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
     :Specializers (MONITORED-POINT)
@@ -680,7 +735,7 @@ DEFINITION>
                    (WHEN *LAST-EMBEDDED-POINT*
                      (POINT-TIMESTAMP *LAST-EMBEDDED-POINT*)))))
     :Type :METHOD
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INHERITED
     :Qualifiers (:AFTER)
@@ -692,7 +747,7 @@ DEFINITION>
                (WHEN *LAST-EMBEDDED-POINT*
                  (POINT-TIMESTAMP *LAST-EMBEDDED-POINT*)))
     :Type :FUNCTION
-    :File /src/defs.lisp
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 

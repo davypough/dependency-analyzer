@@ -185,6 +185,6 @@
 (defun flat ()
   "Flattens directory files in Windows for easy upload to Claude"
   (let ((in-dir1 "D:/quicklisp/local-projects/dependency-analyzer/")
-        (in-dir2 "D:/quicklisp/local-projects/test-project/")
+        ;(in-dir2 "D:/quicklisp/local-projects/test-project/")
         (out-dir "D:/Users Data/Dave/Desktop/"))
-    (flatten-directories (list in-dir1 in-dir2) out-dir '("*.lisp" "*.asd" "*.log" "*.text" "*.json" "*.dot"))))
+    (flatten-directories (list in-dir1) out-dir '("*.lisp" "*.asd" "*.log"))))
