@@ -10,4 +10,7 @@
   :depends-on (#:alexandria #:dependency-analyzer)
   :components ((:module "test"
                  :components ((:file "defs")
-                              (:file "refs")))))
+                              (:file "defs2")
+                              (:file "refs")
+                              (:file "anoms")
+                              (:file "anoms2")))))

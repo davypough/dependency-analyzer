@@ -163,7 +163,7 @@
         (format t "  ~A~%" cycle))))
 
   ;; Anomalies Section
-  (format t "~2%ANOMALIES AND ANALYSIS~%")
+  (format t "~2%ANOMALIES~%")
   (format t "~V,,,'-<~A~>~%" 30 "")
   ;; Use the anomalies list directly
   (let ((all-anomalies (slot-value *current-tracker* 'anomalies)))
@@ -188,7 +188,7 @@
         (format t "    :Type ~S~%" (anomaly.type a))
         (format t "    :Severity ~S~%" (anomaly.severity a))
         (when (anomaly.context a)
-          (format t "    :Context ~S~%" (anomaly.context a)))
+          (format t "    :Context ~A~%" (anomaly.context a)))
         (when (anomaly.file a)
           (format t "    :File ~A~%" (anomaly.file a)))
         (when (anomaly.package a)

@@ -28,6 +28,7 @@
     (return-from analyze))
   
   ;; Load the system to ensure all runtime information is available
+  (delete-project-fasls system-designator)
   (asdf:load-system system-designator)
   
   ;; Get system information from ASDF
@@ -80,6 +81,7 @@
       (format t "~%Quality Review - Analyzing Code Dependencies...~2%")
       (analyze-package-dependencies *current-tracker*)
       (analyze-package-exports *current-tracker*)
+      (analyze-unused-imports *current-tracker*)
       (analyze-type-relationships *current-tracker*)
       ;; Add our new hierarchy cycle analysis functions
       (analyze-class-hierarchies *current-tracker*)
@@ -130,7 +132,7 @@
                  (asdf:module
                   (map nil #'collect-component-files (asdf:component-children component))))))
       (collect-component-files system))
-    files))
+    (reverse files)))
 
 
 (defun ensure-project-loaded (system-designator)

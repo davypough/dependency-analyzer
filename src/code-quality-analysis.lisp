@@ -834,3 +834,66 @@
        ;; Mark as fully explored after checking superclass
        (setf (gethash structure structures-seen) :completed)
        cycles))))
+
+
+(defun analyze-unused-imports (tracker)
+  "Detect packages that import symbols which are never referenced.
+   Analyzes both :USE and :IMPORT-FROM relationships to identify
+   potentially unnecessary package dependencies."
+  
+  ;; First, build a mapping of which packages import which other packages
+  (let ((package-imports (make-hash-table :test 'equal))  ; Maps packages to their imports
+        (import-usage (make-hash-table :test 'equal)))    ; Maps (package . import) to usage count
+    
+    ;; Phase 1: Record all package imports
+    (maphash (lambda (pkg-name def-form)
+               (declare (ignore def-form))
+               (when-let ((pkg (find-package pkg-name)))
+                 ;; Record all packages used via :USE
+                 (dolist (used-pkg (package-use-list pkg))
+                   (when used-pkg  ; Ensure package exists
+                     (pushnew (package-name used-pkg)
+                             (gethash pkg-name package-imports))))
+                 
+                 ;; Also record imports via :IMPORT-FROM by analyzing imported symbols
+                 (do-symbols (sym pkg)
+                   (let ((sym-pkg (symbol-package sym)))
+                     (when (and sym-pkg                      ; Symbol has a home package
+                               (not (eq sym-pkg pkg))        ; Not defined in this package
+                               (member sym (package-shadowing-symbols pkg)) ; Explicitly imported
+                               (not (member sym-pkg (package-use-list pkg)))) ; Not from :USE
+                       (pushnew (package-name sym-pkg)
+                               (gethash pkg-name package-imports)))))))
+             (slot-value tracker 'defined-packages))
+    
+    ;; Phase 2: Analyze all references to track usage of imported packages
+    (maphash (lambda (key refs)
+               (declare (ignore key))
+               (dolist (ref refs)
+                 (let* ((sym (reference.name ref))
+                        (ref-pkg (reference.package ref))
+                        (sym-pkg (when (symbolp sym) (symbol-package sym))))
+                   ;; Only proceed if we have valid packages
+                   (when (and ref-pkg sym-pkg 
+                             (not (eq ref-pkg sym-pkg)))  ; Different packages
+                     ;; Record usage of this imported package
+                     (let ((import-key (cons (package-name ref-pkg) 
+                                          (package-name sym-pkg))))
+                       (incf (gethash import-key import-usage 0)))))))
+             (slot-value tracker 'references))
+    
+    ;; Phase 3: Detect unused imports
+    (maphash (lambda (pkg-name imports)
+               (dolist (import-pkg imports)
+                 (let ((import-key (cons pkg-name import-pkg)))
+                   (when (zerop (gethash import-key import-usage 0))
+                     ;; Found an unused import
+                     (when-let ((pkg (find-package pkg-name)))
+                       (record-anomaly tracker
+                         :type :unused-import
+                         :severity :info
+                         :package pkg
+                         :description 
+                         (format nil "Package ~A imports ~A but doesn't use any of its symbols"
+                                 pkg-name import-pkg)))))))
+             package-imports)))

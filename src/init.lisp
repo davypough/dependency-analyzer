@@ -89,7 +89,7 @@
   (delete-project-fasls :dependency-analyzer)
   (asdf:load-system :dependency-analyzer :verbose t)
   (funcall (symbol-function (read-from-string "DEP:ANALYZE"))
-           :test-project)
+           :dependency-analyzer-test)
   (in-package :dep))
 
 

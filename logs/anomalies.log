@@ -2,3 +2,416 @@ Filename: ANOMALIES.LOG
 
 The list of all anomalies detected during dependency analysis of the dependency-analyzer-test project.
 
+ANOMALY>
+    :Description "Constant MY-CONST defined without plus-sign convention (+MY-CONST+)"
+    :Type :CONSTANT-NAMING
+    :Severity :INFO
+    :Context (DEFCONSTANT MY-CONST 0)
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+
+ANOMALY>
+    :Description "(SETF POINT-NAME) also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "(SETF POINT-U) also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "(SETF POINT-V) also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "*PARAM1* also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (SETF (SYMBOL-VALUE '*PARAM1*) 101)
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "*SPECIAL1* also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFPARAMETER *SPECIAL1* 0)
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "+CONST1+ also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCONSTANT +CONST1+ 1)
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "COPY-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "FN1 also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFUN FN1 (X) (* 2 X))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "GF1 also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFGENERIC GF1
+                 (Y)
+               (DOCUMENTATION Basic generic function))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "GF2 also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFMETHOD GF2 ((A NUMBER) B) (LIST A B))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "INVALID-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-CONDITION INVALID-POINT
+                 (ERROR)
+                 ((REASON INITARG REASON READER POINT-ERROR-REASON)
+                  (VALUE INITARG VALUE READER POINT-ERROR-VALUE)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "MAKE-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "MY-COMB also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-METHOD-COMBINATION MY-COMB
+               (&KEY (ORDER MOST-SPECIFIC-FIRST))
+               ((METHODS *))
+               `(PROGN
+                 ,(CASE ORDER
+                    (MOST-SPECIFIC-FIRST `(CALL-METHOD ,#))
+                    (MOST-SPECIFIC-LAST `(CALL-METHOD ,#)))))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "NAMED-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-ERROR-REASON also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-CONDITION INVALID-POINT
+                 (ERROR)
+                 ((REASON INITARG REASON READER POINT-ERROR-REASON)
+                  (VALUE INITARG VALUE READER POINT-ERROR-VALUE)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-ERROR-VALUE also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-CONDITION INVALID-POINT
+                 (ERROR)
+                 ((REASON INITARG REASON READER POINT-ERROR-REASON)
+                  (VALUE INITARG VALUE READER POINT-ERROR-VALUE)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-NAME also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-P also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-U also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-V also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-X also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-Y also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POS-INTEGER also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFTYPE POS-INTEGER () '(FIXNUM 1 *))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "TODAY also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-SYMBOL-MACRO TODAY (GET-UNIVERSAL-TIME))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::*INTERNAL-VAR*"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context ((VAL *INTERNAL-VAR*))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::*INTERNAL-VAR*"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context ((VALUE *INTERNAL-VAR*))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::INTERNAL-FUNCTION"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context (LET ((VAL *INTERNAL-VAR*))
+               (INTERNAL-FUNCTION VAL))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::INTERNAL-FUNCTION"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context (+ X (INTERNAL-FUNCTION 10))
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+
+ANOMALY>
+    :Description "Definition of *SHADOWED-VAR* shadows inherited symbol from INTERNAL-TEST-PKG"
+    :Type :SHADOWED-DEFINITION
+    :Severity :WARNING
+    :Context (DEFVAR *SHADOWED-VAR* 100 Shadows the inherited variable)
+    :File /test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "Definition of SHADOWED-FUNC shadows inherited symbol from INTERNAL-TEST-PKG"
+    :Type :SHADOWED-DEFINITION
+    :Severity :WARNING
+    :Context (DEFUN SHADOWED-FUNC (X Y) (* X Y) Shadows the inherited function)
+    :File /test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+
+ANOMALY>
+    :Description "Special variable MY-PARAM defined without earmuffs convention (*MY-PARAM*)"
+    :Type :SPECIAL-VAR-NAMING
+    :Severity :INFO
+    :Context (DEFPARAMETER MY-PARAM 0)
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Special variable MY-VAR defined without earmuffs convention (*MY-VAR*)"
+    :Type :SPECIAL-VAR-NAMING
+    :Severity :INFO
+    :Context (DEFVAR MY-VAR)
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+
+ANOMALY>
+    :Description "Package SHADOWING-TEST-PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "Package SHADOWING-TEST-PKG imports INTERNAL-TEST-PKG but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "Package T1PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST1-PKG">
+
+ANOMALY>
+    :Description "Package T2PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST2-PKG">
+
+ANOMALY>
+    :Description "Package T3PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST3-PKG">
+
+ANOMALY>
+    :Description "Package T3PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST3-PKG">
+
+ANOMALY>
+    :Description "Package TEST1-PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST1-PKG">
+
+ANOMALY>
+    :Description "Package TEST2-PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST2-PKG">
+
+ANOMALY>
+    :Description "Package TEST3-PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST3-PKG">
+
+ANOMALY>
+    :Description "Package TEST3-PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST3-PKG">
+
+ANOMALY>
+    :Description "Package TEST4-PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST4-PKG">
+
+ANOMALY>
+    :Description "Package TEST4-PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST4-PKG">
+
+ANOMALY>
+    :Description "Package TEST4-PKG imports TEST1-PKG but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST4-PKG">
+
+ANOMALY>
+    :Description "Package TEST5-PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "TEST5-PKG">
+
+ANOMALY>
+    :Description "Package USER-PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package USER-PKG imports COMMON-LISP but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :Package #<PACKAGE "USER-PKG">
+
+

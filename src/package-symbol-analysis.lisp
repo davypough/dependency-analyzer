@@ -189,12 +189,13 @@
                             :internal))
                 (record-anomaly *current-tracker*
                   :type :qualified-internal-reference
-                  :severity :warning
+                  :severity :info
                   :file current-file
                   :package current-pkg
                   :description
-                  (format nil "Package-qualified reference to internal symbol ~A:~A"
-                          (package-name sym-pkg) current-form)
+                  (format nil "Package-qualified reference to internal symbol ~S"
+                          ;(package-name sym-pkg)
+                            current-form)
                   :context parent-context))
               
               ;; Check consistent package qualification

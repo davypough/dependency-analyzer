@@ -3,61 +3,6 @@ Filename: DEFINITIONS.LOG
 The list of all definitions identified in the dependency-analyzer-test project.
 
 DEFINITION>
-    :Name *PARAM4*
-    :Context (DEFPARAMETER *PARAM4* (LIST *PARAM3*))
-    :Type :VARIABLE
-    :File /test/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name FUN1
-    :Context (DEFUN FUN1 (&OPTIONAL (X *PARAM1*)) (PRINT X) *PARAM3*)
-    :Type :FUNCTION
-    :File /test/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name TEST-VARS
-    :Context (DEFUN TEST-VARS ()
-               "Function that uses *SPECIAL1* and *PARAM1* variables."
-               (LIST *SPECIAL1* *PARAM1*))
-    :Type :FUNCTION
-    :File /test/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name PACKAGE-TEST
-    :Context (DEFUN PACKAGE-TEST (&OPTIONAL (PKG :TEST3-PKG))
-               (FORMAT NIL "~A has ~D symbols~%" PKG
-                       (LOOP FOR SYM BEING THE SYMBOLS OF (FIND-PACKAGE PKG)
-                             COUNT T)))
-    :Type :FUNCTION
-    :File /test/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name TEST-POINT
-    :Context (DEFCLASS TEST-POINT (MONITORED-POINT) NIL)
-    :Type :STRUCTURE/CLASS/CONDITION
-    :File /test/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
-    :Name TEST-SIZED-VECTOR
-    :Context (DEFUN TEST-SIZED-VECTOR (VEC)
-               (DECLARE (TYPE (SIZED-VECTOR T *) VEC))
-               (ARRAY-DIMENSIONS VEC))
-    :Type :FUNCTION
-    :File /test/refs.lisp
-    :Package #<PACKAGE "USER-PKG">
-    :Status :INTERNAL
-
-DEFINITION>
     :Name #:USER-PKG
     :Context (DEFPACKAGE #:USER-PKG
                (:USE :CL :ALEXANDRIA))
@@ -65,49 +10,76 @@ DEFINITION>
     :File /test/defs.lisp
 
 DEFINITION>
-    :Name *SPECIAL1*
-    :Context (DEFVAR *SPECIAL1* 0)
+    :Name USER-PKG::*SPECIAL1*
+    :Context (DEFPARAMETER USER-PKG::*SPECIAL1* 0)
+    :Type :VARIABLE
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::*SPECIAL1*
+    :Context (DEFVAR USER-PKG::*SPECIAL1* 0)
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *SPECIAL2*
-    :Context (DEFVAR *SPECIAL2* "Special variable without initialization")
+    :Name USER-PKG::*SPECIAL2*
+    :Context (DEFVAR USER-PKG::*SPECIAL2*
+               "Special variable without initialization")
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *PARAM1*
-    :Context (DEFPARAMETER *PARAM1* 100 "Parameter must have initial value")
+    :Name USER-PKG::*PARAM1*
+    :Context (SETF (SYMBOL-VALUE 'USER-PKG::*PARAM1*) 101)
+    :Type :VARIABLE
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::*PARAM1*
+    :Context (DEFPARAMETER USER-PKG::*PARAM1*
+               100
+               "Parameter must have initial value")
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name +CONST1+
-    :Context (DEFCONSTANT +CONST1+ 1 "Constants use plus signs")
+    :Name USER-PKG::+CONST1+
+    :Context (DEFCONSTANT USER-PKG::+CONST1+ 1)
+    :Type :VARIABLE
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::+CONST1+
+    :Context (DEFCONSTANT USER-PKG::+CONST1+ 1 "Constants use plus signs")
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name VAR1
-    :Context (SETF (SYMBOL-VALUE 'VAR1) 42)
+    :Name USER-PKG::VAR1
+    :Context (SETF (SYMBOL-VALUE 'USER-PKG::VAR1) 42)
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *PARAM2*
-    :Context (DEFPARAMETER *PARAM2*
-               (DEFPARAMETER *PARAM3* 0)
+    :Name USER-PKG::*PARAM2*
+    :Context (DEFPARAMETER USER-PKG::*PARAM2*
+               (DEFPARAMETER USER-PKG::*PARAM3* 0)
                "Embedded definition")
     :Type :VARIABLE
     :File /test/defs.lisp
@@ -115,8 +87,8 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *PARAM3*
-    :Context (DEFPARAMETER *PARAM3* 0)
+    :Name USER-PKG::*PARAM3*
+    :Context (DEFPARAMETER USER-PKG::*PARAM3* 0)
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -197,46 +169,71 @@ DEFINITION>
     :File /test/defs.lisp
 
 DEFINITION>
-    :Name FN1
-    :Context (DEFUN FN1 (X) X)
+    :Name USER-PKG::FN1
+    :Context (DEFUN USER-PKG::FN1 (USER-PKG::X) (* 2 USER-PKG::X))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::FN1
+    :Context (DEFUN USER-PKG::FN1 (USER-PKG::X) USER-PKG::X)
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name (SETF FN1)
-    :Context (DEFUN (SETF FN1) (NEW-VAL X) (SETF (CAR X) NEW-VAL))
+    :Name (SETF USER-PKG::FN1)
+    :Context (DEFUN (SETF USER-PKG::FN1) (USER-PKG::NEW-VAL USER-PKG::X)
+               (SETF (CAR USER-PKG::X) USER-PKG::NEW-VAL))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name FN2A
-    :Context (DEFUN FN2A (X &OPTIONAL Y)
-               (DECLARE (TYPE NUMBER X))
-               (PROPER-LIST-P (LIST X Y)))
+    :Name USER-PKG::FN2A
+    :Context (DEFUN USER-PKG::FN2A (USER-PKG::X &OPTIONAL USER-PKG::Y)
+               (DECLARE (TYPE NUMBER USER-PKG::X))
+               (ALEXANDRIA:PROPER-LIST-P (LIST USER-PKG::X USER-PKG::Y)))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name FN2B
-    :Context (DEFUN FN2B (X &KEY Z) (DECLARE (TYPE NUMBER X)) (LIST X Z))
+    :Name USER-PKG::FN2B
+    :Context (DEFUN USER-PKG::FN2B (USER-PKG::X &KEY USER-PKG::Z)
+               (DECLARE (TYPE NUMBER USER-PKG::X))
+               (LIST USER-PKG::X USER-PKG::Z))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MY-COMB
-    :Context (DEFINE-METHOD-COMBINATION MY-COMB
-               (&KEY (ORDER :MOST-SPECIFIC-FIRST))
-               ((METHODS *))
+    :Name USER-PKG::MY-COMB
+    :Context (DEFINE-METHOD-COMBINATION USER-PKG::MY-COMB
+               (&KEY (USER-PKG::ORDER :MOST-SPECIFIC-FIRST))
+               ((USER-PKG::METHODS *))
                `(PROGN
-                 ,(CASE ORDER
+                 ,(CASE USER-PKG::ORDER
+                    (:MOST-SPECIFIC-FIRST `(CALL-METHOD ,#))
+                    (:MOST-SPECIFIC-LAST `(CALL-METHOD ,#)))))
+    :Type :METHOD-COMBINATION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::MY-COMB
+    :Context (DEFINE-METHOD-COMBINATION USER-PKG::MY-COMB
+               (&KEY (USER-PKG::ORDER :MOST-SPECIFIC-FIRST))
+               ((USER-PKG::METHODS *))
+               `(PROGN
+                 ,(CASE USER-PKG::ORDER
                     (:MOST-SPECIFIC-FIRST `(CALL-METHOD ,#))
                     (:MOST-SPECIFIC-LAST `(CALL-METHOD ,#)))))
     :Type :METHOD-COMBINATION
@@ -245,244 +242,479 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name FN3
-    :Context (SETF (SYMBOL-FUNCTION 'FN3) #'(LAMBDA (X) (* X 2)))
+    :Name USER-PKG::FN3
+    :Context (SETF (SYMBOL-FUNCTION 'USER-PKG::FN3)
+                     #'(LAMBDA (USER-PKG::X) (* USER-PKG::X 2)))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name WITH-TEST
-    :Context (DEFMACRO WITH-TEST ((VAR) &BODY BODY)
-               `(LET ((,VAR T))
-                  ,@BODY))
+    :Name USER-PKG::WITH-TEST
+    :Context (DEFMACRO USER-PKG::WITH-TEST
+                       ((USER-PKG::VAR) &BODY USER-PKG::BODY)
+               `(LET ((,USER-PKG::VAR T))
+                  ,@USER-PKG::BODY))
     :Type :MACRO
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name INCF-BY
-    :Context (DEFINE-MODIFY-MACRO INCF-BY (N) +)
+    :Name USER-PKG::INCF-BY
+    :Context (DEFINE-MODIFY-MACRO USER-PKG::INCF-BY (USER-PKG::N) +)
     :Type :MACRO
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MY-PLUS
-    :Context (DEFUN MY-PLUS (A B) (+ A B))
+    :Name USER-PKG::MY-PLUS
+    :Context (DEFUN USER-PKG::MY-PLUS (USER-PKG::A USER-PKG::B)
+               (+ USER-PKG::A USER-PKG::B))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MY-PLUS
-    :Context (DEFINE-COMPILER-MACRO MY-PLUS
-                 (&WHOLE FORM A B)
-               (IF (AND (NUMBERP A) (NUMBERP B))
-                   (+ A B)
-                   FORM))
+    :Name USER-PKG::MY-PLUS
+    :Context (DEFINE-COMPILER-MACRO USER-PKG::MY-PLUS
+                 (&WHOLE USER-PKG::FORM USER-PKG::A USER-PKG::B)
+               (IF (AND (NUMBERP USER-PKG::A) (NUMBERP USER-PKG::B))
+                   (+ USER-PKG::A USER-PKG::B)
+                   USER-PKG::FORM))
     :Type :MACRO
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MY-MACRO
-    :Context (SETF (MACRO-FUNCTION 'MY-MACRO)
-                     #'(LAMBDA (FORM ENV)
-                         (DECLARE (IGNORE ENV))
-                         `(LIST ,(SECOND FORM))))
+    :Name USER-PKG::MY-MACRO
+    :Context (SETF (MACRO-FUNCTION 'USER-PKG::MY-MACRO)
+                     #'(LAMBDA (USER-PKG::FORM USER-PKG::ENV)
+                         (DECLARE (IGNORE USER-PKG::ENV))
+                         `(LIST ,(SECOND USER-PKG::FORM))))
     :Type :MACRO
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POINT
-    :Context (DEFSTRUCT (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
-               (X 0 :TYPE NUMBER)
-               (Y 0 :TYPE NUMBER))
+    :Name USER-PKG::POINT
+    :Context (DEFSTRUCT USER-PKG::POINT
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::POINT
+    :Context (DEFSTRUCT
+                 (USER-PKG::POINT
+                  (:CONSTRUCTOR USER-PKG::MAKE-POINT
+                   (USER-PKG::X USER-PKG::Y)))
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POINT-X
-    :Context (DEFSTRUCT (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
-               (X 0 :TYPE NUMBER)
-               (Y 0 :TYPE NUMBER))
+    :Name USER-PKG::POINT-X
+    :Context (DEFSTRUCT USER-PKG::POINT
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::POINT-X
+    :Context (DEFSTRUCT
+                 (USER-PKG::POINT
+                  (:CONSTRUCTOR USER-PKG::MAKE-POINT
+                   (USER-PKG::X USER-PKG::Y)))
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POINT-Y
-    :Context (DEFSTRUCT (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
-               (X 0 :TYPE NUMBER)
-               (Y 0 :TYPE NUMBER))
+    :Name USER-PKG::POINT-Y
+    :Context (DEFSTRUCT USER-PKG::POINT
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::POINT-Y
+    :Context (DEFSTRUCT
+                 (USER-PKG::POINT
+                  (:CONSTRUCTOR USER-PKG::MAKE-POINT
+                   (USER-PKG::X USER-PKG::Y)))
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MAKE-POINT
-    :Context (DEFSTRUCT (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
-               (X 0 :TYPE NUMBER)
-               (Y 0 :TYPE NUMBER))
+    :Name USER-PKG::MAKE-POINT
+    :Context (DEFSTRUCT USER-PKG::POINT
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::MAKE-POINT
+    :Context (DEFSTRUCT
+                 (USER-PKG::POINT
+                  (:CONSTRUCTOR USER-PKG::MAKE-POINT
+                   (USER-PKG::X USER-PKG::Y)))
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name COPY-POINT
-    :Context (DEFSTRUCT (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
-               (X 0 :TYPE NUMBER)
-               (Y 0 :TYPE NUMBER))
+    :Name USER-PKG::COPY-POINT
+    :Context (DEFSTRUCT USER-PKG::POINT
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::COPY-POINT
+    :Context (DEFSTRUCT
+                 (USER-PKG::POINT
+                  (:CONSTRUCTOR USER-PKG::MAKE-POINT
+                   (USER-PKG::X USER-PKG::Y)))
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POINT-P
-    :Context (DEFSTRUCT (POINT (:CONSTRUCTOR MAKE-POINT (X Y)))
-               (X 0 :TYPE NUMBER)
-               (Y 0 :TYPE NUMBER))
+    :Name USER-PKG::POINT-P
+    :Context (DEFSTRUCT USER-PKG::POINT
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::POINT-P
+    :Context (DEFSTRUCT
+                 (USER-PKG::POINT
+                  (:CONSTRUCTOR USER-PKG::MAKE-POINT
+                   (USER-PKG::X USER-PKG::Y)))
+               (USER-PKG::X 0 :TYPE NUMBER)
+               (USER-PKG::Y 0 :TYPE NUMBER))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name NAMED-POINT
-    :Context (DEFCLASS NAMED-POINT NIL
-                       ((NAME :INITARG :NAME :ACCESSOR POINT-NAME)
-                        (U :INITARG :U :ACCESSOR POINT-U)
-                        (V :INITARG :V :ACCESSOR POINT-V)))
+    :Name USER-PKG::NAMED-POINT
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::NAMED-POINT
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POINT-NAME
-    :Context (DEFCLASS NAMED-POINT NIL
-                       ((NAME :INITARG :NAME :ACCESSOR POINT-NAME)
-                        (U :INITARG :U :ACCESSOR POINT-U)
-                        (V :INITARG :V :ACCESSOR POINT-V)))
+    :Name USER-PKG::POINT-NAME
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::NAMED-POINT)
+
+DEFINITION>
+    :Name USER-PKG::POINT-NAME
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (NAMED-POINT)
+    :Specializers (USER-PKG::NAMED-POINT)
 
 DEFINITION>
-    :Name (SETF POINT-NAME)
-    :Context (DEFCLASS NAMED-POINT NIL
-                       ((NAME :INITARG :NAME :ACCESSOR POINT-NAME)
-                        (U :INITARG :U :ACCESSOR POINT-U)
-                        (V :INITARG :V :ACCESSOR POINT-V)))
+    :Name (SETF USER-PKG::POINT-NAME)
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::NAMED-POINT)
+
+DEFINITION>
+    :Name (SETF USER-PKG::POINT-NAME)
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (NAMED-POINT)
+    :Specializers (USER-PKG::NAMED-POINT)
 
 DEFINITION>
-    :Name POINT-U
-    :Context (DEFCLASS NAMED-POINT NIL
-                       ((NAME :INITARG :NAME :ACCESSOR POINT-NAME)
-                        (U :INITARG :U :ACCESSOR POINT-U)
-                        (V :INITARG :V :ACCESSOR POINT-V)))
+    :Name USER-PKG::POINT-U
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::NAMED-POINT)
+
+DEFINITION>
+    :Name USER-PKG::POINT-U
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (NAMED-POINT)
+    :Specializers (USER-PKG::NAMED-POINT)
 
 DEFINITION>
-    :Name (SETF POINT-U)
-    :Context (DEFCLASS NAMED-POINT NIL
-                       ((NAME :INITARG :NAME :ACCESSOR POINT-NAME)
-                        (U :INITARG :U :ACCESSOR POINT-U)
-                        (V :INITARG :V :ACCESSOR POINT-V)))
+    :Name (SETF USER-PKG::POINT-U)
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::NAMED-POINT)
+
+DEFINITION>
+    :Name (SETF USER-PKG::POINT-U)
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (NAMED-POINT)
+    :Specializers (USER-PKG::NAMED-POINT)
 
 DEFINITION>
-    :Name POINT-V
-    :Context (DEFCLASS NAMED-POINT NIL
-                       ((NAME :INITARG :NAME :ACCESSOR POINT-NAME)
-                        (U :INITARG :U :ACCESSOR POINT-U)
-                        (V :INITARG :V :ACCESSOR POINT-V)))
+    :Name USER-PKG::POINT-V
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::NAMED-POINT)
+
+DEFINITION>
+    :Name USER-PKG::POINT-V
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (NAMED-POINT)
+    :Specializers (USER-PKG::NAMED-POINT)
 
 DEFINITION>
-    :Name (SETF POINT-V)
-    :Context (DEFCLASS NAMED-POINT NIL
-                       ((NAME :INITARG :NAME :ACCESSOR POINT-NAME)
-                        (U :INITARG :U :ACCESSOR POINT-U)
-                        (V :INITARG :V :ACCESSOR POINT-V)))
+    :Name (SETF USER-PKG::POINT-V)
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::NAMED-POINT)
+
+DEFINITION>
+    :Name (SETF USER-PKG::POINT-V)
+    :Context (DEFCLASS USER-PKG::NAMED-POINT NIL
+                       ((USER-PKG::NAME :INITARG :NAME :ACCESSOR
+                         USER-PKG::POINT-NAME)
+                        (USER-PKG::U :INITARG :U :ACCESSOR USER-PKG::POINT-U)
+                        (USER-PKG::V :INITARG :V :ACCESSOR USER-PKG::POINT-V)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (NAMED-POINT)
+    :Specializers (USER-PKG::NAMED-POINT)
 
 DEFINITION>
-    :Name INVALID-POINT
-    :Context (DEFINE-CONDITION INVALID-POINT
+    :Name USER-PKG::INVALID-POINT
+    :Context (DEFINE-CONDITION USER-PKG::INVALID-POINT
                  (ERROR)
-                 ((REASON :INITARG :REASON :READER POINT-ERROR-REASON)
-                  (VALUE :INITARG :VALUE :READER POINT-ERROR-VALUE)))
+                 ((USER-PKG::REASON :INITARG :REASON :READER
+                   USER-PKG::POINT-ERROR-REASON)
+                  (USER-PKG::VALUE :INITARG :VALUE :READER
+                   USER-PKG::POINT-ERROR-VALUE)))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::INVALID-POINT
+    :Context (DEFINE-CONDITION USER-PKG::INVALID-POINT
+                 (ERROR)
+                 ((USER-PKG::REASON :INITARG :REASON :READER
+                   USER-PKG::POINT-ERROR-REASON)
+                  (USER-PKG::VALUE :INITARG :VALUE :READER
+                   USER-PKG::POINT-ERROR-VALUE)))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POINT-ERROR-REASON
-    :Context (DEFINE-CONDITION INVALID-POINT
+    :Name USER-PKG::POINT-ERROR-REASON
+    :Context (DEFINE-CONDITION USER-PKG::INVALID-POINT
                  (ERROR)
-                 ((REASON :INITARG :REASON :READER POINT-ERROR-REASON)
-                  (VALUE :INITARG :VALUE :READER POINT-ERROR-VALUE)))
+                 ((USER-PKG::REASON :INITARG :REASON :READER
+                   USER-PKG::POINT-ERROR-REASON)
+                  (USER-PKG::VALUE :INITARG :VALUE :READER
+                   USER-PKG::POINT-ERROR-VALUE)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::INVALID-POINT)
+
+DEFINITION>
+    :Name USER-PKG::POINT-ERROR-REASON
+    :Context (DEFINE-CONDITION USER-PKG::INVALID-POINT
+                 (ERROR)
+                 ((USER-PKG::REASON :INITARG :REASON :READER
+                   USER-PKG::POINT-ERROR-REASON)
+                  (USER-PKG::VALUE :INITARG :VALUE :READER
+                   USER-PKG::POINT-ERROR-VALUE)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (INVALID-POINT)
+    :Specializers (USER-PKG::INVALID-POINT)
 
 DEFINITION>
-    :Name POINT-ERROR-VALUE
-    :Context (DEFINE-CONDITION INVALID-POINT
+    :Name USER-PKG::POINT-ERROR-VALUE
+    :Context (DEFINE-CONDITION USER-PKG::INVALID-POINT
                  (ERROR)
-                 ((REASON :INITARG :REASON :READER POINT-ERROR-REASON)
-                  (VALUE :INITARG :VALUE :READER POINT-ERROR-VALUE)))
+                 ((USER-PKG::REASON :INITARG :REASON :READER
+                   USER-PKG::POINT-ERROR-REASON)
+                  (USER-PKG::VALUE :INITARG :VALUE :READER
+                   USER-PKG::POINT-ERROR-VALUE)))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (USER-PKG::INVALID-POINT)
+
+DEFINITION>
+    :Name USER-PKG::POINT-ERROR-VALUE
+    :Context (DEFINE-CONDITION USER-PKG::INVALID-POINT
+                 (ERROR)
+                 ((USER-PKG::REASON :INITARG :REASON :READER
+                   USER-PKG::POINT-ERROR-REASON)
+                  (USER-PKG::VALUE :INITARG :VALUE :READER
+                   USER-PKG::POINT-ERROR-VALUE)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (INVALID-POINT)
+    :Specializers (USER-PKG::INVALID-POINT)
 
 DEFINITION>
-    :Name GF1
-    :Context (DEFGENERIC GF1
-                 (X)
+    :Name USER-PKG::GF1
+    :Context (DEFGENERIC USER-PKG::GF1
+                 (USER-PKG::Y)
+               (:DOCUMENTATION "Basic generic function"))
+    :Type :GENERIC-FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::GF1
+    :Context (DEFGENERIC USER-PKG::GF1
+                 (USER-PKG::X)
                (:DOCUMENTATION "Basic generic function"))
     :Type :GENERIC-FUNCTION
     :File /test/defs.lisp
@@ -490,9 +722,9 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name GF2
-    :Context (DEFGENERIC GF2
-                 (X Y)
+    :Name USER-PKG::GF2
+    :Context (DEFGENERIC USER-PKG::GF2
+                 (USER-PKG::X USER-PKG::Y)
                (:DOCUMENTATION "Generic function with multiple arguments")
                (:METHOD-COMBINATION STANDARD)
                (:GENERIC-FUNCTION-CLASS STANDARD-GENERIC-FUNCTION))
@@ -502,9 +734,9 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name (SETF GF3)
-    :Context (DEFGENERIC (SETF GF3)
-                 (NEW-VALUE OBJ)
+    :Name (SETF USER-PKG::GF3)
+    :Context (DEFGENERIC (SETF USER-PKG::GF3)
+                 (USER-PKG::NEW-VALUE USER-PKG::OBJ)
                (:DOCUMENTATION "Setf generic function"))
     :Type :GENERIC-FUNCTION
     :File /test/defs.lisp
@@ -512,8 +744,8 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name GF1
-    :Context (DEFMETHOD GF1 ((X NUMBER)) (* X 2))
+    :Name USER-PKG::GF1
+    :Context (DEFMETHOD USER-PKG::GF1 ((USER-PKG::X NUMBER)) (* USER-PKG::X 2))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -521,8 +753,9 @@ DEFINITION>
     :Specializers (NUMBER)
 
 DEFINITION>
-    :Name GF1
-    :Context (DEFMETHOD GF1 ((X STRING)) (CONCATENATE 'STRING X X))
+    :Name USER-PKG::GF1
+    :Context (DEFMETHOD USER-PKG::GF1 ((USER-PKG::X STRING))
+               (CONCATENATE 'STRING USER-PKG::X USER-PKG::X))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -530,8 +763,9 @@ DEFINITION>
     :Specializers (STRING)
 
 DEFINITION>
-    :Name GF1
-    :Context (DEFMETHOD GF1 ((X CONS)) (LIST 'CONS-PROCESSED X))
+    :Name USER-PKG::GF1
+    :Context (DEFMETHOD USER-PKG::GF1 ((USER-PKG::X CONS))
+               (LIST 'USER-PKG::CONS-PROCESSED USER-PKG::X))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -539,18 +773,31 @@ DEFINITION>
     :Specializers (CONS)
 
 DEFINITION>
-    :Name GF1
-    :Context (DEFMETHOD GF1 ((X NAMED-POINT))
-               (LIST 'NAMED-POINT (POINT-NAME X) (POINT-U X) (POINT-V X)))
+    :Name USER-PKG::GF1
+    :Context (DEFMETHOD USER-PKG::GF1 ((USER-PKG::X USER-PKG::NAMED-POINT))
+               (LIST 'USER-PKG::NAMED-POINT (USER-PKG::POINT-NAME USER-PKG::X)
+                     (USER-PKG::POINT-U USER-PKG::X)
+                     (USER-PKG::POINT-V USER-PKG::X)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (NAMED-POINT)
+    :Specializers (USER-PKG::NAMED-POINT)
 
 DEFINITION>
-    :Name GF2
-    :Context (DEFMETHOD GF2 ((X NUMBER) Y) (LIST X Y))
+    :Name USER-PKG::GF2
+    :Context (DEFMETHOD USER-PKG::GF2 ((USER-PKG::A NUMBER) USER-PKG::B)
+               (LIST USER-PKG::A USER-PKG::B))
+    :Type :METHOD
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+    :Specializers (NUMBER T)
+
+DEFINITION>
+    :Name USER-PKG::GF2
+    :Context (DEFMETHOD USER-PKG::GF2 ((USER-PKG::X NUMBER) USER-PKG::Y)
+               (LIST USER-PKG::X USER-PKG::Y))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -558,8 +805,10 @@ DEFINITION>
     :Specializers (NUMBER T)
 
 DEFINITION>
-    :Name GF2
-    :Context (DEFMETHOD GF2 :BEFORE ((X NUMBER) Y) (CHECK-TYPE Y NUMBER))
+    :Name USER-PKG::GF2
+    :Context (DEFMETHOD USER-PKG::GF2 :BEFORE
+                        ((USER-PKG::X NUMBER) USER-PKG::Y)
+               (CHECK-TYPE USER-PKG::Y NUMBER))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -568,10 +817,11 @@ DEFINITION>
     :Specializers (NUMBER T)
 
 DEFINITION>
-    :Name (SETF GF3)
-    :Context (DEFMETHOD (SETF GF3) (NEW-VALUE (OBJ CONS))
-               (SETF (CAR OBJ) NEW-VALUE)
-               NEW-VALUE)
+    :Name (SETF USER-PKG::GF3)
+    :Context (DEFMETHOD (SETF USER-PKG::GF3)
+                        (USER-PKG::NEW-VALUE (USER-PKG::OBJ CONS))
+               (SETF (CAR USER-PKG::OBJ) USER-PKG::NEW-VALUE)
+               USER-PKG::NEW-VALUE)
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -579,9 +829,10 @@ DEFINITION>
     :Specializers (T CONS)
 
 DEFINITION>
-    :Name (SETF GF3)
-    :Context (DEFMETHOD (SETF GF3) :AROUND (NEW-VALUE (OBJ CONS))
-               (IF (NUMBERP NEW-VALUE)
+    :Name (SETF USER-PKG::GF3)
+    :Context (DEFMETHOD (SETF USER-PKG::GF3) :AROUND
+                        (USER-PKG::NEW-VALUE (USER-PKG::OBJ CONS))
+               (IF (NUMBERP USER-PKG::NEW-VALUE)
                    (CALL-NEXT-METHOD)
                    (ERROR "Invalid value")))
     :Type :METHOD
@@ -592,20 +843,22 @@ DEFINITION>
     :Specializers (T CONS)
 
 DEFINITION>
-    :Name PROCESS-VAR
-    :Context (DEFMETHOD PROCESS-VAR
-                        ((VALUE (EQL '*SPECIAL1*)) &OPTIONAL (LIMIT *PARAM1*))
+    :Name USER-PKG::PROCESS-VAR
+    :Context (DEFMETHOD USER-PKG::PROCESS-VAR
+                        ((USER-PKG::VALUE (EQL 'USER-PKG::*SPECIAL1*))
+                         &OPTIONAL (USER-PKG::LIMIT USER-PKG::*PARAM1*))
                "Method specialized to handle specifically the *special1* value"
-               (LIST VALUE LIMIT))
+               (LIST USER-PKG::VALUE USER-PKG::LIMIT))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers ((EQL '*SPECIAL1*))
+    :Specializers ((EQL 'USER-PKG::*SPECIAL1*))
 
 DEFINITION>
-    :Name TEST-METHOD
-    :Context (DEFMETHOD TEST-METHOD ((X STRING)) X)
+    :Name USER-PKG::TEST-METHOD
+    :Context (DEFMETHOD USER-PKG::TEST-METHOD ((USER-PKG::X STRING))
+               USER-PKG::X)
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -613,141 +866,383 @@ DEFINITION>
     :Specializers (STRING)
 
 DEFINITION>
-    :Name TODAY
-    :Context (DEFINE-SYMBOL-MACRO TODAY (GET-UNIVERSAL-TIME))
+    :Name USER-PKG::TODAY
+    :Context (DEFINE-SYMBOL-MACRO USER-PKG::TODAY (GET-UNIVERSAL-TIME))
+    :Type :SYMBOL-MACRO
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::TODAY
+    :Context (DEFINE-SYMBOL-MACRO USER-PKG::TODAY (GET-UNIVERSAL-TIME))
     :Type :SYMBOL-MACRO
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name PI/2
-    :Context (DEFINE-SYMBOL-MACRO PI/2 (/ PI 2))
+    :Name USER-PKG::PI/2
+    :Context (DEFINE-SYMBOL-MACRO USER-PKG::PI/2 (/ PI 2))
     :Type :SYMBOL-MACRO
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name EMPTY-LIST
-    :Context (DEFINE-SYMBOL-MACRO EMPTY-LIST NIL)
+    :Name USER-PKG::EMPTY-LIST
+    :Context (DEFINE-SYMBOL-MACRO USER-PKG::EMPTY-LIST NIL)
     :Type :SYMBOL-MACRO
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POS-INTEGER
-    :Context (DEFTYPE POS-INTEGER () '(INTEGER 1 *))
+    :Name USER-PKG::POS-INTEGER
+    :Context (DEFTYPE USER-PKG::POS-INTEGER () '(FIXNUM 1 *))
+    :Type :DEFTYPE
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::POS-INTEGER
+    :Context (DEFTYPE USER-PKG::POS-INTEGER () '(INTEGER 1 *))
     :Type :DEFTYPE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name SIZED-VECTOR
-    :Context (DEFTYPE SIZED-VECTOR (ELEMENT-TYPE SIZE)
-               `(VECTOR ,ELEMENT-TYPE ,SIZE))
+    :Name USER-PKG::SIZED-VECTOR
+    :Context (DEFTYPE USER-PKG::SIZED-VECTOR
+                      (USER-PKG::ELEMENT-TYPE USER-PKG::SIZE)
+               `(VECTOR ,USER-PKG::ELEMENT-TYPE ,USER-PKG::SIZE))
     :Type :DEFTYPE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name STRING-OR-SYMBOL
-    :Context (DEFTYPE STRING-OR-SYMBOL () '(OR STRING SYMBOL))
+    :Name USER-PKG::STRING-OR-SYMBOL
+    :Context (DEFTYPE USER-PKG::STRING-OR-SYMBOL () '(OR STRING SYMBOL))
     :Type :DEFTYPE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *EMBEDDED-COUNT*
-    :Context (DEFVAR *EMBEDDED-COUNT* 0 "Counter for embedded functions")
+    :Name USER-PKG::*EMBEDDED-COUNT*
+    :Context (DEFVAR USER-PKG::*EMBEDDED-COUNT*
+               0
+               "Counter for embedded functions")
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *LAST-EMBEDDED-POINT*
-    :Context (DEFVAR *LAST-EMBEDDED-POINT* NIL "Storage for last point object")
+    :Name USER-PKG::*LAST-EMBEDDED-POINT*
+    :Context (DEFVAR USER-PKG::*LAST-EMBEDDED-POINT*
+               NIL
+               "Storage for last point object")
     :Type :VARIABLE
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name SETUP-EMBEDDED-FUNCTIONS
-    :Context (DEFUN SETUP-EMBEDDED-FUNCTIONS ()
-               (DEFUN RESET-EMBEDDED-COUNT () (SETF *EMBEDDED-COUNT* 0))
-               (DEFUN GET-EMBEDDED-COUNT () *EMBEDDED-COUNT*)
-               (VALUES #'RESET-EMBEDDED-COUNT #'GET-EMBEDDED-COUNT))
+    :Name USER-PKG::SETUP-EMBEDDED-FUNCTIONS
+    :Context (DEFUN USER-PKG::SETUP-EMBEDDED-FUNCTIONS ()
+               (DEFUN USER-PKG::RESET-EMBEDDED-COUNT ()
+                 (SETF USER-PKG::*EMBEDDED-COUNT* 0))
+               (DEFUN USER-PKG::GET-EMBEDDED-COUNT ()
+                 USER-PKG::*EMBEDDED-COUNT*)
+               (VALUES #'USER-PKG::RESET-EMBEDDED-COUNT
+                       #'USER-PKG::GET-EMBEDDED-COUNT))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name RESET-EMBEDDED-COUNT
-    :Context (DEFUN RESET-EMBEDDED-COUNT () (SETF *EMBEDDED-COUNT* 0))
+    :Name USER-PKG::RESET-EMBEDDED-COUNT
+    :Context (DEFUN USER-PKG::RESET-EMBEDDED-COUNT ()
+               (SETF USER-PKG::*EMBEDDED-COUNT* 0))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name GET-EMBEDDED-COUNT
-    :Context (DEFUN GET-EMBEDDED-COUNT () *EMBEDDED-COUNT*)
+    :Name USER-PKG::GET-EMBEDDED-COUNT
+    :Context (DEFUN USER-PKG::GET-EMBEDDED-COUNT () USER-PKG::*EMBEDDED-COUNT*)
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name MONITORED-POINT
-    :Context (DEFCLASS MONITORED-POINT (NAMED-POINT)
-                       ((TIMESTAMP :INITFORM (GET-UNIVERSAL-TIME) :READER
-                         POINT-TIMESTAMP)))
+    :Name USER-PKG::MONITORED-POINT
+    :Context (DEFCLASS USER-PKG::MONITORED-POINT (USER-PKG::NAMED-POINT)
+                       ((USER-PKG::TIMESTAMP :INITFORM (GET-UNIVERSAL-TIME)
+                         :READER USER-PKG::POINT-TIMESTAMP)))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
 
 DEFINITION>
-    :Name POINT-TIMESTAMP
-    :Context (DEFCLASS MONITORED-POINT (NAMED-POINT)
-                       ((TIMESTAMP :INITFORM (GET-UNIVERSAL-TIME) :READER
-                         POINT-TIMESTAMP)))
+    :Name USER-PKG::POINT-TIMESTAMP
+    :Context (DEFCLASS USER-PKG::MONITORED-POINT (USER-PKG::NAMED-POINT)
+                       ((USER-PKG::TIMESTAMP :INITFORM (GET-UNIVERSAL-TIME)
+                         :READER USER-PKG::POINT-TIMESTAMP)))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
-    :Specializers (MONITORED-POINT)
+    :Specializers (USER-PKG::MONITORED-POINT)
 
 DEFINITION>
     :Name SHARED-INITIALIZE
     :Context (DEFMETHOD SHARED-INITIALIZE :AFTER
-                        ((POINT MONITORED-POINT) SLOT-NAMES &KEY)
-               (SETF *LAST-EMBEDDED-POINT* POINT)
-               (UNLESS (FBOUNDP 'GET-LAST-POINT-TIMESTAMP)
-                 (DEFUN GET-LAST-POINT-TIMESTAMP ()
-                   (WHEN *LAST-EMBEDDED-POINT*
-                     (POINT-TIMESTAMP *LAST-EMBEDDED-POINT*)))))
+                        ((USER-PKG::POINT USER-PKG::MONITORED-POINT)
+                         USER-PKG::SLOT-NAMES
+                         &KEY)
+               (SETF USER-PKG::*LAST-EMBEDDED-POINT* USER-PKG::POINT)
+               (UNLESS (FBOUNDP 'USER-PKG::GET-LAST-POINT-TIMESTAMP)
+                 (DEFUN USER-PKG::GET-LAST-POINT-TIMESTAMP ()
+                   (WHEN USER-PKG::*LAST-EMBEDDED-POINT*
+                     (USER-PKG::POINT-TIMESTAMP
+                      USER-PKG::*LAST-EMBEDDED-POINT*)))))
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INHERITED
     :Qualifiers (:AFTER)
-    :Specializers (MONITORED-POINT T)
+    :Specializers (USER-PKG::MONITORED-POINT T)
 
 DEFINITION>
-    :Name GET-LAST-POINT-TIMESTAMP
-    :Context (DEFUN GET-LAST-POINT-TIMESTAMP ()
-               (WHEN *LAST-EMBEDDED-POINT*
-                 (POINT-TIMESTAMP *LAST-EMBEDDED-POINT*)))
+    :Name USER-PKG::GET-LAST-POINT-TIMESTAMP
+    :Context (DEFUN USER-PKG::GET-LAST-POINT-TIMESTAMP ()
+               (WHEN USER-PKG::*LAST-EMBEDDED-POINT*
+                 (USER-PKG::POINT-TIMESTAMP USER-PKG::*LAST-EMBEDDED-POINT*)))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
     :Status :INTERNAL
+
+DEFINITION>
+    :Name #:INTERNAL-TEST-PKG
+    :Context (DEFPACKAGE #:INTERNAL-TEST-PKG
+               (:IMPORT-FROM :CL #:DEFVAR #:DEFUN #:+ #:*)
+               (:EXPORT #:PUBLIC-FUNCTION
+                        #:*PUBLIC-VARIABLE*
+                        #:*SHADOWED-VAR*
+                        #:SHADOWED-FUNC)
+               (:DOCUMENTATION "Package with both internal and exported symbols for testing"))
+    :Type :PACKAGE
+    :File /test/defs2.lisp
+
+DEFINITION>
+    :Name #:SHADOWING-TEST-PKG
+    :Context (DEFPACKAGE #:SHADOWING-TEST-PKG
+               (:USE :CL #:INTERNAL-TEST-PKG)
+               (:EXPORT #:TEST-SHADOWING)
+               (:DOCUMENTATION "Package for testing shadowing of inherited symbols"))
+    :Type :PACKAGE
+    :File /test/defs2.lisp
+
+DEFINITION>
+    :Name *PUBLIC-VARIABLE*
+    :Context (DEFVAR *PUBLIC-VARIABLE* 42 "This is exported")
+    :Type :VARIABLE
+    :File /test/defs2.lisp
+    :Package #<PACKAGE "INTERNAL-TEST-PKG">
+    :Status :EXTERNAL
+
+DEFINITION>
+    :Name INTERNAL-TEST-PKG::*INTERNAL-VAR*
+    :Context (DEFVAR INTERNAL-TEST-PKG::*INTERNAL-VAR* 100 "This is internal")
+    :Type :VARIABLE
+    :File /test/defs2.lisp
+    :Package #<PACKAGE "INTERNAL-TEST-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name PUBLIC-FUNCTION
+    :Context (DEFUN PUBLIC-FUNCTION (INTERNAL-TEST-PKG::X)
+               (+ INTERNAL-TEST-PKG::X 1))
+    :Type :FUNCTION
+    :File /test/defs2.lisp
+    :Package #<PACKAGE "INTERNAL-TEST-PKG">
+    :Status :EXTERNAL
+
+DEFINITION>
+    :Name INTERNAL-TEST-PKG::INTERNAL-FUNCTION
+    :Context (DEFUN INTERNAL-TEST-PKG::INTERNAL-FUNCTION (INTERNAL-TEST-PKG::X)
+               (* INTERNAL-TEST-PKG::X 2))
+    :Type :FUNCTION
+    :File /test/defs2.lisp
+    :Package #<PACKAGE "INTERNAL-TEST-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *SHADOWED-VAR*
+    :Context (DEFVAR *SHADOWED-VAR* 50 "Variable that will be shadowed")
+    :Type :VARIABLE
+    :File /test/defs2.lisp
+    :Package #<PACKAGE "INTERNAL-TEST-PKG">
+    :Status :EXTERNAL
+
+DEFINITION>
+    :Name SHADOWED-FUNC
+    :Context (DEFUN SHADOWED-FUNC (INTERNAL-TEST-PKG::X)
+               (+ INTERNAL-TEST-PKG::X 10)
+               "Function that will be shadowed")
+    :Type :FUNCTION
+    :File /test/defs2.lisp
+    :Package #<PACKAGE "INTERNAL-TEST-PKG">
+    :Status :EXTERNAL
+
+DEFINITION>
+    :Name USER-PKG::*PARAM4*
+    :Context (DEFPARAMETER USER-PKG::*PARAM4* (LIST USER-PKG::*PARAM3*))
+    :Type :VARIABLE
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::FUN1
+    :Context (DEFUN USER-PKG::FUN1 (&OPTIONAL (USER-PKG::X USER-PKG::*PARAM1*))
+               (PRINT USER-PKG::X)
+               USER-PKG::*PARAM3*)
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::TEST-VARS
+    :Context (DEFUN USER-PKG::TEST-VARS ()
+               "Function that uses *SPECIAL1* and *PARAM1* variables."
+               (LIST USER-PKG::*SPECIAL1* USER-PKG::*PARAM1*))
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::PACKAGE-TEST
+    :Context (DEFUN USER-PKG::PACKAGE-TEST
+                    (&OPTIONAL (USER-PKG::PKG :TEST3-PKG))
+               (FORMAT NIL "~A has ~D symbols~%" USER-PKG::PKG
+                       (LOOP USER-PKG::FOR USER-PKG::SYM USER-PKG::BEING THE USER-PKG::SYMBOLS USER-PKG::OF (FIND-PACKAGE
+                                                                                                             USER-PKG::PKG)
+                             COUNT T)))
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::TEST-POINT
+    :Context (DEFCLASS USER-PKG::TEST-POINT (USER-PKG::MONITORED-POINT) NIL)
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::TEST-SIZED-VECTOR
+    :Context (DEFUN USER-PKG::TEST-SIZED-VECTOR (USER-PKG::VEC)
+               (DECLARE (TYPE (USER-PKG::SIZED-VECTOR T *) USER-PKG::VEC))
+               (ARRAY-DIMENSIONS USER-PKG::VEC))
+    :Type :FUNCTION
+    :File /test/refs.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::MY-VAR
+    :Context (DEFVAR USER-PKG::MY-VAR)
+    :Type :VARIABLE
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::MY-PARAM
+    :Context (DEFPARAMETER USER-PKG::MY-PARAM 0)
+    :Type :VARIABLE
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::MY-CONST
+    :Context (DEFCONSTANT USER-PKG::MY-CONST 0)
+    :Type :VARIABLE
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::TEST-PUBLIC-ACCESS
+    :Context (DEFUN USER-PKG::TEST-PUBLIC-ACCESS ()
+               (LET ((USER-PKG::VAL *PUBLIC-VARIABLE*))
+                 (PUBLIC-FUNCTION USER-PKG::VAL)))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::TEST-INTERNAL-ACCESS
+    :Context (DEFUN USER-PKG::TEST-INTERNAL-ACCESS ()
+               (LET ((USER-PKG::VAL INTERNAL-TEST-PKG::*INTERNAL-VAR*))
+                 (INTERNAL-TEST-PKG::INTERNAL-FUNCTION USER-PKG::VAL)))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::TEST-INTERNAL-REFERENCE
+    :Context (DEFUN USER-PKG::TEST-INTERNAL-REFERENCE (USER-PKG::X)
+               "This function references internal symbols of another package"
+               (+ USER-PKG::X (INTERNAL-TEST-PKG::INTERNAL-FUNCTION 10)))
+    :Type :FUNCTION
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name USER-PKG::WITH-INTERNAL-TEST
+    :Context (DEFMACRO USER-PKG::WITH-INTERNAL-TEST (&BODY USER-PKG::BODY)
+               `(LET ((USER-PKG::VALUE INTERNAL-TEST-PKG::*INTERNAL-VAR*))
+                  ,@USER-PKG::BODY))
+    :Type :MACRO
+    :File /test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+    :Status :INTERNAL
+
+DEFINITION>
+    :Name *SHADOWED-VAR*
+    :Context (DEFVAR *SHADOWED-VAR* 100 "Shadows the inherited variable")
+    :Type :VARIABLE
+    :File /test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+    :Status :INHERITED
+
+DEFINITION>
+    :Name SHADOWED-FUNC
+    :Context (DEFUN SHADOWED-FUNC (X Y)
+               (* X Y)
+               "Shadows the inherited function")
+    :Type :FUNCTION
+    :File /test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+    :Status :INHERITED
 
