@@ -169,6 +169,27 @@ DEFINITION>
     :File /test/defs.lisp
 
 DEFINITION>
+    :Name #:RUNTIME-PKG-A
+    :Context (DEFPACKAGE #:RUNTIME-PKG-A
+               (:USE :CL))
+    :Type :PACKAGE
+    :File /test/defs.lisp
+
+DEFINITION>
+    :Name #:RUNTIME-PKG-B
+    :Context (DEFPACKAGE #:RUNTIME-PKG-B
+               (:USE :CL))
+    :Type :PACKAGE
+    :File /test/defs.lisp
+
+DEFINITION>
+    :Name #:RUNTIME-PKG-C
+    :Context (DEFPACKAGE #:RUNTIME-PKG-C
+               (:USE :CL))
+    :Type :PACKAGE
+    :File /test/defs.lisp
+
+DEFINITION>
     :Name USER-PKG::FN1
     :Context (DEFUN USER-PKG::FN1 (USER-PKG::X) (* 2 USER-PKG::X))
     :Type :FUNCTION
@@ -1054,8 +1075,8 @@ DEFINITION>
     :File /test/defs2.lisp
 
 DEFINITION>
-    :Name *PUBLIC-VARIABLE*
-    :Context (DEFVAR *PUBLIC-VARIABLE* 42 "This is exported")
+    :Name INTERNAL-TEST-PKG:*PUBLIC-VARIABLE*
+    :Context (DEFVAR INTERNAL-TEST-PKG:*PUBLIC-VARIABLE* 42 "This is exported")
     :Type :VARIABLE
     :File /test/defs2.lisp
     :Package #<PACKAGE "INTERNAL-TEST-PKG">
@@ -1070,8 +1091,8 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name PUBLIC-FUNCTION
-    :Context (DEFUN PUBLIC-FUNCTION (INTERNAL-TEST-PKG::X)
+    :Name INTERNAL-TEST-PKG:PUBLIC-FUNCTION
+    :Context (DEFUN INTERNAL-TEST-PKG:PUBLIC-FUNCTION (INTERNAL-TEST-PKG::X)
                (+ INTERNAL-TEST-PKG::X 1))
     :Type :FUNCTION
     :File /test/defs2.lisp
@@ -1088,16 +1109,18 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *SHADOWED-VAR*
-    :Context (DEFVAR *SHADOWED-VAR* 50 "Variable that will be shadowed")
+    :Name INTERNAL-TEST-PKG:*SHADOWED-VAR*
+    :Context (DEFVAR INTERNAL-TEST-PKG:*SHADOWED-VAR*
+               50
+               "Variable that will be shadowed")
     :Type :VARIABLE
     :File /test/defs2.lisp
     :Package #<PACKAGE "INTERNAL-TEST-PKG">
     :Status :EXTERNAL
 
 DEFINITION>
-    :Name SHADOWED-FUNC
-    :Context (DEFUN SHADOWED-FUNC (INTERNAL-TEST-PKG::X)
+    :Name INTERNAL-TEST-PKG:SHADOWED-FUNC
+    :Context (DEFUN INTERNAL-TEST-PKG:SHADOWED-FUNC (INTERNAL-TEST-PKG::X)
                (+ INTERNAL-TEST-PKG::X 10)
                "Function that will be shadowed")
     :Type :FUNCTION
@@ -1191,8 +1214,8 @@ DEFINITION>
 DEFINITION>
     :Name USER-PKG::TEST-PUBLIC-ACCESS
     :Context (DEFUN USER-PKG::TEST-PUBLIC-ACCESS ()
-               (LET ((USER-PKG::VAL *PUBLIC-VARIABLE*))
-                 (PUBLIC-FUNCTION USER-PKG::VAL)))
+               (LET ((USER-PKG::VAL INTERNAL-TEST-PKG:*PUBLIC-VARIABLE*))
+                 (INTERNAL-TEST-PKG:PUBLIC-FUNCTION USER-PKG::VAL)))
     :Type :FUNCTION
     :File /test/anoms.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -1229,20 +1252,143 @@ DEFINITION>
     :Status :INTERNAL
 
 DEFINITION>
-    :Name *SHADOWED-VAR*
-    :Context (DEFVAR *SHADOWED-VAR* 100 "Shadows the inherited variable")
+    :Name INTERNAL-TEST-PKG:*SHADOWED-VAR*
+    :Context (DEFVAR INTERNAL-TEST-PKG:*SHADOWED-VAR*
+               100
+               "Shadows the inherited variable")
     :Type :VARIABLE
     :File /test/anoms2.lisp
     :Package #<PACKAGE "SHADOWING-TEST-PKG">
     :Status :INHERITED
 
 DEFINITION>
-    :Name SHADOWED-FUNC
-    :Context (DEFUN SHADOWED-FUNC (X Y)
-               (* X Y)
+    :Name INTERNAL-TEST-PKG:SHADOWED-FUNC
+    :Context (DEFUN INTERNAL-TEST-PKG:SHADOWED-FUNC
+                    (SHADOWING-TEST-PKG::X SHADOWING-TEST-PKG::Y)
+               (* SHADOWING-TEST-PKG::X SHADOWING-TEST-PKG::Y)
                "Shadows the inherited function")
     :Type :FUNCTION
     :File /test/anoms2.lisp
     :Package #<PACKAGE "SHADOWING-TEST-PKG">
     :Status :INHERITED
+
+DEFINITION>
+    :Name :CYCLE-PKG-A
+    :Context (DEFPACKAGE :CYCLE-PKG-A
+               (:USE :CL)
+               (:EXPORT :CLASS-A))
+    :Type :PACKAGE
+    :File /test/cycle-test.lisp
+
+DEFINITION>
+    :Name :CYCLE-PKG-B
+    :Context (DEFPACKAGE :CYCLE-PKG-B
+               (:USE :CL)
+               (:EXPORT :CLASS-B))
+    :Type :PACKAGE
+    :File /test/cycle-test.lisp
+
+DEFINITION>
+    :Name :CYCLE-PKG-C
+    :Context (DEFPACKAGE :CYCLE-PKG-C
+               (:USE :CL)
+               (:EXPORT :CLASS-C))
+    :Type :PACKAGE
+    :File /test/cycle-test.lisp
+
+DEFINITION>
+    :Name CYCLE-PKG-A:CLASS-A
+    :Context (DEFCLASS CYCLE-PKG-A:CLASS-A NIL
+                       ((CYCLE-PKG-A::B-REF :ACCESSOR CYCLE-PKG-A::A-B-REF
+                         :INITARG :B-REF :TYPE CYCLE-PKG-B:CLASS-B)))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-A">
+    :Status :EXTERNAL
+
+DEFINITION>
+    :Name CYCLE-PKG-A::A-B-REF
+    :Context (DEFCLASS CYCLE-PKG-A:CLASS-A NIL
+                       ((CYCLE-PKG-A::B-REF :ACCESSOR CYCLE-PKG-A::A-B-REF
+                         :INITARG :B-REF :TYPE CYCLE-PKG-B:CLASS-B)))
+    :Type :METHOD
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-A">
+    :Status :INTERNAL
+    :Specializers (CYCLE-PKG-A:CLASS-A)
+
+DEFINITION>
+    :Name (SETF CYCLE-PKG-A::A-B-REF)
+    :Context (DEFCLASS CYCLE-PKG-A:CLASS-A NIL
+                       ((CYCLE-PKG-A::B-REF :ACCESSOR CYCLE-PKG-A::A-B-REF
+                         :INITARG :B-REF :TYPE CYCLE-PKG-B:CLASS-B)))
+    :Type :METHOD
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-A">
+    :Status :INTERNAL
+    :Specializers (CYCLE-PKG-A:CLASS-A)
+
+DEFINITION>
+    :Name CYCLE-PKG-B:CLASS-B
+    :Context (DEFCLASS CYCLE-PKG-B:CLASS-B NIL
+                       ((CYCLE-PKG-B::C-REF :ACCESSOR CYCLE-PKG-B::B-C-REF
+                         :INITARG :C-REF :TYPE CLASS-C)))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-B">
+    :Status :EXTERNAL
+
+DEFINITION>
+    :Name CYCLE-PKG-B::B-C-REF
+    :Context (DEFCLASS CYCLE-PKG-B:CLASS-B NIL
+                       ((CYCLE-PKG-B::C-REF :ACCESSOR CYCLE-PKG-B::B-C-REF
+                         :INITARG :C-REF :TYPE CLASS-C)))
+    :Type :METHOD
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-B">
+    :Status :INTERNAL
+    :Specializers (CYCLE-PKG-B:CLASS-B)
+
+DEFINITION>
+    :Name (SETF CYCLE-PKG-B::B-C-REF)
+    :Context (DEFCLASS CYCLE-PKG-B:CLASS-B NIL
+                       ((CYCLE-PKG-B::C-REF :ACCESSOR CYCLE-PKG-B::B-C-REF
+                         :INITARG :C-REF :TYPE CLASS-C)))
+    :Type :METHOD
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-B">
+    :Status :INTERNAL
+    :Specializers (CYCLE-PKG-B:CLASS-B)
+
+DEFINITION>
+    :Name CLASS-C
+    :Context (DEFCLASS CLASS-C NIL
+                       ((A-REF :ACCESSOR C-A-REF :INITARG :A-REF :TYPE
+                         CYCLE-PKG-A:CLASS-A)))
+    :Type :STRUCTURE/CLASS/CONDITION
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-C">
+    :Status :EXTERNAL
+
+DEFINITION>
+    :Name C-A-REF
+    :Context (DEFCLASS CLASS-C NIL
+                       ((A-REF :ACCESSOR C-A-REF :INITARG :A-REF :TYPE
+                         CYCLE-PKG-A:CLASS-A)))
+    :Type :METHOD
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-C">
+    :Status :INTERNAL
+    :Specializers (CLASS-C)
+
+DEFINITION>
+    :Name (SETF C-A-REF)
+    :Context (DEFCLASS CLASS-C NIL
+                       ((A-REF :ACCESSOR C-A-REF :INITARG :A-REF :TYPE
+                         CYCLE-PKG-A:CLASS-A)))
+    :Type :METHOD
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-C">
+    :Status :INTERNAL
+    :Specializers (CLASS-C)
 

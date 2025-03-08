@@ -82,12 +82,7 @@
       (analyze-package-dependencies *current-tracker*)
       (analyze-package-exports *current-tracker*)
       (analyze-unused-imports *current-tracker*)
-      (analyze-type-relationships *current-tracker*)
-      ;; Add our new hierarchy cycle analysis functions
-      (analyze-class-hierarchies *current-tracker*)
-      (analyze-condition-hierarchies *current-tracker*)
-      (analyze-type-hierarchies *current-tracker*)
-      (analyze-structure-hierarchies *current-tracker*)
+      (analyze-clos-relationships *current-tracker*)
 
       ;; Log final definitions, references, anomalies
       (let ((*print-circle* nil) ;disable circular notation

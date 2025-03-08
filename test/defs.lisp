@@ -50,6 +50,10 @@
   (:intern #:internal-only)
   (:export #:public-api)
   (:documentation "Package for testing comprehensive symbol visibility analysis"))
+;; Define packages for testing package cycles created at runtime (no cycles during compilation)
+(defpackage #:runtime-pkg-a (:use :cl))
+(defpackage #:runtime-pkg-b (:use :cl))
+(defpackage #:runtime-pkg-c (:use :cl))
 
 
 ;; FUNCTION DEFINITIONS (:FUNCTION type)

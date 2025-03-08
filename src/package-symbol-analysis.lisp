@@ -194,28 +194,6 @@
                   :package current-pkg
                   :description
                   (format nil "Package-qualified reference to internal symbol ~S"
-                          ;(package-name sym-pkg)
-                            current-form)
-                  :context parent-context))
-              
-              ;; Check consistent package qualification
-              (when (and (not qualified-p)
-                        (eq (nth-value 1 (find-symbol sym-name current-pkg))
-                            :inherited))
-                (when (find-external-symbol sym-name sym-pkg)
-                  (record-anomaly *current-tracker*
-                    :type :unqualified-external-reference
-                    :severity :info
-                    :file current-file
-                    :package current-pkg
-                    :description
-                    (format nil "Unqualified reference to external symbol ~A from ~A"
-                            current-form (package-name sym-pkg))
-                    :context parent-context))))))))))
-
-(defun find-external-symbol (name pkg)
-  "Returns true if NAME is an external symbol in PKG."
-  (multiple-value-bind (sym status)
-      (find-symbol name pkg)
-    (and sym (eq status :external))))
+                          current-form)
+                  :context parent-context)))))))))
 

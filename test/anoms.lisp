@@ -82,3 +82,8 @@
 (defmacro with-internal-test (&body body)
   `(let ((value internal-test-pkg::*internal-var*))
      ,@body))
+
+
+;; :PACKAGE-COHESION ANOMALIES
+;; Test instances of used exports already in defs.lisp
+

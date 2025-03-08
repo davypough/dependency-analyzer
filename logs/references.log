@@ -679,7 +679,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {11022CA563}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1101975AE3}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-V
@@ -719,7 +719,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1101AB3E83}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1104D8AD73}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-V
@@ -747,7 +747,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {11022CA563}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1101975AE3}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-U
@@ -787,7 +787,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1101AB3E83}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1104D8AD73}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-U
@@ -815,7 +815,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::MONITORED-POINT {1102491DB3}>)
+    :Arguments (#<USER-PKG::MONITORED-POINT {1101B24B53}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -857,7 +857,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {11022CA563}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1101975AE3}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -898,7 +898,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::TEST-POINT {11021A0A13}>)
+    :Arguments (#<USER-PKG::TEST-POINT {1101804013}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -938,7 +938,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1101AB3E83}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1104D8AD73}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -3078,7 +3078,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1101E80873}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1104D8ADF3}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::GF1
@@ -3127,7 +3127,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::MONITORED-POINT {1102491DB3}>)
+    :Arguments (#<USER-PKG::MONITORED-POINT {1101B24B53}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-TIMESTAMP
@@ -3152,7 +3152,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::TEST-POINT {11021A0A13}>)
+    :Arguments (#<USER-PKG::TEST-POINT {1101804013}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-TIMESTAMP
@@ -3724,7 +3724,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::INVALID-POINT {110239E283}>)
+    :Arguments (#<USER-PKG::INVALID-POINT {1101A6E653}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-ERROR-VALUE
@@ -3764,7 +3764,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::INVALID-POINT {110239E283}>)
+    :Arguments (#<USER-PKG::INVALID-POINT {1101A6E653}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-ERROR-REASON
@@ -3814,16 +3814,16 @@ REFERENCE>
                         :Status :INTERNAL
 
 REFERENCE>
-    :Name *PUBLIC-VARIABLE*
-    :Context ((USER-PKG::VAL *PUBLIC-VARIABLE*))
+    :Name INTERNAL-TEST-PKG:*PUBLIC-VARIABLE*
+    :Context ((USER-PKG::VAL INTERNAL-TEST-PKG:*PUBLIC-VARIABLE*))
     :Type :VARIABLE
     :File /test/anoms.lisp
     :Package #<PACKAGE "INTERNAL-TEST-PKG">
     :Visibility (:NOT-VISIBLE #<PACKAGE "USER-PKG">)
     :Definitions
                     DEFINITION>
-                        :Name *PUBLIC-VARIABLE*
-                        :Context (DEFVAR *PUBLIC-VARIABLE*
+                        :Name INTERNAL-TEST-PKG:*PUBLIC-VARIABLE*
+                        :Context (DEFVAR INTERNAL-TEST-PKG:*PUBLIC-VARIABLE*
                                    42
                                    "This is exported")
                         :Type :VARIABLE
@@ -3832,17 +3832,18 @@ REFERENCE>
                         :Status :EXTERNAL
 
 REFERENCE>
-    :Name PUBLIC-FUNCTION
-    :Context (LET ((USER-PKG::VAL *PUBLIC-VARIABLE*))
-               (PUBLIC-FUNCTION USER-PKG::VAL))
+    :Name INTERNAL-TEST-PKG:PUBLIC-FUNCTION
+    :Context (LET ((USER-PKG::VAL INTERNAL-TEST-PKG:*PUBLIC-VARIABLE*))
+               (INTERNAL-TEST-PKG:PUBLIC-FUNCTION USER-PKG::VAL))
     :Type :FUNCTION
     :File /test/anoms.lisp
     :Package #<PACKAGE "INTERNAL-TEST-PKG">
     :Visibility (:NOT-VISIBLE #<PACKAGE "USER-PKG">)
     :Definitions
                     DEFINITION>
-                        :Name PUBLIC-FUNCTION
-                        :Context (DEFUN PUBLIC-FUNCTION (INTERNAL-TEST-PKG::X)
+                        :Name INTERNAL-TEST-PKG:PUBLIC-FUNCTION
+                        :Context (DEFUN INTERNAL-TEST-PKG:PUBLIC-FUNCTION
+                                        (INTERNAL-TEST-PKG::X)
                                    (+ INTERNAL-TEST-PKG::X 1))
                         :Type :FUNCTION
                         :File /test/defs2.lisp

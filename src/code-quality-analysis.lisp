@@ -69,23 +69,6 @@
                        (analyze-package-usage tracker pkg))))
              all-project-packages)
     
-    ;; Analyze for dependency cycles between packages
-    (let ((cycles (detect-dependency-cycles package-graph)))
-      (when cycles
-        (dolist (cycle cycles)
-          (record-anomaly tracker
-            :type :package-cycle
-            :severity :warning
-            :file (mapcar (lambda (pkg-name)
-                           (find-package-definition-file 
-                            tracker pkg-name))
-                         cycle)
-            :description 
-            (format nil 
-                    "Package dependency cycle detected: ~{~A~^ -> ~}" 
-                    cycle)
-            :context cycle))))
-    
     ;; Update tracker with analysis results
     (setf (slot-value tracker 'package-metrics) package-metrics
           (slot-value tracker 'package-graph) package-graph
@@ -161,60 +144,6 @@
       (definition.file (first defs)))))
 
 
-(defun detect-dependency-cycles (graph)
-  "Detect cycles in a dependency graph using depth-first search.
-   Returns list of cycles found in the graph.
-   
-   Parameters:
-   graph - Hash table mapping nodes to their dependencies
-   
-   Returns:
-   List of cycles, where each cycle is a list of nodes in cycle order.
-   
-   Algorithm:
-   1. Maintain visited and path sets during DFS traversal
-   2. When a back edge is found (visited node in current path), cycle detected
-   3. Record complete cycle path for reporting"
-  (let ((cycles nil)                          ; Accumulate detected cycles
-        (visited (make-hash-table :test 'equal)) ; Track all visited nodes
-        (path nil))                           ; Current DFS path
-    
-    (labels ((visit (node)
-               ;; Check node's status in current traversal
-               (let ((status (gethash node visited)))
-                 (cond
-                   ;; Already fully explored - no cycles here
-                   ((eq status :completed) nil)
-                   
-                   ;; Found node in current path - cycle detected
-                   ((eq status :in-progress)
-                    (let* ((cycle-start (position node path :test #'equal))
-                           (cycle (reverse (cons node (subseq path 0 cycle-start)))))
-                      (pushnew cycle cycles :test #'equal)))
-                   
-                   ;; New node - explore it
-                   (t
-                    (setf (gethash node visited) :in-progress)
-                    (push node path)
-                    ;; Recursively visit each dependency
-                    (dolist (dep (gethash node graph))
-                      (visit dep))
-                    (pop path)
-                    (setf (gethash node visited) :completed))))))
-      
-      ;; Start DFS from each unvisited node
-      (maphash (lambda (node deps)
-                 (declare (ignore deps))
-                 (unless (gethash node visited)
-                   (visit node)))
-               graph))
-    
-    ;; Return detected cycles sorted for consistent reporting
-    (sort cycles #'string< 
-          :key (lambda (cycle)
-                 (format nil "~{~A~^->~}" cycle)))))
-
-
 (defun list-all-symbols (pkg)
   "List all symbols accessible in a package, including inherited ones.
    Returns a fresh list to avoid package lock issues.
@@ -250,101 +179,92 @@
 
 (defun analyze-package-exports (tracker)
   "Analyze runtime export patterns between packages.
-   Focuses on post-compilation metrics and relationships that inform
-   the architectural report. Records patterns that suggest potential
-   package organization improvements."
-  (let ((export-usage (make-hash-table :test 'equal))    ; Maps exports to reference patterns
-        (pkg-relationships (make-hash-table :test 'equal))) ; Maps packages to export dependencies
+   Examines actual package relationships in the running system rather than
+   static source references. Identifies packages that provide core functionality
+   to multiple other packages."
+  (let ((export-usage (make-hash-table :test 'equal))    ; Maps packages to their export usage
+        (pkg-relationships (make-hash-table :test 'equal))) ; Maps packages to dependent packages
     
-    ;; Phase 1: Build export usage patterns
-    (maphash (lambda (key refs)
-               (declare (ignore key))
-               (dolist (ref refs)
-                 (let* ((sym (reference.name ref))
-                        (home-pkg (symbol-package sym))
-                        (using-pkg (reference.package ref)))
-                   ;; Only track references to exported symbols
-                   (when (and home-pkg using-pkg
-                            (not (eq home-pkg using-pkg))
-                            (eq (nth-value 1 (find-symbol (symbol-name sym) home-pkg))
-                                :external))
-                     ;; Record which packages use exports from which other packages
-                     (pushnew (list (package-name home-pkg)     ; Source package
-                                   (package-name using-pkg)      ; Using package  
-                                   (symbol-name sym))            ; Symbol used
-                              (gethash (package-name home-pkg) export-usage)
-                              :test #'equal)))))
-             (slot-value tracker 'references))
-    
-    ;; Phase 2: Analyze usage patterns to detect package relationships
-    (maphash (lambda (source-pkg usages)
-               ;; Group usages by target package
-               (let ((pkg-usage (make-hash-table :test 'equal)))
-                 (dolist (usage usages)
-                   (destructuring-bind (source user sym) usage
-                     (declare (ignore source))
-                     (push sym (gethash user pkg-usage))))
-                 
-                 ;; Record significant relationships (using multiple exports)
-                 (maphash (lambda (user-pkg symbols)
-                           (when (> (length symbols) 2)  ; Using more than 2 exports suggests relationship
-                             (push (list user-pkg symbols)
-                                   (gethash source-pkg pkg-relationships))))
-                         pkg-usage)))
-             export-usage)
-    
-    ;; Phase 3: Update package metrics with export analysis
-    (maphash (lambda (pkg metrics)
-               (let ((exported-syms (get-package-exports tracker pkg))
-                     (dependent-pkgs 0)
-                     (export-refs 0))
-                 ;; Count packages depending on our exports
-                 (when-let (relationships (gethash pkg pkg-relationships))
-                   (setf dependent-pkgs (length relationships)
-                         export-refs (reduce #'+ relationships 
-                                           :key (lambda (r) (length (second r)))))
-                 ;; Update metrics
-                 (setf (gethash pkg (slot-value tracker 'package-metrics))
-                       (list :local-symbols (getf metrics :local-symbols)
-                             :inherited-symbols (getf metrics :inherited-symbols)
-                             :used-packages (getf metrics :used-packages)
-                             :exported-symbols (length exported-syms)
-                             :export-users dependent-pkgs
-                             :export-references export-refs)))))
-             (slot-value tracker 'package-metrics))
-    
-    ;; Phase 4: Record insights about package organization
-    (maphash (lambda (source-pkg relationships)
-               (let ((total-refs 0)
-                     (total-users 0))
-                 ;; Analyze usage patterns
-                 (dolist (rel relationships)
-                   (destructuring-bind (nil symbols) rel
-                     (incf total-users)
-                     (incf total-refs (length symbols)))
+    ;; Phase 1: Collect all packages in the system
+    (let ((all-packages nil))
+      ;; Get all packages defined in our project and their dependents
+      (maphash (lambda (pkg-name _)
+                 (declare (ignore _))
+                 (when-let ((pkg (find-package pkg-name)))
+                   (pushnew pkg all-packages)
+                   ;; Include packages that use this one
+                   (dolist (user (package-used-by-list pkg))
+                     (pushnew user all-packages))))
+               (slot-value tracker 'defined-packages))
+      
+      ;; Phase 2: Analyze export usage for each package
+      (dolist (provider-pkg all-packages)
+        (let ((provider-name (package-name provider-pkg))
+              (export-count 0))
+          ;; Count exported symbols
+          (do-external-symbols (sym provider-pkg)
+            (incf export-count)
+            ;; For each package that might use this symbol
+            (dolist (client-pkg all-packages)
+              (unless (eq client-pkg provider-pkg) ; Skip self-references
+                (let ((client-name (package-name client-pkg)))
+                  ;; Check if client can access this symbol
+                  (multiple-value-bind (found status) 
+                      (find-symbol (symbol-name sym) client-pkg)
+                    (when (and found 
+                               (member status '(:inherited :external))
+                               (eq (symbol-package found) provider-pkg))
+                      ;; Record this usage
+                      (push (symbol-name sym)
+                            (gethash (list provider-name client-name) 
+                                     export-usage nil))))))))
+          
+          ;; Update package exports count in metrics
+          (when-let ((metrics (gethash provider-name (slot-value tracker 'package-metrics))))
+            (setf (getf (gethash provider-name (slot-value tracker 'package-metrics)) 
+                        :exported-symbols)
+                  export-count))))
+      
+      ;; Phase 3: Analyze significant relationships
+      (maphash (lambda (key symbols)
+                 (destructuring-bind (provider-name client-name) key
+                   ;; Only record significant relationships (more than 2 symbols)
+                   (when (> (length symbols) 2)
+                     (push (list client-name symbols)
+                           (gethash provider-name pkg-relationships)))))
+               export-usage)
+      
+      ;; Phase 4: Update metrics and record cohesion anomalies
+      (maphash (lambda (provider-name relationships)
+                 (let ((dependent-pkgs (length relationships))
+                       (total-refs 0))
+                   ;; Calculate total references
+                   (dolist (rel relationships)
+                     (incf total-refs (length (second rel))))
                    
-                   ;; Record noteworthy patterns
-                   (when (> total-refs (* 3 total-users))  ; Avg > 3 refs per user
+                   ;; Update metrics
+                   (when-let ((metrics (gethash provider-name 
+                                                (slot-value tracker 'package-metrics))))
+                     (setf (getf metrics :export-users) dependent-pkgs
+                           (getf metrics :export-references) total-refs))
+                   
+                   ;; Record noteworthy patterns - packages with significant influence
+                   (when (and (> dependent-pkgs 0)
+                              (> total-refs (* 3 dependent-pkgs))) ; Avg > 3 refs per client
                      (record-anomaly tracker
                        :type :package-cohesion
                        :severity :info
-                       :package source-pkg
+                       :package provider-name
                        :description 
                        (format nil "Package ~A provides core functionality to ~D other packages (~D refs)"
-                               source-pkg total-users total-refs))))))
-             pkg-relationships)))
+                               provider-name dependent-pkgs total-refs)))))
+               pkg-relationships))))
 
 
-(defun analyze-type-relationships (tracker)
+(defun analyze-clos-relationships (tracker)
   "Analyze runtime type dependencies that could impact maintainability.
    Examines only successfully compiled and loaded class relationships.
-   Focused on structural patterns rather than validity checking.
-   
-   Analysis covers:
-   1. Slot type dependency cycles
-   2. Inheritance hierarchy cycles  
-   3. Complex specializer relationships
-   4. Cross-package type coupling"
+   Focused on structural patterns rather than validity checking."
   
   ;; Data structures for tracking relationships
   (let ((type-metrics (make-hash-table :test 'equal))      ; For reporting metrics
@@ -375,22 +295,41 @@
     (labels ((visit (type-name)
                (let ((status (gethash type-name visited)))
                  (cond
+                   ;; Case 1: Already fully explored - no cycles here
                    ((eq status :completed) nil)
+                   
+                   ;; Case 2: Found a cycle - node already in current path
                    ((eq status :in-progress)
                     (let* ((cycle-start (position type-name path :test #'equal))
-                           (cycle (reverse (cons type-name 
-                                               (subseq path 0 cycle-start)))))
-                      ;; Record cycle but only if it crosses package boundaries
-                      (when (complex-type-cycle-p cycle)
+                           (detected-cycle (reverse (cons type-name 
+                                                        (subseq path 0 cycle-start))))
+                           ;; Find primary element - first alphabetically by fully-qualified name
+                           (primary-element 
+                            (first (sort (copy-list detected-cycle) #'string< 
+                                        :key (lambda (elt)
+                                               (format nil "~A:~A"
+                                                      (package-name (symbol-package elt))
+                                                      (symbol-name elt))))))
+                           ;; Determine primary package for reporting
+                           (primary-package (symbol-package primary-element))
+                           ;; Now reorganize the cycle to start with the primary element
+                           (primary-pos (position primary-element detected-cycle :test #'equal))
+                           (normalized-cycle (append (subseq detected-cycle primary-pos)
+                                                   (subseq detected-cycle 0 primary-pos))))
+                      
+                      ;; Record cycle but only if it's complex
+                      (when (complex-type-cycle-p detected-cycle)
                         (record-anomaly tracker
-                          :type :complex-type-dependency
+                          :type :complex-type-cycle
                           :severity :warning
-                          :package (symbol-package (car cycle))
-                          :context cycle
+                          :package primary-package
+                          :context normalized-cycle ; Use normalized cycle for context
                           :description
-                          (format nil "Complex type dependency cycle detected: ~{~A~^ -> ~}"
-                                  cycle)))))
-                   (t 
+                          (format nil "Complex type dependency cycle detected: ~{~A~^ -> ~} -> ~A"
+                                  normalized-cycle (first normalized-cycle))))))
+                   
+                   ;; Case 3: New node - explore it (using ELSE clause rather than T)
+                   (t
                     (setf (gethash type-name visited) :in-progress)
                     (push type-name path)
                     ;; Use tracker's type graph instead of local variable
@@ -431,6 +370,17 @@
                deps)))
 
 
+(defun complex-type-cycle-p (cycle)
+  "Returns true if cycle exhibits complex dependencies:
+   - Crosses package boundaries
+   - Involves 3 or more types
+   - Contains bidirectional relationships"
+  (and (> (length cycle) 2)
+       (> (length (remove-duplicates cycle 
+                                   :key #'symbol-package))
+          1)))
+
+
 (defun analyze-type-usage (class deps)
   "Analyze how a class is used within the system.
    Returns metrics alist with usage patterns."
@@ -446,17 +396,6 @@
       (:total-methods . ,n-methods) 
       (:total-subclasses . ,n-subclasses)
       (:cross-package-deps . ,(length foreign-deps)))))
-
-
-(defun complex-type-cycle-p (cycle)
-  "Returns true if cycle exhibits complex dependencies:
-   - Crosses package boundaries
-   - Involves 3 or more types
-   - Contains bidirectional relationships"
-  (and (> (length cycle) 2)
-       (> (length (remove-duplicates cycle 
-                                   :key #'symbol-package))
-          1)))
 
 
 #+ignore (defun detect-unused-definitions (tracker)  ;redo later, too many ways to reference a definition
@@ -488,230 +427,259 @@
              (slot-value tracker 'definitions))))
 
 
-(defun analyze-class-hierarchies (tracker)
-  "Analyze CLOS class inheritance hierarchies to detect cycles.
-   Uses depth-first search to identify true circular inheritance dependencies.
-   Records findings in the class-cycles slot of the tracker and as anomalies."
-  
-  ;; Data structures for tracking visited classes and their states
-  (let ((classes-seen (make-hash-table :test 'eq))
-        (cycles nil))
-    
-    ;; First identify all user-defined classes and collect cycles
-    (maphash (lambda (key def-list)
-               (declare (ignore key))
-               (dolist (def def-list)
-                 (when (eq (definition.type def) :structure/class/condition)
-                   (let* ((type-name (definition.name def))
-                          (class (find-class type-name nil)))
-                     ;; Only process if it's a standard-class (not structure or condition)
-                     (when (and class 
-                                (typep class 'standard-class)
-                                (not (eq (class-name class) 'standard-object)))
-                       ;; Explicitly capture the updated cycles list
-                       (setf cycles (check-class-cycles class nil classes-seen cycles)))))))
-             (slot-value tracker 'definitions))
-    
-    ;; Store detected cycles in the tracker
-    (setf (slot-value tracker 'class-cycles) cycles)
-    
-    ;; Record each cycle as an anomaly without specifying a primary package
-    (dolist (cycle cycles)
-      (record-anomaly tracker
-        :type :class-inheritance-cycle
-        :severity :warning
-        :description (format nil "Class inheritance cycle detected: ~{~S~^ -> ~}" cycle)
-        :context cycle
-        :package nil))
-    
-    ;; Return the cycles for chaining
-    cycles))
-
-
-(defun check-class-cycles (class path classes-seen cycles)
-  "Recursive depth-first search to detect cycles in class inheritance.
-   CLASS - The class being examined
-   PATH - List of classes in the current inheritance path
-   CLASSES-SEEN - Hash table tracking visited classes and their status
-   CYCLES - List to collect detected cycles
-   
-   Returns the updated CYCLES list."
-  
-  ;; Get class status from the cache
-  (let ((status (gethash class classes-seen)))
-    (cond
-      ;; Already fully explored - no cycles here
-      ((eq status :completed) cycles)
-      
-      ;; Found class in current path - cycle detected
-      ((eq status :in-progress)
-       (let* ((cycle-start (position class path :test #'eq))
-              (cycle-classes (reverse (cons class (subseq path 0 cycle-start))))
-              (cycle-names (mapcar #'class-name cycle-classes)))
-         ;; Store as list of symbols instead of formatted string
-         (pushnew cycle-names cycles :test #'equal)))
-      
-      ;; New class - explore it
-      (t
-       (setf (gethash class classes-seen) :in-progress)
-       (let ((updated-path (cons class path)))
-         ;; Recursively check each superclass
-         (dolist (superclass (c2mop:class-direct-superclasses class))
-           ;; Skip standard-object as it's the root of all CLOS classes
-           (unless (eq (class-name superclass) 'standard-object)
-             (setq cycles (check-class-cycles superclass updated-path classes-seen cycles)))))
-       
-       ;; Mark as fully explored after checking all superclasses
-       (setf (gethash class classes-seen) :completed)
-       cycles))))
-
-
-(defun analyze-condition-hierarchies (tracker)
-  "Analyze condition inheritance hierarchies to detect cycles.
-   Uses depth-first search to identify circular inheritance dependencies.
-   Records findings in the condition-cycles slot of the tracker and as anomalies."
-  
-  ;; Data structures for tracking visited conditions and their states
-  (let ((conditions-seen (make-hash-table :test 'eq))
-        (cycles nil))
-    
-    ;; Identify all user-defined condition classes
-    (maphash (lambda (key def-list)
-               (declare (ignore key))
-               (dolist (def def-list)
-                 (when (eq (definition.type def) :structure/class/condition)
-                   (let* ((type-name (definition.name def))
-                          (class (find-class type-name nil)))
-                     ;; Only process if it's a condition
-                     (when (and class 
-                               (not (eq (class-name class) 'condition))
-                               (subtypep type-name 'condition))
-                       ;; Explicitly capture updated cycles
-                       (setf cycles (check-condition-cycles class nil conditions-seen cycles)))))))
-             (slot-value tracker 'definitions))
-    
-    ;; Store detected cycles in the tracker
-    (setf (slot-value tracker 'condition-cycles) cycles)
-    
-    ;; Record each cycle as an anomaly
-    (dolist (cycle cycles)
-      (record-anomaly tracker
-        :type :condition-inheritance-cycle
-        :severity :warning
-        :description (format nil "Condition inheritance cycle detected: ~{~S~^ -> ~}" cycle)
-        :context cycle
-        :package nil))
-    
-    ;; Return the cycles for chaining
-    cycles))
-
-
-(defun check-condition-cycles (condition path conditions-seen cycles)
-  "Recursive depth-first search to detect cycles in condition inheritance.
-   CONDITION - The condition class being examined
-   PATH - List of conditions in the current inheritance path
-   CONDITIONS-SEEN - Hash table tracking visited conditions and their status
-   CYCLES - List to collect detected cycles
-   
-   Returns the updated CYCLES list."
-  
-  ;; Get condition status from the cache
-  (let ((status (gethash condition conditions-seen)))
-    (cond
-      ;; Already fully explored - no cycles here
-      ((eq status :completed) cycles)
-      
-      ;; Found condition in current path - cycle detected
-      ((eq status :in-progress)
-       (let* ((cycle-start (position condition path :test #'eq))
-              (cycle-conditions (reverse (cons condition (subseq path 0 cycle-start))))
-              (cycle-names (mapcar #'class-name cycle-conditions)))
-         (pushnew cycle-names cycles :test #'equal)))
-      
-      ;; New condition - explore it
-      (t
-       (setf (gethash condition conditions-seen) :in-progress)
-       (let ((updated-path (cons condition path)))
-         ;; Recursively check each superclass
-         (dolist (superclass (c2mop:class-direct-superclasses condition))
-           ;; Skip built-in condition classes to focus on user-defined relationships
-           (unless (eq (symbol-package (class-name superclass))
-                       (find-package :common-lisp))
-             (setq cycles (check-condition-cycles superclass updated-path conditions-seen cycles)))))
-       
-       ;; Mark as fully explored after checking all superclasses
-       (setf (gethash condition conditions-seen) :completed)
-       cycles))))
-
-
-(defun analyze-type-hierarchies (tracker)
+#+ignore (defun analyze-type-hierarchies (tracker)
   "Analyze type definition relationships to detect cycles.
-   Focuses on types defined with deftype, examining how user-defined
-   types reference each other in their definitions.
-   Records findings in the type-cycles slot of the tracker and as anomalies."
+   Uses explicit references in deftype forms rather than runtime type relationships."
   
-  ;; First build a graph of type dependencies
   (let ((type-graph (make-hash-table :test 'equal))
         (types-seen (make-hash-table :test 'equal))
+        (all-types nil)
         (cycles nil))
     
-    ;; Identify all deftype relationships
+    (format t "~&=== TYPE HIERARCHY ANALYSIS DIAGNOSTICS ===~%")
+    
+    ;; First collect all user-defined types
+    (maphash (lambda (key def-list)
+               (declare (ignore key))
+               (dolist (def def-list)
+                 (when (eq (definition.type def) :deftype)
+                   (let ((type-name (definition.name def)))
+                     (push type-name all-types)
+                     (setf (gethash type-name type-graph) nil)))))
+             (slot-value tracker 'definitions))
+    
+    (format t "~&1. Collected ~D user-defined types:~%" (length all-types))
+    (dolist (type (sort (copy-list all-types) #'string< :key #'symbol-name))
+      (format t "   - ~S (package: ~S)~%" type (package-name (symbol-package type))))
+    
+    ;; Now analyze each type definition to extract references
+    (format t "~&2. Analyzing type definitions:~%")
     (maphash (lambda (key def-list)
                (declare (ignore key))
                (dolist (def def-list)
                  (when (eq (definition.type def) :deftype)
                    (let* ((type-name (definition.name def))
                           (context (definition.context def))
-                          (type-expr (and (>= (length context) 3) (third context))))
+                          (pkg (definition.package def)))
                      
-                     ;; Initialize this type's entry in the graph
-                     (unless (gethash type-name type-graph)
-                       (setf (gethash type-name type-graph) nil))
+                     (format t "~&   Processing type ~S (in package ~S)~%" 
+                             type-name 
+                             (package-name pkg))
+                     (format t "      Context: ~S~%" context)
                      
-                     ;; Extract referenced types from type expression
-                     (when (and (listp type-expr)
-                                (eq (car type-expr) 'quote))
-                       (let ((spec (cadr type-expr)))
-                         ;; Handle different type specifier forms
-                         (when (listp spec)
-                           (case (car spec)
-                             ;; Union types - all component types are "dependencies"
-                             ((or)
-                              (dolist (ref-type (cdr spec))
-                                (when (and (symbolp ref-type)
-                                           (not (eq (symbol-package ref-type)
-                                                    (find-package :common-lisp))))
-                                  (push ref-type (gethash type-name type-graph)))))
-                             ;; Refinement types - base type is dependency
-                             ((integer rational float real number)
-                              (when (and (symbolp (car spec))
-                                         (not (eq (symbol-package (car spec))
-                                                  (find-package :common-lisp))))
-                                (push (car spec) (gethash type-name type-graph))))))))))))
+                     (let ((type-expr (extract-type-expression context)))
+                       (format t "      Extracted expression: ~S~%" type-expr)
+                       
+                       (let ((references (collect-type-references type-expr all-types)))
+                         (format t "      Dependencies: ~S~%" references)
+                         ;; Store dependencies for this type
+                         (setf (gethash type-name type-graph) references)))))))
              (slot-value tracker 'definitions))
     
-    ;; Now perform DFS on the type graph to find cycles
-    (maphash (lambda (type-name _)
-               (declare (ignore _))
-               (unless (gethash type-name types-seen)
-                 ;; Explicitly capture updated cycles
-                 (setf cycles (check-type-cycles type-name nil type-graph types-seen cycles))))
-             type-graph)
+    ;; Display the final dependency graph
+    (format t "~&3. Final dependency graph:~%")
+    (let ((types (sort (loop for type being the hash-keys of type-graph collect type)
+                       #'string< :key #'symbol-name)))
+      (dolist (type types)
+        (let ((deps (gethash type type-graph)))
+          (format t "   ~S -> ~S~%" type deps))))
+    
+    ;; Now perform DFS to find cycles
+    (format t "~&4. Performing cycle detection:~%")
+    (dolist (type-name all-types)
+      (unless (gethash type-name types-seen)
+        (format t "   Starting DFS from ~S~%" type-name)
+        (let ((old-cycles-count (length cycles)))
+          (setf cycles (check-type-cycles-with-debug type-name nil type-graph types-seen cycles))
+          (format t "      Found ~D new cycles~%" (- (length cycles) old-cycles-count)))))
+    
+    ;; Display all detected cycles
+    (format t "~&5. All detected cycles (~D):~%" (length cycles))
+    (dolist (cycle cycles)
+      (format t "   ~S~%" cycle))
     
     ;; Store detected cycles in the tracker
     (setf (slot-value tracker 'type-cycles) cycles)
     
-    ;; Record each cycle as an anomaly
-    (dolist (cycle cycles)
-      (record-anomaly tracker
-        :type :type-definition-cycle
-        :severity :warning
-        :description (format nil "Type definition cycle detected: ~{~S~^ -> ~}" cycle)
-        :context cycle
-        :package nil))
+    ;; Record each cycle as an anomaly with detailed filtering logic
+    (format t "~&6. Recording anomalies:~%")
+    (let ((anomaly-count 0))
+      (dolist (cycle cycles)
+        (let ((cross-package (> (length (remove-duplicates cycle :key #'symbol-package)) 1))
+              (complex-length (> (length cycle) 2)))
+          (format t "   Cycle: ~S~%" cycle)
+          (format t "      Cross-package: ~A, Complex length: ~A~%" 
+                  cross-package complex-length)
+          
+          (when (or cross-package complex-length)
+            (incf anomaly-count)
+            (let ((primary-pkg (symbol-package (first cycle))))
+              (record-anomaly tracker
+                :type :type-definition-cycle
+                :severity :warning
+                :description (format nil "Type definition cycle detected: ~{~S~^ -> ~}" cycle)
+                :context cycle
+                :package primary-pkg)))))
+      (format t "   Recorded ~D anomalies~%" anomaly-count))
     
-    ;; Return the cycles for chaining
+    (format t "~&=== END DIAGNOSTICS ===~%")
     cycles))
+
+#+ignore (defun check-type-cycles-with-debug (type-name path type-graph types-seen cycles)
+  "Enhanced version of check-type-cycles with debugging output"
+  (let ((indent (make-string (* 2 (length path)) :initial-element #\Space)))
+    (format t "~&~AChecking type: ~S (path: ~S)~%" indent type-name path)
+    
+    ;; Get type status from the cache
+    (let ((status (gethash type-name types-seen)))
+      (cond
+        ;; Already fully explored - no cycles here
+        ((eq status :completed)
+         (format t "~A  Already explored~%" indent)
+         cycles)
+        
+        ;; Found type in current path - cycle detected
+        ((eq status :in-progress)
+         (let* ((cycle-start (position type-name path :test #'equal))
+                (cycle-types (reverse (cons type-name (subseq path 0 cycle-start)))))
+           (format t "~A  CYCLE DETECTED: ~S~%" indent cycle-types)
+           ;; Store as list of symbols
+           (pushnew cycle-types cycles :test #'equal)))
+        
+        ;; New type - explore it
+        (t
+         (format t "~A  Marking as in-progress~%" indent)
+         (setf (gethash type-name types-seen) :in-progress)
+         (let ((updated-path (cons type-name path)))
+           ;; Recursively check each referenced type
+           (dolist (ref-type (gethash type-name type-graph))
+             (format t "~A  Following dependency: ~S~%" indent ref-type)
+             (when (gethash ref-type type-graph) ; Only check user-defined types
+               (setq cycles (check-type-cycles-with-debug ref-type updated-path type-graph types-seen cycles)))))
+         
+         ;; Mark as fully explored after checking all dependencies
+         (format t "~A  Marking as completed~%" indent)
+         (setf (gethash type-name types-seen) :completed)
+         cycles)))))
+
+#+ignore (defun extract-type-expression (deftype-form)
+  "Extract the type expression from a deftype form,
+   handling docstrings and declarations properly."
+  (when (and (listp deftype-form)
+             (eq (first deftype-form) 'deftype)
+             (>= (length deftype-form) 4))
+    (let ((body (nthcdr 3 deftype-form)))
+      ;; Skip docstring if present
+      (when (and (car body) (stringp (car body)))
+        (setf body (cdr body)))
+      ;; Skip declarations if present
+      (when (and (car body) (listp (car body)) 
+                 (eq (caar body) 'declare))
+        (setf body (cdr body)))
+      ;; Return first actual type expression
+      (car body))))
+
+#+ignore (defun collect-type-references (expr all-types)
+  "Extract references to other user-defined types from a type expression.
+   Enhanced to handle package-qualified symbols properly."
+  (let ((refs nil))
+    (labels ((process-symbol (sym)
+               (when (and (symbolp sym)
+                          (not (cl-symbol-p sym)))  ; Skip CL symbols
+                 ;; Check if this symbol is in our types list
+                 (let ((matching-type (find sym all-types :test #'symbol-equal)))
+                   (when matching-type
+                     (pushnew matching-type refs)))))
+             
+             (symbol-equal (s1 s2)
+               "Compare symbols by name and package, handling package-qualified symbols"
+               (and (string= (symbol-name s1) (symbol-name s2))
+                    (or (eq (symbol-package s1) (symbol-package s2))
+                        ;; If both are external/accessible, consider them equal
+                        (and (find-symbol (symbol-name s1) (symbol-package s2))
+                             (find-symbol (symbol-name s2) (symbol-package s1))))))
+             
+             (process-quoted-expr (form)
+               (typecase form
+                 (symbol (process-symbol form))
+                 (cons
+                  (case (car form)
+                    ;; Special handling for type specifiers
+                    ((or and not satisfies)
+                     (dolist (elt (cdr form))
+                       (process-quoted-expr elt)))
+                    ;; For other forms, just check each element
+                    (t (dolist (elt form)
+                         (process-quoted-expr elt)))))))
+             
+             (process-form (form)
+               (typecase form
+                 (symbol (process-symbol form))
+                 (cons
+                  (cond
+                    ;; Handle quoted expressions
+                    ((eq (car form) 'quote)
+                     (process-quoted-expr (cadr form)))
+                    ;; Handle backquoted expressions
+                    ((eq (car form) 'backquote)
+                     (process-form (cadr form)))
+                    ;; Handle unquoted expressions in backquotes
+                    ((eq (car form) 'unquote)
+                     (process-form (cadr form)))
+                    ;; Process all subforms
+                    (t (mapc #'process-form form)))))))
+      
+      ;; Start processing the expression
+      (process-form expr))
+    refs))
+
+
+#+ignore (defun filter-redundant-cycles (cycles)
+  "Filter redundant type cycles to make the output more informative.
+   Removes duplicates, normalizes cycles, and prioritizes fundamental cycles."
+  (let ((normalized-cycles (make-hash-table :test 'equal))
+        (result nil))
+    
+    ;; Normalize and deduplicate cycles
+    (dolist (cycle cycles)
+      (let* ((sorted-cycle (sort (copy-list cycle) #'string<))
+             (cycle-key (format nil "~{~A~^-~}" sorted-cycle)))
+        (setf (gethash cycle-key normalized-cycles) sorted-cycle)))
+    
+    ;; Convert to list and sort by length (shortest first)
+    (maphash (lambda (key cycle)
+               (declare (ignore key))
+               (push cycle result))
+             normalized-cycles)
+    
+    ;; Sort by length first, then alphabetically
+    (sort result (lambda (a b)
+                   (or (< (length a) (length b))
+                       (and (= (length a) (length b))
+                            (string< (format nil "~{~A~^-~}" a)
+                                    (format nil "~{~A~^-~}" b))))))
+    
+    ;; Filter out subsets if a shorter version of the same cycle exists
+    (let ((final-result nil))
+      (dolist (cycle result)
+        (unless (some (lambda (other-cycle)
+                        (and (< (length other-cycle) (length cycle))
+                             (subsetp (intersection other-cycle cycle) 
+                                      other-cycle)))
+                      result)
+          (push cycle final-result)))
+      
+      (nreverse final-result))))
+
+
+#+ignore (defun type-definition-cycle-p (cycle)
+  "Returns true if cycle represents a meaningful type definition cycle.
+   Less strict than complex-type-cycle-p, focuses on type definition issues."
+  (or
+    ;; Any cycle crossing package boundaries
+    (> (length (remove-duplicates cycle :key #'symbol-package)) 1)
+    ;; Or any cycle with 3+ elements
+    (> (length cycle) 2)))
 
 
 (defun check-type-cycles (type-name path type-graph types-seen cycles)
@@ -748,91 +716,6 @@
        
        ;; Mark as fully explored after checking all dependencies
        (setf (gethash type-name types-seen) :completed)
-       cycles))))
-
-
-(defun analyze-structure-hierarchies (tracker)
-  "Analyze structure inheritance hierarchies.
-   While structures use single inheritance and shouldn't form cycles,
-   this function maintains consistency with our cycle detection approach.
-   Records findings in the structure-cycles slot of the tracker and as anomalies."
-  
-  ;; Structures typically can't have cycles due to single inheritance,
-  ;; but we'll check anyway for consistency and completeness
-  (let ((structures-seen (make-hash-table :test 'eq))
-        (cycles nil))
-    
-    ;; Identify all structure definitions
-    (maphash (lambda (key def-list)
-               (declare (ignore key))
-               (dolist (def def-list)
-                 (when (eq (definition.type def) :structure/class/condition)
-                   (let* ((type-name (definition.name def))
-                          (class (find-class type-name nil)))
-                     ;; Only process if it's a structure-class
-                     (when (and class 
-                               (typep class 'structure-class)
-                               (not (eq (class-name class) 'structure-object)))
-                       ;; Explicitly capture updated cycles
-                       (setf cycles (check-structure-cycles class nil structures-seen cycles)))))))
-             (slot-value tracker 'definitions))
-    
-    ;; Store detected cycles in the tracker
-    (setf (slot-value tracker 'structure-cycles) cycles)
-    
-    ;; Record each cycle as an anomaly (unlikely but for consistency)
-    (dolist (cycle cycles)
-      (record-anomaly tracker
-        :type :structure-inheritance-cycle
-        :severity :error  ;; Structures shouldn't have cycles, so this is an error
-        :description (format nil "Structure inheritance cycle detected: ~{~S~^ -> ~}" cycle)
-        :context cycle
-        :package nil))
-    
-    ;; Return the cycles for chaining
-    cycles))
-
-
-(defun check-structure-cycles (structure path structures-seen cycles)
-  "Recursive depth-first search to detect cycles in structure inheritance.
-   While structures use single inheritance and shouldn't form cycles,
-   this function implements the same pattern as our other hierarchy checks.
-   
-   STRUCTURE - The structure class being examined
-   PATH - List of structures in the current inheritance path
-   STRUCTURES-SEEN - Hash table tracking visited structures and their status
-   CYCLES - List to collect detected cycles
-   
-   Returns the updated CYCLES list."
-  
-  ;; Get structure status from the cache
-  (let ((status (gethash structure structures-seen)))
-    (cond
-      ;; Already fully explored - no cycles here
-      ((eq status :completed) cycles)
-      
-      ;; Found structure in current path - cycle detected
-      ;; (this shouldn't happen with single inheritance structures,
-      ;; but we'll check anyway for robustness)
-      ((eq status :in-progress)
-       (let* ((cycle-start (position structure path :test #'eq))
-              (cycle-structures (reverse (cons structure (subseq path 0 cycle-start))))
-              (cycle-names (mapcar #'class-name cycle-structures)))
-         ;; Store as list of symbols instead of formatted string
-         (pushnew cycle-names cycles :test #'equal)))
-      
-      ;; New structure - explore it
-      (t
-       (setf (gethash structure structures-seen) :in-progress)
-       (let ((updated-path (cons structure path)))
-         ;; Structures only have one direct superclass
-         (when-let ((superclass (first (c2mop:class-direct-superclasses structure))))
-           ;; Skip structure-object to avoid trivial dependencies
-           (unless (eq (class-name superclass) 'structure-object)
-             (setq cycles (check-structure-cycles superclass updated-path structures-seen cycles)))))
-       
-       ;; Mark as fully explored after checking superclass
-       (setf (gethash structure structures-seen) :completed)
        cycles))))
 
 
