@@ -262,6 +262,7 @@ ANOMALY>
     :Description "Package INTERNAL-TEST-PKG provides core functionality to 1 other packages (4 refs)"
     :Type :PACKAGE-COHESION
     :Severity :INFO
+    :File /test/defs2.lisp
     :Package "INTERNAL-TEST-PKG"
 
 
@@ -334,135 +335,45 @@ ANOMALY>
 
 
 ANOMALY>
-    :Description "Package CYCLE-PKG-A imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "CYCLE-PKG-A">
-
-ANOMALY>
-    :Description "Package CYCLE-PKG-B imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "CYCLE-PKG-B">
-
-ANOMALY>
-    :Description "Package CYCLE-PKG-C imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "CYCLE-PKG-C">
-
-ANOMALY>
-    :Description "Package RUNTIME-PKG-A imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "RUNTIME-PKG-A">
-
-ANOMALY>
-    :Description "Package RUNTIME-PKG-B imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "RUNTIME-PKG-B">
-
-ANOMALY>
-    :Description "Package RUNTIME-PKG-C imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "RUNTIME-PKG-C">
-
-ANOMALY>
-    :Description "Package SHADOWING-TEST-PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "SHADOWING-TEST-PKG">
-
-ANOMALY>
     :Description "Package SHADOWING-TEST-PKG imports INTERNAL-TEST-PKG but doesn't use any of its symbols"
     :Type :UNUSED-IMPORT
     :Severity :INFO
+    :File /test/defs2.lisp
     :Package #<PACKAGE "SHADOWING-TEST-PKG">
-
-ANOMALY>
-    :Description "Package T1PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "TEST1-PKG">
-
-ANOMALY>
-    :Description "Package T2PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "TEST2-PKG">
 
 ANOMALY>
     :Description "Package T3PKG imports ALEXANDRIA but doesn't use any of its symbols"
     :Type :UNUSED-IMPORT
     :Severity :INFO
+    :File /test/defs.lisp
     :Package #<PACKAGE "TEST3-PKG">
-
-ANOMALY>
-    :Description "Package T3PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "TEST3-PKG">
-
-ANOMALY>
-    :Description "Package TEST1-PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "TEST1-PKG">
-
-ANOMALY>
-    :Description "Package TEST2-PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "TEST2-PKG">
 
 ANOMALY>
     :Description "Package TEST3-PKG imports ALEXANDRIA but doesn't use any of its symbols"
     :Type :UNUSED-IMPORT
     :Severity :INFO
-    :Package #<PACKAGE "TEST3-PKG">
-
-ANOMALY>
-    :Description "Package TEST3-PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
+    :File /test/defs.lisp
     :Package #<PACKAGE "TEST3-PKG">
 
 ANOMALY>
     :Description "Package TEST4-PKG imports ALEXANDRIA but doesn't use any of its symbols"
     :Type :UNUSED-IMPORT
     :Severity :INFO
-    :Package #<PACKAGE "TEST4-PKG">
-
-ANOMALY>
-    :Description "Package TEST4-PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
+    :File /test/defs.lisp
     :Package #<PACKAGE "TEST4-PKG">
 
 ANOMALY>
     :Description "Package TEST4-PKG imports TEST1-PKG but doesn't use any of its symbols"
     :Type :UNUSED-IMPORT
     :Severity :INFO
+    :File /test/defs.lisp
     :Package #<PACKAGE "TEST4-PKG">
-
-ANOMALY>
-    :Description "Package TEST5-PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
-    :Package #<PACKAGE "TEST5-PKG">
 
 ANOMALY>
     :Description "Package USER-PKG imports ALEXANDRIA but doesn't use any of its symbols"
     :Type :UNUSED-IMPORT
     :Severity :INFO
-    :Package #<PACKAGE "USER-PKG">
-
-ANOMALY>
-    :Description "Package USER-PKG imports COMMON-LISP but doesn't use any of its symbols"
-    :Type :UNUSED-IMPORT
-    :Severity :INFO
+    :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
 
 

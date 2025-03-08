@@ -254,6 +254,7 @@
                      (record-anomaly tracker
                        :type :package-cohesion
                        :severity :info
+                       :file (find-package-definition-file tracker provider-name)
                        :package provider-name
                        :description 
                        (format nil "Package ~A provides core functionality to ~D other packages (~D refs)"
@@ -427,261 +428,6 @@
              (slot-value tracker 'definitions))))
 
 
-#+ignore (defun analyze-type-hierarchies (tracker)
-  "Analyze type definition relationships to detect cycles.
-   Uses explicit references in deftype forms rather than runtime type relationships."
-  
-  (let ((type-graph (make-hash-table :test 'equal))
-        (types-seen (make-hash-table :test 'equal))
-        (all-types nil)
-        (cycles nil))
-    
-    (format t "~&=== TYPE HIERARCHY ANALYSIS DIAGNOSTICS ===~%")
-    
-    ;; First collect all user-defined types
-    (maphash (lambda (key def-list)
-               (declare (ignore key))
-               (dolist (def def-list)
-                 (when (eq (definition.type def) :deftype)
-                   (let ((type-name (definition.name def)))
-                     (push type-name all-types)
-                     (setf (gethash type-name type-graph) nil)))))
-             (slot-value tracker 'definitions))
-    
-    (format t "~&1. Collected ~D user-defined types:~%" (length all-types))
-    (dolist (type (sort (copy-list all-types) #'string< :key #'symbol-name))
-      (format t "   - ~S (package: ~S)~%" type (package-name (symbol-package type))))
-    
-    ;; Now analyze each type definition to extract references
-    (format t "~&2. Analyzing type definitions:~%")
-    (maphash (lambda (key def-list)
-               (declare (ignore key))
-               (dolist (def def-list)
-                 (when (eq (definition.type def) :deftype)
-                   (let* ((type-name (definition.name def))
-                          (context (definition.context def))
-                          (pkg (definition.package def)))
-                     
-                     (format t "~&   Processing type ~S (in package ~S)~%" 
-                             type-name 
-                             (package-name pkg))
-                     (format t "      Context: ~S~%" context)
-                     
-                     (let ((type-expr (extract-type-expression context)))
-                       (format t "      Extracted expression: ~S~%" type-expr)
-                       
-                       (let ((references (collect-type-references type-expr all-types)))
-                         (format t "      Dependencies: ~S~%" references)
-                         ;; Store dependencies for this type
-                         (setf (gethash type-name type-graph) references)))))))
-             (slot-value tracker 'definitions))
-    
-    ;; Display the final dependency graph
-    (format t "~&3. Final dependency graph:~%")
-    (let ((types (sort (loop for type being the hash-keys of type-graph collect type)
-                       #'string< :key #'symbol-name)))
-      (dolist (type types)
-        (let ((deps (gethash type type-graph)))
-          (format t "   ~S -> ~S~%" type deps))))
-    
-    ;; Now perform DFS to find cycles
-    (format t "~&4. Performing cycle detection:~%")
-    (dolist (type-name all-types)
-      (unless (gethash type-name types-seen)
-        (format t "   Starting DFS from ~S~%" type-name)
-        (let ((old-cycles-count (length cycles)))
-          (setf cycles (check-type-cycles-with-debug type-name nil type-graph types-seen cycles))
-          (format t "      Found ~D new cycles~%" (- (length cycles) old-cycles-count)))))
-    
-    ;; Display all detected cycles
-    (format t "~&5. All detected cycles (~D):~%" (length cycles))
-    (dolist (cycle cycles)
-      (format t "   ~S~%" cycle))
-    
-    ;; Store detected cycles in the tracker
-    (setf (slot-value tracker 'type-cycles) cycles)
-    
-    ;; Record each cycle as an anomaly with detailed filtering logic
-    (format t "~&6. Recording anomalies:~%")
-    (let ((anomaly-count 0))
-      (dolist (cycle cycles)
-        (let ((cross-package (> (length (remove-duplicates cycle :key #'symbol-package)) 1))
-              (complex-length (> (length cycle) 2)))
-          (format t "   Cycle: ~S~%" cycle)
-          (format t "      Cross-package: ~A, Complex length: ~A~%" 
-                  cross-package complex-length)
-          
-          (when (or cross-package complex-length)
-            (incf anomaly-count)
-            (let ((primary-pkg (symbol-package (first cycle))))
-              (record-anomaly tracker
-                :type :type-definition-cycle
-                :severity :warning
-                :description (format nil "Type definition cycle detected: ~{~S~^ -> ~}" cycle)
-                :context cycle
-                :package primary-pkg)))))
-      (format t "   Recorded ~D anomalies~%" anomaly-count))
-    
-    (format t "~&=== END DIAGNOSTICS ===~%")
-    cycles))
-
-#+ignore (defun check-type-cycles-with-debug (type-name path type-graph types-seen cycles)
-  "Enhanced version of check-type-cycles with debugging output"
-  (let ((indent (make-string (* 2 (length path)) :initial-element #\Space)))
-    (format t "~&~AChecking type: ~S (path: ~S)~%" indent type-name path)
-    
-    ;; Get type status from the cache
-    (let ((status (gethash type-name types-seen)))
-      (cond
-        ;; Already fully explored - no cycles here
-        ((eq status :completed)
-         (format t "~A  Already explored~%" indent)
-         cycles)
-        
-        ;; Found type in current path - cycle detected
-        ((eq status :in-progress)
-         (let* ((cycle-start (position type-name path :test #'equal))
-                (cycle-types (reverse (cons type-name (subseq path 0 cycle-start)))))
-           (format t "~A  CYCLE DETECTED: ~S~%" indent cycle-types)
-           ;; Store as list of symbols
-           (pushnew cycle-types cycles :test #'equal)))
-        
-        ;; New type - explore it
-        (t
-         (format t "~A  Marking as in-progress~%" indent)
-         (setf (gethash type-name types-seen) :in-progress)
-         (let ((updated-path (cons type-name path)))
-           ;; Recursively check each referenced type
-           (dolist (ref-type (gethash type-name type-graph))
-             (format t "~A  Following dependency: ~S~%" indent ref-type)
-             (when (gethash ref-type type-graph) ; Only check user-defined types
-               (setq cycles (check-type-cycles-with-debug ref-type updated-path type-graph types-seen cycles)))))
-         
-         ;; Mark as fully explored after checking all dependencies
-         (format t "~A  Marking as completed~%" indent)
-         (setf (gethash type-name types-seen) :completed)
-         cycles)))))
-
-#+ignore (defun extract-type-expression (deftype-form)
-  "Extract the type expression from a deftype form,
-   handling docstrings and declarations properly."
-  (when (and (listp deftype-form)
-             (eq (first deftype-form) 'deftype)
-             (>= (length deftype-form) 4))
-    (let ((body (nthcdr 3 deftype-form)))
-      ;; Skip docstring if present
-      (when (and (car body) (stringp (car body)))
-        (setf body (cdr body)))
-      ;; Skip declarations if present
-      (when (and (car body) (listp (car body)) 
-                 (eq (caar body) 'declare))
-        (setf body (cdr body)))
-      ;; Return first actual type expression
-      (car body))))
-
-#+ignore (defun collect-type-references (expr all-types)
-  "Extract references to other user-defined types from a type expression.
-   Enhanced to handle package-qualified symbols properly."
-  (let ((refs nil))
-    (labels ((process-symbol (sym)
-               (when (and (symbolp sym)
-                          (not (cl-symbol-p sym)))  ; Skip CL symbols
-                 ;; Check if this symbol is in our types list
-                 (let ((matching-type (find sym all-types :test #'symbol-equal)))
-                   (when matching-type
-                     (pushnew matching-type refs)))))
-             
-             (symbol-equal (s1 s2)
-               "Compare symbols by name and package, handling package-qualified symbols"
-               (and (string= (symbol-name s1) (symbol-name s2))
-                    (or (eq (symbol-package s1) (symbol-package s2))
-                        ;; If both are external/accessible, consider them equal
-                        (and (find-symbol (symbol-name s1) (symbol-package s2))
-                             (find-symbol (symbol-name s2) (symbol-package s1))))))
-             
-             (process-quoted-expr (form)
-               (typecase form
-                 (symbol (process-symbol form))
-                 (cons
-                  (case (car form)
-                    ;; Special handling for type specifiers
-                    ((or and not satisfies)
-                     (dolist (elt (cdr form))
-                       (process-quoted-expr elt)))
-                    ;; For other forms, just check each element
-                    (t (dolist (elt form)
-                         (process-quoted-expr elt)))))))
-             
-             (process-form (form)
-               (typecase form
-                 (symbol (process-symbol form))
-                 (cons
-                  (cond
-                    ;; Handle quoted expressions
-                    ((eq (car form) 'quote)
-                     (process-quoted-expr (cadr form)))
-                    ;; Handle backquoted expressions
-                    ((eq (car form) 'backquote)
-                     (process-form (cadr form)))
-                    ;; Handle unquoted expressions in backquotes
-                    ((eq (car form) 'unquote)
-                     (process-form (cadr form)))
-                    ;; Process all subforms
-                    (t (mapc #'process-form form)))))))
-      
-      ;; Start processing the expression
-      (process-form expr))
-    refs))
-
-
-#+ignore (defun filter-redundant-cycles (cycles)
-  "Filter redundant type cycles to make the output more informative.
-   Removes duplicates, normalizes cycles, and prioritizes fundamental cycles."
-  (let ((normalized-cycles (make-hash-table :test 'equal))
-        (result nil))
-    
-    ;; Normalize and deduplicate cycles
-    (dolist (cycle cycles)
-      (let* ((sorted-cycle (sort (copy-list cycle) #'string<))
-             (cycle-key (format nil "~{~A~^-~}" sorted-cycle)))
-        (setf (gethash cycle-key normalized-cycles) sorted-cycle)))
-    
-    ;; Convert to list and sort by length (shortest first)
-    (maphash (lambda (key cycle)
-               (declare (ignore key))
-               (push cycle result))
-             normalized-cycles)
-    
-    ;; Sort by length first, then alphabetically
-    (sort result (lambda (a b)
-                   (or (< (length a) (length b))
-                       (and (= (length a) (length b))
-                            (string< (format nil "~{~A~^-~}" a)
-                                    (format nil "~{~A~^-~}" b))))))
-    
-    ;; Filter out subsets if a shorter version of the same cycle exists
-    (let ((final-result nil))
-      (dolist (cycle result)
-        (unless (some (lambda (other-cycle)
-                        (and (< (length other-cycle) (length cycle))
-                             (subsetp (intersection other-cycle cycle) 
-                                      other-cycle)))
-                      result)
-          (push cycle final-result)))
-      
-      (nreverse final-result))))
-
-
-#+ignore (defun type-definition-cycle-p (cycle)
-  "Returns true if cycle represents a meaningful type definition cycle.
-   Less strict than complex-type-cycle-p, focuses on type definition issues."
-  (or
-    ;; Any cycle crossing package boundaries
-    (> (length (remove-duplicates cycle :key #'symbol-package)) 1)
-    ;; Or any cycle with 3+ elements
-    (> (length cycle) 2)))
-
-
 (defun check-type-cycles (type-name path type-graph types-seen cycles)
   "Recursive depth-first search to detect cycles in type definitions.
    TYPE-NAME - The type being examined
@@ -720,7 +466,7 @@
 
 
 (defun analyze-unused-imports (tracker)
-  "Detect packages that import symbols which are never referenced.
+  "Detect packages that import or use symbols which are never referenced.
    Analyzes both :USE and :IMPORT-FROM relationships to identify
    potentially unnecessary package dependencies."
   
@@ -769,12 +515,14 @@
     (maphash (lambda (pkg-name imports)
                (dolist (import-pkg imports)
                  (let ((import-key (cons pkg-name import-pkg)))
-                   (when (zerop (gethash import-key import-usage 0))
+                   (when (and (zerop (gethash import-key import-usage 0))
+                              (not (string= import-pkg "COMMON-LISP")))
                      ;; Found an unused import
                      (when-let ((pkg (find-package pkg-name)))
                        (record-anomaly tracker
                          :type :unused-import
                          :severity :info
+                         :file (find-package-definition-file tracker pkg-name)
                          :package pkg
                          :description 
                          (format nil "Package ~A imports ~A but doesn't use any of its symbols"
