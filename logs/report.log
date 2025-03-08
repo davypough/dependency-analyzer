@@ -1,0 +1,513 @@
+----------------------------------------------------------------------
+Dependency Analysis Report
+Project: dependency-analyzer-test
+Generated: 2025-03-08T19:27:34.301023Z
+----------------------------------------------------------------------
+
+EXECUTIVE SUMMARY
+------------------------------
+Project Statistics:
+  Files: 6
+  Packages: 16
+  Definitions: 109
+  References: 172
+  Total Symbols: 15629
+  Package Dependencies: 18
+  Anomalies: 42
+
+
+SYSTEM DETAILS
+------------------------------
+Name: dependency-analyzer-test
+Version: 0.1.0
+Description: Test data for dependency-analyzer
+Dependencies:
+  - alexandria
+  - dependency-analyzer
+
+
+ARCHITECTURAL ANALYSIS
+------------------------------
+
+System Hierarchy:
+-- dependency-analyzer-test
+
+
+Package Hierarchy:
+-- COMMON-LISP
+   -- ALEXANDRIA
+      -- TEST3-PKG
+      -- USER-PKG
+   -- CYCLE-PKG-A
+   -- CYCLE-PKG-B
+   -- CYCLE-PKG-C
+   -- RUNTIME-PKG-A
+   -- RUNTIME-PKG-B
+   -- RUNTIME-PKG-C
+   -- SHADOWING-TEST-PKG
+   -- TEST1-PKG
+      -- TEST4-PKG
+   -- TEST2-PKG
+   -- TEST3-PKG
+   -- TEST4-PKG
+   -- TEST5-PKG
+   -- USER-PKG
+-- INTERNAL-TEST-PKG
+   -- SHADOWING-TEST-PKG
+
+
+File Hierarchy:
+-- anoms2.lisp
+-- cycle-test.lisp
+-- refs.lisp
+   -- anoms.lisp
+      -- defs2.lisp
+   -- defs.lisp
+      -- anoms.lisp
+         -- defs2.lisp
+
+
+Class Hierarchy:
+-- CLASS-A
+-- CLASS-B
+-- CLASS-C
+-- NAMED-POINT
+   -- MONITORED-POINT
+      -- TEST-POINT
+
+
+Structure Hierarchy:
+-- POINT
+
+
+Condition Hierarchy:
+-- INVALID-POINT
+
+
+Type Hierarchy:
+-- POS-INTEGER
+-- SIZED-VECTOR
+-- STRING-OR-SYMBOL
+
+
+ANOMALIES
+------------------------------
+ANOMALY>
+    :Description "(SETF POINT-NAME) also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "(SETF POINT-U) also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "(SETF POINT-V) also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "*PARAM1* also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (SETF (SYMBOL-VALUE '*PARAM1*) 101)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "*SPECIAL1* also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFPARAMETER *SPECIAL1* 0)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "+CONST1+ also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCONSTANT +CONST1+ 1)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "COPY-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Complex type dependency cycle detected: CLASS-A -> CLASS-B -> CLASS-C -> CLASS-A"
+    :Type :COMPLEX-TYPE-CYCLE
+    :Severity :WARNING
+    :Context (CLASS-A CLASS-B CLASS-C)
+    :Package #<PACKAGE "CYCLE-PKG-A">
+
+ANOMALY>
+    :Description "Definition of *SHADOWED-VAR* shadows inherited symbol from INTERNAL-TEST-PKG"
+    :Type :SHADOWED-DEFINITION
+    :Severity :WARNING
+    :Context (DEFVAR *SHADOWED-VAR* 100 Shadows the inherited variable)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "Definition of SHADOWED-FUNC shadows inherited symbol from INTERNAL-TEST-PKG"
+    :Type :SHADOWED-DEFINITION
+    :Severity :WARNING
+    :Context (DEFUN SHADOWED-FUNC (X Y) (* X Y) Shadows the inherited function)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "FN1 also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFUN FN1 (X) (* 2 X))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "GF1 also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFGENERIC GF1
+                 (Y)
+               (DOCUMENTATION Basic generic function))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "GF2 also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFMETHOD GF2 ((A NUMBER) B) (LIST A B))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "INVALID-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-CONDITION INVALID-POINT
+                 (ERROR)
+                 ((REASON INITARG REASON READER POINT-ERROR-REASON)
+                  (VALUE INITARG VALUE READER POINT-ERROR-VALUE)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "MAKE-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "MY-COMB also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-METHOD-COMBINATION MY-COMB
+               (&KEY (ORDER MOST-SPECIFIC-FIRST))
+               ((METHODS *))
+               `(PROGN
+                 ,(CASE ORDER
+                    (MOST-SPECIFIC-FIRST `(CALL-METHOD ,(FIRST METHODS)))
+                    (MOST-SPECIFIC-LAST `(CALL-METHOD ,(CAR (LAST METHODS)))))))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "NAMED-POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-ERROR-REASON also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-CONDITION INVALID-POINT
+                 (ERROR)
+                 ((REASON INITARG REASON READER POINT-ERROR-REASON)
+                  (VALUE INITARG VALUE READER POINT-ERROR-VALUE)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-ERROR-VALUE also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-CONDITION INVALID-POINT
+                 (ERROR)
+                 ((REASON INITARG REASON READER POINT-ERROR-REASON)
+                  (VALUE INITARG VALUE READER POINT-ERROR-VALUE)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-NAME also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-P also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-U also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-V also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFCLASS NAMED-POINT NIL
+                       ((NAME INITARG NAME ACCESSOR POINT-NAME)
+                        (U INITARG U ACCESSOR POINT-U)
+                        (V INITARG V ACCESSOR POINT-V)))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-X also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POINT-Y also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFSTRUCT POINT (X 0 TYPE NUMBER) (Y 0 TYPE NUMBER))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "POS-INTEGER also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFTYPE POS-INTEGER () '(FIXNUM 1 *))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "TODAY also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFINE-SYMBOL-MACRO TODAY (GET-UNIVERSAL-TIME))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Constant MY-CONST defined without plus-sign convention (+MY-CONST+)"
+    :Type :CONSTANT-NAMING
+    :Severity :INFO
+    :Context (DEFCONSTANT MY-CONST 0)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package INTERNAL-TEST-PKG provides core functionality to 1 other packages (4 refs)"
+    :Type :PACKAGE-COHESION
+    :Severity :INFO
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/defs2.lisp
+    :Package "INTERNAL-TEST-PKG"
+
+ANOMALY>
+    :Description "Package SHADOWING-TEST-PKG imports INTERNAL-TEST-PKG but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/defs2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "Package T3PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp
+    :Package #<PACKAGE "TEST3-PKG">
+
+ANOMALY>
+    :Description "Package TEST3-PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp
+    :Package #<PACKAGE "TEST3-PKG">
+
+ANOMALY>
+    :Description "Package TEST4-PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp
+    :Package #<PACKAGE "TEST4-PKG">
+
+ANOMALY>
+    :Description "Package TEST4-PKG imports TEST1-PKG but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp
+    :Package #<PACKAGE "TEST4-PKG">
+
+ANOMALY>
+    :Description "Package USER-PKG imports ALEXANDRIA but doesn't use any of its symbols"
+    :Type :UNUSED-IMPORT
+    :Severity :INFO
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::*INTERNAL-VAR*"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context ((VALUE *INTERNAL-VAR*))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::*INTERNAL-VAR*"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context ((VAL *INTERNAL-VAR*))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::INTERNAL-FUNCTION"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context (+ X (INTERNAL-FUNCTION 10))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Package-qualified reference to internal symbol INTERNAL-TEST-PKG::INTERNAL-FUNCTION"
+    :Type :QUALIFIED-INTERNAL-REFERENCE
+    :Severity :INFO
+    :Context (LET ((VAL *INTERNAL-VAR*))
+               (INTERNAL-FUNCTION VAL))
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Special variable MY-PARAM defined without earmuffs convention (*MY-PARAM*)"
+    :Type :SPECIAL-VAR-NAMING
+    :Severity :INFO
+    :Context (DEFPARAMETER MY-PARAM 0)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+ANOMALY>
+    :Description "Special variable MY-VAR defined without earmuffs convention (*MY-VAR*)"
+    :Type :SPECIAL-VAR-NAMING
+    :Severity :INFO
+    :Context (DEFVAR MY-VAR)
+    :File D:/quicklisp/local-projects/dependency-analyzer/test/anoms.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+
+
+MAINTENANCE CONSIDERATIONS
+------------------------------
+
+
+DETAILED REFERENCES
+------------------------------
+System Dependencies:
+
+
+File Dependencies:
+/test/defs.lisp depends on /test/anoms.lisp
+    *PARAM1* FN1 MAKE-POINT NAMED-POINT NAMED-POINT POINT POINT POINT
+    POINT-NAME POINT-U POINT-V
+
+/test/refs.lisp depends on /test/anoms.lisp
+    *PARAM1* *PARAM1* *PARAM1* *PARAM1* *PARAM1* *PARAM1* *PARAM1*
+    *PARAM1* *PARAM1* *PARAM1* *PARAM1* *SPECIAL1* *SPECIAL1*
+    *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1*
+    *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1*
+    *SPECIAL1* *SPECIAL1* *SPECIAL1* +CONST1+ +CONST1+ +CONST1+
+    +CONST1+ COPY-POINT FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1
+    FN1 FN1 FN1 FN1 FN1 GF1 GF1 GF1 GF1 GF1 GF1 GF1 GF2 GF2 GF2 GF2
+    GF2 GF2 GF2 GF2 GF2 GF2 INVALID-POINT MAKE-POINT MAKE-POINT
+    NAMED-POINT POINT POINT-ERROR-REASON POINT-ERROR-VALUE POINT-NAME
+    POINT-NAME POINT-NAME POINT-P POINT-U POINT-V POINT-X POINT-Y
+    TODAY TODAY TODAY TODAY TODAY
+
+/test/refs.lisp depends on /test/defs.lisp
+    *PARAM1* *PARAM1* *PARAM1* *PARAM1* *PARAM1* *PARAM1* *PARAM1*
+    *PARAM1* *PARAM1* *PARAM1* *PARAM1* *PARAM3* *PARAM3* *PARAM3*
+    *PARAM3* *PARAM3* *PARAM3* *PARAM3* *PARAM3* *SPECIAL1* *SPECIAL1*
+    *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1*
+    *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1* *SPECIAL1*
+    *SPECIAL1* *SPECIAL1* *SPECIAL1* +CONST1+ +CONST1+ +CONST1+
+    +CONST1+ COPY-POINT EMPTY-LIST EMPTY-LIST EMPTY-LIST EMPTY-LIST
+    EMPTY-LIST FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1 FN1
+    FN1 FN1 FN2A FN2A FN2A FN2A FN2B FN2B FN3 GF1 GF1 GF1 GF1 GF1 GF1
+    GF1 GF2 GF2 GF2 GF2 GF2 GF2 GF2 GF2 GF2 GF2 INCF-BY INVALID-POINT
+    MAKE-POINT MAKE-POINT MONITORED-POINT MY-MACRO MY-MACRO MY-MACRO
+    MY-MACRO MY-PLUS MY-PLUS NAMED-POINT PI/2 PI/2 PI/2 PI/2 PI/2 PI/2
+    PI/2 PI/2 PI/2 PI/2 POINT POINT-ERROR-REASON POINT-ERROR-VALUE
+    POINT-NAME POINT-NAME POINT-NAME POINT-P POINT-TIMESTAMP
+    POINT-TIMESTAMP POINT-U POINT-V POINT-X POINT-Y STRING-OR-SYMBOL
+    T1PKG TEST2-PKG TODAY TODAY TODAY TODAY TODAY WITH-TEST WITH-TEST
+    WITH-TEST WITH-TEST WITH-TEST
+
+/test/anoms.lisp depends on /test/defs2.lisp
+    *INTERNAL-VAR* *INTERNAL-VAR* *PUBLIC-VARIABLE* INTERNAL-FUNCTION
+    INTERNAL-FUNCTION PUBLIC-FUNCTION
+

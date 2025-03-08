@@ -108,8 +108,13 @@
           (log-anomalies)))
       (in-package :dep)
           
-      ;; Generate final report to terminal
-      (report system-designator)
+      ;; Generate final report to terminal and log file
+      (with-open-file (log-stream (merge-pathnames "report.log" logs-dir)
+                                  :direction :output
+                                  :if-exists :supersede
+                                  :if-does-not-exist :create)
+        (let ((*standard-output* (make-broadcast-stream *standard-output* log-stream)))
+          (report system-designator)))
           
       ;; Return tracker for chaining
       *current-tracker*)))
