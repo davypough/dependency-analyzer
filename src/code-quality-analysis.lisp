@@ -51,7 +51,7 @@
                                      (intersection exports 
                                                  (package-use-list p)))
                                    (list-all-packages))))
-                 
+               
                  ;; Record complete package metrics
                  (setf (gethash pkg package-metrics)
                        (list :local-symbols local-symbols
@@ -59,14 +59,23 @@
                              :used-packages (length used-packages)
                              :exported-symbols (length exports)
                              :export-users export-users))
-                 
+               
                  ;; Record dependency relationships
                  (setf (gethash (package-name pkg) package-graph)
                        (mapcar #'package-name used-packages))
-                 
+               
                  ;; Record detailed symbol usage patterns
                  (setf (gethash (package-name pkg) package-details)
-                       (analyze-package-usage tracker pkg))))
+                       (analyze-package-usage tracker pkg))
+               
+                 ;; NEW: Perform advanced package analysis for cohesion and coupling
+                 (analyze-internal-dependencies tracker pkg)
+                 (analyze-symbol-ownership tracker pkg)
+               
+                 ;; For client usage analysis, only process if there are clients
+                 (let ((client-packages (package-used-by-list pkg)))
+                   (when client-packages
+                     (analyze-client-usage-patterns tracker pkg client-packages)))))
              all-project-packages)
     
     ;; Update tracker with analysis results
@@ -177,6 +186,9 @@
     (sort (remove-duplicates symbols) #'string< :key #'symbol-name)))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun analyze-package-exports (tracker)
   "Analyze runtime export patterns between packages.
    Examines actual package relationships in the running system rather than
@@ -252,7 +264,7 @@
                    (when (and (> dependent-pkgs 0)
                               (> total-refs (* 3 dependent-pkgs))) ; Avg > 3 refs per client
                      (record-anomaly tracker
-                       :type :package-cohesion
+                       :type :package-core-provider
                        :severity :info
                        :file (find-package-definition-file tracker provider-name)
                        :package provider-name
@@ -260,6 +272,258 @@
                        (format nil "Package ~A provides core functionality to ~D other packages (~D refs)"
                                provider-name dependent-pkgs total-refs)))))
                pkg-relationships))))
+
+
+#+ignore (defun analyze-internal-dependencies (tracker package)  ;perhaps enhance later
+  "Measure how functions within a package refer to each other."
+  (let ((symbol-graph (make-hash-table))
+        (isolated-symbols nil)
+        (connected-groups nil))
+    ;; Analyze call patterns between internal symbols
+    (do-symbols (sym package)
+      (when (eq (symbol-package sym) package)
+        ;; Find all references from this symbol's function to other package symbols
+        (let ((references (collect-function-references sym package)))
+          (if references
+              (setf (gethash sym symbol-graph) references)
+              (push sym isolated-symbols)))))
+    
+    ;; Identify connected components in the dependency graph
+    (setf connected-groups (find-connected-components symbol-graph))
+    
+    ;; Cohesion issue: Multiple isolated groups of functionality
+    (when (> (length connected-groups) 1)
+      (record-anomaly tracker
+        :type :package-fragmentation
+        :severity :info
+        :file (find-package-definition-file tracker (package-name package))
+        :package package
+        :context connected-groups
+        :description 
+        (format nil "Package ~A contains ~D disconnected functional groups" 
+                (package-name package) (length connected-groups))))))
+
+
+#+ignore (defun analyze-client-usage-patterns (tracker package client-packages)  ;perhaps enhance later
+  "Analyze whether different clients use distinct subsets of a package's exports."
+  (let ((client-usage-patterns (make-hash-table :test 'eq))
+        (export-clients (make-hash-table)))
+    
+    ;; Record which exports are used by which clients
+    (do-external-symbols (sym package)
+      (dolist (client client-packages)
+        (when (symbol-used-by-package-p sym client)
+          (push client (gethash sym export-clients))
+          (push sym (gethash client client-usage-patterns)))))
+    
+    ;; Calculate interface segregation metrics
+    (let* (;(all-exports (collect-all-external-symbols package))
+           ;(total-exports (length all-exports))
+           (client-count (length client-packages))
+           (usage-overlap-matrix (compute-client-overlap client-usage-patterns))
+           (disjoint-client-groups (identify-disjoint-clients usage-overlap-matrix 0.2)))
+      
+      ;; Cohesion issue: Different clients use completely different parts of the interface
+      (when (and (> client-count 1) (> (length disjoint-client-groups) 1))
+        (record-anomaly tracker
+          :type :interface-segregation
+          :severity :info
+          :file (find-package-definition-file tracker (package-name package))
+          :package package
+          :context disjoint-client-groups
+          :description 
+          (format nil "Package ~A has ~D disjoint client groups using separate parts of its interface" 
+                  (package-name package) (length disjoint-client-groups)))))))
+
+
+(defun analyze-symbol-ownership (tracker package)
+  "Examine what percentage of symbols used by a package are defined elsewhere."
+  (let ((own-symbol-count 0)
+        (imported-symbol-count 0)
+        (references-by-external-package (make-hash-table :test 'eq)))
+    
+    ;; Count symbols and their origins
+    (do-symbols (sym package)
+      (let ((home-package (symbol-package sym)))
+        (if (eq home-package package)
+            (incf own-symbol-count)
+            (progn 
+              (incf imported-symbol-count)
+              (incf (gethash home-package references-by-external-package 0))))))
+    
+    ;; Calculate dependency dispersion
+    (let* ((total-symbols (+ own-symbol-count imported-symbol-count))
+           (external-packages (hash-table-count references-by-external-package))
+           (ownership-ratio (/ own-symbol-count total-symbols)))
+      
+      ;; Potential cohesion issue: Heavy reliance on external symbols
+      (when (< ownership-ratio 0.5)
+        (record-anomaly tracker
+          :type :external-dependency
+          :severity :info
+          :file (find-package-definition-file tracker (package-name package))
+          :package package
+          :context (loop for pkg being the hash-keys of references-by-external-package
+                         collect (package-name pkg))
+          :description 
+          (format nil "Package ~A owns only ~D% of its symbols, relying on ~D external packages" 
+                  (package-name package) 
+                  (round (* 100 ownership-ratio))
+                  external-packages))))))
+
+
+(defun collect-function-references (sym package)
+  "Find functions in PACKAGE that are referenced by the function SYM.
+   Returns a list of symbols called by this function."
+  (let ((refs nil))
+    ;; Get definition key for this function
+    (let ((def-key (make-tracking-key sym package :function))
+          (context-refs (make-hash-table :test 'equal)))
+      
+      ;; Find the definition's context
+      (when-let ((defs (gethash def-key (slot-value *current-tracker* 'definitions))))
+        (let ((def-context (definition.context (first defs)))
+              (def-file (definition.file (first defs))))
+          
+          ;; Collect all references from the same file and same context
+          (maphash 
+            (lambda (key ref-list)
+              (declare (ignore key))
+              (dolist (ref ref-list)
+                (when (and (equal (reference.file ref) def-file)
+                           (eq (reference.type ref) :function)
+                           (eq (symbol-package (reference.name ref)) package)
+                           (not (eq (reference.name ref) sym)))
+                  ;; Store reference by its context
+                  (push ref (gethash (reference.context ref) context-refs)))))
+            (slot-value *current-tracker* 'references))
+          
+          ;; Add references whose context is a subform of our definition
+          (maphash
+            (lambda (context refs-in-context)
+              (when (subform-p context def-context)
+                (dolist (ref refs-in-context)
+                  (pushnew (reference.name ref) refs))))
+            context-refs))))
+    refs))
+
+
+(defun subform-p (possible-subform form)
+  "Check if POSSIBLE-SUBFORM appears within FORM."
+  (or (equal possible-subform form)
+      (and (consp form)
+           (or (some (lambda (x) (subform-p possible-subform x)) form)))))
+
+
+(defun find-connected-components (graph)
+  "Find connected components in a GRAPH.
+   GRAPH is a hash table mapping nodes to their adjacent nodes.
+   Returns a list of lists, each containing nodes in a connected component."
+  (let ((visited (make-hash-table :test 'eq))
+        (components nil))
+    
+    ;; DFS to build a component from a starting node
+    (labels ((explore (node component)
+               (unless (gethash node visited)
+                 (setf (gethash node visited) t)
+                 (push node component)
+                 ;; Visit each adjacent node
+                 (dolist (adj (gethash node graph nil))
+                   (setf component (explore adj component))))
+               component))
+      
+      ;; Try to start DFS from each unvisited node
+      (maphash (lambda (node _)
+                 (declare (ignore _))
+                 (unless (gethash node visited)
+                   (push (explore node nil) components)))
+               graph))
+    
+    ;; Return the identified components
+    components))
+
+
+(defun symbol-used-by-package-p (sym client-package)
+  "Determine if CLIENT-PACKAGE actually uses the symbol SYM.
+   This checks both for symbol accessibility and actual references."
+  (let ((found-usage nil))
+    ;; First check if the symbol is visible in the client package
+    (multiple-value-bind (found status) 
+        (find-symbol (symbol-name sym) client-package)
+      (when (and found (member status '(:external :inherited)))
+        ;; Then check for actual usage in references
+        (maphash (lambda (key ref-list)
+                   (declare (ignore key))
+                   (unless found-usage
+                     (setf found-usage 
+                           (some (lambda (ref)
+                                  (and (eq (reference.package ref) client-package)
+                                       (eq (reference.name ref) sym)))
+                                ref-list))))
+                 (slot-value *current-tracker* 'references))))
+    found-usage))
+
+
+(defun collect-all-external-symbols (package)
+  "Return a list of all symbols exported by PACKAGE."
+  (let ((exports nil))
+    (do-external-symbols (sym package)
+      (push sym exports))
+    exports))
+
+
+(defun compute-client-overlap (client-usage-patterns)
+  "Compute a matrix of overlap coefficients between clients.
+   CLIENT-USAGE-PATTERNS maps clients to lists of used symbols.
+   Returns a hash table mapping client pairs to their overlap coefficient."
+  (let ((overlap-matrix (make-hash-table :test 'equal)))
+    ;; For each pair of clients
+    (maphash (lambda (client1 symbols1)
+               (maphash (lambda (client2 symbols2)
+                          ;; Skip comparing a client with itself
+                          (unless (eq client1 client2)
+                            ;; Calculate Szymkiewicz–Simpson overlap coefficient
+                            (let* ((intersection-size 
+                                    (length (intersection symbols1 symbols2)))
+                                   (min-size (min (length symbols1) 
+                                                 (length symbols2)))
+                                   (overlap (if (zerop min-size)
+                                              0.0
+                                              (/ intersection-size min-size))))
+                              (setf (gethash (cons client1 client2) overlap-matrix)
+                                    overlap))))
+                        client-usage-patterns))
+             client-usage-patterns)
+    overlap-matrix))
+
+
+(defun identify-disjoint-clients (overlap-matrix threshold)
+  "Find groups of clients with minimal overlap in their usage patterns.
+   OVERLAP-MATRIX maps client pairs to their overlap coefficients.
+   THRESHOLD is the maximum overlap to consider clients as disjoint.
+   Returns a list of client groups where each group has minimal inter-group overlap."
+  (let ((clients nil)
+        (client-graph (make-hash-table :test 'eq)))
+    
+    ;; First collect all unique clients
+    (loop for pair being the hash-keys of overlap-matrix
+          do (pushnew (car pair) clients)
+             (pushnew (cdr pair) clients))
+    
+    ;; Build a graph where edges exist between clients with significant overlap
+    (loop for pair being the hash-keys of overlap-matrix
+          for overlap = (gethash pair overlap-matrix)
+          when (> overlap threshold)
+          do (let ((client1 (car pair))
+                   (client2 (cdr pair)))
+               (push client2 (gethash client1 client-graph nil))
+               (push client1 (gethash client2 client-graph nil))))
+    
+    ;; Find connected components in this graph
+    (find-connected-components client-graph)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 (defun analyze-clos-relationships (tracker)

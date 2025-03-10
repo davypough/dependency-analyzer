@@ -163,10 +163,10 @@
         (format t "  ~A~%" cycle))))
 
   ;; Anomalies Section
-  (format t "~2%ANOMALIES~%")
-  (format t "~V,,,'-<~A~>~%" 30 "")
+  ;(format t "~2%ANOMALIES~%")
+  ;(format t "~V,,,'-<~A~>~%" 30 "")
   ;; Use the anomalies list directly
-  (let ((all-anomalies (slot-value *current-tracker* 'anomalies)))
+  #+ignore (let ((all-anomalies (slot-value *current-tracker* 'anomalies)))
     ;; Define severity ordering for sorting
     (let ((severity-order '(:ERROR :WARNING :INFO)))
       ;; Sort by severity (preserving the ERROR, WARNING, INFO order)
@@ -197,21 +197,163 @@
       (format t "No anomalies found.~%")))
 
   ;; Maintenance Section
-  (format t "~2%MAINTENANCE CONSIDERATIONS~%")
+  (format t "~2%MAINTENANCE CONSIDERATIONS (reference logs/anomalies.log for details)~%")
   (format t "~V,,,'-<~A~>~%" 30 "")
-  ;; Display any cycles detected
-  (when-let (cycles (slot-value *current-tracker* 'file-cycles))
-    (format t "~%File Dependencies with Cycles:~%")
-    (format t "The following files have circular dependencies.~%")
-    (format t "This may indicate tightly coupled components:~%~%")
-    (dolist (cycle cycles)
-      (format t "  ~A~%" cycle)))
-  (when-let (cycles (slot-value *current-tracker* 'package-cycles))
-    (format t "~%Package Dependencies with Cycles:~%")
-    (format t "The following packages have mutual dependencies.~%")
-    (format t "While sometimes necessary, this can make the system harder to understand:~%~%")
-    (dolist (cycle cycles)
-      (format t "  ~A~%" cycle)))
+
+  ;; Get all anomalies
+  (let ((all-anomalies (slot-value *current-tracker* 'anomalies)))
+    
+    ;; 1. Dependency Hot Spots
+    (multiple-value-bind (file-deps pkg-deps) 
+        (count-dependencies *current-tracker*)
+      (let ((hotspots (find-hotspots file-deps pkg-deps)))
+        (when hotspots
+          (format t "~%Dependency Hot Spots:~%")
+          (dolist (item hotspots)
+            (format t "    • ~A~%" item))
+          (format t "~%    These components have unusually high coupling and may benefit from refactoring.~%"))))
+    
+    ;; 2. Duplicate Definitions
+    (let ((dupes (remove-if-not (lambda (a) (eq (anomaly.type a) :duplicate-definition))
+                                all-anomalies)))
+      (when dupes
+        (format t "~%Duplicate Definitions (~D):~%" (length dupes))
+        (format t "    The following symbols are defined in multiple files:~%")
+        (let ((dupe-names (mapcar (lambda (a) 
+                                    (let ((name (subseq (anomaly.description a) 
+                                                 0 
+                                                (position #\Space (anomaly.description a)))))
+                                      (string-trim "()" name)))
+                                  dupes)))
+          (format t "    • ~{~A~^, ~}~%" (sort dupe-names #'string<))
+          (format t "~%    Duplicate definitions overwrite previous definitions making bugs difficult to trace.~%"))))
+    
+    ;; 3. Type System Issues
+    (let ((cycles (remove-if-not (lambda (a) (eq (anomaly.type a) :complex-type-cycle))
+                                all-anomalies))
+          (shadowing (remove-if-not (lambda (a) (eq (anomaly.type a) :shadowed-definition))
+                                    all-anomalies)))
+      
+      ;; 3a. Type Dependency Cycles
+      (when cycles
+        (format t "~%Type Dependency Cycles (~D):~%" (length cycles))
+        (dolist (cycle cycles)
+          (format t "    • ~A~%" (anomaly.description cycle)))
+        (format t "~%    Cyclical type relationships become harder to reason about, increasing the likelihood of subtle semantic errors.~%"))
+      
+      ;; 3b. Shadowed Definitions
+      (when shadowing
+        (format t "~%Shadowed Definitions (~D):~%" (length shadowing))
+        (dolist (shadow shadowing)
+          (let ((desc (anomaly.description shadow)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Shadowing can create subtle runtime behavior based on which definition is active in a given context.~%")))
+    
+    ;; 4. Naming Convention Issues
+    (let ((const-issues (remove-if-not (lambda (a) (eq (anomaly.type a) :constant-naming))
+                                      all-anomalies))
+          (var-issues (remove-if-not (lambda (a) (eq (anomaly.type a) :special-var-naming))
+                                    all-anomalies)))
+      
+      ;; 4a. Constant Naming
+      (when const-issues
+        (format t "~%Constant Naming Issues (~D):~%" (length const-issues))
+        (dolist (issue const-issues)
+          (let ((desc (anomaly.description issue)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Constants typically follow the +CONST+ naming convention.~%"))
+      
+      ;; 4b. Special Variable Naming
+      (when var-issues
+        (format t "~%Special Variable Naming Issues (~D):~%" (length var-issues))
+        (dolist (issue var-issues)
+          (let ((desc (anomaly.description issue)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Special variables typically follow the *VAR* naming convention.~%")))
+    
+    ;; 5. Package Structure Issues
+    (let ((cohesion (remove-if-not (lambda (a) (eq (anomaly.type a) :package-core-provider))
+                                  all-anomalies))
+          (fragmentation (remove-if-not (lambda (a) (eq (anomaly.type a) :package-fragmentation))
+                                        all-anomalies))
+          (interface (remove-if-not (lambda (a) (eq (anomaly.type a) :interface-segregation))
+                                  all-anomalies))
+          (external-deps (remove-if-not (lambda (a) (eq (anomaly.type a) :external-dependency))
+                                      all-anomalies))
+          (unused (remove-if-not (lambda (a) (eq (anomaly.type a) :unused-import))
+                            all-anomalies)))
+  
+      ;; 5a. Package Cohesion
+      (when cohesion
+        (format t "~%Package Cohesion Issues (~D):~%" (length cohesion))
+        (dolist (issue cohesion)
+          (let ((desc (anomaly.description issue)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Such packages may have too many responsibilities, becoming hard to reason about systematically.~%"))
+  
+      ;; 5b. Package Fragmentation
+      (when fragmentation
+        (format t "~%Package Fragmentation Issues (~D):~%" (length fragmentation))
+        (dolist (issue fragmentation)
+          (let ((desc (anomaly.description issue)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Fragmented packages contain disconnected functional groups and may benefit from being split.~%"))
+  
+      ;; 5c. Interface Segregation
+      (when interface
+        (format t "~%Interface Segregation Issues (~D):~%" (length interface))
+        (dolist (issue interface)
+          (let ((desc (anomaly.description issue)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Consider separating interfaces that are used by disjoint client groups.~%"))
+  
+      ;; 5d. External Dependencies
+      (when external-deps
+        (format t "~%External Dependency Issues (~D):~%" (length external-deps))
+        (dolist (issue external-deps)
+          (let ((desc (anomaly.description issue)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Packages with low symbol ownership may have unclear boundaries or excessive coupling.~%"))
+     
+      ;; 5e. Unused Imports
+      (when unused
+        (format t "~%Unused Package Imports (~D):~%" (length unused))
+        (dolist (issue unused)
+          (let ((desc (anomaly.description issue)))
+            (format t "    • ~A~%" desc)))
+        (format t "~%    Consider removing unnecessary imports to clarify dependencies.~%")))
+    
+    ;; 6. Symbol Visibility Issues
+    (let ((vis-issues (remove-if-not (lambda (a) (eq (anomaly.type a) :qualified-internal-reference))
+                                    all-anomalies)))
+      (when vis-issues
+        (format t "~%Symbol Visibility Issues (~D):~%" (length vis-issues))
+        (format t "    The following internal symbols are referenced with package qualification:~%")
+        (let ((internal-refs (remove-duplicates 
+                              (mapcar (lambda (a) 
+                                        (let ((desc (anomaly.description a)))
+                                          (subseq desc (+ (position #\Space desc) 1))))
+                                      vis-issues)
+                              :test #'string=)))
+          (dolist (ref (sort internal-refs #'string<))
+            (format t "    • ~A~%" ref)))
+        (format t "~%    Consider exporting these symbols or restructuring the packages.~%")))
+    
+    ;; 7. File Dependency Cycles
+    (when-let (cycles (slot-value *current-tracker* 'file-cycles))
+      (format t "~%File Dependency Cycles (~D):~%" (length cycles))
+      (format t "    The following files have circular dependencies:~%")
+      (dolist (cycle cycles)
+        (format t "    • ~A~%" cycle))
+      (format t "~%    Circular dependencies make code harder to understand and maintain.~%"))
+    
+    ;; 8. Package Dependency Cycles
+    (when-let (cycles (slot-value *current-tracker* 'package-cycles))
+      (format t "~%Package Dependency Cycles (~D):~%" (length cycles))
+      (format t "    The following packages have circular dependencies:~%")
+      (dolist (cycle cycles)
+        (format t "    • ~A~%" cycle))
+      (format t "~%    Consider refactoring to establish a clearer package hierarchy.~%")))
 
   ;; Detailed References Section
   (format t "~2%DETAILED REFERENCES~%")
@@ -260,3 +402,99 @@
   
   ;; Return value
   *current-tracker*)
+
+
+(defun categorize-anomalies (tracker)
+  "Group anomalies by category for maintenance reporting."
+  (let ((categories (make-hash-table :test 'eq))
+        (all-anomalies (slot-value tracker 'anomalies)))
+    
+    ;; Create category groupings
+    (dolist (anomaly all-anomalies)
+      (let ((type (anomaly.type anomaly)))
+            ; (severity (anomaly.severity anomaly)))
+        
+        ;; Group by higher-level category
+        (let ((category (cond
+                          ((member type '(:duplicate-definition))
+                           :duplication)
+                          ((member type '(:complex-type-cycle :shadowed-definition))
+                           :type-system)
+                          ((member type '(:constant-naming :special-var-naming))
+                           :naming-conventions)
+                          ((member type '(:qualified-internal-reference))
+                           :visibility)
+                          ((member type '(:package-cohesion :unused-import))
+                           :package-structure)
+                          (t :other))))
+          
+          ;; Add to appropriate category list
+          (push anomaly (gethash category categories nil)))))
+    
+    categories))
+
+
+(defun count-dependencies (tracker)
+  "Count incoming and outgoing dependencies for files and packages."
+  (let ((file-deps (make-hash-table :test 'equal))
+        (pkg-deps (make-hash-table :test 'equal)))
+    
+    ;; Calculate file dependencies
+    (maphash (lambda (file definitions)
+               (declare (ignore definitions))
+               (let ((out-deps (length (file-dependencies tracker file)))
+                     (in-deps 0))
+                 
+                 ;; Count incoming dependencies (other files that depend on this one)
+                 (maphash (lambda (other-file _)
+                            (declare (ignore _))
+                            (when (member file (file-dependencies tracker other-file)
+                                         :test #'equal)
+                              (incf in-deps)))
+                          (slot-value tracker 'file-map))
+                 
+                 ;; Record stats
+                 (setf (gethash file file-deps)
+                       (list :in in-deps :out out-deps :total (+ in-deps out-deps)))))
+             (slot-value tracker 'file-map))
+    
+    ;; Calculate package dependencies
+    (maphash (lambda (pkg-name metrics)
+               (let (;(pkg (find-package pkg-name))
+                     (in-deps (getf metrics :export-users 0))
+                     (out-deps (getf metrics :used-packages 0)))
+                 (setf (gethash pkg-name pkg-deps)
+                       (list :in in-deps :out out-deps 
+                             :total (+ in-deps out-deps)))))
+             (slot-value tracker 'package-metrics))
+    
+    (values file-deps pkg-deps)))
+
+
+(defun find-hotspots (file-deps pkg-deps)
+  "Find components with unusually high coupling."
+  (let ((hotspots nil)
+        (file-threshold 5)   ; Threshold for high coupling
+        (pkg-threshold 3))
+    
+    ;; Check files with many dependencies
+    (maphash (lambda (file stats)
+               (let ((in-deps (getf stats :in))
+                     (out-deps (getf stats :out)))
+                 (when (> (+ in-deps out-deps) file-threshold)
+                   (push (format nil "File ~A has ~D incoming and ~D outgoing dependencies"
+                                (project-pathname file) in-deps out-deps)
+                         hotspots))))
+             file-deps)
+    
+    ;; Check packages with many dependencies
+    (maphash (lambda (pkg-name stats)
+               (let ((in-deps (getf stats :in))
+                     (out-deps (getf stats :out)))
+                 (when (> (+ in-deps out-deps) pkg-threshold)
+                   (push (format nil "Package ~A has ~D incoming and ~D outgoing dependencies"
+                                pkg-name in-deps out-deps)
+                         hotspots))))
+             pkg-deps)
+    
+    (sort hotspots #'string<)))

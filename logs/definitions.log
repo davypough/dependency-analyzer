@@ -218,7 +218,7 @@ DEFINITION>
     :Name USER-PKG::FN2A
     :Context (DEFUN USER-PKG::FN2A (USER-PKG::X &OPTIONAL USER-PKG::Y)
                (DECLARE (TYPE NUMBER USER-PKG::X))
-               (ALEXANDRIA:PROPER-LIST-P (LIST USER-PKG::X USER-PKG::Y)))
+               (PROPER-LIST-P (LIST USER-PKG::X USER-PKG::Y)))
     :Type :FUNCTION
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
@@ -1257,7 +1257,28 @@ DEFINITION>
                100
                "Shadows the inherited variable")
     :Type :VARIABLE
+    :File /test/cohesion-test.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+    :Status :INHERITED
+
+DEFINITION>
+    :Name INTERNAL-TEST-PKG:*SHADOWED-VAR*
+    :Context (DEFVAR INTERNAL-TEST-PKG:*SHADOWED-VAR*
+               100
+               "Shadows the inherited variable")
+    :Type :VARIABLE
     :File /test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+    :Status :INHERITED
+
+DEFINITION>
+    :Name INTERNAL-TEST-PKG:SHADOWED-FUNC
+    :Context (DEFUN INTERNAL-TEST-PKG:SHADOWED-FUNC
+                    (SHADOWING-TEST-PKG::X SHADOWING-TEST-PKG::Y)
+               (* SHADOWING-TEST-PKG::X SHADOWING-TEST-PKG::Y)
+               "Shadows the inherited function")
+    :Type :FUNCTION
+    :File /test/cohesion-test.lisp
     :Package #<PACKAGE "SHADOWING-TEST-PKG">
     :Status :INHERITED
 
@@ -1332,7 +1353,7 @@ DEFINITION>
     :Name CYCLE-PKG-B:CLASS-B
     :Context (DEFCLASS CYCLE-PKG-B:CLASS-B NIL
                        ((CYCLE-PKG-B::C-REF :ACCESSOR CYCLE-PKG-B::B-C-REF
-                         :INITARG :C-REF :TYPE CLASS-C)))
+                         :INITARG :C-REF :TYPE CYCLE-PKG-C:CLASS-C)))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /test/cycle-test.lisp
     :Package #<PACKAGE "CYCLE-PKG-B">
@@ -1342,7 +1363,7 @@ DEFINITION>
     :Name CYCLE-PKG-B::B-C-REF
     :Context (DEFCLASS CYCLE-PKG-B:CLASS-B NIL
                        ((CYCLE-PKG-B::C-REF :ACCESSOR CYCLE-PKG-B::B-C-REF
-                         :INITARG :C-REF :TYPE CLASS-C)))
+                         :INITARG :C-REF :TYPE CYCLE-PKG-C:CLASS-C)))
     :Type :METHOD
     :File /test/cycle-test.lisp
     :Package #<PACKAGE "CYCLE-PKG-B">
@@ -1353,7 +1374,7 @@ DEFINITION>
     :Name (SETF CYCLE-PKG-B::B-C-REF)
     :Context (DEFCLASS CYCLE-PKG-B:CLASS-B NIL
                        ((CYCLE-PKG-B::C-REF :ACCESSOR CYCLE-PKG-B::B-C-REF
-                         :INITARG :C-REF :TYPE CLASS-C)))
+                         :INITARG :C-REF :TYPE CYCLE-PKG-C:CLASS-C)))
     :Type :METHOD
     :File /test/cycle-test.lisp
     :Package #<PACKAGE "CYCLE-PKG-B">
@@ -1361,34 +1382,63 @@ DEFINITION>
     :Specializers (CYCLE-PKG-B:CLASS-B)
 
 DEFINITION>
-    :Name CLASS-C
-    :Context (DEFCLASS CLASS-C NIL
-                       ((A-REF :ACCESSOR C-A-REF :INITARG :A-REF :TYPE
-                         CYCLE-PKG-A:CLASS-A)))
+    :Name CYCLE-PKG-C:CLASS-C
+    :Context (DEFCLASS CYCLE-PKG-C:CLASS-C NIL
+                       ((CYCLE-PKG-C::A-REF :ACCESSOR CYCLE-PKG-C::C-A-REF
+                         :INITARG :A-REF :TYPE CYCLE-PKG-A:CLASS-A)))
     :Type :STRUCTURE/CLASS/CONDITION
     :File /test/cycle-test.lisp
     :Package #<PACKAGE "CYCLE-PKG-C">
     :Status :EXTERNAL
 
 DEFINITION>
-    :Name C-A-REF
-    :Context (DEFCLASS CLASS-C NIL
-                       ((A-REF :ACCESSOR C-A-REF :INITARG :A-REF :TYPE
-                         CYCLE-PKG-A:CLASS-A)))
+    :Name CYCLE-PKG-C::C-A-REF
+    :Context (DEFCLASS CYCLE-PKG-C:CLASS-C NIL
+                       ((CYCLE-PKG-C::A-REF :ACCESSOR CYCLE-PKG-C::C-A-REF
+                         :INITARG :A-REF :TYPE CYCLE-PKG-A:CLASS-A)))
     :Type :METHOD
     :File /test/cycle-test.lisp
     :Package #<PACKAGE "CYCLE-PKG-C">
     :Status :INTERNAL
-    :Specializers (CLASS-C)
+    :Specializers (CYCLE-PKG-C:CLASS-C)
 
 DEFINITION>
-    :Name (SETF C-A-REF)
-    :Context (DEFCLASS CLASS-C NIL
-                       ((A-REF :ACCESSOR C-A-REF :INITARG :A-REF :TYPE
-                         CYCLE-PKG-A:CLASS-A)))
+    :Name (SETF CYCLE-PKG-C::C-A-REF)
+    :Context (DEFCLASS CYCLE-PKG-C:CLASS-C NIL
+                       ((CYCLE-PKG-C::A-REF :ACCESSOR CYCLE-PKG-C::C-A-REF
+                         :INITARG :A-REF :TYPE CYCLE-PKG-A:CLASS-A)))
     :Type :METHOD
     :File /test/cycle-test.lisp
     :Package #<PACKAGE "CYCLE-PKG-C">
     :Status :INTERNAL
-    :Specializers (CLASS-C)
+    :Specializers (CYCLE-PKG-C:CLASS-C)
+
+DEFINITION>
+    :Name #:EXTERNAL-HEAVY-PKG
+    :Context (DEFPACKAGE #:EXTERNAL-HEAVY-PKG
+               (:USE :CL)
+               (:IMPORT-FROM :ALEXANDRIA
+                             #:CURRY
+                             #:RCURRY
+                             #:COMPOSE
+                             #:WITH-GENSYMS
+                             #:ONCE-ONLY
+                             #:WHEN-LET
+                             #:IF-LET
+                             #:ENSURE-LIST
+                             ...)
+               (:EXPORT #:PROCESS-DATA))
+    :Type :PACKAGE
+    :File /test/cohesion-test.lisp
+
+DEFINITION>
+    :Name PROCESS-DATA
+    :Context (DEFUN PROCESS-DATA (DATA)
+               (LET ((NORMALIZED (ENSURE-LIST DATA)))
+                 (WHEN-LET ((VALID-ITEMS #))
+                   (MAPCAR (CURRY #'APPLY #'COMPOSE) VALID-ITEMS))))
+    :Type :FUNCTION
+    :File /test/cohesion-test.lisp
+    :Package #<PACKAGE "EXTERNAL-HEAVY-PKG">
+    :Status :EXTERNAL
 

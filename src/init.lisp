@@ -13,6 +13,7 @@
   (:nicknames #:dep)
   (:export #:analyze
      ;; Development
+     #:test
      #:prt
      #:delete-fasl
      #:flat
@@ -84,7 +85,7 @@
                 system-name))))
 
 
-(defun dep ()
+(defun test ()
   "Simple loading and running the dependency-analyzer on :test-project during development"
   (delete-project-fasls :dependency-analyzer)
   (asdf:load-system :dependency-analyzer :verbose t)

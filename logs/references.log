@@ -679,7 +679,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {11019B2833}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1102199743}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-V
@@ -719,7 +719,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1104D31CE3}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1100E60F93}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-V
@@ -747,7 +747,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {11019B2833}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1102199743}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-U
@@ -787,7 +787,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1104D31CE3}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1100E60F93}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-U
@@ -815,7 +815,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::MONITORED-POINT {1101BA94F3}>)
+    :Arguments (#<USER-PKG::MONITORED-POINT {1102361003}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -857,7 +857,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {11019B2833}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1102199743}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -898,7 +898,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::TEST-POINT {11018790A3}>)
+    :Arguments (#<USER-PKG::TEST-POINT {110147FD73}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -938,7 +938,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/defs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1104D31CE3}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {1100E60F93}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-NAME
@@ -2313,7 +2313,7 @@ REFERENCE>
                         :Context (DEFUN USER-PKG::FN2A
                                         (USER-PKG::X &OPTIONAL USER-PKG::Y)
                                    (DECLARE (TYPE NUMBER USER-PKG::X))
-                                   (ALEXANDRIA:PROPER-LIST-P
+                                   (PROPER-LIST-P
                                     (LIST USER-PKG::X USER-PKG::Y)))
                         :Type :FUNCTION
                         :File /test/defs.lisp
@@ -2335,7 +2335,7 @@ REFERENCE>
                         :Context (DEFUN USER-PKG::FN2A
                                         (USER-PKG::X &OPTIONAL USER-PKG::Y)
                                    (DECLARE (TYPE NUMBER USER-PKG::X))
-                                   (ALEXANDRIA:PROPER-LIST-P
+                                   (PROPER-LIST-P
                                     (LIST USER-PKG::X USER-PKG::Y)))
                         :Type :FUNCTION
                         :File /test/defs.lisp
@@ -2355,7 +2355,7 @@ REFERENCE>
                         :Context (DEFUN USER-PKG::FN2A
                                         (USER-PKG::X &OPTIONAL USER-PKG::Y)
                                    (DECLARE (TYPE NUMBER USER-PKG::X))
-                                   (ALEXANDRIA:PROPER-LIST-P
+                                   (PROPER-LIST-P
                                     (LIST USER-PKG::X USER-PKG::Y)))
                         :Type :FUNCTION
                         :File /test/defs.lisp
@@ -2375,7 +2375,7 @@ REFERENCE>
                         :Context (DEFUN USER-PKG::FN2A
                                         (USER-PKG::X &OPTIONAL USER-PKG::Y)
                                    (DECLARE (TYPE NUMBER USER-PKG::X))
-                                   (ALEXANDRIA:PROPER-LIST-P
+                                   (PROPER-LIST-P
                                     (LIST USER-PKG::X USER-PKG::Y)))
                         :Type :FUNCTION
                         :File /test/defs.lisp
@@ -3078,7 +3078,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::NAMED-POINT {1104D31CF3}>)
+    :Arguments (#<USER-PKG::NAMED-POINT {11011F8923}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::GF1
@@ -3127,7 +3127,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::MONITORED-POINT {1101BA94F3}>)
+    :Arguments (#<USER-PKG::MONITORED-POINT {1102361003}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-TIMESTAMP
@@ -3152,7 +3152,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::TEST-POINT {11018790A3}>)
+    :Arguments (#<USER-PKG::TEST-POINT {110147FD73}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-TIMESTAMP
@@ -3724,7 +3724,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::INVALID-POINT {1101A9A673}>)
+    :Arguments (#<USER-PKG::INVALID-POINT {110225A653}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-ERROR-VALUE
@@ -3764,7 +3764,7 @@ REFERENCE>
     :Type :METHOD
     :File /test/refs.lisp
     :Package #<PACKAGE "USER-PKG">
-    :Arguments (#<USER-PKG::INVALID-POINT {1101A9A673}>)
+    :Arguments (#<USER-PKG::INVALID-POINT {110225A653}>)
     :Definitions
                     DEFINITION>
                         :Name USER-PKG::POINT-ERROR-REASON

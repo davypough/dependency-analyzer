@@ -15,4 +15,5 @@
                               (:file "anoms")
                               (:file "anoms2")
                               (:file "cycle-test")
+                              (:file "cohesion-test")
                              ))))

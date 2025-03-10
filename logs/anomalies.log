@@ -61,6 +61,14 @@ ANOMALY>
     :Package #<PACKAGE "USER-PKG">
 
 ANOMALY>
+    :Description "*SHADOWED-VAR* also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/anoms2.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFVAR *SHADOWED-VAR* 100 Shadows the inherited variable)
+    :File /test/cohesion-test.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
     :Description "*SPECIAL1* also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
     :Type :DUPLICATE-DEFINITION
     :Severity :WARNING
@@ -250,6 +258,14 @@ ANOMALY>
     :Package #<PACKAGE "USER-PKG">
 
 ANOMALY>
+    :Description "SHADOWED-FUNC also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/anoms2.lisp)"
+    :Type :DUPLICATE-DEFINITION
+    :Severity :WARNING
+    :Context (DEFUN SHADOWED-FUNC (X Y) (* X Y) Shadows the inherited function)
+    :File /test/cohesion-test.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
     :Description "TODAY also defined in (D:/quicklisp/local-projects/dependency-analyzer/test/defs.lisp)"
     :Type :DUPLICATE-DEFINITION
     :Severity :WARNING
@@ -259,8 +275,128 @@ ANOMALY>
 
 
 ANOMALY>
+    :Description "Package ALEXANDRIA owns only 28% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :Package #<PACKAGE "ALEXANDRIA">
+
+ANOMALY>
+    :Description "Package CYCLE-PKG-A owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-A">
+
+ANOMALY>
+    :Description "Package CYCLE-PKG-B owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-B">
+
+ANOMALY>
+    :Description "Package CYCLE-PKG-C owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/cycle-test.lisp
+    :Package #<PACKAGE "CYCLE-PKG-C">
+
+ANOMALY>
+    :Description "Package EXTERNAL-HEAVY-PKG owns only 0% of its symbols, relying on 2 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (ALEXANDRIA COMMON-LISP)
+    :File /test/cohesion-test.lisp
+    :Package #<PACKAGE "EXTERNAL-HEAVY-PKG">
+
+ANOMALY>
+    :Description "Package RUNTIME-PKG-A owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "RUNTIME-PKG-A">
+
+ANOMALY>
+    :Description "Package RUNTIME-PKG-B owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "RUNTIME-PKG-B">
+
+ANOMALY>
+    :Description "Package RUNTIME-PKG-C owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "RUNTIME-PKG-C">
+
+ANOMALY>
+    :Description "Package SHADOWING-TEST-PKG owns only 0% of its symbols, relying on 2 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP INTERNAL-TEST-PKG)
+    :File /test/defs2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "Package TEST1-PKG owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "TEST1-PKG">
+
+ANOMALY>
+    :Description "Package TEST2-PKG owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "TEST2-PKG">
+
+ANOMALY>
+    :Description "Package TEST3-PKG owns only 0% of its symbols, relying on 3 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (TEST1-PKG COMMON-LISP ALEXANDRIA)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "TEST3-PKG">
+
+ANOMALY>
+    :Description "Package TEST4-PKG owns only 0% of its symbols, relying on 3 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (ALEXANDRIA COMMON-LISP TEST1-PKG)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "TEST4-PKG">
+
+ANOMALY>
+    :Description "Package TEST5-PKG owns only 0% of its symbols, relying on 1 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "TEST5-PKG">
+
+ANOMALY>
+    :Description "Package USER-PKG owns only 10% of its symbols, relying on 2 external packages"
+    :Type :EXTERNAL-DEPENDENCY
+    :Severity :INFO
+    :Context (COMMON-LISP ALEXANDRIA)
+    :File /test/defs.lisp
+    :Package #<PACKAGE "USER-PKG">
+
+
+ANOMALY>
     :Description "Package INTERNAL-TEST-PKG provides core functionality to 1 other packages (4 refs)"
-    :Type :PACKAGE-COHESION
+    :Type :PACKAGE-CORE-PROVIDER
     :Severity :INFO
     :File /test/defs2.lisp
     :Package "INTERNAL-TEST-PKG"
@@ -309,11 +445,27 @@ ANOMALY>
     :Package #<PACKAGE "SHADOWING-TEST-PKG">
 
 ANOMALY>
+    :Description "Definition of *SHADOWED-VAR* shadows inherited symbol from INTERNAL-TEST-PKG"
+    :Type :SHADOWED-DEFINITION
+    :Severity :WARNING
+    :Context (DEFVAR *SHADOWED-VAR* 100 Shadows the inherited variable)
+    :File /test/cohesion-test.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
     :Description "Definition of SHADOWED-FUNC shadows inherited symbol from INTERNAL-TEST-PKG"
     :Type :SHADOWED-DEFINITION
     :Severity :WARNING
     :Context (DEFUN SHADOWED-FUNC (X Y) (* X Y) Shadows the inherited function)
     :File /test/anoms2.lisp
+    :Package #<PACKAGE "SHADOWING-TEST-PKG">
+
+ANOMALY>
+    :Description "Definition of SHADOWED-FUNC shadows inherited symbol from INTERNAL-TEST-PKG"
+    :Type :SHADOWED-DEFINITION
+    :Severity :WARNING
+    :Context (DEFUN SHADOWED-FUNC (X Y) (* X Y) Shadows the inherited function)
+    :File /test/cohesion-test.lisp
     :Package #<PACKAGE "SHADOWING-TEST-PKG">
 
 
